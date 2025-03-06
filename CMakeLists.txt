@@ -3,8 +3,8 @@ project(gpu_effect_engine)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(gpu_effect_engine main.cpp
-        main.cpp
+add_executable(gpu_effect_engine demo/main.cpp
+        demo/main.cpp
         effect_engine/EffectEngine.cpp
         effect_engine/EffectEngine.h
         effect_engine/filters/BaseFilter.cpp
