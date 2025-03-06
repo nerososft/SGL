@@ -4,14 +4,13 @@
 
 #ifndef EFFECTENGINE_H
 #define EFFECTENGINE_H
-#include <memory>
 
 #include "filters/impl/GrayFilter.h"
-#include "gpu/VKGPUContext.h"
+#include "gpu/VkGPUContext.h"
 
 
 class EffectEngine {
-    std::shared_ptr<VKGPUContext> gpuCtx = nullptr;
+    std::shared_ptr<VkGPUContext> gpuCtx = nullptr;
 
 public:
     EffectEngine() = default;

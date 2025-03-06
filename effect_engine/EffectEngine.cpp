@@ -10,13 +10,14 @@
 bool EffectEngine::Init() {
     std::vector<const char *> requiredExtensions;
     std::vector<const char *> enabledExtensions;
-    gpuCtx = std::make_shared<VKGPUContext>();
-    if (!gpuCtx->Init(requiredExtensions, enabledExtensions)) {
-        std::cout << "Failed to initialize GPU context" << std::endl;
+    this->gpuCtx = std::make_shared<VkGPUContext>(requiredExtensions);
+    const VkResult result = this->gpuCtx->Init();
+    if (result != VK_SUCCESS) {
+        std::cerr << "Failed to initialize Vulkan GPU context!" << std::endl;
         return false;
-    };
+    }
 }
 
 void EffectEngine::Process(const char *inputFilePath, const char *outputFilePath,
-    const std::shared_ptr<GrayFilter> &filter) {
+                           const std::shared_ptr<GrayFilter> &filter) {
 }
