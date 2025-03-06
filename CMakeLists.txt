@@ -16,4 +16,6 @@ add_executable(gpu_effect_engine demo/main.cpp
         effect_engine/utils/IOUtils.cpp
         effect_engine/utils/IOUtils.h
         effect_engine/utils/TimeUtils.cpp
-        effect_engine/utils/TimeUtils.h)
+        effect_engine/utils/TimeUtils.h
+        effect_engine/gpu/VKGPUContext.cpp
+        effect_engine/gpu/VKGPUContext.h)
