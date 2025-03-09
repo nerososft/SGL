@@ -23,12 +23,12 @@ bool EffectEngine::Init() {
 void EffectEngine::Process(const char *inputFilePath, const char *outputFilePath,
                            const std::shared_ptr<GrayFilter> &filter) {
     uint32_t width = 0, height = 0, channels = 0;
-    VkDeviceSize bufferSize = width * height * channels;
+    const VkDeviceSize bufferSize = width * height * channels;
     VkBuffer inputStorageBuffer = VK_NULL_HANDLE;
     VkDeviceMemory inputStorageBufferMemory = VK_NULL_HANDLE;
     std::vector<uint32_t> queueFamilyIndices;
     queueFamilyIndices.push_back(0);
-    VkPhysicalDeviceMemoryProperties memoryProperties = gpuCtx->GetMemoryProperties();
+    const VkPhysicalDeviceMemoryProperties memoryProperties = gpuCtx->GetMemoryProperties();
     VkResult ret = VkGPUHelper::CreateStorageBufferAndBindMem(gpuCtx->GetCurrentDevice(),
                                                               bufferSize,
                                                               queueFamilyIndices,
