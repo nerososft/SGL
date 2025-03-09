@@ -87,10 +87,14 @@ VkResult BaseFilter::DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     VkGPUHelper::GPUBeginCommandBuffer(commandBuffer);
     computePipeline.GPUCmdBindPipeline(commandBuffer);
     pipelineDescriptorSet.GPUCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE);
-    VkGPUHelper::GPUCmdPushConstant(commandBuffer, computePipeline.GetPipelineLayout(), VK_SHADER_STAGE_COMPUTE_BIT, 0,
-                                    filterParams.paramsSize, filterParams.paramsData);
+    VkGPUHelper::GPUCmdPushConstant(commandBuffer,
+                                    computePipeline.GetPipelineLayout(),
+                                    VK_SHADER_STAGE_COMPUTE_BIT,
+                                    0,
+                                    filterParams.paramsSize,
+                                    filterParams.paramsData);
     VkGPUHelper::GPUCmdDispatch(commandBuffer, groupCountX, groupCountY, groupCountZ);
-    VkGpuHelper::GPUCmdPipelineBufferMemBarrier(commandBuffer);
+    VkGPUHelper::GPUCmdPipelineBufferMemBarrier(commandBuffer);
     VkGPUHelper::GPUEndCommandBuffer(commandBuffer);
 
     ret = VkGPUHelper::GPUQueueSubmit(gpuCtx->GetCurrentDevice());

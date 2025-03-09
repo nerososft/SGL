@@ -39,8 +39,8 @@ VkResult VkGPUComputePipeline::CreateComputePipeline(const VkDevice device,
         return ret;
     }
     ret = VkGPUHelper::CreateShaderModuleFromPath(device,
-                                          computeShaderPath,
-                                          &this->computeShaderModule);
+                                                  computeShaderPath,
+                                                  &this->computeShaderModule);
     if (ret != VK_SUCCESS) {
         std::cout << "failed to create shader module, err=" << string_VkResult(ret) << std::endl;
     }
@@ -49,4 +49,8 @@ VkResult VkGPUComputePipeline::CreateComputePipeline(const VkDevice device,
                                               this->pipelineLayout,
                                               this->computeShaderModule,
                                               &this->computePipeline);
+}
+
+void VkGPUComputePipeline::GPUCmdBindPipeline(const VkCommandBuffer commandBuffer) const {
+    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, this->computePipeline);
 }

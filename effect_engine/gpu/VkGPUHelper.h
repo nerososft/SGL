@@ -14,6 +14,17 @@ public:
 
     ~VkGPUHelper() = default;
 
+    static void GPUCmdPushConstant(VkCommandBuffer commandBuffer,
+                                   VkPipelineLayout pipelineLayout,
+                                   VkShaderStageFlagBits shaderStageFlag,
+                                   uint32_t offset,
+                                   size_t pushConstantSize,
+                                   const void *pushConstantData);
+
+    static void GPUEndCommandBuffer(VkCommandBuffer commandBuffer);
+
+    static void GPUBeginCommandBuffer(VkCommandBuffer commandBuffer);
+
     static VkResult AllocateCommandBuffers(VkDevice device,
                                            VkCommandPool commandPool,
                                            uint32_t commandBufferCount,

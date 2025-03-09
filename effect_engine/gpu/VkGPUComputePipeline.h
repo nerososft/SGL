@@ -32,6 +32,8 @@ public:
     [[nodiscard]] VkPipelineLayout GetPipelineLayout() const { return this->pipelineLayout; }
 
     [[nodiscard]] VkDescriptorSetLayout GetDescriptorSetLayout() const { return this->descriptorSetLayout; }
+
+    void GPUCmdBindPipeline(VkCommandBuffer commandBuffer) const;
 };
 
 

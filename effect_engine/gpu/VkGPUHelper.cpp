@@ -10,6 +10,33 @@
 
 #include "effect_engine/utils/IOUtils.h"
 
+void VkGPUHelper::GPUCmdPushConstant(const VkCommandBuffer commandBuffer,
+                                     const VkPipelineLayout pipelineLayout,
+                                     VkShaderStageFlagBits shaderStageFlag,
+                                     const uint32_t offset,
+                                     const size_t pushConstantSize,
+                                     const void *pushConstantData) {
+    vkCmdPushConstants(commandBuffer,
+                       pipelineLayout,
+                       VK_SHADER_STAGE_COMPUTE_BIT,
+                       offset,
+                       pushConstantSize,
+                       pushConstantData);
+}
+
+void VkGPUHelper::GPUEndCommandBuffer(const VkCommandBuffer commandBuffer) {
+    vkEndCommandBuffer(commandBuffer);
+}
+
+void VkGPUHelper::GPUBeginCommandBuffer(const VkCommandBuffer commandBuffer) {
+    VkCommandBufferBeginInfo beginInfo = {};
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    beginInfo.flags = 0;
+    beginInfo.pNext = nullptr;
+    beginInfo.pInheritanceInfo = nullptr;
+    vkBeginCommandBuffer(commandBuffer, &beginInfo);
+}
+
 VkResult VkGPUHelper::AllocateCommandBuffers(const VkDevice device,
                                              const VkCommandPool commandPool,
                                              const uint32_t commandBufferCount,
