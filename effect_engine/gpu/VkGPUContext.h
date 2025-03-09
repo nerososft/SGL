@@ -70,6 +70,10 @@ public:
     [[nodiscard]] VkInstance GetInstance() const { return this->instance; }
     [[nodiscard]] uint32_t GetGPUIndex() const { return this->selectedGPUIndex; }
     [[nodiscard]] VkQueue GetQueue() const { return this->queue; }
+
+    [[nodiscard]] VkPhysicalDeviceMemoryProperties GetMemoryProperties() const {
+        return this->physicalDevicesMemoryProperties[selectedGPUIndex];
+    }
 };
 
 
