@@ -19,7 +19,7 @@ public:
 
     bool Init();
 
-    void Process(const char *inputFilePath, const char *outputFilePath, const std::shared_ptr<GrayFilter> &filter);
+    void Process(const char *inputFilePath, const char *outputFilePath, const std::shared_ptr<GrayFilter> &filter) const;
 };
 
 

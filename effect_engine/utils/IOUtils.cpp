@@ -3,3 +3,6 @@
 //
 
 #include "IOUtils.h"
+
+std::vector<char> IOUtils::ReadFile(const std::string &path) {
+}

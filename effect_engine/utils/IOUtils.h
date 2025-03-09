@@ -4,13 +4,17 @@
 
 #ifndef IOUTILS_H
 #define IOUTILS_H
-
+#include <vector>
 
 
 class IOUtils {
+public:
+    IOUtils() = default;
 
+    ~IOUtils() = default;
+
+    static std::vector<char> ReadFile(const std::string &path);
 };
-
 
 
 #endif //IOUTILS_H

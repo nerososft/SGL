@@ -14,6 +14,31 @@ public:
 
     ~VkGPUHelper() = default;
 
+    static VkResult CreateShaderModule(VkDevice device,
+                                       size_t shaderCodeSize,
+                                       const uint32_t *shaderSpvCode,
+                                       VkShaderModule *shaderModule);
+
+    static VkResult CreateShaderModuleFromPath(VkDevice device,
+                                               const std::string &shaderFilePath,
+                                               VkShaderModule *shaderModule);
+
+    static VkResult CreateComputePipeline(VkDevice device,
+                                          VkPipelineCache pipelineCache,
+                                          VkPipelineLayout pipelineLayout,
+                                          VkShaderModule shaderModule,
+                                          VkPipeline *pipeline);
+
+    static VkResult CreatePipelineLayout(VkDevice device,
+                                         const std::vector<VkDescriptorSetLayout> &descriptorSetLayouts,
+                                         const std::vector<VkPushConstantRange> &pushConstantRanges,
+                                         VkPipelineLayout *pipelineLayout);
+
+    static VkResult CreateDescriptorSetLayout(VkDevice device,
+                                              const std::vector<VkDescriptorSetLayoutBinding> &
+                                              descriptorSetLayoutBindings,
+                                              VkDescriptorSetLayout *descriptorSetLayout);
+
     static VkResult CreateBuffer(VkDevice device, VkDeviceSize size,
                                  VkBufferUsageFlagBits usage,
                                  VkSharingMode sharingMode,

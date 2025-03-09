@@ -21,7 +21,7 @@ bool EffectEngine::Init() {
 }
 
 void EffectEngine::Process(const char *inputFilePath, const char *outputFilePath,
-                           const std::shared_ptr<GrayFilter> &filter) {
+                           const std::shared_ptr<GrayFilter> &filter) const {
     uint32_t width = 0, height = 0, channels = 0;
     const VkDeviceSize bufferSize = width * height * channels;
     VkBuffer inputStorageBuffer = VK_NULL_HANDLE;
@@ -52,4 +52,20 @@ void EffectEngine::Process(const char *inputFilePath, const char *outputFilePath
         std::cout << "Failed to create output storage buffer!" << std::endl;
         return;
     }
+
+    void *data = nullptr;
+    vkMapMemory(gpuCtx->GetCurrentDevice(), inputStorageBufferMemory, 0, bufferSize, 0, &data);
+    memcpy(data, src, bufferSize);
+    vkUnmapMemory(gpuCtx->GetCurrentDevice(), inputStorageBufferMemory);
+
+
+    ret = filter->Apply(gpuCtx, bufferSize, width, height, inputStorageBuffer, outputStorageBuffer);
+    if (ret != VK_SUCCESS) {
+        std::cout << "Failed to apply filter!" << std::endl;
+        return;
+    }
+
+    vkMapMemory(gpuCtx->GetCurrentDevice(), outputStorageBufferMemory, 0, bufferSize, 0, &data);
+    memcpy(dts, data, bufferSize);
+    vkUnmapMemory(gpuCtx->GetCurrentDevice(), outputStorageBufferMemory);
 }
