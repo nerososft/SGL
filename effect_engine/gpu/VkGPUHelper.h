@@ -14,6 +14,22 @@ public:
 
     ~VkGPUHelper() = default;
 
+    static VkWriteDescriptorSet BuildWriteDescriptorSet(VkDescriptorSet descriptorSet,
+                                                        uint32_t dtsBinding, VkDescriptorType type,
+                                                        const VkDescriptorImageInfo *imageInfo,
+                                                        const VkDescriptorBufferInfo *
+                                                        bufferInfo, const VkBufferView *texelBufferView);
+
+    static VkWriteDescriptorSet BuildWriteStorageBufferDescriptorSet(VkDescriptorSet descriptorSet,
+                                                                     uint32_t dstBinding,
+                                                                     const VkDescriptorBufferInfo *
+                                                                     descriptorBufferInfo);
+
+    static VkResult AllocateDescriptorSets(VkDevice device,
+                                           VkDescriptorPool descriptorPool,
+                                           const std::vector<VkDescriptorSetLayout> &descriptorSetLayouts,
+                                           VkDescriptorSet *descriptorSets);
+
     static VkResult CreateShaderModule(VkDevice device,
                                        size_t shaderCodeSize,
                                        const uint32_t *shaderSpvCode,

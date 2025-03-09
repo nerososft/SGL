@@ -28,6 +28,10 @@ public:
 
     VkResult CreateComputePipeline(VkDevice device,
                                    VkPipelineCache pipelineCache);
+
+    [[nodiscard]] VkPipelineLayout GetPipelineLayout() const { return this->pipelineLayout; }
+
+    [[nodiscard]] VkDescriptorSetLayout GetDescriptorSetLayout() const { return this->descriptorSetLayout; }
 };
 
 

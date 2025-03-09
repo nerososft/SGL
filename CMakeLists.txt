@@ -31,6 +31,8 @@ add_executable(gpu_effect_engine demo/main.cpp
         effect_engine/gpu/VKGPUContext.h
         effect_engine/filters/IFilter.h
         effect_engine/gpu/VkGPUComputePipeline.cpp
-        effect_engine/gpu/VkGPUComputePipeline.h)
+        effect_engine/gpu/VkGPUComputePipeline.h
+        effect_engine/gpu/VkGPUDescriptorSet.cpp
+        effect_engine/gpu/VkGPUDescriptorSet.h)
 
 target_link_libraries(gpu_effect_engine vulkan)

@@ -10,6 +10,55 @@
 
 #include "effect_engine/utils/IOUtils.h"
 
+VkWriteDescriptorSet VkGPUHelper::BuildWriteDescriptorSet(const VkDescriptorSet descriptorSet,
+                                                          const uint32_t dtsBinding,
+                                                          const VkDescriptorType type,
+                                                          const VkDescriptorImageInfo *imageInfo,
+                                                          const VkDescriptorBufferInfo *bufferInfo,
+                                                          const VkBufferView *texelBufferView) {
+    VkWriteDescriptorSet writeDescriptorSet = {};
+    writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    writeDescriptorSet.dstSet = descriptorSet;
+    writeDescriptorSet.dstBinding = dtsBinding;
+    writeDescriptorSet.dstArrayElement = 0;
+    writeDescriptorSet.descriptorType = type;
+    writeDescriptorSet.descriptorCount = 1;
+    writeDescriptorSet.pBufferInfo = bufferInfo;
+    writeDescriptorSet.pImageInfo = imageInfo;
+    writeDescriptorSet.pTexelBufferView = texelBufferView;
+    return writeDescriptorSet;
+}
+
+VkWriteDescriptorSet VkGPUHelper::BuildWriteStorageBufferDescriptorSet(const VkDescriptorSet descriptorSet,
+                                                                       const uint32_t dstBinding,
+                                                                       const VkDescriptorBufferInfo *
+                                                                       descriptorBufferInfo) {
+    return BuildWriteDescriptorSet(descriptorSet,
+                                   dstBinding,
+                                   VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+                                   nullptr,
+                                   descriptorBufferInfo,
+                                   nullptr);
+}
+
+VkResult VkGPUHelper::AllocateDescriptorSets(const VkDevice device,
+                                             const VkDescriptorPool descriptorPool,
+                                             const std::vector<VkDescriptorSetLayout> &descriptorSetLayouts,
+                                             VkDescriptorSet *descriptorSets) {
+    VkDescriptorSetAllocateInfo descriptorSetAllocateInfo{};
+    descriptorSetAllocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+    descriptorSetAllocateInfo.pNext = nullptr;
+    descriptorSetAllocateInfo.descriptorPool = descriptorPool;
+    descriptorSetAllocateInfo.descriptorSetCount = descriptorSetLayouts.size();
+    descriptorSetAllocateInfo.pSetLayouts = descriptorSetLayouts.data();
+
+    const VkResult result = vkAllocateDescriptorSets(device, &descriptorSetAllocateInfo, descriptorSets);
+    if (result != VK_SUCCESS) {
+        std::cout << "failed to allocate descriptor sets, err=" << string_VkResult(result) << std::endl;
+    }
+    return result;
+}
+
 VkResult VkGPUHelper::CreateShaderModule(const VkDevice device,
                                          const size_t shaderCodeSize,
                                          const uint32_t *shaderSpvCode,
