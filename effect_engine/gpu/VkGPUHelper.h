@@ -14,6 +14,13 @@ public:
 
     ~VkGPUHelper() = default;
 
+    static VkResult AllocateCommandBuffers(VkDevice device,
+                                           VkCommandPool commandPool,
+                                           uint32_t commandBufferCount,
+                                           VkCommandBuffer *commandBuffers);
+
+    static VkResult CreateFence(VkDevice device, VkFence *fence);
+
     static VkWriteDescriptorSet BuildWriteDescriptorSet(VkDescriptorSet descriptorSet,
                                                         uint32_t dtsBinding, VkDescriptorType type,
                                                         const VkDescriptorImageInfo *imageInfo,

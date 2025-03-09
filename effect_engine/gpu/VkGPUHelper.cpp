@@ -10,6 +10,36 @@
 
 #include "effect_engine/utils/IOUtils.h"
 
+VkResult VkGPUHelper::AllocateCommandBuffers(const VkDevice device,
+                                             const VkCommandPool commandPool,
+                                             const uint32_t commandBufferCount,
+                                             VkCommandBuffer *commandBuffers) {
+    VkCommandBufferAllocateInfo allocInfo = {};
+    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocInfo.pNext = nullptr;
+    allocInfo.commandPool = commandPool;
+    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    allocInfo.commandBufferCount = commandBufferCount;
+
+    const VkResult result = vkAllocateCommandBuffers(device, &allocInfo, commandBuffers);
+    if (result != VK_SUCCESS) {
+        std::cout << "Failed to allocate command buffer, err = " << string_VkResult(result) << std::endl;
+    }
+    return result;
+}
+
+VkResult VkGPUHelper::CreateFence(const VkDevice device, VkFence *fence) {
+    VkFenceCreateInfo info = {};
+    info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+    info.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+    info.pNext = nullptr;
+    const VkResult result = vkCreateFence(device, &info, nullptr, fence);
+    if (result != VK_SUCCESS) {
+        std::cout << "vkCreateFence failed, err=" << string_VkResult(result) << std::endl;
+    }
+    return result;
+}
+
 VkWriteDescriptorSet VkGPUHelper::BuildWriteDescriptorSet(const VkDescriptorSet descriptorSet,
                                                           const uint32_t dtsBinding,
                                                           const VkDescriptorType type,

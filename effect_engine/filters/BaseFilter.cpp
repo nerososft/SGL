@@ -10,6 +10,7 @@
 
 #include "effect_engine/gpu/VkGPUComputePipeline.h"
 #include "effect_engine/gpu/VkGPUDescriptorSet.h"
+#include "effect_engine/gpu/VkGPUHelper.h"
 
 VkResult BaseFilter::DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                              VkDeviceSize bufferSize,
@@ -44,6 +45,7 @@ VkResult BaseFilter::DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                                                          gpuCtx->GetPipelineCache());
     if (ret != VK_SUCCESS) {
         std::cout << "Failed to create compute pipeline, err =" << string_VkResult(ret) << std::endl;
+        return ret;
     }
 
     auto pipelineDescriptorSet = VkGPUDescriptorSet(gpuCtx->GetCurrentDevice(),
@@ -52,6 +54,7 @@ VkResult BaseFilter::DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     ret = pipelineDescriptorSet.AllocateDescriptorSets(gpuCtx->GetDescriptorPool());
     if (ret != VK_SUCCESS) {
         std::cout << "Failed to allocate descriptor sets, err =" << string_VkResult(ret) << std::endl;
+        return ret;
     }
     VkDescriptorBufferInfo inputImageBufferInfo = {};
     inputImageBufferInfo.offset = 0;
@@ -64,7 +67,33 @@ VkResult BaseFilter::DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     outputImageBufferInfo.buffer = outputBuffer;
     pipelineDescriptorSet.AddStorageBufferDescriptorSet(1, outputImageBufferInfo);
 
-    // TODO: record command
+    VkFence computeFence = VK_NULL_HANDLE;
+    ret = VkGPUHelper::CreateFence(gpuCtx->GetCurrentDevice(), &computeFence);
+    if (ret != VK_SUCCESS) {
+        std::cout << "Failed to create compute fence, err =" << string_VkResult(ret) << std::endl;
+        return ret;
+    }
+
+    VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
+    ret = VkGPUHelper::AllocateCommandBuffers(gpuCtx->GetCurrentDevice(), gpuCtx->GetCommandPool(), 1, &commandBuffer);
+    if (ret != VK_SUCCESS) {
+        std::cout << "Failed to allocate command buffer, err =" << string_VkResult(ret) << std::endl;
+        return ret;
+    }
+
+    vkResetCommandBuffer(commandBuffer, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+    vkResetFences(gpuCtx->GetCurrentDevice(), 1, &computeFence);
+
+    VkGPUHelper::GPUBeginCommandBuffer(commandBuffer);
+    computePipeline.GPUCmdBindPipeline(commandBuffer);
+    pipelineDescriptorSet.GPUCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE);
+    VkGPUHelper::GPUCmdPushConstant(commandBuffer, computePipeline.GetPipelineLayout(), VK_SHADER_STAGE_COMPUTE_BIT, 0,
+                                    filterParams.paramsSize, filterParams.paramsData);
+    VkGPUHelper::GPUCmdDispatch(commandBuffer, groupCountX, groupCountY, groupCountZ);
+    VkGpuHelper::GPUCmdPipelineBufferMemBarrier(commandBuffer);
+    VkGPUHelper::GPUEndCommandBuffer(commandBuffer);
+
+    ret = VkGPUHelper::GPUQueueSubmit(gpuCtx->GetCurrentDevice());
 }
 
 
