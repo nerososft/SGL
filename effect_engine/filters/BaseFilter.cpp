@@ -15,9 +15,10 @@ VkResult BaseFilter::DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                              uint32_t width,
                              uint32_t height,
                              VkBuffer inputBuffer,
-                             VkBuffer outputBuffer) {
-    std::string computeShaderPath = "";
-    uint32_t paramsSize = 0;
+                             VkBuffer outputBuffer,
+                             const FilterParams &filterParams) {
+    std::string computeShaderPath = filterParams.shaderPath;
+    uint32_t paramsSize = filterParams.paramsSize;
     std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
     VkDescriptorSetLayoutBinding inputImageBinding;
     inputImageBinding.binding = 0;
@@ -43,7 +44,6 @@ VkResult BaseFilter::DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     if (ret != VK_SUCCESS) {
         std::cout << "Failed to create compute pipeline, err =" << string_VkResult(ret) << std::endl;
     }
-
 }
 
 

@@ -9,6 +9,11 @@
 #include "IFilter.h"
 #include "effect_engine/gpu/VkGPUContext.h"
 
+struct FilterParams {
+    size_t paramsSize;
+    void *paramsData;
+    std::string shaderPath;
+};
 
 class BaseFilter : public IFilter {
 public:
@@ -17,11 +22,12 @@ public:
     ~BaseFilter() override = default;
 
     VkResult DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                   VkDeviceSize bufferSize,
-                   uint32_t width,
-                   uint32_t height,
-                   VkBuffer inputBuffer,
-                   VkBuffer outputBuffer);
+                     VkDeviceSize bufferSize,
+                     uint32_t width,
+                     uint32_t height,
+                     VkBuffer inputBuffer,
+                     VkBuffer outputBuffer,
+                     const FilterParams& filterParams);
 
     VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                    VkDeviceSize bufferSize,

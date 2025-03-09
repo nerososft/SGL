@@ -18,12 +18,17 @@ bool EffectEngine::Init() {
         std::cerr << "Failed to initialize Vulkan GPU context!" << std::endl;
         return false;
     }
+    return true;
 }
 
-void EffectEngine::Process(const char *inputFilePath, const char *outputFilePath,
+void EffectEngine::Process(const ImageInfo &input,
+                           const ImageInfo &output,
                            const std::shared_ptr<GrayFilter> &filter) const {
-    uint32_t width = 0, height = 0, channels = 0;
-    const VkDeviceSize bufferSize = width * height * channels;
+    if (input.width != output.width || input.height != output.height || input.channels != output.channels) {
+        std::cerr << "Input and output must be same size!" << std::endl;
+        return;
+    }
+    const VkDeviceSize bufferSize = input.width * input.height * input.channels;
     VkBuffer inputStorageBuffer = VK_NULL_HANDLE;
     VkDeviceMemory inputStorageBufferMemory = VK_NULL_HANDLE;
     std::vector<uint32_t> queueFamilyIndices;
@@ -55,17 +60,22 @@ void EffectEngine::Process(const char *inputFilePath, const char *outputFilePath
 
     void *data = nullptr;
     vkMapMemory(gpuCtx->GetCurrentDevice(), inputStorageBufferMemory, 0, bufferSize, 0, &data);
-    memcpy(data, src, bufferSize);
+    memcpy(data, input.data, bufferSize);
     vkUnmapMemory(gpuCtx->GetCurrentDevice(), inputStorageBufferMemory);
 
 
-    ret = filter->Apply(gpuCtx, bufferSize, width, height, inputStorageBuffer, outputStorageBuffer);
+    ret = filter->Apply(gpuCtx, bufferSize, input.width, input.height, inputStorageBuffer, outputStorageBuffer);
     if (ret != VK_SUCCESS) {
         std::cout << "Failed to apply filter!" << std::endl;
         return;
     }
 
     vkMapMemory(gpuCtx->GetCurrentDevice(), outputStorageBufferMemory, 0, bufferSize, 0, &data);
-    memcpy(dts, data, bufferSize);
+    memcpy(output.data, data, bufferSize);
     vkUnmapMemory(gpuCtx->GetCurrentDevice(), outputStorageBufferMemory);
+}
+
+void EffectEngine::Process(const char *inputFilePath,
+                           const char *outputFilePath,
+                           const std::shared_ptr<GrayFilter> &filter) const {
 }

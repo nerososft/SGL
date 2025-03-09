@@ -28,7 +28,7 @@ VkResult VkGPUHelper::CreateShaderModule(const VkDevice device,
     return result;
 }
 
-VkResult VkGPUHelper::CreateShaderModuleFromPath(VkDevice device,
+VkResult VkGPUHelper::CreateShaderModuleFromPath(const VkDevice device,
                                                  const std::string &shaderFilePath,
                                                  VkShaderModule *shaderModule) {
     std::vector<char> shaderSpvCode = IOUtils::ReadFile(shaderFilePath);
