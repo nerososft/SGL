@@ -15,5 +15,4 @@ public:
     static std::vector<char> ReadFile(const std::string &path);
 };
 
-
 #endif //IOUTILS_H
