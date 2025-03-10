@@ -45,7 +45,6 @@ target_link_libraries(gpu_effect_engine vulkan)
 
 add_executable(demo
         demo/main.cpp
-        demo/main.cpp
 )
 target_link_libraries(demo gpu_effect_engine)
 
