@@ -18,6 +18,22 @@ layout (push_constant) uniform FilterParams {
     // TODO: filter params
 } filterParams;
 
+// ARGB
+uint packColor(vec4 color) {
+    return (uint(clamp(color.a, 0.0, 1.0) * 255.0) << 24) |
+    (uint(clamp(color.r, 0.0, 1.0) * 255.0) << 16) |
+    (uint(clamp(color.g, 0.0, 1.0) * 255.0) << 8) |
+    (uint(clamp(color.b, 0.0, 1.0) * 255.0));
+}
+
+// ARGB
+vec4 unpackColor(uint color) {
+    return vec4(float((color >> 24) & 0xFF) / 255.0f,
+    float((color >> 16) & 0xFF) / 255.0f,
+    float((color >> 8) & 0xFF) / 255.0f,
+    float((color) & 0xFF) / 255.0f);
+}
+
 void main() {
     uvec2 coord = gl_GlobalInvocationID.xy;
     if (any(greaterThanEqual(coord, uvec2(filterParams.width, filterParams.height)))) {
