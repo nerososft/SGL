@@ -34,7 +34,6 @@ void png_write_func(png_structp png, png_bytep inBuffer, size_t bufferToWrite) {
     ofs->write(reinterpret_cast<char *>(inBuffer), bufferToWrite);
     if (!ofs->good()) {
         std::cerr << "png_write_func: bad ofstream" << std::endl;
-        return;
     }
 }
 
@@ -42,7 +41,6 @@ void png_flush_func(png_structp png) {
     auto *ofs = static_cast<std::ofstream *>(png_get_io_ptr(png));
     if (ofs->good()) {
         ofs->flush();
-        return;
     }
 }
 
