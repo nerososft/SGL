@@ -6,6 +6,7 @@
 
 #include <iostream>
 #include <ostream>
+#include <vulkan/vk_enum_string_helper.h>
 
 #include "gpu/VkGPUHelper.h"
 
@@ -59,7 +60,11 @@ void EffectEngine::Process(const ImageInfo &input,
     }
 
     void *data = nullptr;
-    vkMapMemory(gpuCtx->GetCurrentDevice(), inputStorageBufferMemory, 0, bufferSize, 0, &data);
+    ret = vkMapMemory(gpuCtx->GetCurrentDevice(), inputStorageBufferMemory, 0, bufferSize, 0, &data);
+    if (ret != VK_SUCCESS) {
+        std::cout << "Failed to map input storage buffer memory, err=" << string_VkResult(ret) << std::endl;
+        return;
+    }
     memcpy(data, input.data, bufferSize);
     vkUnmapMemory(gpuCtx->GetCurrentDevice(), inputStorageBufferMemory);
 
@@ -70,7 +75,11 @@ void EffectEngine::Process(const ImageInfo &input,
         return;
     }
 
-    vkMapMemory(gpuCtx->GetCurrentDevice(), outputStorageBufferMemory, 0, bufferSize, 0, &data);
+    ret = vkMapMemory(gpuCtx->GetCurrentDevice(), outputStorageBufferMemory, 0, bufferSize, 0, &data);
+    if (ret != VK_SUCCESS) {
+        std::cout << "Failed to map output storage buffer memory, err=" << string_VkResult(ret) << std::endl;
+        return;
+    }
     memcpy(output.data, data, bufferSize);
     vkUnmapMemory(gpuCtx->GetCurrentDevice(), outputStorageBufferMemory);
 }

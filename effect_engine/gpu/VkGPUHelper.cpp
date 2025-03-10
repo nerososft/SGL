@@ -309,7 +309,7 @@ uint32_t VkGPUHelper::GetRequiredMemTypeIndex(const VkPhysicalDeviceMemoryProper
                                               const uint32_t memoryPropertyFlagsBits) {
     for (uint32_t i = 0; i < memProps->memoryTypeCount; i++) {
         if (memRequirements.memoryTypeBits & (1 << i)) {
-            if (memoryPropertyFlagsBits & memProps->memoryTypes[i].propertyFlags == memoryPropertyFlagsBits) {
+            if ((memoryPropertyFlagsBits & memProps->memoryTypes[i].propertyFlags) == memoryPropertyFlagsBits) {
                 return i;
             }
         }
@@ -323,8 +323,12 @@ VkResult VkGPUHelper::CreateStorageBufferAndBindMem(const VkDevice device,
                                                     const VkPhysicalDeviceMemoryProperties *memProps,
                                                     VkBuffer *storageBuffer,
                                                     VkDeviceMemory *storageBufferMemory) {
-    VkResult ret = CreateBuffer(device, size, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE,
-                                queueFamilyIndices, storageBuffer);
+    VkResult ret = CreateBuffer(device,
+                                size,
+                                VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
+                                VK_SHARING_MODE_EXCLUSIVE,
+                                queueFamilyIndices,
+                                storageBuffer);
     if (ret != VK_SUCCESS) {
         std::cout << "vkCreateBuffer failed, err=" << string_VkResult(ret) << std::endl;
     }
@@ -336,7 +340,8 @@ VkResult VkGPUHelper::CreateStorageBufferAndBindMem(const VkDevice device,
     allocInfo.pNext = nullptr;
     allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
     allocInfo.allocationSize = memRequirements.size;
-    allocInfo.memoryTypeIndex = GetRequiredMemTypeIndex(memProps, memRequirements,
+    allocInfo.memoryTypeIndex = GetRequiredMemTypeIndex(memProps,
+                                                        memRequirements,
                                                         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
                                                         VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
     ret = vkAllocateMemory(device, &allocInfo, nullptr, storageBufferMemory);
