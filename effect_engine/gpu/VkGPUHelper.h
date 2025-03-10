@@ -14,6 +14,20 @@ public:
 
     ~VkGPUHelper() = default;
 
+    static void GPUCmdPipelineBufferMemBarrier(VkCommandBuffer commandBuffer,
+                                               VkPipelineStageFlags srcStageMask,
+                                               VkPipelineStageFlags dstStageMask,
+                                               VkDependencyFlags dependencyFlags,
+                                               const std::vector<VkBufferMemoryBarrier> &bufferMemoryBarriers);
+
+    static void GPUCmdPipelineBarrier(VkCommandBuffer commandBuffer,
+                                      VkPipelineStageFlags srcStageMask,
+                                      VkPipelineStageFlags dstStageMask,
+                                      VkDependencyFlags dependencyFlags,
+                                      const std::vector<VkMemoryBarrier> &memoryBarriers,
+                                      const std::vector<VkBufferMemoryBarrier> &bufferMemoryBarriers,
+                                      const std::vector<VkImageMemoryBarrier> &imageMemoryBarriers);
+
     static VkResult GPUQueueSubmit(VkQueue queue, const std::vector<VkSubmitInfo> &submitInfos, VkFence fence);
 
     static void GPUCmdDispatch(VkCommandBuffer commandBuffer,

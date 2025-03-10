@@ -98,7 +98,25 @@ VkResult BaseFilter::DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                                     filterParams.paramsSize,
                                     filterParams.paramsData);
     VkGPUHelper::GPUCmdDispatch(commandBuffer, groupCountX, groupCountY, groupCountZ);
-    VkGPUHelper::GPUCmdPipelineBufferMemBarrier(commandBuffer);
+    std::vector<VkBufferMemoryBarrier> bufferMemoryBarriers;
+
+    VkBufferMemoryBarrier bufferMemoryBarrier = {};
+    bufferMemoryBarrier.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
+    bufferMemoryBarrier.pNext = nullptr;
+    bufferMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+    bufferMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+    bufferMemoryBarrier.buffer = outputBuffer;
+    bufferMemoryBarrier.offset = 0;
+    bufferMemoryBarrier.size = bufferSize;
+    bufferMemoryBarrier.dstQueueFamilyIndex = 0;
+    bufferMemoryBarrier.srcQueueFamilyIndex = 0;
+
+    bufferMemoryBarriers.push_back(bufferMemoryBarrier);
+    VkGPUHelper::GPUCmdPipelineBufferMemBarrier(commandBuffer,
+                                                VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                                VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+                                                0,
+                                                bufferMemoryBarriers);
     VkGPUHelper::GPUEndCommandBuffer(commandBuffer);
 
     std::vector<VkCommandBuffer> submitCommandBuffers;
@@ -127,6 +145,19 @@ VkResult BaseFilter::DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
         std::cout << "Failed to submit command buffer, err =" << string_VkResult(ret) << std::endl;
         return ret;
     }
+
+    ret = vkWaitForFences(gpuCtx->GetCurrentDevice(), 1, &computeFence, VK_TRUE, UINT64_MAX);
+    if (ret != VK_SUCCESS) {
+        std::cout << "Failed to wait fence, err=" << string_VkResult(ret) << std::endl;
+        return ret;
+    }
+
+    ret = vkQueueWaitIdle(gpuCtx->GetQueue());
+    if (ret != VK_SUCCESS) {
+        std::cout << "Failed to wait idle, err=" << string_VkResult(ret) << std::endl;
+        return ret;
+    }
+    return ret;
 }
 
 

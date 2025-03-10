@@ -10,6 +10,42 @@
 
 #include "effect_engine/utils/IOUtils.h"
 
+void VkGPUHelper::GPUCmdPipelineBufferMemBarrier(const VkCommandBuffer commandBuffer,
+                                                 const VkPipelineStageFlags srcStageMask,
+                                                 const VkPipelineStageFlags dstStageMask,
+                                                 const VkDependencyFlags dependencyFlags,
+                                                 const std::vector<VkBufferMemoryBarrier> &bufferMemoryBarriers) {
+    const std::vector<VkMemoryBarrier> memoryBarriers;
+    const std::vector<VkImageMemoryBarrier> imageMemoryBarrier;
+    GPUCmdPipelineBarrier(commandBuffer,
+                          srcStageMask,
+                          dstStageMask,
+                          dependencyFlags,
+                          memoryBarriers,
+                          bufferMemoryBarriers,
+                          imageMemoryBarrier);
+}
+
+void VkGPUHelper::GPUCmdPipelineBarrier(const VkCommandBuffer commandBuffer,
+                                        const VkPipelineStageFlags srcStageMask,
+                                        const VkPipelineStageFlags dstStageMask,
+                                        const VkDependencyFlags dependencyFlags,
+                                        const std::vector<VkMemoryBarrier> &memoryBarriers,
+                                        const std::vector<VkBufferMemoryBarrier> &bufferMemoryBarriers,
+                                        const std::vector<VkImageMemoryBarrier> &imageMemoryBarriers
+) {
+    vkCmdPipelineBarrier(commandBuffer,
+                         srcStageMask,
+                         dstStageMask,
+                         dependencyFlags,
+                         memoryBarriers.size(),
+                         memoryBarriers.data(),
+                         bufferMemoryBarriers.size(),
+                         bufferMemoryBarriers.data(),
+                         imageMemoryBarriers.size(),
+                         imageMemoryBarriers.data());
+}
+
 VkResult VkGPUHelper::GPUQueueSubmit(const VkQueue queue,
                                      const std::vector<VkSubmitInfo> &submitInfos,
                                      const VkFence fence) {
