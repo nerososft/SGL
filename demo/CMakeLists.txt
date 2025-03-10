@@ -1,4 +1,3 @@
-
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     message(STATUS "Running on Linux")
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Windows")
