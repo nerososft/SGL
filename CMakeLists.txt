@@ -13,8 +13,7 @@ include_directories("/opt/homebrew/Cellar/cglm/0.9.4/include")
 link_directories("/Users/neo/VulkanSDK/1.3.290.0/macOS/lib/")
 link_directories("/opt/homebrew/lib/")
 
-add_executable(gpu_effect_engine demo/main.cpp
-        demo/main.cpp
+add_library(gpu_effect_engine
         effect_engine/EffectEngine.cpp
         effect_engine/EffectEngine.h
         effect_engine/filters/BaseFilter.cpp
@@ -33,6 +32,13 @@ add_executable(gpu_effect_engine demo/main.cpp
         effect_engine/gpu/VkGPUComputePipeline.cpp
         effect_engine/gpu/VkGPUComputePipeline.h
         effect_engine/gpu/VkGPUDescriptorSet.cpp
-        effect_engine/gpu/VkGPUDescriptorSet.h)
-
+        effect_engine/gpu/VkGPUDescriptorSet.h
+)
 target_link_libraries(gpu_effect_engine vulkan)
+
+add_executable(demo
+        demo/main.cpp
+        demo/main.cpp
+)
+target_link_libraries(demo gpu_effect_engine)
+
