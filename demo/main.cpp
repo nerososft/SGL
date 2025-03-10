@@ -21,20 +21,22 @@ int main(int argc, char *argv[]) {
     filter->SetGreenFactor(0.587);
     filter->SetBlueFactor(0.114);
 
-    ImageInfo inputImageInfo{};
-    inputImageInfo.width = 128;
-    inputImageInfo.height = 128;
-    inputImageInfo.channels = 4;
-    inputImageInfo.bytesPerLine = inputImageInfo.width * 4;
-    inputImageInfo.data = malloc(inputImageInfo.width * inputImageInfo.height * inputImageInfo.channels);
+    // ImageInfo inputImageInfo{};
+    // inputImageInfo.width = 128;
+    // inputImageInfo.height = 128;
+    // inputImageInfo.channels = 4;
+    // inputImageInfo.bytesPerLine = inputImageInfo.width * 4;
+    // inputImageInfo.data = malloc(inputImageInfo.width * inputImageInfo.height * inputImageInfo.channels);
+    //
+    // ImageInfo outputImageInfo{};
+    // outputImageInfo.width = 128;
+    // outputImageInfo.height = 128;
+    // outputImageInfo.channels = 4;
+    // outputImageInfo.bytesPerLine = outputImageInfo.width * 4;
+    // outputImageInfo.data = malloc(outputImageInfo.width * outputImageInfo.height * outputImageInfo.channels);
+    // effectEngine.Process(inputImageInfo, outputImageInfo, filter);
 
-    ImageInfo outputImageInfo{};
-    outputImageInfo.width = 128;
-    outputImageInfo.height = 128;
-    outputImageInfo.channels = 4;
-    outputImageInfo.bytesPerLine = outputImageInfo.width * 4;
-    outputImageInfo.data = malloc(outputImageInfo.width * outputImageInfo.height * outputImageInfo.channels);
-    effectEngine.Process(inputImageInfo, outputImageInfo, filter);
+    effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_gray.png", filter);
 
     return 0;
 }

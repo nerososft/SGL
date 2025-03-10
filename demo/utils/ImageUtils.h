@@ -9,10 +9,10 @@
 
 class ImageUtils {
 public:
-    static void *ReadPngFile(const std::string &fileName,
-                             uint32_t imageWidth,
-                             uint32_t imageHeight,
-                             uint32_t channel);
+    static std::vector<char> ReadPngFile(const std::string &fileName,
+                                         uint32_t *imageWidth,
+                                         uint32_t *imageHeight,
+                                         uint32_t *channel);
 
     static void WritePngFile(const std::string &fileName,
                              uint32_t imageWidth,
