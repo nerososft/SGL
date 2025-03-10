@@ -10,6 +10,40 @@
 
 #include "effect_engine/utils/IOUtils.h"
 
+VkSubmitInfo VkGPUHelper::BuildSubmitInfo(const VkFlags *submitWaitDstStageMask,
+                                          const std::vector<VkCommandBuffer> &submitCommandBuffers,
+                                          const std::vector<VkSemaphore> &submitSignalSemaphores,
+                                          const std::vector<VkSemaphore> &submitWaitSemaphores) {
+    VkSubmitInfo submitInfo = {};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo.pNext = nullptr;
+    submitInfo.commandBufferCount = submitCommandBuffers.size();
+    submitInfo.pCommandBuffers = submitCommandBuffers.data();
+    submitInfo.signalSemaphoreCount = submitSignalSemaphores.size();
+    submitInfo.pSignalSemaphores = submitSignalSemaphores.data();
+    submitInfo.waitSemaphoreCount = submitWaitSemaphores.size();
+    submitInfo.pWaitSemaphores = submitWaitSemaphores.data();
+    submitInfo.pWaitDstStageMask = submitWaitDstStageMask;
+    return submitInfo;
+}
+
+VkBufferMemoryBarrier VkGPUHelper::BuildBufferMemoryBarrier(const VkAccessFlagBits srcAccessMask,
+                                                            const VkAccessFlagBits dstAccessMask,
+                                                            const VkBuffer buffer,
+                                                            const VkDeviceSize size) {
+    VkBufferMemoryBarrier bufferMemoryBarrier = {};
+    bufferMemoryBarrier.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
+    bufferMemoryBarrier.pNext = nullptr;
+    bufferMemoryBarrier.srcAccessMask = srcAccessMask;
+    bufferMemoryBarrier.dstAccessMask = dstAccessMask;
+    bufferMemoryBarrier.buffer = buffer;
+    bufferMemoryBarrier.offset = 0;
+    bufferMemoryBarrier.size = size;
+    bufferMemoryBarrier.dstQueueFamilyIndex = 0;
+    bufferMemoryBarrier.srcQueueFamilyIndex = 0;
+    return bufferMemoryBarrier;
+}
+
 void VkGPUHelper::GPUCmdPipelineBufferMemBarrier(const VkCommandBuffer commandBuffer,
                                                  const VkPipelineStageFlags srcStageMask,
                                                  const VkPipelineStageFlags dstStageMask,

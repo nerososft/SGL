@@ -42,6 +42,7 @@ void main() {
         return;
     }
 
+    uint index = coord.y * filterParams.width + coord.x;
     uint index = coord.y * (filterParams.bytesPerLine / 4) + coord.x;
     vec4 color = unpackColor(inputImage.pixels[index]);
     float gray = dot(color.rgb, vec3(filterParams.redFactor, filterParams.greenFactor, filterParams.blueFactor));

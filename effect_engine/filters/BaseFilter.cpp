@@ -104,18 +104,10 @@ VkResult BaseFilter::DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
         VkGPUHelper::GPUCmdDispatch(commandBuffer, groupCountX, groupCountY, groupCountZ);
 
         std::vector<VkBufferMemoryBarrier> bufferMemoryBarriers;
-        VkBufferMemoryBarrier bufferMemoryBarrier = {};
-        bufferMemoryBarrier.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
-        bufferMemoryBarrier.pNext = nullptr;
-        bufferMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-        bufferMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-        bufferMemoryBarrier.buffer = outputBuffer;
-        bufferMemoryBarrier.offset = 0;
-        bufferMemoryBarrier.size = bufferSize;
-        bufferMemoryBarrier.dstQueueFamilyIndex = 0;
-        bufferMemoryBarrier.srcQueueFamilyIndex = 0;
-
-        bufferMemoryBarriers.push_back(bufferMemoryBarrier);
+        bufferMemoryBarriers.push_back(VkGPUHelper::BuildBufferMemoryBarrier(VK_ACCESS_TRANSFER_READ_BIT,
+                                                                             VK_ACCESS_TRANSFER_WRITE_BIT,
+                                                                             outputBuffer,
+                                                                             bufferSize));
         VkGPUHelper::GPUCmdPipelineBufferMemBarrier(commandBuffer,
                                                     VK_PIPELINE_STAGE_TRANSFER_BIT,
                                                     VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
@@ -132,18 +124,11 @@ VkResult BaseFilter::DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
 
     VkPipelineStageFlags submitWaitDstStageMask = VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
 
-    std::vector<VkSubmitInfo> submitInfos;
-    VkSubmitInfo submitInfo = {};
-    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-    submitInfo.pNext = nullptr;
-    submitInfo.commandBufferCount = submitCommandBuffers.size();
-    submitInfo.pCommandBuffers = submitCommandBuffers.data();
-    submitInfo.signalSemaphoreCount = submitSignalSemaphores.size();
-    submitInfo.pSignalSemaphores = submitSignalSemaphores.data();
-    submitInfo.waitSemaphoreCount = submitWaitSemaphores.size();
-    submitInfo.pWaitSemaphores = submitWaitSemaphores.data();
-    submitInfo.pWaitDstStageMask = &submitWaitDstStageMask;
-    submitInfos.push_back(submitInfo);
+    std::vector<VkSubmitInfo> submitInfos;;
+    submitInfos.push_back(VkGPUHelper::BuildSubmitInfo(&submitWaitDstStageMask,
+                                                       submitCommandBuffers,
+                                                       submitSignalSemaphores,
+                                                       submitWaitSemaphores));
 
     ret = VkGPUHelper::GPUQueueSubmit(gpuCtx->GetQueue(), submitInfos, computeFence);
     if (ret != VK_SUCCESS) {

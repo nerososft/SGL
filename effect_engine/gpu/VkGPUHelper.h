@@ -7,12 +7,21 @@
 #include <vector>
 #include <vulkan/vulkan_core.h>
 
-
 class VkGPUHelper {
 public:
     VkGPUHelper() = default;
 
     ~VkGPUHelper() = default;
+
+    static VkSubmitInfo BuildSubmitInfo(const VkFlags *submitWaitDstStageMask,
+                                        const std::vector<VkCommandBuffer> &submitCommandBuffers,
+                                        const std::vector<VkSemaphore> &submitSignalSemaphores,
+                                        const std::vector<VkSemaphore> &submitWaitSemaphores);
+
+    static VkBufferMemoryBarrier BuildBufferMemoryBarrier(VkAccessFlagBits srcAccessMask,
+                                                          VkAccessFlagBits dstAccessMask,
+                                                          VkBuffer buffer,
+                                                          VkDeviceSize size);
 
     static void GPUCmdPipelineBufferMemBarrier(VkCommandBuffer commandBuffer,
                                                VkPipelineStageFlags srcStageMask,
