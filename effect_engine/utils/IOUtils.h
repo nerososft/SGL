@@ -6,7 +6,6 @@
 #define IOUTILS_H
 #include <vector>
 
-
 class IOUtils {
 public:
     IOUtils() = default;
