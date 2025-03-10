@@ -25,6 +25,27 @@ void png_read_func(png_structp png, png_bytep outBuffer, size_t bufferToRead) {
     buf->offset += bufferToRead;
 }
 
+void png_write_func(png_structp png, png_bytep inBuffer, size_t bufferToWrite) {
+    auto *ofs = static_cast<std::ofstream *>(png_get_io_ptr(png));
+    if (!ofs->good()) {
+        std::cerr << "png_write_func: bad ofstream" << std::endl;
+        return;
+    }
+    ofs->write(reinterpret_cast<char *>(inBuffer), bufferToWrite);
+    if (!ofs->good()) {
+        std::cerr << "png_write_func: bad ofstream" << std::endl;
+        return;
+    }
+}
+
+void png_flush_func(png_structp png) {
+    auto *ofs = static_cast<std::ofstream *>(png_get_io_ptr(png));
+    if (ofs->good()) {
+        ofs->flush();
+        return;
+    }
+}
+
 std::vector<char> ImageUtils::ReadPngFile(const std::string &fileName,
                                           uint32_t *imageWidth,
                                           uint32_t *imageHeight,
@@ -119,5 +140,50 @@ void ImageUtils::WritePngFile(const std::string &fileName,
                               uint32_t imageHeight,
                               uint32_t channel,
                               void *imageData) {
+    png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
+    if (!png) {
+        std::cerr << "Failed to create png struct" << std::endl;
+        return;
+    }
+    png_infop info = png_create_info_struct(png);
+    if (!info) {
+        std::cerr << "Failed to create png info" << std::endl;
+        png_destroy_write_struct(&png, nullptr);
+        return;
+    }
+    if (setjmp(png_jmpbuf(png))) {
+        png_destroy_write_struct(&png, &info);
+        return;
+    }
+
+    std::ofstream file;
+    file.open(fileName, std::ios::binary | std::ios::out | std::ios::app);
+    if (!file.is_open()) {
+        std::cerr << "Failed to open file " << fileName << std::endl;
+        png_destroy_write_struct(&png, &info);
+        return;
+    }
+
+    png_set_write_fn(png, &file, png_write_func, png_flush_func);
+
+    png_set_IHDR(png,
+                 info,
+                 imageWidth,
+                 imageHeight,
+                 8,
+                 PNG_COLOR_TYPE_RGBA,
+                 PNG_INTERLACE_NONE,
+                 PNG_COMPRESSION_TYPE_BASE,
+                 PNG_FILTER_TYPE_DEFAULT);
+    png_write_info(png, info);
+
+    for (size_t i = 0; i < imageHeight; i++) {
+        const auto byteData = static_cast<const unsigned char *>(imageData);
+        const png_const_bytep row = byteData + (channel * imageWidth) * i;
+        png_write_row(png, row);
+    }
+    png_write_end(png, nullptr);
+    png_destroy_read_struct(&png, &info, nullptr);
+
     std::cout << "Writing PNG file " << fileName << std::endl;
 }
