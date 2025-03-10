@@ -10,6 +10,23 @@
 
 #include "effect_engine/utils/IOUtils.h"
 
+VkResult VkGPUHelper::GPUQueueSubmit(const VkQueue queue,
+                                     const std::vector<VkSubmitInfo> &submitInfos,
+                                     const VkFence fence) {
+    const VkResult ret = vkQueueSubmit(queue, submitInfos.size(), submitInfos.data(), fence);
+    if (ret != VK_SUCCESS) {
+        std::cout << "vkQueueSubmit failed, err=" << string_VkResult(ret) << std::endl;
+    }
+    return ret;
+}
+
+void VkGPUHelper::GPUCmdDispatch(const VkCommandBuffer commandBuffer,
+                                 const uint32_t groupCountX,
+                                 const uint32_t groupCountY,
+                                 const uint32_t groupCountZ) {
+    vkCmdDispatch(commandBuffer, groupCountX, groupCountY, groupCountZ);
+}
+
 void VkGPUHelper::GPUCmdPushConstant(const VkCommandBuffer commandBuffer,
                                      const VkPipelineLayout pipelineLayout,
                                      VkShaderStageFlagBits shaderStageFlag,

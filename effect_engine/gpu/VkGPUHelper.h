@@ -14,6 +14,13 @@ public:
 
     ~VkGPUHelper() = default;
 
+    static VkResult GPUQueueSubmit(VkQueue queue, const std::vector<VkSubmitInfo> &submitInfos, VkFence fence);
+
+    static void GPUCmdDispatch(VkCommandBuffer commandBuffer,
+                               uint32_t groupCountX,
+                               uint32_t groupCountY,
+                               uint32_t groupCountZ);
+
     static void GPUCmdPushConstant(VkCommandBuffer commandBuffer,
                                    VkPipelineLayout pipelineLayout,
                                    VkShaderStageFlagBits shaderStageFlag,

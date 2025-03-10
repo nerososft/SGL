@@ -84,6 +84,10 @@ VkResult BaseFilter::DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     vkResetCommandBuffer(commandBuffer, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
     vkResetFences(gpuCtx->GetCurrentDevice(), 1, &computeFence);
 
+    uint32_t groupCountX = (width + 15) / 16;
+    uint32_t groupCountY = (height + 15) / 16;
+    uint32_t groupCountZ = 0;
+
     VkGPUHelper::GPUBeginCommandBuffer(commandBuffer);
     computePipeline.GPUCmdBindPipeline(commandBuffer);
     pipelineDescriptorSet.GPUCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE);
@@ -97,7 +101,32 @@ VkResult BaseFilter::DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     VkGPUHelper::GPUCmdPipelineBufferMemBarrier(commandBuffer);
     VkGPUHelper::GPUEndCommandBuffer(commandBuffer);
 
-    ret = VkGPUHelper::GPUQueueSubmit(gpuCtx->GetCurrentDevice());
+    std::vector<VkCommandBuffer> submitCommandBuffers;
+    submitCommandBuffers.push_back(commandBuffer);
+
+    std::vector<VkSemaphore> submitSignalSemaphores;
+    std::vector<VkSemaphore> submitWaitSemaphores;
+
+    VkPipelineStageFlags submitWaitDstStageMask = VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+
+    std::vector<VkSubmitInfo> submitInfos;
+    VkSubmitInfo submitInfo = {};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo.pNext = nullptr;
+    submitInfo.commandBufferCount = submitCommandBuffers.size();
+    submitInfo.pCommandBuffers = submitCommandBuffers.data();
+    submitInfo.signalSemaphoreCount = submitSignalSemaphores.size();
+    submitInfo.pSignalSemaphores = submitSignalSemaphores.data();
+    submitInfo.waitSemaphoreCount = submitWaitSemaphores.size();
+    submitInfo.pWaitSemaphores = submitWaitSemaphores.data();
+    submitInfo.pWaitDstStageMask = &submitWaitDstStageMask;
+    submitInfos.push_back(submitInfo);
+
+    ret = VkGPUHelper::GPUQueueSubmit(gpuCtx->GetQueue(), submitInfos, computeFence);
+    if (ret != VK_SUCCESS) {
+        std::cout << "Failed to submit command buffer, err =" << string_VkResult(ret) << std::endl;
+        return ret;
+    }
 }
 
 
