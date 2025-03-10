@@ -181,7 +181,7 @@ void ImageUtils::WritePngFile(const std::string &fileName,
         png_write_row(png, row);
     }
     png_write_end(png, nullptr);
-    png_destroy_read_struct(&png, &info, nullptr);
+    png_destroy_write_struct(&png, &info);
 
     std::cout << "Writing PNG file " << fileName << std::endl;
 }

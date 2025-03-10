@@ -22,18 +22,21 @@ VkResult BaseFilter::DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     const std::string computeShaderPath = filterParams.shaderPath;
     const uint32_t paramsSize = filterParams.paramsSize;
     std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
+
     VkDescriptorSetLayoutBinding inputImageBinding;
     inputImageBinding.binding = 0;
     inputImageBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
     inputImageBinding.descriptorCount = 1;
     inputImageBinding.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
     descriptorSetLayoutBindings.push_back(inputImageBinding);
+
     VkDescriptorSetLayoutBinding outputImageBinding;
     outputImageBinding.binding = 1;
     outputImageBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
     outputImageBinding.descriptorCount = 1;
     outputImageBinding.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
     descriptorSetLayoutBindings.push_back(outputImageBinding);
+
     std::vector<VkPushConstantRange> pushConstantRanges;
     VkPushConstantRange pushConstantRange;
     pushConstantRange.offset = 0;
@@ -61,6 +64,7 @@ VkResult BaseFilter::DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     inputImageBufferInfo.range = bufferSize;
     inputImageBufferInfo.buffer = inputBuffer;
     pipelineDescriptorSet.AddStorageBufferDescriptorSet(0, inputImageBufferInfo);
+
     VkDescriptorBufferInfo outputImageBufferInfo = {};
     outputImageBufferInfo.offset = 0;
     outputImageBufferInfo.range = bufferSize;
@@ -86,37 +90,38 @@ VkResult BaseFilter::DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
 
     uint32_t groupCountX = (width + 15) / 16;
     uint32_t groupCountY = (height + 15) / 16;
-    uint32_t groupCountZ = 0;
 
-    VkGPUHelper::GPUBeginCommandBuffer(commandBuffer);
-    computePipeline.GPUCmdBindPipeline(commandBuffer);
-    pipelineDescriptorSet.GPUCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE);
-    VkGPUHelper::GPUCmdPushConstant(commandBuffer,
-                                    computePipeline.GetPipelineLayout(),
-                                    VK_SHADER_STAGE_COMPUTE_BIT,
-                                    0,
-                                    filterParams.paramsSize,
-                                    filterParams.paramsData);
-    VkGPUHelper::GPUCmdDispatch(commandBuffer, groupCountX, groupCountY, groupCountZ);
-    std::vector<VkBufferMemoryBarrier> bufferMemoryBarriers;
+    VkGPUHelper::GPUBeginCommandBuffer(commandBuffer); {
+        uint32_t groupCountZ = 1;
+        computePipeline.GPUCmdBindPipeline(commandBuffer);
+        pipelineDescriptorSet.GPUCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE);
+        VkGPUHelper::GPUCmdPushConstant(commandBuffer,
+                                        computePipeline.GetPipelineLayout(),
+                                        VK_SHADER_STAGE_COMPUTE_BIT,
+                                        0,
+                                        filterParams.paramsSize,
+                                        filterParams.paramsData);
+        VkGPUHelper::GPUCmdDispatch(commandBuffer, groupCountX, groupCountY, groupCountZ);
 
-    VkBufferMemoryBarrier bufferMemoryBarrier = {};
-    bufferMemoryBarrier.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
-    bufferMemoryBarrier.pNext = nullptr;
-    bufferMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-    bufferMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-    bufferMemoryBarrier.buffer = outputBuffer;
-    bufferMemoryBarrier.offset = 0;
-    bufferMemoryBarrier.size = bufferSize;
-    bufferMemoryBarrier.dstQueueFamilyIndex = 0;
-    bufferMemoryBarrier.srcQueueFamilyIndex = 0;
+        std::vector<VkBufferMemoryBarrier> bufferMemoryBarriers;
+        VkBufferMemoryBarrier bufferMemoryBarrier = {};
+        bufferMemoryBarrier.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
+        bufferMemoryBarrier.pNext = nullptr;
+        bufferMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+        bufferMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+        bufferMemoryBarrier.buffer = outputBuffer;
+        bufferMemoryBarrier.offset = 0;
+        bufferMemoryBarrier.size = bufferSize;
+        bufferMemoryBarrier.dstQueueFamilyIndex = 0;
+        bufferMemoryBarrier.srcQueueFamilyIndex = 0;
 
-    bufferMemoryBarriers.push_back(bufferMemoryBarrier);
-    VkGPUHelper::GPUCmdPipelineBufferMemBarrier(commandBuffer,
-                                                VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                                VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
-                                                0,
-                                                bufferMemoryBarriers);
+        bufferMemoryBarriers.push_back(bufferMemoryBarrier);
+        VkGPUHelper::GPUCmdPipelineBufferMemBarrier(commandBuffer,
+                                                    VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                                    VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+                                                    0,
+                                                    bufferMemoryBarriers);
+    }
     VkGPUHelper::GPUEndCommandBuffer(commandBuffer);
 
     std::vector<VkCommandBuffer> submitCommandBuffers;

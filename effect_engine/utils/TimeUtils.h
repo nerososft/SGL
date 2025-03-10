@@ -4,8 +4,15 @@
 
 #ifndef TIMEUTILS_H
 #define TIMEUTILS_H
+#include <cstdint>
 
 class TimeUtils {
+public:
+    TimeUtils() = default;
+
+    ~TimeUtils() = default;
+
+    static uint64_t GetCurrentMonoMs();
 };
 
 #endif //TIMEUTILS_H

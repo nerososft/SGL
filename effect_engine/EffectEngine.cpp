@@ -10,6 +10,7 @@
 
 #include "demo/utils/ImageUtils.h"
 #include "gpu/VkGPUHelper.h"
+#include "utils/TimeUtils.h"
 
 bool EffectEngine::Init() {
     std::vector<const char *> requiredExtensions;
@@ -95,6 +96,7 @@ void EffectEngine::Process(const char *inputFilePath,
         std::cerr << "Failed to read input file!" << std::endl;
         return;
     }
+    std::cout << "Image width= " << imageWidth << ", height=" << imageHeight << std::endl;
     const VkDeviceSize bufferSize = imageWidth * imageHeight * channels;
 
 
@@ -127,6 +129,7 @@ void EffectEngine::Process(const char *inputFilePath,
         return;
     }
 
+    const uint64_t imageUploadStart = TimeUtils::GetCurrentMonoMs();
     void *data = nullptr;
     ret = vkMapMemory(gpuCtx->GetCurrentDevice(), inputStorageBufferMemory, 0, bufferSize, 0, &data);
     if (ret != VK_SUCCESS) {
@@ -135,13 +138,18 @@ void EffectEngine::Process(const char *inputFilePath,
     }
     memcpy(data, inputFileData.data(), bufferSize);
     vkUnmapMemory(gpuCtx->GetCurrentDevice(), inputStorageBufferMemory);
+    const uint64_t imageUploadEnd = TimeUtils::GetCurrentMonoMs();
+    std::cout << "Image Upload Time: " << imageUploadEnd - imageUploadStart << "ms" << std::endl;
 
 
+    const uint64_t gpuProcessTimeStart = TimeUtils::GetCurrentMonoMs();
     ret = filter->Apply(gpuCtx, bufferSize, imageWidth, imageHeight, inputStorageBuffer, outputStorageBuffer);
     if (ret != VK_SUCCESS) {
         std::cout << "Failed to apply filter!" << std::endl;
         return;
     }
+    const uint64_t gpuProcessTimeEnd = TimeUtils::GetCurrentMonoMs();
+    std::cout << "GPU Process Time: " << gpuProcessTimeEnd - gpuProcessTimeStart << "ms" << std::endl;
 
     ret = vkMapMemory(gpuCtx->GetCurrentDevice(), outputStorageBufferMemory, 0, bufferSize, 0, &data);
     if (ret != VK_SUCCESS) {

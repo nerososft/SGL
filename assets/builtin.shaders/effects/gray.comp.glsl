@@ -6,7 +6,7 @@ layout (std430, binding = 0) buffer InputImageStorageBuffer {
     uint pixels[];
 } inputImage;
 
-layout (std430, binding = 0) buffer OutputImageStorageBuffer {
+layout (std430, binding = 1) buffer OutputImageStorageBuffer {
     uint pixels[];
 } outputImage;
 
