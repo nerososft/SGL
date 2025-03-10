@@ -9,6 +9,13 @@
 #include "IFilter.h"
 #include "effect_engine/gpu/VkGPUContext.h"
 
+struct BasicFilterParam {
+    uint32_t width;
+    uint32_t height;
+    uint32_t channels;
+    uint32_t bytesPerLine;
+};
+
 struct FilterParams {
     size_t paramsSize;
     void *paramsData;
