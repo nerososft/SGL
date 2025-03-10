@@ -10,7 +10,6 @@
 int main(int argc, char *argv[]) {
     std::cout << "Hello World!\n";
 
-
     EffectEngine effectEngine;
     if (!effectEngine.Init()) {
         std::cout << "Failed to initialize effect_engine" << std::endl;
@@ -18,9 +17,9 @@ int main(int argc, char *argv[]) {
     }
 
     const auto filter = std::make_shared<GrayFilter>();
-    filter->SetRedFactor(0.2);
-    filter->SetGreenFactor(0.2);
-    filter->SetBlueFactor(0.2);
+    filter->SetRedFactor(0.299);
+    filter->SetGreenFactor(0.587);
+    filter->SetBlueFactor(0.114);
 
     ImageInfo inputImageInfo{};
     inputImageInfo.width = 128;

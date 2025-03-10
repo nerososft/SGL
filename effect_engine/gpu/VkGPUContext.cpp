@@ -202,6 +202,24 @@ VkResult VkGPUContext::Init() {
     this->GetQueue();
 
 
+    std::vector<VkDescriptorPoolSize> descriptorPoolSizes;
+    VkDescriptorPoolSize storageBufferDescriptorPoolSize;
+    storageBufferDescriptorPoolSize.type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+    storageBufferDescriptorPoolSize.descriptorCount = 10;
+    descriptorPoolSizes.push_back(storageBufferDescriptorPoolSize);
+
+    VkDescriptorPoolCreateInfo descriptorPoolCreateInfo;
+    descriptorPoolCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+    descriptorPoolCreateInfo.flags = 0;
+    descriptorPoolCreateInfo.pNext = nullptr;
+    descriptorPoolCreateInfo.maxSets = 10;
+    descriptorPoolCreateInfo.poolSizeCount = descriptorPoolSizes.size();
+    descriptorPoolCreateInfo.pPoolSizes = descriptorPoolSizes.data();
+    result = vkCreateDescriptorPool(this->device, &descriptorPoolCreateInfo, nullptr, &this->descriptorPool);
+    if (result != VK_SUCCESS) {
+        std::cout << "Failed to create descriptor pool, err=" << string_VkResult(result) << std::endl;
+    }
+
     VkCommandPoolCreateInfo commandPoolCreateInfo{};
     commandPoolCreateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
     commandPoolCreateInfo.flags = 0;
