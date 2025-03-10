@@ -18,7 +18,7 @@ public:
                              uint32_t imageWidth,
                              uint32_t imageHeight,
                              uint32_t channel,
-                             void *imageData);
+                             const void *imageData);
 };
 
 

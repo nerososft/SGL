@@ -136,10 +136,10 @@ std::vector<char> ImageUtils::ReadPngFile(const std::string &fileName,
 }
 
 void ImageUtils::WritePngFile(const std::string &fileName,
-                              uint32_t imageWidth,
-                              uint32_t imageHeight,
-                              uint32_t channel,
-                              void *imageData) {
+                              const uint32_t imageWidth,
+                              const uint32_t imageHeight,
+                              const uint32_t channel,
+                              const void *imageData) {
     png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
     if (!png) {
         std::cerr << "Failed to create png struct" << std::endl;
