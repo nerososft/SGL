@@ -4,8 +4,8 @@
 
 #include <iostream>
 
-#include "../effect_engine/EffectEngine.h"
-#include "../effect_engine/filters/impl/GrayFilter.h"
+#include "effect_engine/EffectEngine.h"
+#include "effect_engine/filters/impl/GrayFilter.h"
 
 int main(int argc, char *argv[]) {
     std::cout << "Hello World!\n";

@@ -20,31 +20,5 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     link_directories("/opt/homebrew/lib/")
 endif ()
 
-add_library(gpu_effect_engine
-        effect_engine/EffectEngine.cpp
-        effect_engine/EffectEngine.h
-        effect_engine/filters/BaseFilter.cpp
-        effect_engine/filters/BaseFilter.h
-        effect_engine/filters/impl/GrayFilter.cpp
-        effect_engine/filters/impl/GrayFilter.h
-        effect_engine/gpu/VkGPUHelper.cpp
-        effect_engine/gpu/VkGPUHelper.h
-        effect_engine/utils/IOUtils.cpp
-        effect_engine/utils/IOUtils.h
-        effect_engine/utils/TimeUtils.cpp
-        effect_engine/utils/TimeUtils.h
-        effect_engine/gpu/VKGPUContext.cpp
-        effect_engine/gpu/VKGPUContext.h
-        effect_engine/filters/IFilter.h
-        effect_engine/gpu/VkGPUComputePipeline.cpp
-        effect_engine/gpu/VkGPUComputePipeline.h
-        effect_engine/gpu/VkGPUDescriptorSet.cpp
-        effect_engine/gpu/VkGPUDescriptorSet.h
-)
-target_link_libraries(gpu_effect_engine vulkan)
-
-add_executable(demo
-        demo/main.cpp
-)
-target_link_libraries(demo gpu_effect_engine)
-
+add_subdirectory(effect_engine)
+add_subdirectory(demo)

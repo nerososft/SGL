@@ -1,0 +1,22 @@
+add_library(gpu_effect_engine
+        EffectEngine.cpp
+        EffectEngine.h
+        filters/BaseFilter.cpp
+        filters/BaseFilter.h
+        filters/impl/GrayFilter.cpp
+        filters/impl/GrayFilter.h
+        gpu/VkGPUHelper.cpp
+        gpu/VkGPUHelper.h
+        utils/IOUtils.cpp
+        utils/IOUtils.h
+        utils/TimeUtils.cpp
+        utils/TimeUtils.h
+        gpu/VKGPUContext.cpp
+        gpu/VKGPUContext.h
+        filters/IFilter.h
+        gpu/VkGPUComputePipeline.cpp
+        gpu/VkGPUComputePipeline.h
+        gpu/VkGPUDescriptorSet.cpp
+        gpu/VkGPUDescriptorSet.h
+)
+target_link_libraries(gpu_effect_engine vulkan)
