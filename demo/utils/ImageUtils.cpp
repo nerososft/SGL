@@ -16,7 +16,7 @@ typedef struct {
 } PngReadBuf;
 
 void png_read_func(png_structp png, png_bytep outBuffer, size_t bufferToRead) {
-    PngReadBuf *buf = (PngReadBuf *) png_get_io_ptr(png);
+    auto *buf = static_cast<PngReadBuf *>(png_get_io_ptr(png));
     if (buf->offset + bufferToRead > buf->size) {
         std::cerr << "png_read_func: out of buffer" << std::endl;
         return;
