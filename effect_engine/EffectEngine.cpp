@@ -96,9 +96,8 @@ void EffectEngine::Process(const char *inputFilePath,
         std::cerr << "Failed to read input file!" << std::endl;
         return;
     }
-    std::cout << "Image width= " << imageWidth << ", height=" << imageHeight << std::endl;
+    std::cout << "Image width= " << imageWidth << ", height=" << imageHeight << ", channels=" << channels << std::endl;
     const VkDeviceSize bufferSize = imageWidth * imageHeight * channels;
-
 
     VkBuffer inputStorageBuffer = VK_NULL_HANDLE;
     VkDeviceMemory inputStorageBufferMemory = VK_NULL_HANDLE;
@@ -140,7 +139,6 @@ void EffectEngine::Process(const char *inputFilePath,
     vkUnmapMemory(gpuCtx->GetCurrentDevice(), inputStorageBufferMemory);
     const uint64_t imageUploadEnd = TimeUtils::GetCurrentMonoMs();
     std::cout << "Image Upload Time: " << imageUploadEnd - imageUploadStart << "ms" << std::endl;
-
 
     const uint64_t gpuProcessTimeStart = TimeUtils::GetCurrentMonoMs();
     ret = filter->Apply(gpuCtx, bufferSize, imageWidth, imageHeight, inputStorageBuffer, outputStorageBuffer);

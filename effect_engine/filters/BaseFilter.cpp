@@ -43,6 +43,7 @@ VkResult BaseFilter::DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     pushConstantRange.size = paramsSize;
     pushConstantRange.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
     pushConstantRanges.push_back(pushConstantRange);
+
     VkGPUComputePipeline computePipeline(computeShaderPath, descriptorSetLayoutBindings, pushConstantRanges);
     VkResult ret = computePipeline.CreateComputePipeline(gpuCtx->GetCurrentDevice(),
                                                          gpuCtx->GetPipelineCache());
@@ -79,7 +80,10 @@ VkResult BaseFilter::DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     }
 
     VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
-    ret = VkGPUHelper::AllocateCommandBuffers(gpuCtx->GetCurrentDevice(), gpuCtx->GetCommandPool(), 1, &commandBuffer);
+    ret = VkGPUHelper::AllocateCommandBuffers(gpuCtx->GetCurrentDevice(),
+                                              gpuCtx->GetCommandPool(),
+                                              1,
+                                              &commandBuffer);
     if (ret != VK_SUCCESS) {
         std::cout << "Failed to allocate command buffer, err =" << string_VkResult(ret) << std::endl;
         return ret;
@@ -124,7 +128,7 @@ VkResult BaseFilter::DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
 
     VkPipelineStageFlags submitWaitDstStageMask = VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
 
-    std::vector<VkSubmitInfo> submitInfos;;
+    std::vector<VkSubmitInfo> submitInfos;
     submitInfos.push_back(VkGPUHelper::BuildSubmitInfo(&submitWaitDstStageMask,
                                                        submitCommandBuffers,
                                                        submitSignalSemaphores,
@@ -136,7 +140,13 @@ VkResult BaseFilter::DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
         return ret;
     }
 
-    ret = vkWaitForFences(gpuCtx->GetCurrentDevice(), 1, &computeFence, VK_TRUE, UINT64_MAX);
+    std::vector<VkFence> waitFences;
+    waitFences.push_back(computeFence);
+    ret = vkWaitForFences(gpuCtx->GetCurrentDevice(),
+                          waitFences.size(),
+                          waitFences.data(),
+                          VK_TRUE,
+                          UINT64_MAX);
     if (ret != VK_SUCCESS) {
         std::cout << "Failed to wait fence, err=" << string_VkResult(ret) << std::endl;
         return ret;

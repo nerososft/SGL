@@ -19,7 +19,7 @@ VkGPUComputePipeline::VkGPUComputePipeline(const std::string &computeShaderPath,
 }
 
 VkResult VkGPUComputePipeline::CreateComputePipeline(const VkDevice device,
-                                                     VkPipelineCache pipelineCache) {
+                                                     const VkPipelineCache pipelineCache) {
     this->device = device;
     VkResult ret = VkGPUHelper::CreateDescriptorSetLayout(device,
                                                           descriptorSetLayoutBindings,
