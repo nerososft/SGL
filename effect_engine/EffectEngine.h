@@ -26,6 +26,14 @@ public:
 
     bool Init();
 
+    VkResult Process(VkBuffer *inputStorageBuffer,
+                     VkDeviceMemory *inputStorageBufferMemory,
+                     uint32_t width,
+                     uint32_t height,
+                     uint32_t channels, const void *uploadData, VkBuffer *outputStorageBuffer,
+                     VkDeviceMemory *outputStorageBufferMemory, const
+                     std::shared_ptr<IFilter> &filter) const;
+
     void Process(const ImageInfo &input,
                  const ImageInfo &output,
                  const std::shared_ptr<GrayFilter> &filter) const;

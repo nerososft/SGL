@@ -24,6 +24,65 @@ bool EffectEngine::Init() {
     return true;
 }
 
+VkResult EffectEngine::Process(VkBuffer *inputStorageBuffer,
+                               VkDeviceMemory *inputStorageBufferMemory,
+                               const uint32_t width,
+                               const uint32_t height,
+                               const uint32_t channels,
+                               const void *uploadData,
+                               VkBuffer *outputStorageBuffer,
+                               VkDeviceMemory *outputStorageBufferMemory,
+                               const std::shared_ptr<IFilter> &filter) const {
+    const VkDeviceSize bufferSize = width * height * channels;
+
+    std::vector<uint32_t> queueFamilyIndices;
+    queueFamilyIndices.push_back(0);
+    const VkPhysicalDeviceMemoryProperties memoryProperties = gpuCtx->GetMemoryProperties();
+    VkResult ret = VkGPUHelper::CreateStorageBufferAndBindMem(gpuCtx->GetCurrentDevice(),
+                                                              bufferSize,
+                                                              queueFamilyIndices,
+                                                              &memoryProperties,
+                                                              inputStorageBuffer,
+                                                              inputStorageBufferMemory);
+    if (ret != VK_SUCCESS) {
+        std::cout << "Failed to create input storage buffer!" << std::endl;
+        return ret;
+    }
+
+    ret = VkGPUHelper::CreateStorageBufferAndBindMem(gpuCtx->GetCurrentDevice(),
+                                                     bufferSize,
+                                                     queueFamilyIndices,
+                                                     &memoryProperties,
+                                                     outputStorageBuffer,
+                                                     outputStorageBufferMemory);
+    if (ret != VK_SUCCESS) {
+        std::cout << "Failed to create output storage buffer!" << std::endl;
+        return ret;
+    }
+
+    const uint64_t imageUploadStart = TimeUtils::GetCurrentMonoMs();
+    void *data = nullptr;
+    ret = vkMapMemory(gpuCtx->GetCurrentDevice(), *inputStorageBufferMemory, 0, bufferSize, 0, &data);
+    if (ret != VK_SUCCESS) {
+        std::cout << "Failed to map input storage buffer memory, err=" << string_VkResult(ret) << std::endl;
+        return ret;
+    }
+    memcpy(data, uploadData, bufferSize);
+    vkUnmapMemory(gpuCtx->GetCurrentDevice(), *inputStorageBufferMemory);
+    const uint64_t imageUploadEnd = TimeUtils::GetCurrentMonoMs();
+    std::cout << "Image Upload Time: " << imageUploadEnd - imageUploadStart << "ms" << std::endl;
+
+    const uint64_t gpuProcessTimeStart = TimeUtils::GetCurrentMonoMs();
+    ret = filter->Apply(gpuCtx, bufferSize, width, height, *inputStorageBuffer, *outputStorageBuffer);
+    if (ret != VK_SUCCESS) {
+        std::cout << "Failed to apply filter!" << std::endl;
+        return ret;
+    }
+    const uint64_t gpuProcessTimeEnd = TimeUtils::GetCurrentMonoMs();
+    std::cout << "GPU Process Time: " << gpuProcessTimeEnd - gpuProcessTimeStart << "ms" << std::endl;
+    return ret;
+}
+
 void EffectEngine::Process(const ImageInfo &input,
                            const ImageInfo &output,
                            const std::shared_ptr<GrayFilter> &filter) const {
@@ -34,49 +93,24 @@ void EffectEngine::Process(const ImageInfo &input,
     const VkDeviceSize bufferSize = input.width * input.height * input.channels;
     VkBuffer inputStorageBuffer = VK_NULL_HANDLE;
     VkDeviceMemory inputStorageBufferMemory = VK_NULL_HANDLE;
-    std::vector<uint32_t> queueFamilyIndices;
-    queueFamilyIndices.push_back(0);
-    const VkPhysicalDeviceMemoryProperties memoryProperties = gpuCtx->GetMemoryProperties();
-    VkResult ret = VkGPUHelper::CreateStorageBufferAndBindMem(gpuCtx->GetCurrentDevice(),
-                                                              bufferSize,
-                                                              queueFamilyIndices,
-                                                              &memoryProperties,
-                                                              &inputStorageBuffer,
-                                                              &inputStorageBufferMemory);
-    if (ret != VK_SUCCESS) {
-        std::cout << "Failed to create input storage buffer!" << std::endl;
-        return;
-    }
-
     VkBuffer outputStorageBuffer = VK_NULL_HANDLE;
     VkDeviceMemory outputStorageBufferMemory = VK_NULL_HANDLE;
-    ret = VkGPUHelper::CreateStorageBufferAndBindMem(gpuCtx->GetCurrentDevice(),
-                                                     bufferSize,
-                                                     queueFamilyIndices,
-                                                     &memoryProperties,
-                                                     &outputStorageBuffer,
-                                                     &outputStorageBufferMemory);
+
+    VkResult ret = Process(&inputStorageBuffer,
+                           &inputStorageBufferMemory,
+                           input.width,
+                           input.height,
+                           input.channels,
+                           input.data,
+                           &outputStorageBuffer,
+                           &outputStorageBufferMemory,
+                           filter);
     if (ret != VK_SUCCESS) {
-        std::cout << "Failed to create output storage buffer!" << std::endl;
+        std::cerr << "Failed to process input storage buffer, err=" << string_VkResult(ret) << std::endl;
         return;
     }
 
     void *data = nullptr;
-    ret = vkMapMemory(gpuCtx->GetCurrentDevice(), inputStorageBufferMemory, 0, bufferSize, 0, &data);
-    if (ret != VK_SUCCESS) {
-        std::cout << "Failed to map input storage buffer memory, err=" << string_VkResult(ret) << std::endl;
-        return;
-    }
-    memcpy(data, input.data, bufferSize);
-    vkUnmapMemory(gpuCtx->GetCurrentDevice(), inputStorageBufferMemory);
-
-
-    ret = filter->Apply(gpuCtx, bufferSize, input.width, input.height, inputStorageBuffer, outputStorageBuffer);
-    if (ret != VK_SUCCESS) {
-        std::cout << "Failed to apply filter!" << std::endl;
-        return;
-    }
-
     ret = vkMapMemory(gpuCtx->GetCurrentDevice(), outputStorageBufferMemory, 0, bufferSize, 0, &data);
     if (ret != VK_SUCCESS) {
         std::cout << "Failed to map output storage buffer memory, err=" << string_VkResult(ret) << std::endl;
@@ -101,54 +135,24 @@ void EffectEngine::Process(const char *inputFilePath,
 
     VkBuffer inputStorageBuffer = VK_NULL_HANDLE;
     VkDeviceMemory inputStorageBufferMemory = VK_NULL_HANDLE;
-    std::vector<uint32_t> queueFamilyIndices;
-    queueFamilyIndices.push_back(0);
-    const VkPhysicalDeviceMemoryProperties memoryProperties = gpuCtx->GetMemoryProperties();
-    VkResult ret = VkGPUHelper::CreateStorageBufferAndBindMem(gpuCtx->GetCurrentDevice(),
-                                                              bufferSize,
-                                                              queueFamilyIndices,
-                                                              &memoryProperties,
-                                                              &inputStorageBuffer,
-                                                              &inputStorageBufferMemory);
-    if (ret != VK_SUCCESS) {
-        std::cout << "Failed to create input storage buffer!" << std::endl;
-        return;
-    }
-
     VkBuffer outputStorageBuffer = VK_NULL_HANDLE;
     VkDeviceMemory outputStorageBufferMemory = VK_NULL_HANDLE;
-    ret = VkGPUHelper::CreateStorageBufferAndBindMem(gpuCtx->GetCurrentDevice(),
-                                                     bufferSize,
-                                                     queueFamilyIndices,
-                                                     &memoryProperties,
-                                                     &outputStorageBuffer,
-                                                     &outputStorageBufferMemory);
+
+    VkResult ret = Process(&inputStorageBuffer,
+                           &inputStorageBufferMemory,
+                           imageWidth,
+                           imageHeight,
+                           channels,
+                           inputFileData.data(),
+                           &outputStorageBuffer,
+                           &outputStorageBufferMemory,
+                           filter);
     if (ret != VK_SUCCESS) {
-        std::cout << "Failed to create output storage buffer!" << std::endl;
+        std::cerr << "Failed to process input storage buffer, err=" << string_VkResult(ret) << std::endl;
         return;
     }
 
-    const uint64_t imageUploadStart = TimeUtils::GetCurrentMonoMs();
     void *data = nullptr;
-    ret = vkMapMemory(gpuCtx->GetCurrentDevice(), inputStorageBufferMemory, 0, bufferSize, 0, &data);
-    if (ret != VK_SUCCESS) {
-        std::cout << "Failed to map input storage buffer memory, err=" << string_VkResult(ret) << std::endl;
-        return;
-    }
-    memcpy(data, inputFileData.data(), bufferSize);
-    vkUnmapMemory(gpuCtx->GetCurrentDevice(), inputStorageBufferMemory);
-    const uint64_t imageUploadEnd = TimeUtils::GetCurrentMonoMs();
-    std::cout << "Image Upload Time: " << imageUploadEnd - imageUploadStart << "ms" << std::endl;
-
-    const uint64_t gpuProcessTimeStart = TimeUtils::GetCurrentMonoMs();
-    ret = filter->Apply(gpuCtx, bufferSize, imageWidth, imageHeight, inputStorageBuffer, outputStorageBuffer);
-    if (ret != VK_SUCCESS) {
-        std::cout << "Failed to apply filter!" << std::endl;
-        return;
-    }
-    const uint64_t gpuProcessTimeEnd = TimeUtils::GetCurrentMonoMs();
-    std::cout << "GPU Process Time: " << gpuProcessTimeEnd - gpuProcessTimeStart << "ms" << std::endl;
-
     ret = vkMapMemory(gpuCtx->GetCurrentDevice(), outputStorageBufferMemory, 0, bufferSize, 0, &data);
     if (ret != VK_SUCCESS) {
         std::cout << "Failed to map output storage buffer memory, err=" << string_VkResult(ret) << std::endl;
