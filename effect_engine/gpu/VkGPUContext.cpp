@@ -44,8 +44,6 @@ VkResult VkGPUContext::CreateDevice(const std::vector<const char *> &deviceEnabl
     deviceEnableExtensions.push_back("VK_KHR_portability_subset");
 #endif /* __APPLE__ */
 
-    deviceEnableExtensions.push_back("VK_KHR_swapchain");
-
     constexpr float queuePriorities[1] = {1.0f};
 
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
@@ -222,7 +220,7 @@ VkResult VkGPUContext::Init() {
 
     VkCommandPoolCreateInfo commandPoolCreateInfo{};
     commandPoolCreateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-    commandPoolCreateInfo.flags = 0;
+    commandPoolCreateInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
     commandPoolCreateInfo.pNext = nullptr;
     commandPoolCreateInfo.queueFamilyIndex = queueFamilyIndex;
     result = vkCreateCommandPool(this->device, &commandPoolCreateInfo, nullptr, &this->commandPool);

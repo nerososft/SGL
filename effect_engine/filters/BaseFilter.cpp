@@ -108,13 +108,13 @@ VkResult BaseFilter::DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
         VkGPUHelper::GPUCmdDispatch(commandBuffer, groupCountX, groupCountY, groupCountZ);
 
         std::vector<VkBufferMemoryBarrier> bufferMemoryBarriers;
-        bufferMemoryBarriers.push_back(VkGPUHelper::BuildBufferMemoryBarrier(VK_ACCESS_TRANSFER_READ_BIT,
-                                                                             VK_ACCESS_TRANSFER_WRITE_BIT,
+        bufferMemoryBarriers.push_back(VkGPUHelper::BuildBufferMemoryBarrier(VK_ACCESS_SHADER_WRITE_BIT,
+                                                                             VK_ACCESS_TRANSFER_READ_BIT,
                                                                              outputBuffer,
                                                                              bufferSize));
         VkGPUHelper::GPUCmdPipelineBufferMemBarrier(commandBuffer,
-                                                    VK_PIPELINE_STAGE_TRANSFER_BIT,
                                                     VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+                                                    VK_PIPELINE_STAGE_TRANSFER_BIT,
                                                     0,
                                                     bufferMemoryBarriers);
     }
@@ -159,7 +159,6 @@ VkResult BaseFilter::DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     }
     return ret;
 }
-
 
 VkResult BaseFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                            VkDeviceSize bufferSize,

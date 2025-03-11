@@ -14,8 +14,8 @@
 
 bool EffectEngine::Init() {
     std::vector<const char *> requiredExtensions;
-    std::vector<const char *> enabledExtensions;
     this->gpuCtx = std::make_shared<VkGPUContext>(requiredExtensions);
+    // this->gpuCtx->AddInstanceEnableLayer("VK_LAYER_KHRONOS_validation");
     const VkResult result = this->gpuCtx->Init();
     if (result != VK_SUCCESS) {
         std::cerr << "Failed to initialize Vulkan GPU context!" << std::endl;
