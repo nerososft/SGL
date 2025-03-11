@@ -22,18 +22,22 @@ layout (push_constant) uniform FilterParams {
 
 // ABGR
 uint packColor(vec4 color) {
-    return (uint(clamp(color.a, 0.0, 1.0) * 255.0) << 24) |
+    return (
+    uint(clamp(color.a, 0.0, 1.0) * 255.0) << 24) |
     (uint(clamp(color.b, 0.0, 1.0) * 255.0) << 16) |
     (uint(clamp(color.g, 0.0, 1.0) * 255.0) << 8) |
-    (uint(clamp(color.r, 0.0, 1.0) * 255.0));
+    (uint(clamp(color.r, 0.0, 1.0) * 255.0)
+    );
 }
 
-// ARGB
+// ABGR
 vec4 unpackColor(uint color) {
-    return vec4(float((color >> 24) & 0xFF) / 255.0f,
-    float((color >> 16) & 0xFF) / 255.0f,
+    return vec4(
+    float((color) & 0xFF) / 255.0f,
     float((color >> 8) & 0xFF) / 255.0f,
-    float((color) & 0xFF) / 255.0f);
+    float((color >> 16) & 0xFF) / 255.0f,
+    float((color >> 24) & 0xFF) / 255.0f
+    );
 }
 
 void main() {
