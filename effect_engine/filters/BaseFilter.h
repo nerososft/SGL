@@ -7,6 +7,7 @@
 #include <vulkan/vulkan_core.h>
 
 #include "IFilter.h"
+#include "effect_engine/compute_graph/ComputeGraph.h"
 #include "effect_engine/gpu/VkGPUContext.h"
 
 struct BasicFilterParam {
@@ -23,18 +24,21 @@ struct FilterParams {
 };
 
 class BaseFilter : public IFilter {
+    std::shared_ptr<ComputeGraph> computeGraph = nullptr;
+
 public:
     BaseFilter() = default;
 
     ~BaseFilter() override = default;
 
-    static VkResult DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                            VkDeviceSize bufferSize,
-                            uint32_t width,
-                            uint32_t height,
-                            VkBuffer inputBuffer,
-                            VkBuffer outputBuffer,
-                            const FilterParams &filterParams);
+    VkResult DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                     const std::string &name,
+                     VkDeviceSize bufferSize,
+                     uint32_t width,
+                     uint32_t height,
+                     VkBuffer inputBuffer,
+                     VkBuffer outputBuffer,
+                     const FilterParams &filterParams);
 
     VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                    VkDeviceSize bufferSize,
