@@ -85,7 +85,7 @@ VkResult EffectEngine::Process(VkBuffer *inputStorageBuffer,
 
 void EffectEngine::Process(const ImageInfo &input,
                            const ImageInfo &output,
-                           const std::shared_ptr<GrayFilter> &filter) const {
+                           const std::shared_ptr<IFilter> &filter) const {
     if (input.width != output.width || input.height != output.height || input.channels != output.channels) {
         std::cerr << "Input and output must be same size!" << std::endl;
         return;
@@ -122,7 +122,7 @@ void EffectEngine::Process(const ImageInfo &input,
 
 void EffectEngine::Process(const char *inputFilePath,
                            const char *outputFilePath,
-                           const std::shared_ptr<GrayFilter> &filter) const {
+                           const std::shared_ptr<IFilter> &filter) const {
     uint32_t imageWidth = 0, imageHeight = 0, channels = 0;
     const std::vector<char> inputFileData =
             ImageUtils::ReadPngFile(inputFilePath, &imageWidth, &imageHeight, &channels);

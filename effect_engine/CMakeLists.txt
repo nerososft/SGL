@@ -1,8 +1,8 @@
 add_library(gpu_effect_engine
         EffectEngine.cpp
         EffectEngine.h
-        filters/BaseFilter.cpp
-        filters/BaseFilter.h
+        filters/BasicFilter.cpp
+        filters/BasicFilter.h
         filters/impl/GrayFilter.cpp
         filters/impl/GrayFilter.h
         gpu/VkGPUHelper.cpp
@@ -18,5 +18,16 @@ add_library(gpu_effect_engine
         gpu/VkGPUComputePipeline.h
         gpu/VkGPUDescriptorSet.cpp
         gpu/VkGPUDescriptorSet.h
+        gpu/compute_graph/ComputeGraph.cpp
+        gpu/compute_graph/ComputeGraph.h
+        gpu/compute_graph/IComputeGraphNode.h
+        gpu/compute_graph/PipelineComputeGraphNode.cpp
+        gpu/compute_graph/PipelineComputeGraphNode.h
+        filters/impl/GaussianBlurFilter.cpp
+        filters/impl/GaussianBlurFilter.h
+        gpu/compute_graph/BufferCopyComputeGraphNode.h
+        gpu/compute_graph/BufferCopyComputeGraphNode.cpp
+        filters/impl/ChinesePaintFilter.h
+        filters/impl/ChinesePaintFilter.cpp
 )
 target_link_libraries(gpu_effect_engine vulkan)

@@ -15,7 +15,7 @@ layout (push_constant) uniform FilterParams {
     uint height;
     uint channels;
     uint bytesPerLine;
-    // TODO: filter params
+    int radius;
 } filterParams;
 
 // ABGR
@@ -43,5 +43,20 @@ void main() {
     if (any(greaterThanEqual(coord, uvec2(filterParams.width, filterParams.height)))) {
         return;
     }
-    // TODO: filter implement
+    vec4 colorSum = vec4(0.0);
+    float weightSum = 0.0;
+    float sigma = float(filterParams.radius) / 2;
+    for (int dy = -filterParams.radius; dy <= filterParams.radius; ++dy) {
+        int sampleY = int(coord.y) + dy;
+        sampleY = clamp(sampleY, 0, int(filterParams.height) - 1);
+
+        float weight = exp(- float(dy * dy) / (2.0 * sigma * sigma));
+        vec4 sampledColor = unpackColor(inputImage.pixels[coord.x + sampleY * filterParams.width]);
+
+        colorSum += sampledColor * weight;
+        weightSum += weight;
+    }
+
+    colorSum /= weightSum;
+    outputImage.pixels[coord.x + coord.y * filterParams.width] = packColor(colorSum);
 }
