@@ -5,7 +5,7 @@
 #ifndef IMAGEUTILS_H
 #define IMAGEUTILS_H
 #include <vector>
-
+#include <string>
 
 class ImageUtils {
 public:

@@ -36,7 +36,8 @@ int main(int argc, char *argv[]) {
     // outputImageInfo.data = malloc(outputImageInfo.width * outputImageInfo.height * outputImageInfo.channels);
     // effectEngine.Process(inputImageInfo, outputImageInfo, filter);
 
-    effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_gray.png", filter);
+    //effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_gray.png", filter);
+    effectEngine.Process("D:/effect_engine/demo/images/girl.png", "D:/effect_engine/demo/images/test.png", filter);
 
     return 0;
 }

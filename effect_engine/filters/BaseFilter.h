@@ -8,7 +8,7 @@
 
 #include "IFilter.h"
 #include "effect_engine/gpu/VkGPUContext.h"
-
+#include <string>
 struct BasicFilterParam {
     uint32_t width;
     uint32_t height;

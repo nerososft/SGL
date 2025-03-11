@@ -4,6 +4,14 @@
 
 #include "TimeUtils.h"
 
+#ifdef ENNABLE_WIN64
+
+uint64_t TimeUtils::GetCurrentMonoMs() {
+    return 0;
+}
+
+#else
+
 #include <_time.h>
 #include <sys/_types/_timespec.h>
 
@@ -15,3 +23,6 @@ uint64_t TimeUtils::GetCurrentMonoMs() {
     clock_gettime(CLOCK_MONOTONIC, &ts);
     return ts.tv_sec * MSEC_PER_SEC + ts.tv_nsec / NSEC_PER_MSEC;
 }
+#endif
+
+
