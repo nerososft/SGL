@@ -27,5 +27,7 @@ add_library(gpu_effect_engine
         filters/impl/GaussianBlurFilter.h
         gpu/compute_graph/BufferCopyComputeGraphNode.h
         gpu/compute_graph/BufferCopyComputeGraphNode.cpp
+        filters/impl/ChinesePaintFilter.h
+        filters/impl/ChinesePaintFilter.cpp
 )
 target_link_libraries(gpu_effect_engine vulkan)

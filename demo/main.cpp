@@ -5,6 +5,7 @@
 #include <iostream>
 
 #include "effect_engine/EffectEngine.h"
+#include "effect_engine/filters/impl/ChinesePaintFilter.h"
 #include "effect_engine/filters/impl/GaussianBlurFilter.h"
 #include "effect_engine/filters/impl/GrayFilter.h"
 
@@ -43,9 +44,12 @@ int main(int argc, char *argv[]) {
     // filter->SetBlueFactor(0.114);
     // effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_gray.png", filter);
 
-    const auto filter = std::make_shared<GaussianBlurFilter>();
-    filter->SetRadius(300);
-    effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_blur.png", filter);
+    // const auto filter = std::make_shared<GaussianBlurFilter>();
+    // filter->SetRadius(300);
+    // effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_blur.png", filter);
+
+    const auto filter = std::make_shared<ChinesePaintFilter>();
+    effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_chinese_paint.png", filter);
 
     return 0;
 }
