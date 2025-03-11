@@ -18,10 +18,10 @@ add_library(gpu_effect_engine
         gpu/VkGPUComputePipeline.h
         gpu/VkGPUDescriptorSet.cpp
         gpu/VkGPUDescriptorSet.h
-        compute_graph/ComputeGraph.cpp
-        compute_graph/ComputeGraph.h
-        compute_graph/IComputeGraphNode.h
-        compute_graph/PipelineComputeGraphNode.cpp
-        compute_graph/PipelineComputeGraphNode.h
+        gpu/compute_graph/ComputeGraph.cpp
+        gpu/compute_graph/ComputeGraph.h
+        gpu/compute_graph/IComputeGraphNode.h
+        gpu/compute_graph/PipelineComputeGraphNode.cpp
+        gpu/compute_graph/PipelineComputeGraphNode.h
 )
 target_link_libraries(gpu_effect_engine vulkan)

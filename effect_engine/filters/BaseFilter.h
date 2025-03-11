@@ -7,8 +7,8 @@
 #include <vulkan/vulkan_core.h>
 
 #include "IFilter.h"
-#include "effect_engine/compute_graph/ComputeGraph.h"
 #include "effect_engine/gpu/VkGPUContext.h"
+#include "effect_engine/gpu/compute_graph/ComputeGraph.h"
 
 struct BasicFilterParam {
     uint32_t width;

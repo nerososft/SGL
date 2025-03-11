@@ -8,10 +8,8 @@
 #include <ostream>
 #include <vulkan/vk_enum_string_helper.h>
 
-#include "effect_engine/compute_graph/PipelineComputeGraphNode.h"
 #include "effect_engine/gpu/VkGPUComputePipeline.h"
-#include "effect_engine/gpu/VkGPUDescriptorSet.h"
-#include "effect_engine/gpu/VkGPUHelper.h"
+#include "effect_engine/gpu/compute_graph/PipelineComputeGraphNode.h"
 
 VkResult BaseFilter::DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                              const std::string &name,
