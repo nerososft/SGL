@@ -2,7 +2,7 @@
 // Created by 1234 on 2025/3/6.
 //
 
-#include "BaseFilter.h"
+#include "BasicFilter.h"
 
 #include <iostream>
 #include <ostream>
@@ -11,7 +11,7 @@
 #include "effect_engine/gpu/VkGPUComputePipeline.h"
 #include "effect_engine/gpu/compute_graph/PipelineComputeGraphNode.h"
 
-VkResult BaseFilter::DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
+VkResult BasicFilter::DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                              const std::string &name,
                              const VkDeviceSize bufferSize,
                              const uint32_t width,
@@ -56,7 +56,7 @@ VkResult BaseFilter::DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     return computeGraph->Compute();
 }
 
-VkResult BaseFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
+VkResult BasicFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                            VkDeviceSize bufferSize,
                            uint32_t width,
                            uint32_t height,

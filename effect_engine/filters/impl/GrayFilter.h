@@ -6,7 +6,7 @@
 #define GRAYFILTER_H
 #include <vulkan/vulkan_core.h>
 
-#include "effect_engine/filters/BaseFilter.h"
+#include "effect_engine/filters/BasicFilter.h"
 #include "effect_engine/gpu/VkGPUContext.h"
 
 struct GrayFilterParams {
@@ -16,7 +16,7 @@ struct GrayFilterParams {
     float blueFactor;
 };
 
-class GrayFilter final : public BaseFilter {
+class GrayFilter final : public BasicFilter {
     GrayFilterParams grayFilterParams{};
 
 public:

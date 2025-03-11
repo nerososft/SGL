@@ -1,8 +1,8 @@
 add_library(gpu_effect_engine
         EffectEngine.cpp
         EffectEngine.h
-        filters/BaseFilter.cpp
-        filters/BaseFilter.h
+        filters/BasicFilter.cpp
+        filters/BasicFilter.h
         filters/impl/GrayFilter.cpp
         filters/impl/GrayFilter.h
         gpu/VkGPUHelper.cpp

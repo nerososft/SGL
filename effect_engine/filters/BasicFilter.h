@@ -23,13 +23,13 @@ struct FilterParams {
     std::string shaderPath;
 };
 
-class BaseFilter : public IFilter {
+class BasicFilter : public IFilter {
     std::shared_ptr<ComputeGraph> computeGraph = nullptr;
 
 public:
-    BaseFilter() = default;
+    BasicFilter() = default;
 
-    ~BaseFilter() override = default;
+    ~BasicFilter() override = default;
 
     VkResult DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                      const std::string &name,
