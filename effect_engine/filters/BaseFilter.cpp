@@ -72,6 +72,8 @@ VkResult BaseFilter::DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     outputImageBufferInfo.buffer = outputBuffer;
     pipelineDescriptorSet.AddStorageBufferDescriptorSet(1, outputImageBufferInfo);
 
+    pipelineDescriptorSet.UpdateDescriptorSets();
+
     VkFence computeFence = VK_NULL_HANDLE;
     ret = VkGPUHelper::CreateFence(gpuCtx->GetCurrentDevice(), &computeFence);
     if (ret != VK_SUCCESS) {
