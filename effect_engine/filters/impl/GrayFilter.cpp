@@ -10,7 +10,7 @@ VkResult GrayFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                            const uint32_t height,
                            const VkBuffer inputBuffer,
                            const VkBuffer outputBuffer) {
-    FilterParams params;
+    BasicFilterParams params;
     this->grayFilterParams.imageSize.width = width;
     this->grayFilterParams.imageSize.height = height;
     this->grayFilterParams.imageSize.channels = 4;

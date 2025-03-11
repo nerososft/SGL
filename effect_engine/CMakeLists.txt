@@ -23,5 +23,9 @@ add_library(gpu_effect_engine
         gpu/compute_graph/IComputeGraphNode.h
         gpu/compute_graph/PipelineComputeGraphNode.cpp
         gpu/compute_graph/PipelineComputeGraphNode.h
+        filters/impl/GaussianBlurFilter.cpp
+        filters/impl/GaussianBlurFilter.h
+        gpu/compute_graph/BufferCopyComputeGraphNode.h
+        gpu/compute_graph/BufferCopyComputeGraphNode.cpp
 )
 target_link_libraries(gpu_effect_engine vulkan)

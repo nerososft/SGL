@@ -18,7 +18,7 @@ VkResult BasicFilter::DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                              const uint32_t height,
                              const VkBuffer inputBuffer,
                              const VkBuffer outputBuffer,
-                             const FilterParams &filterParams) {
+                             const BasicFilterParams &filterParams) {
     this->computeGraph = std::make_shared<ComputeGraph>(gpuCtx);
     VkResult ret = this->computeGraph->Init();
     if (ret != VK_SUCCESS) {

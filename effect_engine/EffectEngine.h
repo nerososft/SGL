@@ -36,11 +36,11 @@ public:
 
     void Process(const ImageInfo &input,
                  const ImageInfo &output,
-                 const std::shared_ptr<GrayFilter> &filter) const;
+                 const std::shared_ptr<IFilter> &filter) const;
 
     void Process(const char *inputFilePath,
                  const char *outputFilePath,
-                 const std::shared_ptr<GrayFilter> &filter) const;
+                 const std::shared_ptr<IFilter> &filter) const;
 };
 
 

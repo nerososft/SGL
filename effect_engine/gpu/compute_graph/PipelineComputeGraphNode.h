@@ -6,10 +6,9 @@
 #define PIPELINECOMPUTEGRAPHNODE_H
 
 #include "IComputeGraphNode.h"
+#include "effect_engine/gpu/VkGPUComputePipeline.h"
 #include "effect_engine/gpu/VkGPUContext.h"
-
-class VkGPUDescriptorSet;
-class VkGPUComputePipeline;
+#include "effect_engine/gpu/VkGPUDescriptorSet.h"
 
 typedef struct {
     VkDeviceSize size;

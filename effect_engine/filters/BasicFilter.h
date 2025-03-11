@@ -17,7 +17,7 @@ struct BasicFilterParam {
     uint32_t bytesPerLine;
 };
 
-struct FilterParams {
+struct BasicFilterParams {
     size_t paramsSize;
     void *paramsData;
     std::string shaderPath;
@@ -38,7 +38,7 @@ public:
                      uint32_t height,
                      VkBuffer inputBuffer,
                      VkBuffer outputBuffer,
-                     const FilterParams &filterParams);
+                     const BasicFilterParams &filterParams);
 
     VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                    VkDeviceSize bufferSize,
