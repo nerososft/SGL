@@ -21,6 +21,8 @@ public:
                            uint32_t height,
                            VkBuffer inputBuffer,
                            VkBuffer outputBuffer) = 0;
+
+    virtual void Destroy() = 0;
 };
 
 #endif //IFILTER_H

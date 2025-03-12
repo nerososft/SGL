@@ -18,6 +18,13 @@ VkGPUComputePipeline::VkGPUComputePipeline(const std::string &computeShaderPath,
     this->pushConstantRanges = pushConstantRanges;
 }
 
+VkGPUComputePipeline::~VkGPUComputePipeline() {
+    vkDestroyPipeline(device, computePipeline, nullptr);
+    vkDestroyShaderModule(device, computeShaderModule, nullptr);
+    vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
+    vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
+}
+
 VkResult VkGPUComputePipeline::CreateComputePipeline(const VkDevice device,
                                                      const VkPipelineCache pipelineCache) {
     this->device = device;
@@ -43,6 +50,7 @@ VkResult VkGPUComputePipeline::CreateComputePipeline(const VkDevice device,
                                                   &this->computeShaderModule);
     if (ret != VK_SUCCESS) {
         std::cout << "failed to create shader module, err=" << string_VkResult(ret) << std::endl;
+        return ret;
     }
     return VkGPUHelper::CreateComputePipeline(device,
                                               pipelineCache,

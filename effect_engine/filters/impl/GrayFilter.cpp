@@ -18,5 +18,17 @@ VkResult GrayFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     params.paramsSize = sizeof(GrayFilterParams);
     params.paramsData = &this->grayFilterParams;
     params.shaderPath = "../../shader_compiled/gray.comp.glsl.spv";
-    return DoApply(gpuCtx, "gray", bufferSize, width, height, inputBuffer, outputBuffer, params);
+    return DoApply(gpuCtx,
+                   "gray",
+                   bufferSize,
+                   inputBuffer,
+                   outputBuffer,
+                   params,
+                   (width + 31) / 32,
+                   (height + 31) / 32,
+                   1);
+}
+
+void GrayFilter::Destroy() {
+    BasicFilter::Destroy();
 }

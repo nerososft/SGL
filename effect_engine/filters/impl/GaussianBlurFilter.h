@@ -30,6 +30,8 @@ public:
                    VkBuffer outputBuffer) override;
 
     void SetRadius(const int radius) { this->blurFilterParams.radius = radius; }
+
+    void Destroy() override;
 };
 
 

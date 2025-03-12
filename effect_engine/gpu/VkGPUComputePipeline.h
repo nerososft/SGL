@@ -24,7 +24,7 @@ public:
                          const std::vector<VkDescriptorSetLayoutBinding> &descriptorSetLayoutBindings,
                          const std::vector<VkPushConstantRange> &pushConstantRanges);
 
-    ~VkGPUComputePipeline() = default;
+    ~VkGPUComputePipeline();
 
     VkResult CreateComputePipeline(VkDevice device,
                                    VkPipelineCache pipelineCache);

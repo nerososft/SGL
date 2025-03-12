@@ -34,6 +34,8 @@ public:
     void SetRedFactor(const float redFactor) { this->grayFilterParams.redFactor = redFactor; }
     void SetGreenFactor(const float greenFactor) { this->grayFilterParams.greenFactor = greenFactor; }
     void SetBlueFactor(const float blueFactor) { this->grayFilterParams.blueFactor = blueFactor; }
+
+    void Destroy() override;
 };
 
 

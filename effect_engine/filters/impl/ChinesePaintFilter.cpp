@@ -20,3 +20,7 @@ VkResult ChinesePaintFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     params.shaderPath = "../../shader_compiled/chinese_paint.comp.glsl.spv";
     return DoApply(gpuCtx, "ChinesePaint", bufferSize, width, height, inputBuffer, outputBuffer, params);
 }
+
+void ChinesePaintFilter::Destroy() {
+    BasicFilter::Destroy();
+}

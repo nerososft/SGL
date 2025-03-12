@@ -20,9 +20,13 @@ public:
 
     virtual VkResult CreateComputeGraphNode() = 0;
 
+    void AddDependenceNode(const std::shared_ptr<IComputeGraphNode> &node) { this->dependencies.push_back(node); }
+
     virtual void Compute(VkCommandBuffer commandBuffer) = 0;
 
     std::string &GetName() { return name; }
+
+    virtual void Destroy() = 0;
 };
 
 

@@ -67,3 +67,6 @@ void BufferCopyComputeGraphNode::Compute(const VkCommandBuffer commandBuffer) {
                                                 0,
                                                 dtsBufferMemoryBarriers);
 }
+
+void BufferCopyComputeGraphNode::Destroy() {
+}
