@@ -24,6 +24,8 @@ bool EffectEngine::Init() {
     return true;
 }
 
+#include <fstream>
+
 VkResult EffectEngine::Process(VkBuffer *inputStorageBuffer,
                                VkDeviceMemory *inputStorageBufferMemory,
                                const uint32_t width,
@@ -34,6 +36,20 @@ VkResult EffectEngine::Process(VkBuffer *inputStorageBuffer,
                                VkDeviceMemory *outputStorageBufferMemory,
                                const std::shared_ptr<IFilter> &filter) const {
     const VkDeviceSize bufferSize = width * height * channels;
+
+
+
+
+    std::ofstream outFile("d://temp//engine_output.txt", std::ios::app);
+
+    // 确保文件成功打开
+    if (!outFile) {
+        std::cerr << "无法打开文件!" << std::endl;
+    }
+
+    // 保存原始的 cout buffer
+    std::streambuf* originalCoutBuffer = std::cout.rdbuf();
+    std::cout.rdbuf(outFile.rdbuf());
 
     std::vector<uint32_t> queueFamilyIndices;
     queueFamilyIndices.push_back(0);
@@ -81,6 +97,15 @@ VkResult EffectEngine::Process(VkBuffer *inputStorageBuffer,
     const uint64_t gpuProcessTimeEnd = TimeUtils::GetCurrentMonoMs();
     std::cout << "GPU Process Time: " << gpuProcessTimeEnd - gpuProcessTimeStart << "ms" << std::endl;
     filter->Destroy();
+
+
+    std::cout.rdbuf(originalCoutBuffer);
+
+    // 输出到控制台
+    std::cout << "输出已经重定向到文件." << std::endl;
+
+    // 关闭文件
+    outFile.close();
     return ret;
 }
 
@@ -123,7 +148,7 @@ void EffectEngine::Process(const ImageInfo &input,
     vkFreeMemory(gpuCtx->GetCurrentDevice(), inputStorageBufferMemory, nullptr);
     vkDestroyBuffer(gpuCtx->GetCurrentDevice(), inputStorageBuffer, nullptr);
     vkFreeMemory(gpuCtx->GetCurrentDevice(), outputStorageBufferMemory, nullptr);
-    vkDestroyBuffer(gpuCtx->GetCurrentDevice(), inputStorageBuffer, nullptr);
+    vkDestroyBuffer(gpuCtx->GetCurrentDevice(), outputStorageBuffer, nullptr);
 }
 
 void EffectEngine::Process(const char *inputFilePath,
@@ -173,5 +198,5 @@ void EffectEngine::Process(const char *inputFilePath,
     vkFreeMemory(gpuCtx->GetCurrentDevice(), inputStorageBufferMemory, nullptr);
     vkDestroyBuffer(gpuCtx->GetCurrentDevice(), inputStorageBuffer, nullptr);
     vkFreeMemory(gpuCtx->GetCurrentDevice(), outputStorageBufferMemory, nullptr);
-    vkDestroyBuffer(gpuCtx->GetCurrentDevice(), inputStorageBuffer, nullptr);
+    vkDestroyBuffer(gpuCtx->GetCurrentDevice(), outputStorageBuffer, nullptr);
 }
