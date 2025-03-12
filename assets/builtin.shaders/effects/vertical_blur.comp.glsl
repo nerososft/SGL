@@ -1,6 +1,6 @@
 #version 450
 
-layout (local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
+layout (local_size_x = 1, local_size_y = 256, local_size_z = 1) in;
 
 layout (std430, binding = 0) buffer InputImageStorageBuffer {
     uint pixels[];
@@ -38,25 +38,44 @@ vec4 unpackColor(uint color) {
     );
 }
 
+const uint MAX_RADIUS = 1000;
+// 共享内存声明（必须全局）
+shared uint s_Pixels[256 + 2 * MAX_RADIUS];  // 核心256像素+两侧各MAX_RADIUS边界
+shared float s_Weights[2 * MAX_RADIUS + 1];      // R=MAX_RADIUS时权重数组
+
 void main() {
-    uvec2 coord = gl_GlobalInvocationID.xy;
-    if (any(greaterThanEqual(coord, uvec2(filterParams.width, filterParams.height)))) {
-        return;
-    }
-    vec4 colorSum = vec4(0.0);
-    float weightSum = 0.0;
-    float sigma = float(filterParams.radius) / 2;
-    for (int dy = -filterParams.radius; dy <= filterParams.radius; ++dy) {
-        int sampleY = int(coord.y) + dy;
-        sampleY = clamp(sampleY, 0, int(filterParams.height) - 1);
+    const int R = filterParams.radius;
+    uint height = filterParams.height;
+    ivec2 gid = ivec2(gl_GlobalInvocationID.xy);
 
-        float weight = exp(- float(dy * dy) / (2.0 * sigma * sigma));
-        vec4 sampledColor = unpackColor(inputImage.pixels[coord.x + sampleY * filterParams.width]);
-
-        colorSum += sampledColor * weight;
-        weightSum += weight;
+    // 预计算权重（仅首个线程）
+    if (gl_LocalInvocationID.y == 0) {
+        float sigma = 150.0;
+        for (int dy = -R; dy <= R; ++dy)
+        s_Weights[dy + R] = exp(-dy * dy / (2.0 * sigma * sigma));
     }
 
-    colorSum /= weightSum;
-    outputImage.pixels[coord.x + coord.y * filterParams.width] = packColor(colorSum);
+    // 垂直方向数据加载
+    for (int j = int(gl_LocalInvocationID.y) - R; j < 256 + R; j += 256) {
+        int y = clamp(int(gl_WorkGroupID.y * 256) + j, 0, int(height) - 1);
+        s_Pixels[j + R] = inputImage.pixels[gid.x + y * filterParams.width];
+    }
+
+    barrier();
+
+    // 计算输出坐标
+    uint outputY = gl_WorkGroupID.y * 256 + gl_LocalInvocationID.y;
+    if (outputY >= height) return;
+
+    // 垂直卷积
+    vec4 sum = vec4(0);
+    float wsum = 0.0;
+    #pragma unroll
+    for (int dy = -R; dy <= R; ++dy) {
+        float w = s_Weights[dy + R];
+        sum += unpackColor(s_Pixels[gl_LocalInvocationID.y + R + dy]) * w;
+        wsum += w;
+    }
+
+    outputImage.pixels[gid.x + outputY * filterParams.width] = packColor(sum / wsum);
 }

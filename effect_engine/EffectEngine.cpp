@@ -54,6 +54,7 @@ VkResult EffectEngine::Process(VkBuffer *inputStorageBuffer,
     std::vector<uint32_t> queueFamilyIndices;
     queueFamilyIndices.push_back(0);
     const VkPhysicalDeviceMemoryProperties memoryProperties = gpuCtx->GetMemoryProperties();
+    const uint64_t imageBufferPrepareStart = TimeUtils::GetCurrentMonoMs();
     VkResult ret = VkGPUHelper::CreateStorageBufferAndBindMem(gpuCtx->GetCurrentDevice(),
                                                               bufferSize,
                                                               queueFamilyIndices,
@@ -75,6 +76,8 @@ VkResult EffectEngine::Process(VkBuffer *inputStorageBuffer,
         std::cout << "Failed to create output storage buffer!" << std::endl;
         return ret;
     }
+    const uint64_t imageBufferPrepareEnd = TimeUtils::GetCurrentMonoMs();
+    std::cout << "Image Buffer Prepare Time: " << imageBufferPrepareEnd - imageBufferPrepareStart << "ms" << std::endl;
 
     const uint64_t imageUploadStart = TimeUtils::GetCurrentMonoMs();
     void *data = nullptr;
@@ -136,6 +139,7 @@ void EffectEngine::Process(const ImageInfo &input,
         return;
     }
 
+    const uint64_t imageDownloadStart = TimeUtils::GetCurrentMonoMs();
     void *data = nullptr;
     ret = vkMapMemory(gpuCtx->GetCurrentDevice(), outputStorageBufferMemory, 0, bufferSize, 0, &data);
     if (ret != VK_SUCCESS) {
@@ -144,6 +148,8 @@ void EffectEngine::Process(const ImageInfo &input,
     }
     memcpy(output.data, data, bufferSize);
     vkUnmapMemory(gpuCtx->GetCurrentDevice(), outputStorageBufferMemory);
+    const uint64_t imageDownloadEnd = TimeUtils::GetCurrentMonoMs();
+    std::cout << "Image Download Time: " << imageDownloadEnd - imageDownloadStart << "ms" << std::endl;
 
     vkFreeMemory(gpuCtx->GetCurrentDevice(), inputStorageBufferMemory, nullptr);
     vkDestroyBuffer(gpuCtx->GetCurrentDevice(), inputStorageBuffer, nullptr);

@@ -149,7 +149,20 @@ VkResult VkGPUContext::Init() {
                 << "." << VK_API_VERSION_MINOR(
                     this->physicalDevicesProperties[physicalDeviceIndex].driverVersion)
                 << "." << VK_API_VERSION_PATCH(
-                    this->physicalDevicesProperties[physicalDeviceIndex].driverVersion)
+                    this->physicalDevicesProperties[physicalDeviceIndex].driverVersion) << std::endl
+                << "\tmaxWorkGroupSize: x=" << this->physicalDevicesProperties[physicalDeviceIndex].limits.
+                maxComputeWorkGroupSize[0]
+                << ", y=" << this->physicalDevicesProperties[physicalDeviceIndex].limits.
+                maxComputeWorkGroupSize[1]
+                << ", z=" << this->physicalDevicesProperties[physicalDeviceIndex].limits.
+                maxComputeWorkGroupSize[2]
+                << std::endl
+                << "\tmaxWorkGroupCount: x=" << this->physicalDevicesProperties[physicalDeviceIndex].limits.
+                maxComputeWorkGroupCount[0]
+                << ", y=" << this->physicalDevicesProperties[physicalDeviceIndex].limits.
+                maxComputeWorkGroupCount[1]
+                << ", z=" << this->physicalDevicesProperties[physicalDeviceIndex].limits.
+                maxComputeWorkGroupCount[2]
                 << std::endl;
 
         vkGetPhysicalDeviceFeatures(this->physicalDevices[physicalDeviceIndex],

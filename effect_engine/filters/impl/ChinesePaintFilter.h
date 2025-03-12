@@ -14,7 +14,7 @@ struct ChinesePaintFilterParams {
 };
 
 class ChinesePaintFilter final : public BasicFilter {
-    ChinesePaintFilterParams chinsesPaintFilterParams{};
+    ChinesePaintFilterParams chinesePaintFilterParams{};
 
 public:
     ChinesePaintFilter() = default;
