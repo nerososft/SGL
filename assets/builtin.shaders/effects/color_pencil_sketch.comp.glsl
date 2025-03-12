@@ -59,7 +59,11 @@ void main() {
 
     // 动态纹理生成
     float paper = fract(sin(dot(coord, vec2(12.9898, 78.233))) * 43758.5453) * 0.3;
-    float stroke = sin(coord.x * 0.3 + coord.y * 1.7) * sin(coord.x * 1.2 - coord.y * 0.8) * 0.2;
+    // 修改笔触生成部分(增强方向性和密度)
+    float noise = fract(sin(dot(coord * 0.4, vec2(12.9898, 78.233))) * 43758.5453) * 0.5;
+    mat2 rot = mat2(cos(0.8), sin(0.8), -sin(0.8), cos(0.8)); // 加大旋转角度
+    vec2 rCoord = rot * coord;
+    float stroke = (sin(rCoord.x * 0.35 + rCoord.y * 2.1) * sin(rCoord.x * 1.5 - rCoord.y * 0.6) + noise) * 0.6; // 增强振幅
 
     // 边缘合成
     float edge = clamp(abs(edge3x3) * 1.2 + abs(edge5x5) * 0.6, 0.0, 2.0);
@@ -67,13 +71,17 @@ void main() {
 
     // 色彩处理
     vec4 c = unpackColor(inputImage.pixels[coord.y * filterParams.width + coord.x]);
-    vec3 quantized = floor(c.rgb * vec3(5, 7, 4) + 0.5) / vec3(4, 6, 3); // 非均匀量化
 
-    // 最终合成
-    vec3 result = mix(quantized * (0.85 + stroke),
-                      vec3(1.0 - edge * 0.8),
-                      clamp(edge * 1.2 - 0.1, 0.3, 0.6));
+    // 强化量化效果
+    vec3 quantized = floor(c.rgb * vec3(5, 7, 4) + (stroke * 0.4)) / vec3(4, 6, 3);
 
-    outputImage.pixels[coord.y * filterParams.width + coord.x] =
-    packColor(vec4(pow(result, vec3(1.05)), 1.0));
+    // 调整混合参数(强化笔触可见性)
+    vec3 result = mix(quantized * (0.6 + stroke * 1.5), // 降低基础亮度
+                      vec3(1.0 - edge * 0.7),
+                      clamp(edge * 0.6 - 0.3, 0.1, 0.6)); // 减少边缘覆盖
+
+    // 新增线条强化(在最终输出前添加)
+    result -= smoothstep(0.3, 0.7, abs(stroke)) * 0.15 * (1.0 - edge);
+
+    outputImage.pixels[coord.y * filterParams.width + coord.x] = packColor(vec4(pow(result, vec3(1.05)), 1.0));
 }
