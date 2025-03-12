@@ -96,3 +96,6 @@ VkResult GaussianBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
 
     return computeGraph->Compute();
 }
+
+void GaussianBlurFilter::Destroy() {
+}

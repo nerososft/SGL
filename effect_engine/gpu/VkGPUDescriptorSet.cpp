@@ -14,7 +14,17 @@ VkGPUDescriptorSet::VkGPUDescriptorSet(const VkDevice device,
     this->descriptorSetLayout = descriptorSetLayout;
 }
 
+VkGPUDescriptorSet::~VkGPUDescriptorSet() {
+    if (descriptorPool == VK_NULL_HANDLE) {
+        return;
+    }
+    std::vector<VkDescriptorSet> descriptorSets;
+    descriptorSets.push_back(descriptorSet);
+    vkFreeDescriptorSets(device, descriptorPool, descriptorSets.size(), descriptorSets.data());
+}
+
 VkResult VkGPUDescriptorSet::AllocateDescriptorSets(const VkDescriptorPool descriptorPool) {
+    this->descriptorPool = descriptorPool;
     std::vector<VkDescriptorSetLayout> descriptorSetLayouts;
     descriptorSetLayouts.push_back(this->descriptorSetLayout);
     this->writeDescriptorSets.clear();

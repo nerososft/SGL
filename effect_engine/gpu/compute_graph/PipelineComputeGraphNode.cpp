@@ -123,3 +123,6 @@ void PipelineComputeGraphNode::Compute(const VkCommandBuffer commandBuffer) {
                                                 0,
                                                 bufferMemoryBarriers);
 }
+
+void PipelineComputeGraphNode::Destroy() {
+}

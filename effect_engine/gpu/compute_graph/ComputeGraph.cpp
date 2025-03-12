@@ -93,3 +93,14 @@ VkResult ComputeGraph::Compute() const {
     }
     return ret;
 }
+
+void ComputeGraph::Destroy() const {
+    vkDestroyFence(gpuCtx->GetCurrentDevice(), computeFence, nullptr);
+    std::vector<VkCommandBuffer> freeCommandBuffers;
+    freeCommandBuffers.push_back(commandBuffer);
+    vkFreeCommandBuffers(gpuCtx->GetCurrentDevice(), gpuCtx->GetCommandPool(), freeCommandBuffers.size(),
+                         freeCommandBuffers.data());
+    for (const auto &computeGraphNode: this->computeGraphNodes) {
+        computeGraphNode->Destroy();
+    }
+}

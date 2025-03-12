@@ -64,3 +64,7 @@ VkResult BasicFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                            VkBuffer outputBuffer) {
     return VK_SUCCESS;
 }
+
+void BasicFilter::Destroy() {
+    computeGraph->Destroy();
+}

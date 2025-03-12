@@ -28,6 +28,8 @@ public:
     VkResult Init();
 
     [[nodiscard]] VkResult Compute() const;
+
+    void Destroy() const;
 };
 
 

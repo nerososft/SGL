@@ -46,6 +46,8 @@ public:
                    uint32_t height,
                    VkBuffer inputBuffer,
                    VkBuffer outputBuffer) override;
+
+    void Destroy() override;
 };
 
 

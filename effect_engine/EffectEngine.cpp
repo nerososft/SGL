@@ -80,6 +80,7 @@ VkResult EffectEngine::Process(VkBuffer *inputStorageBuffer,
     }
     const uint64_t gpuProcessTimeEnd = TimeUtils::GetCurrentMonoMs();
     std::cout << "GPU Process Time: " << gpuProcessTimeEnd - gpuProcessTimeStart << "ms" << std::endl;
+    filter->Destroy();
     return ret;
 }
 
@@ -118,13 +119,18 @@ void EffectEngine::Process(const ImageInfo &input,
     }
     memcpy(output.data, data, bufferSize);
     vkUnmapMemory(gpuCtx->GetCurrentDevice(), outputStorageBufferMemory);
+
+    vkFreeMemory(gpuCtx->GetCurrentDevice(), inputStorageBufferMemory, nullptr);
+    vkDestroyBuffer(gpuCtx->GetCurrentDevice(), inputStorageBuffer, nullptr);
+    vkFreeMemory(gpuCtx->GetCurrentDevice(), outputStorageBufferMemory, nullptr);
+    vkDestroyBuffer(gpuCtx->GetCurrentDevice(), inputStorageBuffer, nullptr);
 }
 
 void EffectEngine::Process(const char *inputFilePath,
                            const char *outputFilePath,
                            const std::shared_ptr<IFilter> &filter) const {
     uint32_t imageWidth = 0, imageHeight = 0, channels = 0;
-    const std::vector<char> inputFileData =
+    std::vector<char> inputFileData =
             ImageUtils::ReadPngFile(inputFilePath, &imageWidth, &imageHeight, &channels);
     if (inputFileData.empty()) {
         std::cerr << "Failed to read input file!" << std::endl;
@@ -151,6 +157,8 @@ void EffectEngine::Process(const char *inputFilePath,
         std::cerr << "Failed to process input storage buffer, err=" << string_VkResult(ret) << std::endl;
         return;
     }
+    inputFileData.clear();
+    inputFileData.resize(0);
 
     void *data = nullptr;
     ret = vkMapMemory(gpuCtx->GetCurrentDevice(), outputStorageBufferMemory, 0, bufferSize, 0, &data);
@@ -161,4 +169,9 @@ void EffectEngine::Process(const char *inputFilePath,
 
     ImageUtils::WritePngFile(outputFilePath, imageWidth, imageHeight, channels, data);
     vkUnmapMemory(gpuCtx->GetCurrentDevice(), outputStorageBufferMemory);
+
+    vkFreeMemory(gpuCtx->GetCurrentDevice(), inputStorageBufferMemory, nullptr);
+    vkDestroyBuffer(gpuCtx->GetCurrentDevice(), inputStorageBuffer, nullptr);
+    vkFreeMemory(gpuCtx->GetCurrentDevice(), outputStorageBufferMemory, nullptr);
+    vkDestroyBuffer(gpuCtx->GetCurrentDevice(), inputStorageBuffer, nullptr);
 }

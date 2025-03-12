@@ -53,6 +53,8 @@ public:
     VkResult CreateComputeGraphNode() override;
 
     void Compute(VkCommandBuffer commandBuffer) override;
+
+    void Destroy() override;
 };
 
 
