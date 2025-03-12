@@ -38,17 +38,17 @@ int main(int argc, char *argv[]) {
     // outputImageInfo.data = malloc(outputImageInfo.width * outputImageInfo.height * outputImageInfo.channels);
     // effectEngine.Process(inputImageInfo, outputImageInfo, filter);
 
-    // const auto filter = std::make_shared<GrayFilter>();
-    // filter->SetRedFactor(0.299);
-    // filter->SetGreenFactor(0.587);
-    // filter->SetBlueFactor(0.114);
-    // effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_gray.png", filter);
+    const auto filter = std::make_shared<GrayFilter>();
+    filter->SetRedFactor(0.299);
+    filter->SetGreenFactor(0.587);
+    filter->SetBlueFactor(0.114);
+    effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_gray.png", filter);
 
-    for (int i = 0; i < 100; i++) {
-        const auto filter = std::make_shared<GaussianBlurFilter>();
-        filter->SetRadius(300);
-        effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_blur.png", filter);
-    }
+    // const auto filter = std::make_shared<GaussianBlurFilter>();
+    // filter->SetRadius(300);
+    // effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_blur.png", filter);
+    // filter->Destroy();
+
     // const auto filter = std::make_shared<ChinesePaintFilter>();
     // effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_chinese_paint.png", filter);
 

@@ -34,6 +34,16 @@ public:
     VkResult DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                      const std::string &name,
                      VkDeviceSize bufferSize,
+                     VkBuffer inputBuffer,
+                     VkBuffer outputBuffer,
+                     const BasicFilterParams &filterParams,
+                     uint32_t workGroupX,
+                     uint32_t workGroupY,
+                     uint32_t workGroupZ);
+
+    VkResult DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                     const std::string &name,
+                     VkDeviceSize bufferSize,
                      uint32_t width,
                      uint32_t height,
                      VkBuffer inputBuffer,
