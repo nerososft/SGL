@@ -74,6 +74,10 @@ public:
     [[nodiscard]] VkPhysicalDeviceMemoryProperties GetMemoryProperties() const {
         return this->physicalDevicesMemoryProperties[selectedGPUIndex];
     }
+
+    VkPhysicalDeviceProperties GetPhysicalDeviceProperties() const {
+        return this->physicalDevicesProperties[selectedGPUIndex];
+    }
 };
 
 
