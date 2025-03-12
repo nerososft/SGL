@@ -111,6 +111,7 @@ void EffectEngine::Process(const ImageInfo &input,
         return;
     }
 
+    const uint64_t imageDownloadStart = TimeUtils::GetCurrentMonoMs();
     void *data = nullptr;
     ret = vkMapMemory(gpuCtx->GetCurrentDevice(), outputStorageBufferMemory, 0, bufferSize, 0, &data);
     if (ret != VK_SUCCESS) {
@@ -119,6 +120,8 @@ void EffectEngine::Process(const ImageInfo &input,
     }
     memcpy(output.data, data, bufferSize);
     vkUnmapMemory(gpuCtx->GetCurrentDevice(), outputStorageBufferMemory);
+    const uint64_t imageDownloadEnd = TimeUtils::GetCurrentMonoMs();
+    std::cout << "Image Download Time: " << imageDownloadEnd - imageDownloadStart << "ms" << std::endl;
 
     vkFreeMemory(gpuCtx->GetCurrentDevice(), inputStorageBufferMemory, nullptr);
     vkDestroyBuffer(gpuCtx->GetCurrentDevice(), inputStorageBuffer, nullptr);
