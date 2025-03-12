@@ -55,7 +55,6 @@ VkResult GaussianBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
         std::cout << "Failed to create compute graph, err =" << string_VkResult(ret) << std::endl;
         return ret;
     }
-    computeGraph->AddComputeGraphNode(gaussianVerticalNode);
 
     PipelineNodeInput hPipelineNodeInput;
     hPipelineNodeInput.buffer = outputBuffer;
@@ -79,7 +78,6 @@ VkResult GaussianBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
         std::cout << "Failed to create compute graph, err =" << string_VkResult(ret) << std::endl;
         return ret;
     }
-    computeGraph->AddComputeGraphNode(gaussianHorizontalNode);
 
     BufferCopyNodeBufferInfo srcBufferInfo;
     srcBufferInfo.buffer = inputBuffer;
@@ -92,6 +90,9 @@ VkResult GaussianBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                                                                              srcBufferInfo,
                                                                              dstBufferInfo);
     copyBufferNode->CreateComputeGraphNode();
+
+    copyBufferNode->AddDependenceNode(gaussianVerticalNode);
+    copyBufferNode->AddDependenceNode(gaussianHorizontalNode);
     computeGraph->AddComputeGraphNode(copyBufferNode);
 
     return computeGraph->Compute();

@@ -6,6 +6,7 @@
 #define BUFFERCOPYCOMPUTEGRAPHNODE_H
 
 #include "IComputeGraphNode.h"
+#include "PipelineComputeGraphNode.h"
 #include "effect_engine/gpu/VkGPUContext.h"
 
 typedef struct {
