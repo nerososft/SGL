@@ -7,6 +7,7 @@
 #include "effect_engine/EffectEngine.h"
 #include "effect_engine/filters/impl/ChinesePaintFilter.h"
 #include "effect_engine/filters/impl/ColorPencilSketchFilter.h"
+#include "effect_engine/filters/impl/ColorSeparationFilter.h"
 #include "effect_engine/filters/impl/GaussianBlurFilter.h"
 #include "effect_engine/filters/impl/GrayFilter.h"
 
@@ -52,8 +53,14 @@ int main(int argc, char *argv[]) {
     // const auto filter = std::make_shared<ChinesePaintFilter>();
     // effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_chinese_paint.png", filter);
 
-    const auto filter = std::make_shared<ColorPencilSketchFilter>();
-    effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_color_pencil_sketch.png", filter);
+    // const auto filter = std::make_shared<ColorPencilSketchFilter>();
+    // effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_color_pencil_sketch.png", filter);
+
+    const auto filter = std::make_shared<ColorSeparationFilter>();
+    filter->SetRedOffsetX(30.0f);
+    filter->SetGreenOffsetX(60.0f);
+    filter->SetBlueOffsetX(90.0f);
+    effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_color_separation.png", filter);
 
     return 0;
 }

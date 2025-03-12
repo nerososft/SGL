@@ -31,5 +31,7 @@ add_library(gpu_effect_engine
         filters/impl/ChinesePaintFilter.cpp
         filters/impl/ColorPencilSketchFilter.cpp
         filters/impl/ColorPencilSketchFilter.h
+        filters/impl/ColorSeparationFilter.cpp
+        filters/impl/ColorSeparationFilter.h
 )
 target_link_libraries(gpu_effect_engine vulkan)
