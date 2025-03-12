@@ -11,12 +11,12 @@ VkResult ChinesePaintFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                                    const VkBuffer inputBuffer,
                                    const VkBuffer outputBuffer) {
     BasicFilterParams params;
-    this->chinsesPaintFilterParams.imageSize.width = width;
-    this->chinsesPaintFilterParams.imageSize.height = height;
-    this->chinsesPaintFilterParams.imageSize.channels = 4;
-    this->chinsesPaintFilterParams.imageSize.bytesPerLine = this->chinsesPaintFilterParams.imageSize.width * 4;
+    this->chinesePaintFilterParams.imageSize.width = width;
+    this->chinesePaintFilterParams.imageSize.height = height;
+    this->chinesePaintFilterParams.imageSize.channels = 4;
+    this->chinesePaintFilterParams.imageSize.bytesPerLine = this->chinesePaintFilterParams.imageSize.width * 4;
     params.paramsSize = sizeof(ChinesePaintFilterParams);
-    params.paramsData = &this->chinsesPaintFilterParams;
+    params.paramsData = &this->chinesePaintFilterParams;
     params.shaderPath = "../../shader_compiled/chinese_paint.comp.glsl.spv";
     return DoApply(gpuCtx, "ChinesePaint", bufferSize, width, height, inputBuffer, outputBuffer, params);
 }
