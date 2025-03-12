@@ -42,36 +42,38 @@ void main() {
     uvec2 coord = gl_GlobalInvocationID.xy;
     if (any(greaterThanEqual(coord, uvec2(filterParams.width, filterParams.height)))) return;
 
-    // 增强颜色采样
-    vec4 color = unpackColor(inputImage.pixels[coord.y * filterParams.bytesPerLine / 4 + coord.x]);
-    vec3 luminance = vec3(0.299, 0.587, 0.114);
-    float brightness = dot(color.rgb, luminance);
+    // 多尺度边缘检测
+    float edge3x3 = 0.0, edge5x5 = 0.0;
+    for (int y = -2; y <= 2; y++) {
+        for (int x = -2; x <= 2; x++) {
+            uvec2 pos = clamp(coord + ivec2(x, y), uvec2(0), uvec2(filterParams.width - 1));
+            vec3 rgb = unpackColor(inputImage.pixels[pos.y * filterParams.width + pos.x]).rgb;
+            float gray = dot(rgb, vec3(0.25, 0.65, 0.1));
 
-    // 改进的Sobel边缘检测
-    float Gx = 0.0, Gy = 0.0;
-    for (int x = -1; x <= 1; x++) {
-        for (int y = -1; y <= 1; y++) {
-            ivec2 samplePos = ivec2(coord) + ivec2(x, y);
-            if (any(lessThan(samplePos, ivec2(0))) || any(greaterThanEqual(samplePos, ivec2(filterParams.width, filterParams.height))))
-            continue;
-
-            vec4 sampleColor = unpackColor(inputImage.pixels[samplePos.y * filterParams.bytesPerLine / 4 + samplePos.x]);
-            float intensity = dot(sampleColor.rgb, luminance);
-
-            Gx += intensity * (x == 0 ? 2 * x : x); // Sobel X核 [-1 0 1; -2 0 2; -1 0 1]
-            Gy += intensity * (y == 0 ? 2 * y : y); // Sobel Y核 [-1 -2 -1; 0 0 0; 1 2 1]
+            // 双尺度梯度增强
+            float weight = 4.0 - length(vec2(x, y));
+            edge3x3 += gray * (x + y) * weight * (abs(x) + abs(y) < 3 ? 1.0 : 0.0);
+            edge5x5 += gray * (x + y) * (weight * 0.5);
         }
     }
-    float edge = clamp(1.0 - length(vec2(Gx, Gy)) * 2.5, 0.0, 1.0);
 
-    // 动态铅笔纹理生成
-    float stroke = fract(coord.x * 0.3 + coord.y * 0.7 + sin(coord.y * 0.1) * 2.0);
-    stroke = smoothstep(0.3, 0.8, stroke * brightness) * 1.2;
+    // 动态纹理生成
+    float paper = fract(sin(dot(coord, vec2(12.9898, 78.233))) * 43758.5453) * 0.3;
+    float stroke = sin(coord.x * 0.3 + coord.y * 1.7) * sin(coord.x * 1.2 - coord.y * 0.8) * 0.2;
 
-    // 颜色增强混合
-    vec3 pencilColor = color.rgb * (1.0 - 0.3 * edge) * stroke;
-    vec3 finalColor = mix(pencilColor, vec3(0.4, 0.3, 0.2), pow(edge, 2.0)); // 添加纸张色调
+    // 边缘合成
+    float edge = clamp(abs(edge3x3) * 1.2 + abs(edge5x5) * 0.6, 0.0, 2.0);
+    edge = pow(1.0 - smoothstep(0.2, 1.2, edge), 8.0) * (0.9 + paper * 0.4);
 
-    outputImage.pixels[coord.y * filterParams.bytesPerLine / 4 + coord.x] =
-    packColor(vec4(pow(finalColor, vec3(0.92)), color.a * (0.8 + 0.2 * edge)));
+    // 色彩处理
+    vec4 c = unpackColor(inputImage.pixels[coord.y * filterParams.width + coord.x]);
+    vec3 quantized = floor(c.rgb * vec3(5, 7, 4) + 0.5) / vec3(4, 6, 3); // 非均匀量化
+
+    // 最终合成
+    vec3 result = mix(quantized * (0.85 + stroke),
+                      vec3(1.0 - edge * 0.8),
+                      clamp(edge * 1.2 - 0.1, 0.3, 0.6));
+
+    outputImage.pixels[coord.y * filterParams.width + coord.x] =
+    packColor(vec4(pow(result, vec3(1.05)), 1.0));
 }
