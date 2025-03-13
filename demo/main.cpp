@@ -3,6 +3,7 @@
 //
 
 #include <iostream>
+#include <effect_engine/filters/impl/RadialBlurFilter.h>
 
 #include "effect_engine/EffectEngine.h"
 #include "effect_engine/filters/impl/ChinesePaintFilter.h"
@@ -63,10 +64,17 @@ int main(int argc, char *argv[]) {
     // filter->SetBlueOffsetX(180.0f);
     // effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_color_separation.png", filter);
 
-    const auto filter = std::make_shared<ScaleFilter>();
-    filter->SetTargetWidth(400);
-    filter->SetTargetHeight(600);
-    effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_scale.png", 400, 600, filter);
+    // const auto filter = std::make_shared<ScaleFilter>();
+    // filter->SetTargetWidth(400);
+    // filter->SetTargetHeight(600);
+    // effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_scale.png", 400, 600, filter);
+
+    const auto filter = std::make_shared<RadialBlurFilter>();
+    filter->SetCenter(2000, 3000);
+    filter->SetStrength(300);
+    filter->SetRotationStrength(1000);
+    filter->SetSharpness(0.1);
+    effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_radial_blur.png", filter);
 
 
     return 0;
