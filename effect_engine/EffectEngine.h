@@ -4,9 +4,7 @@
 
 #ifndef EFFECTENGINE_H
 #define EFFECTENGINE_H
-
-#include "filters/impl/GrayFilter.h"
-#include "filters/impl/ScaleFilter.h"
+#include "filters/IFilter.h"
 #include "gpu/VkGPUContext.h"
 
 struct ImageInfo {
