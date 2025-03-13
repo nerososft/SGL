@@ -8,6 +8,7 @@
 
 #include "effect_engine/gpu/VkGPUContext.h"
 
+#include <memory>
 class IFilter {
 public:
     IFilter() = default;

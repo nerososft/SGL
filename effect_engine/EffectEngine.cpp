@@ -16,6 +16,8 @@
 #include "gpu/VkGPUHelper.h"
 #include "utils/TimeUtils.h"
 
+//#define DEBUG_ON_HIMIRAGE
+
 bool EffectEngine::Init() {
     std::vector<const char *> requiredExtensions;
     this->gpuCtx = std::make_shared<VkGPUContext>(requiredExtensions);
@@ -27,6 +29,8 @@ bool EffectEngine::Init() {
     }
     return true;
 }
+
+#include <fstream>
 
 VkResult EffectEngine::Process(VkBuffer *inputStorageBuffer,
                                VkDeviceMemory *inputStorageBufferMemory,
@@ -41,6 +45,23 @@ VkResult EffectEngine::Process(VkBuffer *inputStorageBuffer,
                                const std::shared_ptr<IFilter> &filter) const {
     const VkDeviceSize inputBufferSize = inputWidth * inputHeight * channels;
     const VkDeviceSize outputBufferSize = outputWidth * outputHeight * channels;
+
+
+
+
+#ifdef DEBUG_ON_HIMIRAGE
+
+    std::ofstream outFile("d://temp//engine_output.txt", std::ios::app);
+
+    // 确保文件成功打开
+    if (!outFile) {
+        std::cerr << "无法打开文件!" << std::endl;
+    }
+
+    // 保存原始的 cout buffer
+    std::streambuf* originalCoutBuffer = std::cout.rdbuf();
+    std::cout.rdbuf(outFile.rdbuf());
+#endif // DEBUG_ON_HIMIRAGE
 
     std::vector<uint32_t> queueFamilyIndices;
     queueFamilyIndices.push_back(0);
@@ -91,6 +112,20 @@ VkResult EffectEngine::Process(VkBuffer *inputStorageBuffer,
     const uint64_t gpuProcessTimeEnd = TimeUtils::GetCurrentMonoMs();
     std::cout << "GPU Process Time: " << gpuProcessTimeEnd - gpuProcessTimeStart << "ms" << std::endl;
     filter->Destroy();
+
+
+
+#ifdef DEBUG_ON_HIMIRAGE
+
+    std::cout.rdbuf(originalCoutBuffer);
+
+    // 输出到控制台
+    std::cout << "输出已经重定向到文件." << std::endl;
+
+    // 关闭文件
+    outFile.close();
+#endif // DEBUG_ON_HIMIRAGE
+
     return ret;
 }
 
@@ -150,8 +185,14 @@ void EffectEngine::Process(const char *inputFilePath,
                            const char *outputFilePath,
                            const std::shared_ptr<IFilter> &filter) const {
     uint32_t imageWidth = 0, imageHeight = 0, channels = 0;
+#ifdef DEBUG_ON_HIMIRAGE
+    std::vector<char> inputFileData; //=
+            //ImageUtils::ReadPngFile(inputFilePath, &imageWidth, &imageHeight, &channels);
+#else
     std::vector<char> inputFileData =
-            ImageUtils::ReadPngFile(inputFilePath, &imageWidth, &imageHeight, &channels);
+        ImageUtils::ReadPngFile(inputFilePath, &imageWidth, &imageHeight, &channels);
+
+#endif
     if (inputFileData.empty()) {
         std::cerr << "Failed to read input file!" << std::endl;
         return;
@@ -189,7 +230,12 @@ void EffectEngine::Process(const char *inputFilePath,
         return;
     }
 
+#ifdef DEBUG_ON_HIMIRAGE
+    // ImageUtils::WritePngFile(outputFilePath, imageWidth, imageHeight, channels, data);
+#else
     ImageUtils::WritePngFile(outputFilePath, imageWidth, imageHeight, channels, data);
+
+#endif
     vkUnmapMemory(gpuCtx->GetCurrentDevice(), outputStorageBufferMemory);
 
     vkFreeMemory(gpuCtx->GetCurrentDevice(), inputStorageBufferMemory, nullptr);

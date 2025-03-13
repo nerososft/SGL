@@ -6,7 +6,7 @@
 #define VKHELPER_H
 #include <vector>
 #include <vulkan/vulkan_core.h>
-
+#include <string>
 class VkGPUHelper {
 public:
     VkGPUHelper() = default;

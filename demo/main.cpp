@@ -45,18 +45,32 @@ int main(int argc, char *argv[]) {
     // outputImageInfo.data = malloc(outputImageInfo.width * outputImageInfo.height * outputImageInfo.channels);
     // effectEngine.Process(inputImageInfo, outputImageInfo, filter);
 
-    // const auto filter = std::make_shared<GrayFilter>();
-    // filter->SetRedFactor(0.299);
-    // filter->SetGreenFactor(0.587);
-    // filter->SetBlueFactor(0.114);
-    // effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_gray.png", filter);
+    const auto filter = std::make_shared<GrayFilter>();
+     filter->SetRedFactor(0.299);
+     filter->SetGreenFactor(0.587);
+     filter->SetBlueFactor(0.114);
+     effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_gray.png", filter);
 
-    // const auto filter = std::make_shared<GaussianBlurFilter>();
-    // filter->SetRadius(300);
-    // effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_blur.png", filter);
+    const auto filter2 = std::make_shared<GaussianBlurFilter>();
+    filter2->SetRadius(300);
+   // effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_blur.png", filter);
+    //const auto filter = std::make_shared<ChinesePaintFilter>();
+    //effectEngine.Process("D:/effect_engine/demo/images/girl.png", "D:/effect_engine/demo/images/test1.png", filter2);
+    effectEngine.Process("D:/effect_engine/demo/images/144-30.png", "D:/effect_engine/demo/images/144-30.png", filter2);
+    //effectEngine.Process("D:/effect_engine/demo/images/girl.png", "D:/effect_engine/demo/images/test.png", filter);
+    //effectEngine.Process("D:/effect_engine/demo/images/girl.png", "D:/effect_engine/demo/images/test.png", filter);
+    //effectEngine.Process("D:/effect_engine/demo/images/girl.png", "D:/effect_engine/demo/images/test.png", filter);
+    //effectEngine.Process("D:/effect_engine/demo/images/girl.png", "D:/effect_engine/demo/images/test.png", filter);
+    //effectEngine.Process("D:/effect_engine/demo/images/girl.png", "D:/effect_engine/demo/images/test.png", filter);
+    //effectEngine.Process("D:/effect_engine/demo/images/girl.png", "D:/effect_engine/demo/images/test.png", filter);
+    //effectEngine.Process("D:/effect_engine/demo/images/girl.png", "D:/effect_engine/demo/images/test.png", filter);
 
-    // const auto filter = std::make_shared<ChinesePaintFilter>();
-    // effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_chinese_paint.png", filter);
+    // // const auto filter = std::make_shared<GaussianBlurFilter>();
+    // // filter->SetRadius(300);
+    // // effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_blur.png", filter);
+
+    //const auto filter = std::make_shared<ChinesePaintFilter>();
+    //effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_chinese_paint.png", filter);
 
     // const auto filter = std::make_shared<ColorPencilSketchFilter>();
     // effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_color_pencil_sketch.png", filter);
@@ -95,5 +109,6 @@ int main(int argc, char *argv[]) {
     filter->SetThreshold(2); // 阈值色阶（2-255）
     effectEngine.Process("../../demo/images/colorful.png", "../../demo/images/colorful_surface_blur.png", filter);
 
+    getchar();
     return 0;
 }

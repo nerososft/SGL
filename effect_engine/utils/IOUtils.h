@@ -5,7 +5,7 @@
 #ifndef IOUTILS_H
 #define IOUTILS_H
 #include <vector>
-
+#include <string>
 class IOUtils {
 public:
     IOUtils() = default;
