@@ -4,12 +4,11 @@ project(gpu_effect_engine)
 set(CMAKE_CXX_STANDARD 20)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
-#set(CMAKE_SYSTEM_NAME, "OH") // 交叉编译OH版本的时候请打开
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     message(STATUS "Running on Linux")
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     message(STATUS "Running on Windows")
-elseif (CMAKE_SYSTEM_NAME STREQUAL "OH")
+elseif (CMAKE_SYSTEM_NAME MATCHES "OHOS")
     message(STATUS "Running on OH")
     set(OH_SDK_PATH "C:/Huawei/DevEcoStudio/sdk")
     add_definitions(-DQ_OS_OPENHARMONY)
