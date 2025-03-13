@@ -6,7 +6,11 @@
 
 #include "VkGPUContext.h"
 
+#ifdef Q_OS_OPENHARMONY
+#include <effect_engine/gpu/utils/vk_enum_string_helper.h>
+#else
 #include <vulkan/vk_enum_string_helper.h>
+#endif
 #include <iostream>
 #include <ostream>
 

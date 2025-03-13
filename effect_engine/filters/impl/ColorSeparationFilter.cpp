@@ -18,7 +18,7 @@ VkResult ColorSeparationFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCt
     this->colorSeparationFilterParams.imageSize.channels = 4;
     this->colorSeparationFilterParams.imageSize.bytesPerLine =
             this->colorSeparationFilterParams.imageSize.width * 4;
-    params.paramsSize = sizeof(ColorPencilSketchFilterParams);
+    params.paramsSize = sizeof(ColorSeparationFilterParams);
     params.paramsData = &this->colorSeparationFilterParams;
     params.shaderPath = "../../shader_compiled/color_separation.comp.glsl.spv";
     return DoApply(gpuCtx, "ColorSeparation", bufferSize, width, height, inputBuffer, outputBuffer, params);

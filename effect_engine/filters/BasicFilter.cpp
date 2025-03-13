@@ -6,7 +6,11 @@
 
 #include <iostream>
 #include <ostream>
+#ifdef Q_OS_OPENHARMONY
+#include <effect_engine/gpu/utils/vk_enum_string_helper.h>
+#else
 #include <vulkan/vk_enum_string_helper.h>
+#endif
 
 #include "effect_engine/gpu/VkGPUComputePipeline.h"
 #include "effect_engine/gpu/compute_graph/PipelineComputeGraphNode.h"
@@ -31,19 +35,25 @@ VkResult BasicFilter::DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     pushConstantInfo.size = filterParams.paramsSize;
     pushConstantInfo.data = filterParams.paramsData;
 
-    PipelineNodeInput pipelineNodeInput;
+    PipelineNodeBuffer pipelineNodeInput;
+    pipelineNodeInput.type = PIPELINE_NODE_BUFFER_READ;
     pipelineNodeInput.buffer = inputBuffer;
     pipelineNodeInput.bufferSize = bufferSize;
 
-    PipelineNodeOutput pipelineNodeOutput;
+    PipelineNodeBuffer pipelineNodeOutput;
+    pipelineNodeOutput.type = PIPELINE_NODE_BUFFER_WRITE;
     pipelineNodeOutput.buffer = outputBuffer;
     pipelineNodeOutput.bufferSize = bufferSize;
+
+    std::vector<PipelineNodeBuffer> pipelineBuffers;
+    pipelineBuffers.push_back(pipelineNodeInput);
+    pipelineBuffers.push_back(pipelineNodeOutput);
+
     const auto grayNode = std::make_shared<PipelineComputeGraphNode>(gpuCtx,
                                                                      name,
                                                                      filterParams.shaderPath,
                                                                      pushConstantInfo,
-                                                                     pipelineNodeInput,
-                                                                     pipelineNodeOutput,
+                                                                     pipelineBuffers,
                                                                      workGroupX,
                                                                      workGroupY,
                                                                      workGroupZ);

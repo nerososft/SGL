@@ -5,6 +5,8 @@
 #ifndef COMPUTEGRAPHNODE_H
 #define COMPUTEGRAPHNODE_H
 #include <vector>
+#include <string>
+#include <memory>
 #include <vulkan/vulkan_core.h>
 #include<string>
 #include <memory>

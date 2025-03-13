@@ -46,7 +46,7 @@ void main() {
 
     // 预计算权重（仅首个线程执行）
     if (gl_LocalInvocationID.x == 0) {
-        float sigma = 150.0; // sigma=R/2
+        float sigma = float(R) / 2; // sigma=R/2
         for (int dx = -R; dx <= R; ++dx)
         s_Weights[dx + R] = exp(-dx * dx / (2.0 * sigma * sigma));
     }

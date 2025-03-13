@@ -33,5 +33,13 @@ add_library(gpu_effect_engine
         filters/impl/ColorPencilSketchFilter.h
         filters/impl/ColorSeparationFilter.cpp
         filters/impl/ColorSeparationFilter.h
+        filters/impl/ScaleFilter.cpp
+        filters/impl/ScaleFilter.h
+        filters/impl/RadialBlurFilter.cpp
+        filters/impl/RadialBlurFilter.h
+        filters/impl/FocusBlurFilter.cpp
+        filters/impl/FocusBlurFilter.h
+        filters/impl/AverageBlurFilter.cpp
+        filters/impl/AverageBlurFilter.h
 )
 target_link_libraries(gpu_effect_engine vulkan)

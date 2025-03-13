@@ -3,6 +3,9 @@
 //
 
 #include "TimeUtils.h"
+#ifdef Q_OS_OPENHARMONY
+#include <ctime>
+#else
 
 #ifdef ENNABLE_WIN64
 #include <windows.h>
@@ -12,13 +15,13 @@ uint64_t TimeUtils::GetCurrentMonoMs() {
     LARGE_INTEGER frequency;
     LARGE_INTEGER counter;
 
-    // »ñÈ¡¼ÆÊ±Æ÷ÆµÂÊ£¨Ã¿ÃëµÄ¼ÆÊý´ÎÊý£©
+    // ï¿½ï¿½È¡ï¿½ï¿½Ê±ï¿½ï¿½Æµï¿½Ê£ï¿½Ã¿ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     QueryPerformanceFrequency(&frequency);
 
-    // »ñÈ¡µ±Ç°¼ÆÊ±Æ÷¼ÆÊý
+    // ï¿½ï¿½È¡ï¿½ï¿½Ç°ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     QueryPerformanceCounter(&counter);
 
-    // ¼ÆËãºÁÃëÊ±¼ä
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½
     return (counter.QuadPart * MSEC_PER_SEC) / frequency.QuadPart;
 }
 
@@ -26,7 +29,7 @@ uint64_t TimeUtils::GetCurrentMonoMs() {
 
 #include <_time.h>
 #include <sys/_types/_timespec.h>
-
+#endif
 #define MSEC_PER_SEC (1000)
 #define NSEC_PER_MSEC (1000000)
 
