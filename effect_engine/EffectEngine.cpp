@@ -6,7 +6,11 @@
 
 #include <iostream>
 #include <ostream>
+#ifdef Q_OS_OPENHARMONY
+#include <effect_engine/gpu/vk_enum_string_helper.h>
+#else
 #include <vulkan/vk_enum_string_helper.h>
+#endif
 
 #include "demo/utils/ImageUtils.h"
 #include "gpu/VkGPUHelper.h"
