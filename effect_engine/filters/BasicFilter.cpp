@@ -31,19 +31,25 @@ VkResult BasicFilter::DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     pushConstantInfo.size = filterParams.paramsSize;
     pushConstantInfo.data = filterParams.paramsData;
 
-    PipelineNodeInput pipelineNodeInput;
+    PipelineNodeBuffer pipelineNodeInput;
+    pipelineNodeInput.type = PIPELINE_NODE_BUFFER_READ;
     pipelineNodeInput.buffer = inputBuffer;
     pipelineNodeInput.bufferSize = bufferSize;
 
-    PipelineNodeOutput pipelineNodeOutput;
+    PipelineNodeBuffer pipelineNodeOutput;
+    pipelineNodeOutput.type = PIPELINE_NODE_BUFFER_WRITE;
     pipelineNodeOutput.buffer = outputBuffer;
     pipelineNodeOutput.bufferSize = bufferSize;
+
+    std::vector<PipelineNodeBuffer> pipelineBuffers;
+    pipelineBuffers.push_back(pipelineNodeInput);
+    pipelineBuffers.push_back(pipelineNodeOutput);
+
     const auto grayNode = std::make_shared<PipelineComputeGraphNode>(gpuCtx,
                                                                      name,
                                                                      filterParams.shaderPath,
                                                                      pushConstantInfo,
-                                                                     pipelineNodeInput,
-                                                                     pipelineNodeOutput,
+                                                                     pipelineBuffers,
                                                                      workGroupX,
                                                                      workGroupY,
                                                                      workGroupZ);

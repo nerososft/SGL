@@ -15,8 +15,7 @@ PipelineComputeGraphNode::PipelineComputeGraphNode(const std::shared_ptr<VkGPUCo
                                                    const std::string &name,
                                                    const std::string &shaderPath,
                                                    const PushConstantInfo pushConstantInfo,
-                                                   const PipelineNodeInput input,
-                                                   const PipelineNodeOutput output,
+                                                   const std::vector<PipelineNodeBuffer> &buffers,
                                                    const uint32_t workGroupCountX,
                                                    const uint32_t workGroupCountY,
                                                    const uint32_t workGroupCountZ) {
@@ -27,8 +26,7 @@ PipelineComputeGraphNode::PipelineComputeGraphNode(const std::shared_ptr<VkGPUCo
     this->workGroupCountX = workGroupCountX;
     this->workGroupCountY = workGroupCountY;
     this->workGroupCountZ = workGroupCountZ;
-    this->input = input;
-    this->output = output;
+    this->pipelineBuffers = buffers;
 }
 
 VkResult PipelineComputeGraphNode::CreateComputeGraphNode() {
@@ -39,19 +37,15 @@ VkResult PipelineComputeGraphNode::CreateComputeGraphNode() {
     const std::string computeShaderPath = shaderPath;
     std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
 
-    VkDescriptorSetLayoutBinding inputImageBinding;
-    inputImageBinding.binding = 0;
-    inputImageBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-    inputImageBinding.descriptorCount = 1;
-    inputImageBinding.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
-    descriptorSetLayoutBindings.push_back(inputImageBinding);
-
-    VkDescriptorSetLayoutBinding outputImageBinding;
-    outputImageBinding.binding = 1;
-    outputImageBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-    outputImageBinding.descriptorCount = 1;
-    outputImageBinding.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
-    descriptorSetLayoutBindings.push_back(outputImageBinding);
+    for (uint32_t i = 0; i < pipelineBuffers.size(); ++i) {
+        VkDescriptorSetLayoutBinding bufferBinding;
+        bufferBinding.binding = i;
+        bufferBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+        bufferBinding.descriptorCount = 1;
+        bufferBinding.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
+        bufferBinding.pImmutableSamplers = nullptr;
+        descriptorSetLayoutBindings.push_back(bufferBinding);
+    }
 
     std::vector<VkPushConstantRange> pushConstantRanges;
     VkPushConstantRange pushConstantRange;
@@ -78,18 +72,17 @@ VkResult PipelineComputeGraphNode::CreateComputeGraphNode() {
         std::cout << "Failed to allocate descriptor sets, err =" << string_VkResult(ret) << std::endl;
         return ret;
     }
-    VkDescriptorBufferInfo inputImageBufferInfo = {};
-    inputImageBufferInfo.offset = 0;
-    inputImageBufferInfo.range = input.bufferSize;
-    inputImageBufferInfo.buffer = input.buffer;
-    pipelineDescriptorSet->AddStorageBufferDescriptorSet(0, inputImageBufferInfo);
 
-    VkDescriptorBufferInfo outputImageBufferInfo = {};
-    outputImageBufferInfo.offset = 0;
-    outputImageBufferInfo.range = output.bufferSize;
-    outputImageBufferInfo.buffer = output.buffer;
-    pipelineDescriptorSet->AddStorageBufferDescriptorSet(1, outputImageBufferInfo);
-
+    for (const auto &pipelineBuffer: pipelineBuffers) {
+        VkDescriptorBufferInfo bufferInfo = {};
+        bufferInfo.offset = 0;
+        bufferInfo.range = pipelineBuffer.bufferSize;
+        bufferInfo.buffer = pipelineBuffer.buffer;
+        this->pipelineDescriptorBufferInfos.push_back(bufferInfo);
+    }
+    for (uint32_t i = 0; i < pipelineDescriptorBufferInfos.size(); ++i) {
+        pipelineDescriptorSet->AddStorageBufferDescriptorSet(i, pipelineDescriptorBufferInfos.at(i));
+    }
     pipelineDescriptorSet->UpdateDescriptorSets();
     return ret;
 }
@@ -113,10 +106,15 @@ void PipelineComputeGraphNode::Compute(const VkCommandBuffer commandBuffer) {
     VkGPUHelper::GPUCmdDispatch(commandBuffer, this->workGroupCountX, workGroupCountY, workGroupCountZ);
 
     std::vector<VkBufferMemoryBarrier> bufferMemoryBarriers;
-    bufferMemoryBarriers.push_back(VkGPUHelper::BuildBufferMemoryBarrier(VK_ACCESS_SHADER_WRITE_BIT,
-                                                                         VK_ACCESS_TRANSFER_READ_BIT,
-                                                                         output.buffer,
-                                                                         output.bufferSize));
+    for (const auto &pipelineBuffer: pipelineBuffers) {
+        if (pipelineBuffer.type == PIPELINE_NODE_BUFFER_WRITE) {
+            bufferMemoryBarriers.push_back(VkGPUHelper::BuildBufferMemoryBarrier(VK_ACCESS_SHADER_WRITE_BIT,
+                VK_ACCESS_TRANSFER_READ_BIT,
+                pipelineBuffer.buffer,
+                pipelineBuffer.bufferSize));
+        }
+    }
+
     VkGPUHelper::GPUCmdPipelineBufferMemBarrier(commandBuffer,
                                                 VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
                                                 VK_PIPELINE_STAGE_TRANSFER_BIT,

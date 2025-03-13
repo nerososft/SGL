@@ -15,19 +15,22 @@ typedef struct {
     void *data;
 } PushConstantInfo;
 
+typedef enum {
+    PIPELINE_NODE_BUFFER_READ,
+    PIPELINE_NODE_BUFFER_WRITE,
+} PipelineNodeBufferType;
+
 typedef struct {
+    PipelineNodeBufferType type;
     VkDeviceSize bufferSize;
     VkBuffer buffer;
-} PipelineNodeInput;
-
-typedef PipelineNodeInput PipelineNodeOutput;
+} PipelineNodeBuffer;
 
 class PipelineComputeGraphNode final : public IComputeGraphNode {
     std::string shaderPath;
     PushConstantInfo pushConstantInfo{};
 
-    PipelineNodeInput input{};
-    PipelineNodeOutput output{};
+    std::vector<PipelineNodeBuffer> pipelineBuffers;
 
     uint32_t workGroupCountX = 1;
     uint32_t workGroupCountY = 1;
@@ -35,6 +38,7 @@ class PipelineComputeGraphNode final : public IComputeGraphNode {
 
     std::shared_ptr<VkGPUContext> gpuCtx = nullptr;
     std::shared_ptr<VkGPUComputePipeline> computePipeline = nullptr;
+    std::vector<VkDescriptorBufferInfo> pipelineDescriptorBufferInfos;
     std::shared_ptr<VkGPUDescriptorSet> pipelineDescriptorSet = nullptr;
 
 public:
@@ -42,8 +46,7 @@ public:
                              const std::string &name,
                              const std::string &shaderPath,
                              PushConstantInfo pushConstantInfo,
-                             PipelineNodeInput input,
-                             PipelineNodeOutput output,
+                             const std::vector<PipelineNodeBuffer> &buffers,
                              uint32_t workGroupCountX,
                              uint32_t workGroupCountY,
                              uint32_t workGroupCountZ);

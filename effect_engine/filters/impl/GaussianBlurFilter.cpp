@@ -33,19 +33,25 @@ VkResult GaussianBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     pushConstantInfo.size = sizeof(GaussianBlurFilterParams);
     pushConstantInfo.data = &this->blurFilterParams;
 
-    PipelineNodeInput vPipelineNodeInput;
+    PipelineNodeBuffer vPipelineNodeInput;
+    vPipelineNodeInput.type = PIPELINE_NODE_BUFFER_READ;
     vPipelineNodeInput.buffer = inputBuffer;
     vPipelineNodeInput.bufferSize = bufferSize;
 
-    PipelineNodeOutput vPipelineNodeOutput;
+    PipelineNodeBuffer vPipelineNodeOutput;
+    vPipelineNodeOutput.type = PIPELINE_NODE_BUFFER_WRITE;
     vPipelineNodeOutput.buffer = outputBuffer;
     vPipelineNodeOutput.bufferSize = bufferSize;
+
+    std::vector<PipelineNodeBuffer> vPipelineBuffers;
+    vPipelineBuffers.push_back(vPipelineNodeInput);
+    vPipelineBuffers.push_back(vPipelineNodeOutput);
+
     const auto gaussianVerticalNode = std::make_shared<PipelineComputeGraphNode>(gpuCtx,
         "gaussianVerticalBlur",
         "../../shader_compiled/vertical_blur.comp.glsl.spv",
         pushConstantInfo,
-        vPipelineNodeInput,
-        vPipelineNodeOutput,
+        vPipelineBuffers,
         width,
         (height + 255) / 256,
         1);
@@ -56,19 +62,25 @@ VkResult GaussianBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
         return ret;
     }
 
-    PipelineNodeInput hPipelineNodeInput;
+    PipelineNodeBuffer hPipelineNodeInput;
+    hPipelineNodeInput.type = PIPELINE_NODE_BUFFER_READ;
     hPipelineNodeInput.buffer = outputBuffer;
     hPipelineNodeInput.bufferSize = bufferSize;
 
-    PipelineNodeOutput hPipelineNodeOutput;
+    PipelineNodeBuffer hPipelineNodeOutput;
+    hPipelineNodeOutput.type = PIPELINE_NODE_BUFFER_WRITE;
     hPipelineNodeOutput.buffer = inputBuffer;
     hPipelineNodeOutput.bufferSize = bufferSize;
+
+    std::vector<PipelineNodeBuffer> hPipelineBuffers;
+    hPipelineBuffers.push_back(hPipelineNodeInput);
+    hPipelineBuffers.push_back(hPipelineNodeOutput);
+
     const auto gaussianHorizontalNode = std::make_shared<PipelineComputeGraphNode>(gpuCtx,
         "gaussianHorizontalBlur",
         "../../shader_compiled/horizontal_blur.comp.glsl.spv",
         pushConstantInfo,
-        hPipelineNodeInput,
-        hPipelineNodeOutput,
+        hPipelineBuffers,
         (width + 255) / 256,
         height,
         1);
