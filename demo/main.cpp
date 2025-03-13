@@ -57,9 +57,9 @@ int main(int argc, char *argv[]) {
     // effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_color_pencil_sketch.png", filter);
 
     // const auto filter = std::make_shared<ColorSeparationFilter>();
-    // filter->SetRedOffsetX(30.0f);
-    // filter->SetGreenOffsetX(60.0f);
-    // filter->SetBlueOffsetX(90.0f);
+    // filter->SetRedOffsetX(60.0f);
+    // filter->SetGreenOffsetX(120.0f);
+    // filter->SetBlueOffsetX(180.0f);
     // effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_color_separation.png", filter);
 
     return 0;

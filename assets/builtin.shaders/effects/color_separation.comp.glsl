@@ -46,11 +46,10 @@ void main() {
         return;
     }
 
-    // TODO: filterParams not work
     // 定义各通道水平偏移量（可调整）
-    const float RED_OFFSET = 40;//filterParams.redOffsetX;
-    const float GREEN_OFFSET = 80;//filterParams.greenOffsetX;
-    const float BLUE_OFFSET = 120;//filterParams.blueOffsetX;
+    const float RED_OFFSET = filterParams.redOffsetX;
+    const float GREEN_OFFSET = filterParams.greenOffsetX;
+    const float BLUE_OFFSET = filterParams.blueOffsetX;
 
     // 计算各通道采样坐标（带边界约束）
     float redX = clamp(coord.x + RED_OFFSET, 0, filterParams.width - 1);
