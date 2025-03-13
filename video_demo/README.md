@@ -12,7 +12,7 @@
 
 滤镜轨道2:    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;          ｜------滤镜2---------｜
 
-1. 分帧信息
+1. 将轨道信息处理成以下分帧信息
 
 ``` json
 "frames": [
