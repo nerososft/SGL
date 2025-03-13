@@ -5,7 +5,11 @@
 #include "ComputeGraph.h"
 
 #include <iostream>
+#ifdef Q_OS_OPENHARMONY
+#include <effect_engine/gpu/vk_enum_string_helper.h>
+#else
 #include <vulkan/vk_enum_string_helper.h>
+#endif
 
 #include "effect_engine/gpu/VkGPUContext.h"
 #include "effect_engine/gpu/VkGPUHelper.h"
