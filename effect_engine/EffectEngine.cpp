@@ -16,8 +16,6 @@
 #include "gpu/VkGPUHelper.h"
 #include "utils/TimeUtils.h"
 
-// #define DEBUG_ON_HIMIRAGE
-
 bool EffectEngine::Init() {
     std::vector<const char *> requiredExtensions;
     this->gpuCtx = std::make_shared<VkGPUContext>(requiredExtensions);
