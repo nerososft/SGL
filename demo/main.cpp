@@ -10,6 +10,7 @@
 #include "effect_engine/filters/impl/ColorSeparationFilter.h"
 #include "effect_engine/filters/impl/GaussianBlurFilter.h"
 #include "effect_engine/filters/impl/GrayFilter.h"
+#include "effect_engine/filters/impl/ScaleFilter.h"
 
 int main(int argc, char *argv[]) {
     std::cout << "Hello World!\n";
@@ -46,9 +47,9 @@ int main(int argc, char *argv[]) {
     // filter->SetBlueFactor(0.114);
     // effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_gray.png", filter);
 
-    const auto filter = std::make_shared<GaussianBlurFilter>();
-    filter->SetRadius(300);
-    effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_blur.png", filter);
+    // const auto filter = std::make_shared<GaussianBlurFilter>();
+    // filter->SetRadius(300);
+    // effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_blur.png", filter);
 
     // const auto filter = std::make_shared<ChinesePaintFilter>();
     // effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_chinese_paint.png", filter);
@@ -61,6 +62,12 @@ int main(int argc, char *argv[]) {
     // filter->SetGreenOffsetX(120.0f);
     // filter->SetBlueOffsetX(180.0f);
     // effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_color_separation.png", filter);
+
+    const auto filter = std::make_shared<ScaleFilter>();
+    filter->SetTargetWidth(400);
+    filter->SetTargetHeight(600);
+    effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_scale.png", 400, 600, filter);
+
 
     return 0;
 }

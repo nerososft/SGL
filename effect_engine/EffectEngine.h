@@ -6,6 +6,7 @@
 #define EFFECTENGINE_H
 
 #include "filters/impl/GrayFilter.h"
+#include "filters/impl/ScaleFilter.h"
 #include "gpu/VkGPUContext.h"
 
 struct ImageInfo {
@@ -28,8 +29,10 @@ public:
 
     VkResult Process(VkBuffer *inputStorageBuffer,
                      VkDeviceMemory *inputStorageBufferMemory,
-                     uint32_t width,
-                     uint32_t height,
+                     uint32_t inputWidth,
+                     uint32_t inputHeight,
+                     uint32_t outputWidth,
+                     uint32_t outputHeight,
                      uint32_t channels, const void *uploadData, VkBuffer *outputStorageBuffer,
                      VkDeviceMemory *outputStorageBufferMemory, const
                      std::shared_ptr<IFilter> &filter) const;
@@ -40,6 +43,12 @@ public:
 
     void Process(const char *inputFilePath,
                  const char *outputFilePath,
+                 const std::shared_ptr<IFilter> &filter) const;
+
+    void Process(const char *inputFilePath,
+                 const char *outputFilePath,
+                 uint32_t newWidth,
+                 uint32_t newHeight,
                  const std::shared_ptr<IFilter> &filter) const;
 };
 

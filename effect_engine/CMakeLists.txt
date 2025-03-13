@@ -33,5 +33,7 @@ add_library(gpu_effect_engine
         filters/impl/ColorPencilSketchFilter.h
         filters/impl/ColorSeparationFilter.cpp
         filters/impl/ColorSeparationFilter.h
+        filters/impl/ScaleFilter.cpp
+        filters/impl/ScaleFilter.h
 )
 target_link_libraries(gpu_effect_engine vulkan)
