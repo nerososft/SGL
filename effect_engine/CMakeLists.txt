@@ -41,5 +41,7 @@ add_library(gpu_effect_engine
         filters/impl/FocusBlurFilter.h
         filters/impl/AverageBlurFilter.cpp
         filters/impl/AverageBlurFilter.h
+        filters/impl/SurfaceBlurFilter.cpp
+        filters/impl/SurfaceBlurFilter.h
 )
 target_link_libraries(gpu_effect_engine vulkan)
