@@ -70,11 +70,11 @@ int main(int argc, char *argv[]) {
     // effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_scale.png", 400, 600, filter);
 
     const auto filter = std::make_shared<RadialBlurFilter>();
-    filter->SetCenter(2000, 3000);
-    filter->SetStrength(300);
-    filter->SetRotationStrength(1000);
+    filter->SetCenter(390, 510);
+    filter->SetStrength(50);
+    filter->SetRotationStrength(100);
     filter->SetSharpness(0.1);
-    effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_radial_blur.png", filter);
+    effectEngine.Process("../../demo/images/colorful.png", "../../demo/images/colorful_radial_blur.png", filter);
 
 
     return 0;
