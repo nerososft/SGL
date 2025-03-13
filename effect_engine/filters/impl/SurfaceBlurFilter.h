@@ -19,17 +19,19 @@ class SurfaceBlurFilter final : public BasicFilter {
 
 public:
     SurfaceBlurFilter() = default;
+
     ~SurfaceBlurFilter() override = default;
 
-    VkResult Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
+    VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                    VkDeviceSize bufferSize,
                    uint32_t width,
                    uint32_t height,
                    VkBuffer inputBuffer,
                    VkBuffer outputBuffer) override;
 
-    void SetBlurRadius(uint32_t radius) { blurParams.blurRadius = radius; }
-    void SetThreshold(uint32_t threshold) {
+    void SetBlurRadius(const uint32_t radius) { blurParams.blurRadius = radius; }
+
+    void SetThreshold(const uint32_t threshold) {
         blurParams.threshold = static_cast<float>(threshold) / 255.0f;
     }
 

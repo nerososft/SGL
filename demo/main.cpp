@@ -91,8 +91,8 @@ int main(int argc, char *argv[]) {
     // effectEngine.Process("../../demo/images/colorful.png", "../../demo/images/colorful_average_blur.png", filter);
 
     auto filter = std::make_shared<SurfaceBlurFilter>();
-    filter->SetBlurRadius(2);   // 模糊半径
-    filter->SetThreshold(2);   // 阈值色阶（2-255）
+    filter->SetBlurRadius(2); // 模糊半径
+    filter->SetThreshold(2); // 阈值色阶（2-255）
     effectEngine.Process("../../demo/images/colorful.png", "../../demo/images/colorful_surface_blur.png", filter);
 
     return 0;
