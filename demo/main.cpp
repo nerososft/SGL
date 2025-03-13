@@ -69,8 +69,8 @@ int main(int argc, char *argv[]) {
     // filter->SetRadius(300);
     // effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_blur.png", filter);
 
-    //const auto filter = std::make_shared<ChinesePaintFilter>();
-    //effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_chinese_paint.png", filter);
+    // const auto filter = std::make_shared<ChinesePaintFilter>();
+    // effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_chinese_paint.png", filter);
 
     // const auto filter = std::make_shared<ColorPencilSketchFilter>();
     // effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_color_pencil_sketch.png", filter);
@@ -109,6 +109,6 @@ int main(int argc, char *argv[]) {
     filter->SetThreshold(2); // 阈值色阶（2-255）
     effectEngine.Process("../../demo/images/colorful.png", "../../demo/images/colorful_surface_blur.png", filter);
 
-    getchar();
+    // getchar();
     return 0;
 }
