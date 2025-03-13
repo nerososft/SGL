@@ -39,34 +39,43 @@ vec4 unpackColor(uint color) {
     );
 }
 
+// 修正后的三次卷积权重计算
+float cubicWeight(float d) {
+    d = abs(d);
+    if (d < 1.0) return (4.0 + d * d * (3.0 * d - 6.0)) / 6.0;
+    if (d < 2.0) return (8.0 + d * (-12.0 + d * (6.0 - d))) / 6.0;
+    return 0.0;
+}
+
 void main() {
     uvec2 coord = gl_GlobalInvocationID.xy;
     if (any(greaterThanEqual(coord, uvec2(filterParams.targetWidth, filterParams.targetHeight)))) return;
 
     vec2 uv = (vec2(coord) + 0.5) / vec2(filterParams.targetWidth, filterParams.targetHeight);
-    vec2 srcCoord = uv * vec2(filterParams.width, filterParams.height) - 0.5;
+    vec2 srcCoord = uv * vec2(filterParams.width, filterParams.height);
+
+    vec2 fractPart = fract(srcCoord);
+    ivec2 base = ivec2(srcCoord - fractPart);
 
     vec4 finalColor = vec4(0);
     float totalWeight = 0.0;
 
-    for (int j = -1; j <= 2; ++j) {
-        for (int i = -1; i <= 2; ++i) {
-            vec2 samplePos = floor(srcCoord) + vec2(i, j);
-            vec2 d = abs(srcCoord - samplePos);
+    for (int y = -1; y <= 2; ++y) {
+        for (int x = -1; x <= 2; ++x) {
+            ivec2 samplePos = base + ivec2(x, y);
+            vec2 d = vec2(x, y) - fractPart + 1.0; // 计算相对位置
 
-            // Bicubic weighting function
-            vec2 w = (d * d) * (3.0 - 2.0 * d);
-            float weight = w.x * w.y;
+            float wx = cubicWeight(d.x);
+            float wy = cubicWeight(d.y);
+            float weight = wx * wy;
 
-            ivec2 srcPixel = ivec2(clamp(samplePos, vec2(0), vec2(filterParams.width - 1, filterParams.height - 1)));
-            uint pixelIndex = srcPixel.y * (filterParams.bytesPerLine / 4) + srcPixel.x;
-            vec4 color = unpackColor(inputImage.pixels[pixelIndex]);
-
-            finalColor += color * weight;
+            samplePos = clamp(samplePos, ivec2(0), ivec2(filterParams.width - 1, filterParams.height - 1));
+            uint pixelIndex = samplePos.y * (filterParams.bytesPerLine / 4) + samplePos.x;
+            finalColor += unpackColor(inputImage.pixels[pixelIndex]) * weight;
             totalWeight += weight;
         }
     }
 
-    finalColor /= totalWeight;
-    outputImage.pixels[coord.y * filterParams.targetWidth + coord.x] = packColor(finalColor);
+    finalColor /= max(totalWeight, 1e-6); // 防止除以零
+    outputImage.pixels[coord.y * filterParams.targetWidth + coord.x] = packColor(clamp(finalColor, 0.0, 1.0));
 }
