@@ -3,10 +3,12 @@
 //
 
 #include "TimeUtils.h"
-
+#ifdef Q_OS_OPENHARMONY
+#include <ctime>
+#else
 #include <_time.h>
 #include <sys/_types/_timespec.h>
-
+#endif
 #define MSEC_PER_SEC (1000)
 #define NSEC_PER_MSEC (1000000)
 
