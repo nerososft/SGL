@@ -19,7 +19,7 @@ VkResult RadialBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     params.paramsData = &this->radialBlurFilterParams;
     params.shaderPath = "../../shader_compiled/radial_blur.comp.glsl.spv";
     return DoApply(gpuCtx,
-                   "gray",
+                   "RadialBlur",
                    bufferSize,
                    inputBuffer,
                    outputBuffer,

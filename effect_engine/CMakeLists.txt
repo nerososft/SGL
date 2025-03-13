@@ -37,5 +37,7 @@ add_library(gpu_effect_engine
         filters/impl/ScaleFilter.h
         filters/impl/RadialBlurFilter.cpp
         filters/impl/RadialBlurFilter.h
+        filters/impl/FocusBlurFilter.cpp
+        filters/impl/FocusBlurFilter.h
 )
 target_link_libraries(gpu_effect_engine vulkan)
