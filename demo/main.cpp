@@ -14,6 +14,7 @@
 #include "effect_engine/filters/impl/GaussianBlurFilter.h"
 #include "effect_engine/filters/impl/GrayFilter.h"
 #include "effect_engine/filters/impl/ScaleFilter.h"
+#include "effect_engine/filters/impl/SurfaceBlurFilter.h"
 
 int main(int argc, char *argv[]) {
     std::cout << "Hello World!\n";
@@ -85,9 +86,14 @@ int main(int argc, char *argv[]) {
     // filter->SetSharpness(3);
     // effectEngine.Process("../../demo/images/colorful.png", "../../demo/images/colorful_focus_blur.png", filter);
 
-    const auto filter = std::make_shared<AverageBlurFilter>();
-    filter->SetBlurRadius(100);
-    effectEngine.Process("../../demo/images/colorful.png", "../../demo/images/colorful_average_blur.png", filter);
+    // const auto filter = std::make_shared<AverageBlurFilter>();
+    // filter->SetBlurRadius(100);
+    // effectEngine.Process("../../demo/images/colorful.png", "../../demo/images/colorful_average_blur.png", filter);
+
+    auto filter = std::make_shared<SurfaceBlurFilter>();
+    filter->SetBlurRadius(2);   // 模糊半径
+    filter->SetThreshold(2);   // 阈值色阶（2-255）
+    effectEngine.Process("../../demo/images/colorful.png", "../../demo/images/colorful_surface_blur.png", filter);
 
     return 0;
 }
