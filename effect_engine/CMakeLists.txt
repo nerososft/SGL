@@ -48,6 +48,10 @@ add_library(gpu_effect_engine
         blenders/BaseBlender.h
         blenders/impl/DissolveBlender.cpp
         blenders/impl/DissolveBlender.h
+        blenders/impl/MultiplyBlender.cpp
+        blenders/impl/MultiplyBlender.h
+        blenders/impl/OverlayBlender.cpp
+        blenders/impl/OverlayBlender.h
         blenders/impl/LighterColorBlender.cpp
         blenders/impl/LighterColorBlender.h
 )

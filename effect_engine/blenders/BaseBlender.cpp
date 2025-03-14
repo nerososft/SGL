@@ -15,7 +15,6 @@
 #include "effect_engine/gpu/compute_graph/ComputeGraph.h"
 #include "effect_engine/gpu/compute_graph/PipelineComputeGraphNode.h"
 
-
 VkResult BaseBlender::DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                               const std::string &name,
                               const BlendImageInfo &baseImageInfo,

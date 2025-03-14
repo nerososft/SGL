@@ -124,13 +124,13 @@ int main(int argc, char *argv[]) {
     //                      "../../demo/images/girl_colorful_overlay.png", blender);
 
     const auto blender = std::make_shared<LighterColorBlender>();
-    blender->SetBrightnessThreshold(0.7f); // 调整亮度阈值
-    blender->SetBlendFactor(0.3f);       // 调整混合强度
+    blender->SetBrightnessThreshold(0.7f);
+    blender->SetBlendFactor(0.3f);
     effectEngine.Process("../../demo/images/girl.png",
-                      "../../demo/images/colorful.png",
-                      500,
-                      800,
-                      "../../demo/images/girl_colorful_lighter.png", blender);
+                         "../../demo/images/colorful.png",
+                         500,
+                         800,
+                         "../../demo/images/girl_colorful_lighter.png", blender);
     // getchar();
     return 0;
 }

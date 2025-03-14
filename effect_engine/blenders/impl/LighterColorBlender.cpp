@@ -5,9 +5,9 @@
 #include "LighterColorBlender.h"
 
 VkResult LighterColorBlender::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                                const BlendImageInfo baseImageInfo,
-                                const BlendImageInfo blendImageInfo,
-                                const VkBuffer outputBuffer) {
+                                    const BlendImageInfo baseImageInfo,
+                                    const BlendImageInfo blendImageInfo,
+                                    const VkBuffer outputBuffer) {
     BasicBlenderParams params;
     this->lighterColorBlenderParams.imageSize.baseImageWidth = baseImageInfo.width;
     this->lighterColorBlenderParams.imageSize.baseImageHeight = baseImageInfo.height;
@@ -20,7 +20,7 @@ VkResult LighterColorBlender::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     this->lighterColorBlenderParams.imageSize.blendImagePosX = blendImageInfo.posX;
     this->lighterColorBlenderParams.imageSize.blendImagePosY = blendImageInfo.posY;
     this->lighterColorBlenderParams.brightnessThreshold = 0.5f; // 默认阈值
-    this->lighterColorBlenderParams.blendFactor = 0.5f;      // 默认混合因子
+    this->lighterColorBlenderParams.blendFactor = 0.5f; // 默认混合因子
 
     params.paramsSize = sizeof(LighterColorBlenderParams);
     params.paramsData = &this->lighterColorBlenderParams;

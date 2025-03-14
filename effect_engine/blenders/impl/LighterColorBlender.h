@@ -6,7 +6,6 @@
 #define LIGHTERCOLORBLENDER_H
 #include "effect_engine/blenders/BaseBlender.h"
 
-
 struct LighterColorBlenderParams {
     BasicBlenderParam imageSize;
     float brightnessThreshold; // 亮度比较阈值（0.0-1.0）
@@ -26,11 +25,11 @@ public:
                    BlendImageInfo blendImageInfo,
                    VkBuffer outputBuffer) override;
 
-    void SetBrightnessThreshold(float threshold) {
+    void SetBrightnessThreshold(const float threshold) {
         this->lighterColorBlenderParams.brightnessThreshold = threshold;
     }
 
-    void SetBlendFactor(float factor) {
+    void SetBlendFactor(const float factor) {
         this->lighterColorBlenderParams.blendFactor = factor;
     }
 

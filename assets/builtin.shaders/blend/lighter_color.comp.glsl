@@ -51,38 +51,28 @@ vec4 unpackColor(uint color) {
 
 void main() {
     uvec2 coord = gl_GlobalInvocationID.xy;
-
-    // 超出混合图像范围直接返回
-    if (coord.x > blenderParams.blendImageWidth ||
-        coord.y > blenderParams.blendImageHeight) {
+    if (any(greaterThanEqual(coord, uvec2(blenderParams.blendImageWidth, blenderParams.blendImageHeight)))) {
         return;
     }
 
-    // 计算基础图像和混合图像的索引
-    uint baseIndex = (blenderParams.blendImagePosY + coord.y) *
-                     (blenderParams.baseImageBytesPerLine / 4) +
-                     (coord.x + blenderParams.blendImagePosX);
+    uint baseIndex = (blenderParams.blendImagePosY + coord.y) * (blenderParams.baseImageBytesPerLine / 4) + (coord.x + blenderParams.blendImagePosX);
+    uint blendIndex = coord.y * (blenderParams.blendImageBytesPerLine / 4) + coord.x;
 
-    uint blendIndex = coord.y *
-                     (blenderParams.blendImageBytesPerLine / 4) +
-                     coord.x;
-
-    // 获取颜色值（ABGR格式）
-    vec4 baseColor = unpackColor(baseImage.pixels[baseIndex]);
-    vec4 blendColor = unpackColor(blendImage.pixels[blendIndex]);
+    vec4 base = unpackColor(baseImage.pixels[baseIndex]);
+    vec4 blend = unpackColor(blendImage.pixels[blendIndex]);
 
     // 计算亮度比较（保持与CPU代码一致的逻辑）
-    float baseBrightness = baseColor.r + baseColor.g + baseColor.b;
-    float blendBrightness = blendColor.r + blendColor.g + blendColor.b;
+    float baseBrightness = base.r + base.g + base.b;
+    float blendBrightness = blend.r + blend.g + blend.b;
 
     // 亮度混合逻辑
-    vec4 finalColor = baseColor;
+    vec4 finalColor = base;
     if (blendBrightness > baseBrightness) {
-        finalColor = blendColor;
+        finalColor = blend;
     }
 
     // 应用混合因子（可选透明度混合）
-    finalColor.a = mix(finalColor.a, blendColor.a, blenderParams.blenderFactor);
+    finalColor.a = mix(finalColor.a, blend.a, blenderParams.blenderFactor);
 
     outputImage.pixels[baseIndex] = packColor(finalColor);
 }
