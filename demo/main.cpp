@@ -7,6 +7,7 @@
 
 #include "effect_engine/EffectEngine.h"
 #include "effect_engine/blend/impl/DissolveBlender.h"
+#include "effect_engine/blend/impl/MultiplyBlender.h"
 #include "effect_engine/filters/impl/AverageBlurFilter.h"
 #include "effect_engine/filters/impl/ChinesePaintFilter.h"
 #include "effect_engine/filters/impl/ColorPencilSketchFilter.h"
@@ -96,13 +97,20 @@ int main(int argc, char *argv[]) {
     // filter->SetThreshold(128);
     // effectEngine.Process("../../demo/images/colorful.png", "../../demo/images/colorful_surface_blur.png", filter);
 
-    const auto blender = std::make_shared<DissolveBlender>();
-    blender->SetDissolveFactor(0.5);
+    // const auto blender = std::make_shared<DissolveBlender>();
+    // blender->SetDissolveFactor(0.5);
+    // effectEngine.Process("../../demo/images/girl.png",
+    //                      "../../demo/images/colorful.png",
+    //                      500,
+    //                      800,
+    //                      "../../demo/images/girl_colorful_dissolve.png", blender);
+
+    const auto blender = std::make_shared<MultiplyBlender>();
     effectEngine.Process("../../demo/images/girl.png",
                          "../../demo/images/colorful.png",
                          500,
                          800,
-                         "../../demo/images/girl_colorful_dissolve.png", blender);
+                         "../../demo/images/girl_colorful_multiply.png", blender);
     // getchar();
     return 0;
 }

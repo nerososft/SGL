@@ -48,5 +48,7 @@ add_library(gpu_effect_engine
         blend/BaseBlender.h
         blend/impl/DissolveBlender.cpp
         blend/impl/DissolveBlender.h
+        blend/impl/MultiplyBlender.cpp
+        blend/impl/MultiplyBlender.h
 )
 target_link_libraries(gpu_effect_engine vulkan)

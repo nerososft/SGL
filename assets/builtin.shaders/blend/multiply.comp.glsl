@@ -26,8 +26,6 @@ layout (push_constant) uniform BlenderParams {
     uint blendImageBytesPerLine;
     uint blendImagePosX;
     uint blendImagePosY;
-
-    // TODO: blend params
 } blenderParams;
 
 // ABGR
@@ -62,5 +60,10 @@ void main() {
     vec4 base = unpackColor(baseImage.pixels[baseIndex]);
     vec4 blend = unpackColor(blendImage.pixels[blendIndex]);
 
-    // TODO: blend implement
+    // 正片叠底混合（RGB通道）
+    vec4 mixed = base * blend;
+    mixed.a = base.a; // 保持基础alpha
+
+    // 写回结果
+    outputImage.pixels[baseIndex] = packColor(mixed);
 }
