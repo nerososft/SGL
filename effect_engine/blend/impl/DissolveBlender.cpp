@@ -16,7 +16,7 @@ VkResult DissolveBlender::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     this->dissolveBlenderParams.imageSize.blendImageWidth = blendImageInfo.width;
     this->dissolveBlenderParams.imageSize.blendImageHeight = blendImageInfo.height;
     this->dissolveBlenderParams.imageSize.blendImageChannels = blendImageInfo.channels;
-    this->dissolveBlenderParams.imageSize.blendImageBytesPerLine = blendImageInfo.width * baseImageInfo.channels;
+    this->dissolveBlenderParams.imageSize.blendImageBytesPerLine = blendImageInfo.width * blendImageInfo.channels;
     this->dissolveBlenderParams.imageSize.blendImagePosX = blendImageInfo.posX;
     this->dissolveBlenderParams.imageSize.blendImagePosY = blendImageInfo.posY;
     params.paramsSize = sizeof(DissolveBlenderParams);

@@ -111,6 +111,7 @@ int main(int argc, char *argv[]) {
     // effectEngine.Process("../../demo/images/colorful.png", "../../demo/images/colorful_surface_blur.png", filter);
 
     const auto blender = std::make_shared<DissolveBlender>();
+    blender->SetDissolveFactor(0.5);
     effectEngine.Process("../../demo/images/girl.png",
                          "../../demo/images/colorful.png",
                          500,

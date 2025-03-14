@@ -8,6 +8,7 @@
 
 struct DissolveBlenderParams {
     BasicBlenderParam imageSize;
+    float blenderFactor;
 };
 
 class DissolveBlender final : public BaseBlender {
@@ -22,6 +23,8 @@ public:
                    BlendImageInfo baseImageInfo,
                    BlendImageInfo blendImageInfo,
                    VkBuffer outputBuffer) override;
+
+    void SetDissolveFactor(const float dissolveFactor) { this->dissolveBlenderParams.blenderFactor = dissolveFactor; }
 
     void Destroy() override;
 };

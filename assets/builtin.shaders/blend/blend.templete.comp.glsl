@@ -14,7 +14,7 @@ layout (std430, binding = 2) buffer OutputImageStorageBuffer {
     uint pixels[];
 } outputImage;
 
-layout (push_constant) uniform FilterParams {
+layout (push_constant) uniform BlenderParams {
     uint baseImageWidth;
     uint baseImageHeight;
     uint baseImageChannels;
@@ -28,7 +28,7 @@ layout (push_constant) uniform FilterParams {
     uint blendImagePosY;
 
     // TODO: blend params
-} filterParams;
+} blenderParams;
 
 // ABGR
 uint packColor(vec4 color) {
@@ -52,7 +52,7 @@ vec4 unpackColor(uint color) {
 
 void main() {
     uvec2 coord = gl_GlobalInvocationID.xy;
-    if (any(greaterThanEqual(coord, uvec2(filterParams.baseImageWidth, filterParams.baseImageHeight)))) {
+    if (any(greaterThanEqual(coord, uvec2(blenderParams.blendImagePosX, blenderParams.blendImagePosY)))) {
         return;
     }
     // TODO: blend implement

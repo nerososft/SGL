@@ -7,6 +7,7 @@
 #include <iostream>
 #include <vulkan/vk_enum_string_helper.h>
 
+#include "effect_engine/gpu/compute_graph/BufferCopyComputeGraphNode.h"
 #include "effect_engine/gpu/compute_graph/ComputeGraph.h"
 #include "effect_engine/gpu/compute_graph/PipelineComputeGraphNode.h"
 
@@ -26,6 +27,17 @@ VkResult BaseBlender::DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
         std::cout << "Failed to create compute graph, err =" << string_VkResult(ret) << std::endl;
         return ret;
     }
+
+    BufferCopyNodeBufferInfo srcBufferInfo;
+    srcBufferInfo.buffer = baseImageInfo.storageBuffer;
+    srcBufferInfo.bufferSize = baseImageInfo.bufferSize;
+    BufferCopyNodeBufferInfo dstBufferInfo;
+    dstBufferInfo.buffer = outputBuffer;
+    dstBufferInfo.bufferSize = baseImageInfo.bufferSize;
+    const auto copyBufferNode = std::make_shared<BufferCopyComputeGraphNode>(gpuCtx,
+                                                                             "CopyBufferToOutputBuffer",
+                                                                             srcBufferInfo,
+                                                                             dstBufferInfo);
 
     PushConstantInfo pushConstantInfo;
     pushConstantInfo.size = blenderParams.paramsSize;
@@ -50,21 +62,22 @@ VkResult BaseBlender::DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     pipelineBuffers.push_back(pipelineNodeInput0);
     pipelineBuffers.push_back(pipelineNodeInput1);
     pipelineBuffers.push_back(pipelineNodeOutput);
-
-    const auto grayNode = std::make_shared<PipelineComputeGraphNode>(gpuCtx,
-                                                                     name,
-                                                                     blenderParams.shaderPath,
-                                                                     pushConstantInfo,
-                                                                     pipelineBuffers,
-                                                                     workGroupX,
-                                                                     workGroupY,
-                                                                     workGroupZ);
-    ret = grayNode->CreateComputeGraphNode();
+    const auto blendNode = std::make_shared<PipelineComputeGraphNode>(gpuCtx,
+                                                                      name,
+                                                                      blenderParams.shaderPath,
+                                                                      pushConstantInfo,
+                                                                      pipelineBuffers,
+                                                                      workGroupX,
+                                                                      workGroupY,
+                                                                      workGroupZ);
+    ret = blendNode->CreateComputeGraphNode();
     if (ret != VK_SUCCESS) {
         std::cout << "Failed to create compute graph, err =" << string_VkResult(ret) << std::endl;
         return ret;
     }
-    computeGraph->AddComputeGraphNode(grayNode);
+
+    blendNode->AddDependenceNode(copyBufferNode);
+    computeGraph->AddComputeGraphNode(blendNode);
 
     return computeGraph->Compute();
 }
@@ -81,8 +94,8 @@ VkResult BaseBlender::DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                    blendImageInfo,
                    outputBuffer,
                    blenderParams,
-                   (baseImageInfo.width + 31) / 32,
-                   (baseImageInfo.height + 31) / 32,
+                   (blendImageInfo.width + 31) / 32,
+                   (blendImageInfo.height + 31) / 32,
                    1);
 }
 
