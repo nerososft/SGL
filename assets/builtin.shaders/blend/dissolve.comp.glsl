@@ -59,13 +59,13 @@ void main() {
     uint baseIndex = (blenderParams.blendImagePosY + coord.y) * (blenderParams.baseImageBytesPerLine / 4) + (coord.x + blenderParams.blendImagePosX);
     uint blendIndex = coord.y * (blenderParams.blendImageBytesPerLine / 4) + coord.x;
 
-    vec4 base = unpackColor(baseImage.pixels[baseIndex]);
-    vec4 blend = unpackColor(blendImage.pixels[blendIndex]);
+    vec4 baseColor = unpackColor(baseImage.pixels[baseIndex]);
+    vec4 blendColor = unpackColor(blendImage.pixels[blendIndex]);
 
     // Simple noise generation using coordinate hashing
     float noise = fract(sin(float(coord.x * 1273 + coord.y * 4177)) * 43758.5453);
     float threshold = blenderParams.blenderFactor;
 
-    vec4 finalColor = noise < threshold ? blend : base;
+    vec4 finalColor = noise < threshold ? blendColor : baseColor;
     outputImage.pixels[baseIndex] = packColor(finalColor);
 }

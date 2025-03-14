@@ -57,12 +57,12 @@ void main() {
     uint baseIndex = (blenderParams.blendImagePosY + coord.y) * (blenderParams.baseImageBytesPerLine / 4) + (coord.x + blenderParams.blendImagePosX);
     uint blendIndex = coord.y * (blenderParams.blendImageBytesPerLine / 4) + coord.x;
 
-    vec4 base = unpackColor(baseImage.pixels[baseIndex]);
-    vec4 blend = unpackColor(blendImage.pixels[blendIndex]);
+    vec4 baseColor = unpackColor(baseImage.pixels[baseIndex]);
+    vec4 blendColor = unpackColor(blendImage.pixels[blendIndex]);
 
     // 正片叠底混合（RGB通道）
-    vec4 mixed = base * blend;
-    mixed.a = base.a; // 保持基础alpha
+    vec4 mixed = baseColor * blendColor;
+    mixed.a = baseColor.a; // 保持基础alpha
 
     // 写回结果
     outputImage.pixels[baseIndex] = packColor(mixed);

@@ -58,21 +58,21 @@ void main() {
     uint baseIndex = (blenderParams.blendImagePosY + coord.y) * (blenderParams.baseImageBytesPerLine / 4) + (coord.x + blenderParams.blendImagePosX);
     uint blendIndex = coord.y * (blenderParams.blendImageBytesPerLine / 4) + coord.x;
 
-    vec4 base = unpackColor(baseImage.pixels[baseIndex]);
-    vec4 blend = unpackColor(blendImage.pixels[blendIndex]);
+    vec4 baseColor = unpackColor(baseImage.pixels[baseIndex]);
+    vec4 blendColor = unpackColor(blendImage.pixels[blendIndex]);
 
     // 计算亮度比较（保持与CPU代码一致的逻辑）
-    float baseBrightness = base.r + base.g + base.b;
-    float blendBrightness = blend.r + blend.g + blend.b;
+    float baseBrightness = baseColor.r + baseColor.g + baseColor.b;
+    float blendBrightness = blendColor.r + blendColor.g + blendColor.b;
 
     // 亮度混合逻辑
-    vec4 finalColor = base;
+    vec4 finalColor = baseColor;
     if (blendBrightness > baseBrightness) {
-        finalColor = blend;
+        finalColor = blendColor;
     }
 
     // 应用混合因子（可选透明度混合）
-    finalColor.a = mix(finalColor.a, blend.a, blenderParams.blenderFactor);
+    finalColor.a = mix(finalColor.a, blendColor.a, blenderParams.blenderFactor);
 
     outputImage.pixels[baseIndex] = packColor(finalColor);
 }

@@ -59,8 +59,8 @@ void main() {
     uint baseIndex = (blenderParams.blendImagePosY + coord.y) * (blenderParams.baseImageBytesPerLine / 4) + (coord.x + blenderParams.blendImagePosX);
     uint blendIndex = coord.y * (blenderParams.blendImageBytesPerLine / 4) + coord.x;
 
-    vec4 base = unpackColor(baseImage.pixels[baseIndex]);
-    vec4 blend = unpackColor(blendImage.pixels[blendIndex]);
+    vec4 baseColor = unpackColor(baseImage.pixels[baseIndex]);
+    vec4 blendColor = unpackColor(blendImage.pixels[blendIndex]);
 
     // TODO: blend implement
     vec4 finalColor = vec4(0);// TODO

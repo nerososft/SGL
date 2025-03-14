@@ -65,10 +65,10 @@ void main() {
     uint baseIndex = (blenderParams.blendImagePosY + coord.y) * (blenderParams.baseImageBytesPerLine / 4) + (coord.x + blenderParams.blendImagePosX);
     uint blendIndex = coord.y * (blenderParams.blendImageBytesPerLine / 4) + coord.x;
 
-    vec4 base = unpackColor(baseImage.pixels[baseIndex]);
-    vec4 blend = unpackColor(blendImage.pixels[blendIndex]);
+    vec4 baseColor = unpackColor(baseImage.pixels[baseIndex]);
+    vec4 blendColor = unpackColor(blendImage.pixels[blendIndex]);
 
-    vec3 blendedRGB = applyOverlay(base.rgb, blend.rgb);
-    vec4 finalColor = vec4(mix(base.rgb, blendedRGB, blend.a), base.a);
+    vec3 blendedRGB = applyOverlay(baseColor.rgb, blendColor.rgb);
+    vec4 finalColor = vec4(mix(baseColor.rgb, blendedRGB, blendColor.a), baseColor.a);
     outputImage.pixels[baseIndex] = packColor(finalColor);
 }
