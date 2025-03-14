@@ -43,5 +43,10 @@ add_library(gpu_effect_engine
         filters/impl/AverageBlurFilter.h
         filters/impl/SurfaceBlurFilter.cpp
         filters/impl/SurfaceBlurFilter.h
+        blend/IBlender.h
+        blend/BaseBlender.cpp
+        blend/BaseBlender.h
+        blend/impl/DissolveBlender.cpp
+        blend/impl/DissolveBlender.h
 )
 target_link_libraries(gpu_effect_engine vulkan)
