@@ -52,20 +52,6 @@ int main(int argc, char *argv[]) {
     // filter->SetBlueFactor(0.114);
     // effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_gray.png", filter);
 
-    // const auto filter2 = std::make_shared<GaussianBlurFilter>();
-    // filter2->SetRadius(300);
-    // effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_blur.png", filter);
-    // const auto filter = std::make_shared<ChinesePaintFilter>();
-    // effectEngine.Process("D:/effect_engine/demo/images/girl.png", "D:/effect_engine/demo/images/test1.png", filter2);
-    // effectEngine.Process("D:/effect_engine/demo/images/144-30.png", "D:/effect_engine/demo/images/144-30.png", filter2);
-    // effectEngine.Process("D:/effect_engine/demo/images/girl.png", "D:/effect_engine/demo/images/test.png", filter);
-    // effectEngine.Process("D:/effect_engine/demo/images/girl.png", "D:/effect_engine/demo/images/test.png", filter);
-    // effectEngine.Process("D:/effect_engine/demo/images/girl.png", "D:/effect_engine/demo/images/test.png", filter);
-    // effectEngine.Process("D:/effect_engine/demo/images/girl.png", "D:/effect_engine/demo/images/test.png", filter);
-    // effectEngine.Process("D:/effect_engine/demo/images/girl.png", "D:/effect_engine/demo/images/test.png", filter);
-    // effectEngine.Process("D:/effect_engine/demo/images/girl.png", "D:/effect_engine/demo/images/test.png", filter);
-    // effectEngine.Process("D:/effect_engine/demo/images/girl.png", "D:/effect_engine/demo/images/test.png", filter);
-
     // const auto filter = std::make_shared<GaussianBlurFilter>();
     // filter->SetRadius(300);
     // effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_blur.png", filter);
@@ -106,8 +92,8 @@ int main(int argc, char *argv[]) {
     // effectEngine.Process("../../demo/images/colorful.png", "../../demo/images/colorful_average_blur.png", filter);
 
     // const auto filter = std::make_shared<SurfaceBlurFilter>();
-    // filter->SetBlurRadius(60); // 模糊半径
-    // filter->SetThreshold(128); // 阈值色阶（2-255）
+    // filter->SetBlurRadius(60);
+    // filter->SetThreshold(128);
     // effectEngine.Process("../../demo/images/colorful.png", "../../demo/images/colorful_surface_blur.png", filter);
 
     const auto blender = std::make_shared<DissolveBlender>();
