@@ -26,8 +26,6 @@ layout (push_constant) uniform BlenderParams {
     uint blendImageBytesPerLine;
     uint blendImagePosX;
     uint blendImagePosY;
-
-    // TODO: blend params
 } blenderParams;
 
 // ABGR
@@ -50,6 +48,14 @@ vec4 unpackColor(uint color) {
     );
 }
 
+vec3 applyOverlay(vec3 base, vec3 blend) {
+    return vec3(
+    base.r < 0.5 ? 2.0 * base.r * blend.r : 1.0 - 2.0 * (1.0 - base.r) * (1.0 - blend.r),
+    base.g < 0.5 ? 2.0 * base.g * blend.g : 1.0 - 2.0 * (1.0 - base.g) * (1.0 - blend.g),
+    base.b < 0.5 ? 2.0 * base.b * blend.b : 1.0 - 2.0 * (1.0 - base.b) * (1.0 - blend.b)
+    );
+}
+
 void main() {
     uvec2 coord = gl_GlobalInvocationID.xy;
     if (any(greaterThanEqual(coord, uvec2(blenderParams.blendImageWidth, blenderParams.blendImageHeight)))) {
@@ -62,7 +68,7 @@ void main() {
     vec4 base = unpackColor(baseImage.pixels[baseIndex]);
     vec4 blend = unpackColor(blendImage.pixels[blendIndex]);
 
-    // TODO: blend implement
-    vec4 finalColor = vec4(0);// TODO
+    vec3 blendedRGB = applyOverlay(base.rgb, blend.rgb);
+    vec4 finalColor = vec4(mix(base.rgb, blendedRGB, blend.a), base.a);
     outputImage.pixels[baseIndex] = packColor(finalColor);
 }

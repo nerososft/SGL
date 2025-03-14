@@ -8,6 +8,7 @@
 #include "effect_engine/EffectEngine.h"
 #include "effect_engine/blenders/impl/DissolveBlender.h"
 #include "effect_engine/blenders/impl/MultiplyBlender.h"
+#include "effect_engine/blenders/impl/OverlayBlender.h"
 #include "effect_engine/filters/impl/AverageBlurFilter.h"
 #include "effect_engine/filters/impl/ChinesePaintFilter.h"
 #include "effect_engine/filters/impl/ColorPencilSketchFilter.h"
@@ -105,12 +106,19 @@ int main(int argc, char *argv[]) {
     //                      800,
     //                      "../../demo/images/girl_colorful_dissolve.png", blender);
 
-    const auto blender = std::make_shared<MultiplyBlender>();
+    // const auto blender = std::make_shared<MultiplyBlender>();
+    // effectEngine.Process("../../demo/images/girl.png",
+    //                      "../../demo/images/colorful.png",
+    //                      500,
+    //                      800,
+    //                      "../../demo/images/girl_colorful_multiply.png", blender);
+
+    const auto blender = std::make_shared<OverlayBlender>();
     effectEngine.Process("../../demo/images/girl.png",
                          "../../demo/images/colorful.png",
                          500,
                          800,
-                         "../../demo/images/girl_colorful_multiply.png", blender);
+                         "../../demo/images/girl_colorful_overlay.png", blender);
     // getchar();
     return 0;
 }

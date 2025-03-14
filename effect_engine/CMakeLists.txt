@@ -50,5 +50,7 @@ add_library(gpu_effect_engine
         blenders/impl/DissolveBlender.h
         blenders/impl/MultiplyBlender.cpp
         blenders/impl/MultiplyBlender.h
+        blenders/impl/OverlayBlender.cpp
+        blenders/impl/OverlayBlender.h
 )
 target_link_libraries(gpu_effect_engine vulkan)
