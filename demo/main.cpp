@@ -3,8 +3,10 @@
 //
 
 #include <iostream>
+#include <effect_engine/blend/impl/LighterColorBlender.h>
 #include <effect_engine/filters/impl/RadialBlurFilter.h>
 
+#include "effect_engine/blend/impl/LighterColorBlender.h"
 #include "effect_engine/EffectEngine.h"
 #include "effect_engine/blend/impl/DissolveBlender.h"
 #include "effect_engine/filters/impl/AverageBlurFilter.h"
@@ -96,13 +98,22 @@ int main(int argc, char *argv[]) {
     // filter->SetThreshold(128);
     // effectEngine.Process("../../demo/images/colorful.png", "../../demo/images/colorful_surface_blur.png", filter);
 
-    const auto blender = std::make_shared<DissolveBlender>();
-    blender->SetDissolveFactor(0.5);
+    // const auto blender = std::make_shared<DissolveBlender>();
+    // blender->SetDissolveFactor(0.5);
+    // effectEngine.Process("../../demo/images/girl.png",
+    //                      "../../demo/images/colorful.png",
+    //                      500,
+    //                      800,
+    //                      "../../demo/images/girl_colorful_dissolve.png", blender);
+
+    const auto blender = std::make_shared<LighterColorBlender>();
+    blender->SetBrightnessThreshold(0.7f); // 调整亮度阈值
+    blender->SetBlendFactor(0.3f);       // 调整混合强度
     effectEngine.Process("../../demo/images/girl.png",
                          "../../demo/images/colorful.png",
                          500,
                          800,
-                         "../../demo/images/girl_colorful_dissolve.png", blender);
+                         "../../demo/images/girl_colorful_lighter.png", blender);
     // getchar();
     return 0;
 }
