@@ -14,6 +14,35 @@
 
 #include "effect_engine/utils/IOUtils.h"
 
+VkResult VkGPUHelper::CreateStorageBufferAndUploadData(const VkDevice device,
+                                                       const std::vector<uint32_t> &queueFamilyIndices,
+                                                       const VkPhysicalDeviceMemoryProperties *memoryProperties,
+                                                       const VkDeviceSize bufferSize,
+                                                       VkBuffer *buffer,
+                                                       VkDeviceMemory *bufferMemory,
+                                                       const void *uploadData) {
+    VkResult ret = CreateStorageBufferAndBindMem(device,
+                                                 bufferSize,
+                                                 queueFamilyIndices,
+                                                 memoryProperties,
+                                                 buffer,
+                                                 bufferMemory);
+    if (ret != VK_SUCCESS) {
+        std::cout << "Failed to create input storage buffer!" << std::endl;
+        return ret;
+    }
+
+    void *data = nullptr;
+    ret = vkMapMemory(device, *bufferMemory, 0, bufferSize, 0, &data);
+    if (ret != VK_SUCCESS) {
+        std::cout << "Failed to map input storage buffer memory, err=" << string_VkResult(ret) << std::endl;
+        return ret;
+    }
+    memcpy(data, uploadData, bufferSize);
+    vkUnmapMemory(device, *bufferMemory);
+    return ret;
+}
+
 VkSubmitInfo VkGPUHelper::BuildSubmitInfo(const VkFlags *submitWaitDstStageMask,
                                           const std::vector<VkCommandBuffer> &submitCommandBuffers,
                                           const std::vector<VkSemaphore> &submitSignalSemaphores,

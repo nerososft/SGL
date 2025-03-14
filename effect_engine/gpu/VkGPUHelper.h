@@ -7,11 +7,20 @@
 #include <vector>
 #include <vulkan/vulkan_core.h>
 #include <string>
+
 class VkGPUHelper {
 public:
     VkGPUHelper() = default;
 
     ~VkGPUHelper() = default;
+
+    static VkResult CreateStorageBufferAndUploadData(VkDevice device,
+                                                     const std::vector<uint32_t> &queueFamilyIndices,
+                                                     const VkPhysicalDeviceMemoryProperties *memoryProperties,
+                                                     VkDeviceSize bufferSize,
+                                                     VkBuffer *buffer,
+                                                     VkDeviceMemory *bufferMemory,
+                                                     const void *uploadData);
 
     static VkSubmitInfo BuildSubmitInfo(const VkFlags *submitWaitDstStageMask,
                                         const std::vector<VkCommandBuffer> &submitCommandBuffers,

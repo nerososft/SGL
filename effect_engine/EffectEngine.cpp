@@ -59,16 +59,20 @@ VkResult EffectEngine::Process(VkBuffer *inputStorageBuffer,
     queueFamilyIndices.push_back(0);
     const VkPhysicalDeviceMemoryProperties memoryProperties = gpuCtx->GetMemoryProperties();
     const uint64_t imageBufferPrepareStart = TimeUtils::GetCurrentMonoMs();
-    VkResult ret = VkGPUHelper::CreateStorageBufferAndBindMem(gpuCtx->GetCurrentDevice(),
-                                                              inputBufferSize,
-                                                              queueFamilyIndices,
-                                                              &memoryProperties,
-                                                              inputStorageBuffer,
-                                                              inputStorageBufferMemory);
+    VkResult ret = VkGPUHelper::CreateStorageBufferAndUploadData(gpuCtx->GetCurrentDevice(),
+                                                                 queueFamilyIndices,
+                                                                 &memoryProperties,
+                                                                 inputBufferSize,
+                                                                 inputStorageBuffer,
+                                                                 inputStorageBufferMemory,
+                                                                 uploadData);
     if (ret != VK_SUCCESS) {
-        std::cout << "Failed to create input storage buffer!" << std::endl;
+        std::cout << "Failed to create Vulkan buffer memory object, err=" << string_VkResult(ret) << std::endl;
         return ret;
     }
+    const uint64_t imageBufferPrepareEnd = TimeUtils::GetCurrentMonoMs();
+    std::cout << "Image Buffer Prepare And Upload Time: " << imageBufferPrepareEnd - imageBufferPrepareStart << "ms" <<
+            std::endl;
 
     ret = VkGPUHelper::CreateStorageBufferAndBindMem(gpuCtx->GetCurrentDevice(),
                                                      outputBufferSize,
@@ -80,20 +84,6 @@ VkResult EffectEngine::Process(VkBuffer *inputStorageBuffer,
         std::cout << "Failed to create output storage buffer!" << std::endl;
         return ret;
     }
-    const uint64_t imageBufferPrepareEnd = TimeUtils::GetCurrentMonoMs();
-    std::cout << "Image Buffer Prepare Time: " << imageBufferPrepareEnd - imageBufferPrepareStart << "ms" << std::endl;
-
-    const uint64_t imageUploadStart = TimeUtils::GetCurrentMonoMs();
-    void *data = nullptr;
-    ret = vkMapMemory(gpuCtx->GetCurrentDevice(), *inputStorageBufferMemory, 0, inputBufferSize, 0, &data);
-    if (ret != VK_SUCCESS) {
-        std::cout << "Failed to map input storage buffer memory, err=" << string_VkResult(ret) << std::endl;
-        return ret;
-    }
-    memcpy(data, uploadData, inputBufferSize);
-    vkUnmapMemory(gpuCtx->GetCurrentDevice(), *inputStorageBufferMemory);
-    const uint64_t imageUploadEnd = TimeUtils::GetCurrentMonoMs();
-    std::cout << "Image Upload Time: " << imageUploadEnd - imageUploadStart << "ms" << std::endl;
 
     const uint64_t gpuProcessTimeStart = TimeUtils::GetCurrentMonoMs();
     ret = filter->Apply(gpuCtx, inputBufferSize, inputWidth, inputHeight, *inputStorageBuffer, *outputStorageBuffer);
@@ -280,4 +270,44 @@ void EffectEngine::Process(const char *inputFilePath,
     vkDestroyBuffer(gpuCtx->GetCurrentDevice(), inputStorageBuffer, nullptr);
     vkFreeMemory(gpuCtx->GetCurrentDevice(), outputStorageBufferMemory, nullptr);
     vkDestroyBuffer(gpuCtx->GetCurrentDevice(), outputStorageBuffer, nullptr);
+}
+
+void EffectEngine::Process(const char *baseFilePath,
+                           const char *blendFilePath,
+                           const char *outputFilePath,
+                           const std::shared_ptr<IBlender> &blender) const {
+    uint32_t baseImageWidth = 0, baseImageHeight = 0, baseImageChannels = 0;
+    std::vector<char> baseImageFileData =
+            ImageUtils::ReadPngFile(baseFilePath, &baseImageWidth, &baseImageHeight, &baseImageChannels);
+    if (baseImageFileData.empty()) {
+        std::cerr << "Failed to read input base file!" << std::endl;
+        return;
+    }
+    std::cout << "Base Image width= " << baseImageWidth << ", height=" << baseImageHeight << ", channels=" <<
+            baseImageChannels << std::endl;
+
+
+    uint32_t blendImageWidth = 0, blendImageHeight = 0, blendImageChannels = 0;
+    std::vector<char> blendImageFileData =
+            ImageUtils::ReadPngFile(blendFilePath, &blendImageWidth, &blendImageHeight, &blendImageChannels);
+    if (blendImageFileData.empty()) {
+        std::cerr << "Failed to read input blend file!" << std::endl;
+        return;
+    }
+    std::cout << "Blend Image width= " << blendImageWidth << ", height=" << blendImageHeight << ", channels=" <<
+            blendImageChannels << std::endl;
+
+    const VkDeviceSize outputBufferSize = baseImageWidth * baseImageHeight * baseImageChannels;
+    VkBuffer baseStorageBuffer = VK_NULL_HANDLE;
+    VkDeviceMemory baseStorageBufferMemory = VK_NULL_HANDLE;
+    VkBuffer blendStorageBuffer = VK_NULL_HANDLE;
+    VkDeviceMemory blendStorageBufferMemory = VK_NULL_HANDLE;
+    VkBuffer outputStorageBuffer = VK_NULL_HANDLE;
+    VkDeviceMemory outputStorageBufferMemory = VK_NULL_HANDLE;
+
+    // TODO: Create StorageBuffer And Upload Data
+    // TODO: Create OutputBuffer
+    // TODO: Do Blend
+    // TODO: Download Buffer
+    // TODO: Free Buffers
 }
