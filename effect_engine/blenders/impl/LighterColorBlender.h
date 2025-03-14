@@ -4,9 +4,8 @@
 
 #ifndef LIGHTERCOLORBLENDER_H
 #define LIGHTERCOLORBLENDER_H
+#include "effect_engine/blenders/BaseBlender.h"
 
-
-#include "effect_engine/blend/BaseBlender.h"
 
 struct LighterColorBlenderParams {
     BasicBlenderParam imageSize;
