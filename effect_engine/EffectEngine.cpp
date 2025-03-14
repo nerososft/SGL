@@ -274,8 +274,8 @@ void EffectEngine::Process(const char *inputFilePath,
 
 void EffectEngine::Process(const char *baseFilePath,
                            const char *blendFilePath,
-                           uint32_t posX,
-                           uint32_t posY,
+                           const uint32_t posX,
+                           const uint32_t posY,
                            const char *outputFilePath,
                            const std::shared_ptr<IBlender> &blender) const {
     uint32_t baseImageWidth = 0, baseImageHeight = 0, baseImageChannels = 0;
