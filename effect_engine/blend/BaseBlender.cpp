@@ -5,7 +5,11 @@
 #include "BaseBlender.h"
 
 #include <iostream>
+#ifdef Q_OS_OPENHARMONY
+#include <effect_engine/gpu/utils/vk_enum_string_helper.h>
+#else
 #include <vulkan/vk_enum_string_helper.h>
+#endif
 
 #include "effect_engine/gpu/compute_graph/BufferCopyComputeGraphNode.h"
 #include "effect_engine/gpu/compute_graph/ComputeGraph.h"
