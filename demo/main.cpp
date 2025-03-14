@@ -6,6 +6,7 @@
 #include <effect_engine/filters/impl/RadialBlurFilter.h>
 
 #include "effect_engine/EffectEngine.h"
+#include "effect_engine/blend/impl/DissolveBlender.h"
 #include "effect_engine/filters/impl/AverageBlurFilter.h"
 #include "effect_engine/filters/impl/ChinesePaintFilter.h"
 #include "effect_engine/filters/impl/ColorPencilSketchFilter.h"
@@ -104,11 +105,17 @@ int main(int argc, char *argv[]) {
     // filter->SetBlurRadius(100);
     // effectEngine.Process("../../demo/images/colorful.png", "../../demo/images/colorful_average_blur.png", filter);
 
-    const auto filter = std::make_shared<SurfaceBlurFilter>();
-    filter->SetBlurRadius(60); // 模糊半径
-    filter->SetThreshold(128); // 阈值色阶（2-255）
-    effectEngine.Process("../../demo/images/colorful.png", "../../demo/images/colorful_surface_blur.png", filter);
+    // const auto filter = std::make_shared<SurfaceBlurFilter>();
+    // filter->SetBlurRadius(60); // 模糊半径
+    // filter->SetThreshold(128); // 阈值色阶（2-255）
+    // effectEngine.Process("../../demo/images/colorful.png", "../../demo/images/colorful_surface_blur.png", filter);
 
+    const auto blender = std::make_shared<DissolveBlender>();
+    effectEngine.Process("../../demo/images/girl.png",
+                         "../../demo/images/colorful.png",
+                         500,
+                         800,
+                         "../../demo/images/girl_colorful_dissolve.png", blender);
     // getchar();
     return 0;
 }

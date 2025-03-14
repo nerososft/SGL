@@ -55,5 +55,35 @@ void main() {
     if (any(greaterThanEqual(coord, uvec2(filterParams.baseImageWidth, filterParams.baseImageHeight)))) {
         return;
     }
-    // TODO: blend implement
+
+    // 计算base图像索引
+    uint baseIndex = coord.y * (filterParams.baseImageBytesPerLine / 4) + coord.x;
+    vec4 baseColor = unpackColor(baseImage.pixels[baseIndex]);
+    vec4 finalColor = baseColor;
+
+    // 检查是否在混合区域
+    uvec2 blendPos = uvec2(filterParams.blendImagePosX, filterParams.blendImagePosY);
+    if (coord.x >= blendPos.x && coord.y >= blendPos.y &&
+    coord.x < blendPos.x + filterParams.blendImageWidth &&
+    coord.y < blendPos.y + filterParams.blendImageHeight) {
+
+        // 计算blend图像索引
+        uvec2 blendCoord = coord - blendPos;
+        uint blendIndex = blendCoord.y * (filterParams.blendImageBytesPerLine / 4) + blendCoord.x;
+        vec4 blendColor = unpackColor(blendImage.pixels[blendIndex]);
+
+        // 生成随机数（简单哈希函数）
+        uint seed = (coord.x << 16) | coord.y;
+        seed = seed * 747796405u + 2891336453u;
+        seed = (seed >> 16) ^ seed;
+        float rand = float(seed % 1000u) / 1000.0f;
+
+        // 溶解混合（假设存在dissolveThreshold参数）
+        if (rand < 0.5f) { // 实际应从filterParams获取阈值
+                           finalColor = blendColor;
+        }
+    }
+
+    // 写入输出
+    outputImage.pixels[baseIndex] = packColor(finalColor);
 }

@@ -52,6 +52,8 @@ public:
 
     void Process(const char *baseFilePath,
                  const char *blendFilePath,
+                 uint32_t posX,
+                 uint32_t posY,
                  const char *outputFilePath,
                  const std::shared_ptr<IBlender> &blender) const;
 };

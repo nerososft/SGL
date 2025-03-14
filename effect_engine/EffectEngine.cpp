@@ -274,6 +274,8 @@ void EffectEngine::Process(const char *inputFilePath,
 
 void EffectEngine::Process(const char *baseFilePath,
                            const char *blendFilePath,
+                           uint32_t posX,
+                           uint32_t posY,
                            const char *outputFilePath,
                            const std::shared_ptr<IBlender> &blender) const {
     uint32_t baseImageWidth = 0, baseImageHeight = 0, baseImageChannels = 0;
@@ -363,6 +365,7 @@ void EffectEngine::Process(const char *baseFilePath,
     BlendImageInfo baseImageInfo;
     baseImageInfo.width = baseImageWidth;
     baseImageInfo.height = baseImageHeight;
+    baseImageInfo.channels = baseImageChannels;
     baseImageInfo.bufferSize = baseBufferSize;
     baseImageInfo.posX = 0;
     baseImageInfo.posY = 0;
@@ -370,13 +373,14 @@ void EffectEngine::Process(const char *baseFilePath,
     BlendImageInfo blendImageInfo;
     blendImageInfo.width = blendImageWidth;
     blendImageInfo.height = blendImageHeight;
+    blendImageInfo.channels = baseImageChannels;
     blendImageInfo.bufferSize = blendBufferSize;
-    blendImageInfo.posX = 0;
-    blendImageInfo.posY = 0;
+    blendImageInfo.posX = posX;
+    blendImageInfo.posY = posY;
     blendImageInfo.storageBuffer = blendStorageBuffer;
     ret = blender->Apply(gpuCtx, baseImageInfo, blendImageInfo, outputStorageBuffer);
     if (ret != VK_SUCCESS) {
-        std::cout << "Failed to apply filter!" << std::endl;
+        std::cout << "Failed to apply blender!" << std::endl;
         return;
     }
     const uint64_t gpuProcessTimeEnd = TimeUtils::GetCurrentMonoMs();

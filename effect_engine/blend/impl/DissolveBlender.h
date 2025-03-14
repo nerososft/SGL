@@ -6,8 +6,13 @@
 #define DISSOLVEBLENDER_H
 #include "effect_engine/blend/BaseBlender.h"
 
+struct DissolveBlenderParams {
+    BasicBlenderParam imageSize;
+};
 
 class DissolveBlender final : public BaseBlender {
+    DissolveBlenderParams dissolveBlenderParams{};
+
 public:
     DissolveBlender() = default;
 
