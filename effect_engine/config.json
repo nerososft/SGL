@@ -1,0 +1,32 @@
+{
+  "blenders": [
+    {
+      "name": "Overlay",
+      "shaderPath:": "shaders_compiler/overlay.comp.glsl.spv"
+    },
+    {
+      "name": "Multiply",
+      "shaderPath:": "shaders_compiler/multiply.comp.glsl.spv"
+    }
+  ],
+  "filters": [
+    {
+      "name": "Gray",
+      "params": [
+        {
+          "name": "factorR",
+          "type": "float"
+        },
+        {
+          "name": "factorG",
+          "type": "float"
+        },
+        {
+          "name": "factorB",
+          "type": "float"
+        }
+      ],
+      "shaderPath:": "shaders_compiler/gray.comp.glsl.spv"
+    }
+  ]
+}
