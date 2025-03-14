@@ -8,6 +8,7 @@
 #include <iostream>
 
 #include "png.h"
+#include "effect_engine/utils/TimeUtils.h"
 
 typedef struct {
     char *data;
@@ -48,6 +49,8 @@ std::vector<char> ImageUtils::ReadPngFile(const std::string &fileName,
                                           uint32_t *imageWidth,
                                           uint32_t *imageHeight,
                                           uint32_t *channel) {
+    std::cout << "Reading PNG file " << fileName << std::endl;
+    const uint64_t pngReadStart = TimeUtils::GetCurrentMonoMs();
     std::vector<char> data;
 
     std::ifstream file;
@@ -130,6 +133,8 @@ std::vector<char> ImageUtils::ReadPngFile(const std::string &fileName,
         free(rowPixels);
     }
 
+    const uint64_t pngReadEnd = TimeUtils::GetCurrentMonoMs();
+    std::cout << "Read PNG Usage:" << pngReadEnd - pngReadStart << "ms" << std::endl;
     return data;
 }
 
@@ -138,6 +143,8 @@ void ImageUtils::WritePngFile(const std::string &fileName,
                               const uint32_t imageHeight,
                               const uint32_t channel,
                               const void *imageData) {
+    std::cout << "Writing PNG file " << fileName << std::endl;
+    const uint64_t pngWriteStart = TimeUtils::GetCurrentMonoMs();
     png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
     if (!png) {
         std::cerr << "Failed to create png struct" << std::endl;
@@ -182,6 +189,6 @@ void ImageUtils::WritePngFile(const std::string &fileName,
     }
     png_write_end(png, nullptr);
     png_destroy_write_struct(&png, &info);
-
-    std::cout << "Writing PNG file " << fileName << std::endl;
+    const uint64_t pngWriteEnd = TimeUtils::GetCurrentMonoMs();
+    std::cout << "Writing PNG Usage:" << pngWriteEnd - pngWriteStart << "ms" << std::endl;
 }

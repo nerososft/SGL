@@ -323,12 +323,12 @@ void EffectEngine::Process(const char *baseFilePath,
         std::cout << "Failed to create Vulkan base buffer memory object, err=" << string_VkResult(ret) << std::endl;
         return;
     }
-    baseImageFileData.clear();
-    baseImageFileData.resize(0);
     const uint64_t baseImageBufferPrepareEnd = TimeUtils::GetCurrentMonoMs();
     std::cout << "Base Image Buffer Prepare And Upload Time: " << baseImageBufferPrepareEnd -
             baseImageBufferPrepareStart << "ms" <<
             std::endl;
+    baseImageFileData.clear();
+    baseImageFileData.resize(0);
 
     const VkDeviceSize blendBufferSize = blendImageWidth * blendImageHeight * blendImageChannels;
     const uint64_t blendImageBufferPrepareStart = TimeUtils::GetCurrentMonoMs();
@@ -343,12 +343,13 @@ void EffectEngine::Process(const char *baseFilePath,
         std::cout << "Failed to create Vulkan buffer memory object, err=" << string_VkResult(ret) << std::endl;
         return;
     }
-    blendImageFileData.clear();
-    blendImageFileData.resize(0);
     const uint64_t blendImageBufferPrepareEnd = TimeUtils::GetCurrentMonoMs();
     std::cout << "Blend Image Buffer Prepare And Upload Time: " << blendImageBufferPrepareEnd -
             blendImageBufferPrepareStart << "ms" <<
-            std::endl;
+            std::endl << std::endl;
+
+    blendImageFileData.clear();
+    blendImageFileData.resize(0);
 
     ret = VkGPUHelper::CreateStorageBufferAndBindMem(gpuCtx->GetCurrentDevice(),
                                                      outputBufferSize,
@@ -392,6 +393,7 @@ void EffectEngine::Process(const char *baseFilePath,
         std::cout << "Failed to map output storage buffer memory, err=" << string_VkResult(ret) << std::endl;
         return;
     }
+
 
     ImageUtils::WritePngFile(outputFilePath, baseImageWidth, baseImageHeight, baseImageChannels, data);
     vkUnmapMemory(gpuCtx->GetCurrentDevice(), outputStorageBufferMemory);

@@ -13,6 +13,7 @@
 #endif
 
 #include "effect_engine/utils/IOUtils.h"
+#include "effect_engine/utils/TimeUtils.h"
 
 VkResult VkGPUHelper::CreateStorageBufferAndUploadData(const VkDevice device,
                                                        const std::vector<uint32_t> &queueFamilyIndices,
@@ -32,6 +33,7 @@ VkResult VkGPUHelper::CreateStorageBufferAndUploadData(const VkDevice device,
         return ret;
     }
 
+    const uint64_t bufferUploadStart = TimeUtils::GetCurrentMonoMs();
     void *data = nullptr;
     ret = vkMapMemory(device, *bufferMemory, 0, bufferSize, 0, &data);
     if (ret != VK_SUCCESS) {
@@ -40,6 +42,8 @@ VkResult VkGPUHelper::CreateStorageBufferAndUploadData(const VkDevice device,
     }
     memcpy(data, uploadData, bufferSize);
     vkUnmapMemory(device, *bufferMemory);
+    const uint64_t bufferUploadEnd = TimeUtils::GetCurrentMonoMs();
+    std::cout << "Buffer Upload Usage:" << bufferUploadEnd - bufferUploadStart << "ms" << std::endl;
     return ret;
 }
 
@@ -390,6 +394,7 @@ VkResult VkGPUHelper::CreateStorageBufferAndBindMem(const VkDevice device,
                                                     const VkPhysicalDeviceMemoryProperties *memProps,
                                                     VkBuffer *storageBuffer,
                                                     VkDeviceMemory *storageBufferMemory) {
+    const uint64_t bufferCreateStart = TimeUtils::GetCurrentMonoMs();
     VkResult ret = CreateBuffer(device,
                                 size,
                                 VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
@@ -399,7 +404,10 @@ VkResult VkGPUHelper::CreateStorageBufferAndBindMem(const VkDevice device,
     if (ret != VK_SUCCESS) {
         std::cout << "vkCreateBuffer failed, err=" << string_VkResult(ret) << std::endl;
     }
+    const uint64_t bufferCreateEnd = TimeUtils::GetCurrentMonoMs();
+    std::cout << "Buffer Create Usage:" << bufferCreateEnd - bufferCreateStart << "ms" << std::endl;
 
+    const uint64_t bufferMemAllocateStart = TimeUtils::GetCurrentMonoMs();
     VkMemoryRequirements memRequirements;
     vkGetBufferMemoryRequirements(device, *storageBuffer, &memRequirements);
 
@@ -421,5 +429,7 @@ VkResult VkGPUHelper::CreateStorageBufferAndBindMem(const VkDevice device,
         std::cout << "vkBindBufferMemory failed, err=" << string_VkResult(ret) << std::endl;
         return ret;
     }
+    const uint64_t bufferMemAllocateEnd = TimeUtils::GetCurrentMonoMs();
+    std::cout << "Buffer Allocate Usage:" << bufferMemAllocateEnd - bufferMemAllocateStart << "ms" << std::endl;
     return ret;
 }
