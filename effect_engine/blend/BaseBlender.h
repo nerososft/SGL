@@ -40,7 +40,7 @@ public:
                      const BlendImageInfo &baseImageInfo,
                      const BlendImageInfo &blendImageInfo,
                      VkBuffer outputBuffer,
-                     BasicBlenderParams blenderParams,
+                     const BasicBlenderParams& blenderParams,
                      uint32_t workGroupX,
                      uint32_t workGroupY,
                      uint32_t workGroupZ);

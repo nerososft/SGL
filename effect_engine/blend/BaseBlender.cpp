@@ -17,7 +17,7 @@ VkResult BaseBlender::DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                               const BlendImageInfo &baseImageInfo,
                               const BlendImageInfo &blendImageInfo,
                               const VkBuffer outputBuffer,
-                              BasicBlenderParams blenderParams,
+                              const BasicBlenderParams &blenderParams,
                               uint32_t workGroupX,
                               uint32_t workGroupY,
                               uint32_t workGroupZ) {
