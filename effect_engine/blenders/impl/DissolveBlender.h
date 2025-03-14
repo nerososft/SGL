@@ -4,7 +4,7 @@
 
 #ifndef DISSOLVEBLENDER_H
 #define DISSOLVEBLENDER_H
-#include "effect_engine/blend/BaseBlender.h"
+#include "effect_engine/blenders/BaseBlender.h"
 
 struct DissolveBlenderParams {
     BasicBlenderParam imageSize;

@@ -4,7 +4,7 @@
 
 #ifndef MULTIPLYBLENDER_H
 #define MULTIPLYBLENDER_H
-#include "effect_engine/blend/BaseBlender.h"
+#include "effect_engine/blenders/BaseBlender.h"
 
 struct MultiplyBlenderParams {
     BasicBlenderParam imageSize;

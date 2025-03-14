@@ -6,8 +6,8 @@
 #include <effect_engine/filters/impl/RadialBlurFilter.h>
 
 #include "effect_engine/EffectEngine.h"
-#include "effect_engine/blend/impl/DissolveBlender.h"
-#include "effect_engine/blend/impl/MultiplyBlender.h"
+#include "effect_engine/blenders/impl/DissolveBlender.h"
+#include "effect_engine/blenders/impl/MultiplyBlender.h"
 #include "effect_engine/filters/impl/AverageBlurFilter.h"
 #include "effect_engine/filters/impl/ChinesePaintFilter.h"
 #include "effect_engine/filters/impl/ColorPencilSketchFilter.h"

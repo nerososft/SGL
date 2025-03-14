@@ -4,7 +4,7 @@
 
 #ifndef EFFECTENGINE_H
 #define EFFECTENGINE_H
-#include "blend/IBlender.h"
+#include "blenders/IBlender.h"
 #include "filters/IFilter.h"
 #include "gpu/VkGPUContext.h"
 
