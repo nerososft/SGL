@@ -52,7 +52,7 @@ vec4 unpackColor(uint color) {
 
 void main() {
     uvec2 coord = gl_GlobalInvocationID.xy;
-    if (any(greaterThanEqual(coord, uvec2(blenderParams.blendImagePosX, blenderParams.blendImagePosY)))) {
+    if (any(greaterThanEqual(coord, uvec2(blenderParams.blendImageWidth, blenderParams.blendImageHeight)))) {
         return;
     }
     // TODO: blend implement
