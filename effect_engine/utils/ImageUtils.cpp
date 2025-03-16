@@ -8,7 +8,7 @@
 #include <iostream>
 
 #include "png.h"
-#include "effect_engine/utils/TimeUtils.h"
+#include "TimeUtils.h"
 
 typedef struct {
     char *data;

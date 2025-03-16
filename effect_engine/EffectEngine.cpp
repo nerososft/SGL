@@ -12,7 +12,7 @@
 #include <vulkan/vk_enum_string_helper.h>
 #endif
 
-#include "demo/utils/ImageUtils.h"
+#include "utils/ImageUtils.h"
 #include "gpu/VkGPUHelper.h"
 #include "utils/TimeUtils.h"
 
