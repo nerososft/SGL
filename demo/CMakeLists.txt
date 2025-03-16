@@ -12,8 +12,8 @@ endif ()
 
 add_executable(demo
         main.cpp
-        utils/ImageUtils.cpp
-        utils/ImageUtils.h
+        ../effect_engine/utils/ImageUtils.cpp
+        ../effect_engine/utils/ImageUtils.h
 )
 target_link_libraries(demo gpu_effect_engine)
 target_link_libraries(demo png)
