@@ -46,7 +46,11 @@ private:
 
     void output() const {
         if (buffer->tellp() > 0) {
+#ifdef DEBUG_ON_HIMIRAGE
+            // TODO: impl me
+#else
             std::cout << getLevelStr() << buffer->str();
+#endif /* DEBUG_ON_HIMIRAGE */
             buffer->str("");
         }
     }
