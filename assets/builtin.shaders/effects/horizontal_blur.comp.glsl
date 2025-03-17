@@ -35,7 +35,7 @@ vec4 unpackColor(uint color) {
 
 const uint MAX_RADIUS = 1000;
 // 共享内存声明（必须全局）
-shared uint s_Pixels[512 + 2 * MAX_RADIUS];  // 核心256像素+两侧各MAX_RADIUS边界
+shared uint s_Pixels[512 + 2 * MAX_RADIUS];  // 核心512像素+两侧各MAX_RADIUS边界
 shared float s_Weights[2 * MAX_RADIUS + 1];      // R=MAX_RADIUS时权重数组
 
 void main() {
