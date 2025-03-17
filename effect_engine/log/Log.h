@@ -49,11 +49,11 @@ private:
 
     void output() const {
         if (buffer->tellp() > 0) {
-#ifdef Q_OS_OPENHARMONY
+#ifdef OS_OPEN_HARMONY
             OH_LOG_Print(LOG_APP, LOG_INFO, 0xFF00, "[EffectEngine]", buffer.str());
 #else
             std::cout << getLevelStr() << buffer->str();
-#endif /* DEBUG_ON_HIMIRAGE */
+#endif /* OS_OPEN_HARMONY */
             buffer->str("");
         }
     }
