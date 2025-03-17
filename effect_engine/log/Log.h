@@ -8,6 +8,9 @@
 
 #include <iostream>
 #include <sstream>
+#ifdef Q_OS_OPENHARMONY
+#include <hilog/log.h>
+#endif
 
 class Logger {
 public:
@@ -46,8 +49,8 @@ private:
 
     void output() const {
         if (buffer->tellp() > 0) {
-#ifdef DEBUG_ON_HIMIRAGE
-            // TODO: impl me
+#ifdef Q_OS_OPENHARMONY
+            OH_LOG_Print(LOG_APP, LOG_INFO, 0xFF00, "[EffectEngine]", buffer.str());
 #else
             std::cout << getLevelStr() << buffer->str();
 #endif /* DEBUG_ON_HIMIRAGE */
