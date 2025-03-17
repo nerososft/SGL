@@ -8,7 +8,7 @@
 
 #include <iostream>
 #include <sstream>
-#ifdef Q_OS_OPENHARMONY
+#ifdef OS_OPEN_HARMONY
 #include <hilog/log.h>
 #endif
 

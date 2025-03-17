@@ -3,7 +3,7 @@
 //
 
 #include "TimeUtils.h"
-#ifdef Q_OS_OPENHARMONY
+#ifdef OS_OPEN_HARMONY
 #include <ctime>
 
 #elif ENNABLE_WIN64
