@@ -4,6 +4,8 @@
 
 #include "DissolveBlender.h"
 
+#include "effect_engine/config.h"
+
 VkResult DissolveBlender::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                                 const BlendImageInfo baseImageInfo,
                                 const BlendImageInfo blendImageInfo,
@@ -21,7 +23,7 @@ VkResult DissolveBlender::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     this->dissolveBlenderParams.imageSize.blendImagePosY = blendImageInfo.posY;
     params.paramsSize = sizeof(DissolveBlenderParams);
     params.paramsData = &this->dissolveBlenderParams;
-    params.shaderPath = "../../shader_compiled/dissolve.comp.glsl.spv";
+    params.shaderPath = SHADER(dissolve.comp.glsl.spv);
     return DoApply(gpuCtx,
                    "DissolveBlender",
                    baseImageInfo,

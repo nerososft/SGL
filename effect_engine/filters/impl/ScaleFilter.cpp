@@ -4,6 +4,8 @@
 
 #include "ScaleFilter.h"
 
+#include "effect_engine/config.h"
+
 VkResult ScaleFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                             const VkDeviceSize bufferSize,
                             const uint32_t width,
@@ -17,7 +19,7 @@ VkResult ScaleFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     this->scaleFilterParams.imageSize.bytesPerLine = this->scaleFilterParams.imageSize.width * 4;
     params.paramsSize = sizeof(ScaleFilterParams);
     params.paramsData = &this->scaleFilterParams;
-    params.shaderPath = "../../shader_compiled/scale.comp.glsl.spv";
+    params.shaderPath = SHADER(scale.comp.glsl.spv);
     return DoApply(gpuCtx,
                    "Scale",
                    bufferSize,

@@ -4,6 +4,8 @@
 
 #include "ChinesePaintFilter.h"
 
+#include "effect_engine/config.h"
+
 VkResult ChinesePaintFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                                    const VkDeviceSize bufferSize,
                                    const uint32_t width,
@@ -17,7 +19,7 @@ VkResult ChinesePaintFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     this->chinesePaintFilterParams.imageSize.bytesPerLine = this->chinesePaintFilterParams.imageSize.width * 4;
     params.paramsSize = sizeof(ChinesePaintFilterParams);
     params.paramsData = &this->chinesePaintFilterParams;
-    params.shaderPath = "../../shader_compiled/chinese_paint.comp.glsl.spv";
+    params.shaderPath = SHADER(chinese_paint.comp.glsl.spv);
     return DoApply(gpuCtx, "ChinesePaint", bufferSize, width, height, inputBuffer, outputBuffer, params);
 }
 

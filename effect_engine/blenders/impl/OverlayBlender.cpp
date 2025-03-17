@@ -4,6 +4,8 @@
 
 #include "OverlayBlender.h"
 
+#include "effect_engine/config.h"
+
 VkResult OverlayBlender::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                                const BlendImageInfo baseImageInfo,
                                const BlendImageInfo blendImageInfo,
@@ -21,7 +23,7 @@ VkResult OverlayBlender::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     this->overlayBlenderParams.imageSize.blendImagePosY = blendImageInfo.posY;
     params.paramsSize = sizeof(OverlayBlenderParams);
     params.paramsData = &this->overlayBlenderParams;
-    params.shaderPath = "../../shader_compiled/overlay.comp.glsl.spv";
+    params.shaderPath = SHADER(overlay.comp.glsl.spv);
     return DoApply(gpuCtx,
                    "OverlayBlender",
                    baseImageInfo,

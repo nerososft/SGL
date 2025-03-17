@@ -4,6 +4,8 @@
 
 #include "LighterColorBlender.h"
 
+#include "effect_engine/config.h"
+
 VkResult LighterColorBlender::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                                     const BlendImageInfo baseImageInfo,
                                     const BlendImageInfo blendImageInfo,
@@ -24,7 +26,7 @@ VkResult LighterColorBlender::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
 
     params.paramsSize = sizeof(LighterColorBlenderParams);
     params.paramsData = &this->lighterColorBlenderParams;
-    params.shaderPath = "../../shader_compiled/lighter_color.comp.glsl.spv";
+    params.shaderPath = SHADER(lighter_color.comp.glsl.spv);
 
     return DoApply(gpuCtx,
                    "LightBlender",

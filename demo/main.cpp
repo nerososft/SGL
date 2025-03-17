@@ -131,6 +131,11 @@ int main(int argc, char *argv[]) {
                          500,
                          800,
                          "../../demo/images/girl_colorful_lighter.png", blender);
+
+    // const auto filter = std::make_shared<GaussianBlurFilter>();
+    // filter->SetRadius(1);
+    // effectEngine.Process("../../demo/images/2billion.png", "../../demo/images/2billion_blur.png", filter);
+
     // getchar();
     return 0;
 }

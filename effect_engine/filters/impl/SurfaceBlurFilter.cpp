@@ -5,6 +5,8 @@
 // SurfaceBlurFilter.cpp
 #include "SurfaceBlurFilter.h"
 
+#include "effect_engine/config.h"
+
 VkResult SurfaceBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                                   const VkDeviceSize bufferSize,
                                   const uint32_t width,
@@ -19,7 +21,7 @@ VkResult SurfaceBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
 
     params.paramsSize = sizeof(SurfaceBlurFilterParams);
     params.paramsData = &blurParams;
-    params.shaderPath = "../../shader_compiled/surface_blur.comp.glsl.spv";
+    params.shaderPath = SHADER(surface_blur.comp.glsl.spv);
 
     return DoApply(gpuCtx,
                    "SurfaceBlur",

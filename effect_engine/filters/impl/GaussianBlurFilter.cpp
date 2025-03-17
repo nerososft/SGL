@@ -10,6 +10,7 @@
 #else
 #include <vulkan/vk_enum_string_helper.h>
 #endif
+#include "effect_engine/config.h"
 #include "effect_engine/filters/BasicFilter.h"
 #include "effect_engine/gpu/compute_graph/BufferCopyComputeGraphNode.h"
 #include "effect_engine/gpu/compute_graph/PipelineComputeGraphNode.h"
@@ -52,7 +53,7 @@ VkResult GaussianBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
 
     const auto gaussianVerticalNode = std::make_shared<PipelineComputeGraphNode>(gpuCtx,
         "gaussianVerticalBlur",
-        "../../shader_compiled/vertical_blur.comp.glsl.spv",
+        SHADER(vertical_blur.comp.glsl.spv),
         pushConstantInfo,
         vPipelineBuffers,
         width,
@@ -81,7 +82,7 @@ VkResult GaussianBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
 
     const auto gaussianHorizontalNode = std::make_shared<PipelineComputeGraphNode>(gpuCtx,
         "gaussianHorizontalBlur",
-        "../../shader_compiled/horizontal_blur.comp.glsl.spv",
+        SHADER(horizontal_blur.comp.glsl.spv),
         pushConstantInfo,
         hPipelineBuffers,
         (width + 511) / 512,

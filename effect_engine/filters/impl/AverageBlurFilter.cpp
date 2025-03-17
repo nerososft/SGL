@@ -4,6 +4,8 @@
 
 #include "AverageBlurFilter.h"
 
+#include "effect_engine/config.h"
+
 VkResult AverageBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                                   const VkDeviceSize bufferSize,
                                   const uint32_t width,
@@ -18,7 +20,7 @@ VkResult AverageBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
 
     params.paramsSize = sizeof(AverageBlurFilterParams);
     params.paramsData = &blurParams;
-    params.shaderPath = "../../shader_compiled/average_blur.comp.glsl.spv";
+    params.shaderPath = SHADER(average_blur.comp.glsl.spv);
 
     return DoApply(gpuCtx,
                    "AverageBlur",

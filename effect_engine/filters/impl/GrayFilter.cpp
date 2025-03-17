@@ -4,6 +4,8 @@
 
 #include "GrayFilter.h"
 
+#include "effect_engine/config.h"
+
 VkResult GrayFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                            const VkDeviceSize bufferSize,
                            const uint32_t width,
@@ -17,7 +19,7 @@ VkResult GrayFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     this->grayFilterParams.imageSize.bytesPerLine = this->grayFilterParams.imageSize.width * 4;
     params.paramsSize = sizeof(GrayFilterParams);
     params.paramsData = &this->grayFilterParams;
-    params.shaderPath = "../../shader_compiled/gray.comp.glsl.spv";
+    params.shaderPath = SHADER(gray.comp.glsl.spv);
     return DoApply(gpuCtx,
                    "Gray",
                    bufferSize,

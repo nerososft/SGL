@@ -4,6 +4,8 @@
 
 #include "MultiplyBlender.h"
 
+#include "effect_engine/config.h"
+
 VkResult MultiplyBlender::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                                 const BlendImageInfo baseImageInfo,
                                 const BlendImageInfo blendImageInfo,
@@ -21,7 +23,7 @@ VkResult MultiplyBlender::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     this->multiplyBlenderParams.imageSize.blendImagePosY = blendImageInfo.posY;
     params.paramsSize = sizeof(MultiplyBlenderParams);
     params.paramsData = &this->multiplyBlenderParams;
-    params.shaderPath = "../../shader_compiled/multiply.comp.glsl.spv";
+    params.shaderPath = SHADER(multiply.comp.glsl.spv);
     return DoApply(gpuCtx,
                    "MultiplyBlender",
                    baseImageInfo,
