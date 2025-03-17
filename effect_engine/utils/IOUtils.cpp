@@ -7,12 +7,14 @@
 #include <fstream>
 #include <iostream>
 
+#include "effect_engine/log/Log.h"
+
 std::vector<char> IOUtils::ReadFile(const std::string &path) {
     std::vector<char> data;
     std::ifstream file;
     file.open(path.c_str(), std::ios::binary | std::ios::in | std::ios::ate);
     if (file.fail()) {
-        std::cout << "Failed to open file: " << path << std::endl;
+        Logger() << "Failed to open file: " << path << std::endl;
         return data;
     }
     const size_t filesize = file.tellg();

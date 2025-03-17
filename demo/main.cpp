@@ -20,13 +20,14 @@
 #include "effect_engine/filters/impl/GrayFilter.h"
 #include "effect_engine/filters/impl/ScaleFilter.h"
 #include "effect_engine/filters/impl/SurfaceBlurFilter.h"
+#include "effect_engine/log/Log.h"
 
 int main(int argc, char *argv[]) {
-    std::cout << "Hello World!\n";
+    Logger() << "Hello World!\n";
 
     EffectEngine effectEngine;
     if (!effectEngine.Init()) {
-        std::cout << "Failed to initialize effect_engine" << std::endl;
+        Logger() << "Failed to initialize effect_engine" << std::endl;
         return 0;
     }
 

@@ -14,6 +14,8 @@
 #include <iostream>
 #include <ostream>
 
+#include "effect_engine/log/Log.h"
+
 VkGPUContext::VkGPUContext(const std::vector<const char *> &requiredInstanceExtensions) {
     for (auto requiredInstanceExtension: requiredInstanceExtensions) {
         this->instanceEnableExtensions.push_back(requiredInstanceExtension);
@@ -84,10 +86,10 @@ VkResult VkGPUContext::Init() {
 
     result = vkEnumerateInstanceVersion(&this->instanceVersion);
     if (result != VK_SUCCESS) {
-        std::cout << "vkEnumerateInstanceVersion failed, err=" << string_VkResult(result) << std::endl;
+        Logger() << "vkEnumerateInstanceVersion failed, err=" << string_VkResult(result) << std::endl;
         return result;
     }
-    std::cout << "instance api:"
+    Logger() << "instance api:"
             << VK_API_VERSION_VARIANT(this->instanceVersion) << "."
             << VK_API_VERSION_MAJOR(this->instanceVersion) << "."
             << VK_API_VERSION_MINOR(this->instanceVersion) << "."
@@ -118,12 +120,12 @@ VkResult VkGPUContext::Init() {
     createInfo.ppEnabledExtensionNames = this->instanceEnableExtensions.data();
     result = vkCreateInstance(&createInfo, nullptr, &this->instance);
     if (result != VK_SUCCESS) {
-        std::cout << "vkCreateInstance failed, err=" << string_VkResult(result) << std::endl;
+        Logger() << "vkCreateInstance failed, err=" << string_VkResult(result) << std::endl;
         return result;
     }
 
     vkEnumeratePhysicalDevices(instance, &this->physicalDeviceNums, nullptr);
-    std::cout << "physical devices num: " << this->physicalDeviceNums << std::endl;
+    Logger() << "physical devices num: " << this->physicalDeviceNums << std::endl;
     this->physicalDevices.resize(this->physicalDeviceNums);
     this->physicalDeviceFeatures.resize(this->physicalDeviceNums);
     this->physicalDevicesProperties.resize(this->physicalDeviceNums);
@@ -134,7 +136,7 @@ VkResult VkGPUContext::Init() {
     for (uint32_t physicalDeviceIndex = 0; physicalDeviceIndex < this->physicalDeviceNums; physicalDeviceIndex++) {
         vkGetPhysicalDeviceProperties(this->physicalDevices[physicalDeviceIndex],
                                       &this->physicalDevicesProperties[physicalDeviceIndex]);
-        std::cout << "physical device[" << physicalDeviceIndex << "]: " << std::endl
+        Logger() << "physical device[" << physicalDeviceIndex << "]: " << std::endl
                 << "\tdeviceType:" << string_VkPhysicalDeviceType(
                     this->physicalDevicesProperties[physicalDeviceIndex].deviceType) << std::endl
                 << "\tdeviceName:" << this->physicalDevicesProperties[physicalDeviceIndex].deviceName << std::endl
@@ -177,13 +179,13 @@ VkResult VkGPUContext::Init() {
         const auto [memoryTypeCount, memoryTypes, memoryHeapCount, memoryHeaps] = this->physicalDevicesMemoryProperties[
             physicalDeviceIndex];
         for (uint32_t heapIndex = 0; heapIndex < memoryHeapCount; heapIndex++) {
-            std::cout << "\tmemoryHeaps[" << heapIndex << "]: "
+            Logger() << "\tmemoryHeaps[" << heapIndex << "]: "
                     << "size=" << memoryHeaps[heapIndex].size
                     << ", flags=" << memoryHeaps[heapIndex].flags
                     << std::endl;
         }
         for (uint32_t typeIndex = 0; typeIndex < memoryTypeCount; typeIndex++) {
-            std::cout << "\tmemoryTypes[" << typeIndex << "]: "
+            Logger() << "\tmemoryTypes[" << typeIndex << "]: "
                     << "heapIndex=" << memoryTypes[typeIndex].heapIndex
                     << ", propertiesFlags=" << string_VkMemoryPropertyFlags(
                         memoryTypes[typeIndex].propertyFlags)
@@ -202,17 +204,17 @@ VkResult VkGPUContext::Init() {
             vkGetPhysicalDeviceFormatProperties(this->physicalDevices[physicalDeviceIndex],
                                                 static_cast<VkFormat>(format), &props);
 
-            std::cout << "\tFormat: " << format << std::endl;
-            std::cout << "\t\tLinear Tiling Features: " << props.linearTilingFeatures << std::endl;
-            std::cout << "\t\tOptimal Tiling Features: " << props.optimalTilingFeatures << std::endl;
-            std::cout << "\t\tBuffer Features: " << props.bufferFeatures << std::endl;
+            Logger() << "\tFormat: " << format << std::endl;
+            Logger() << "\t\tLinear Tiling Features: " << props.linearTilingFeatures << std::endl;
+            Logger() << "\t\tOptimal Tiling Features: " << props.optimalTilingFeatures << std::endl;
+            Logger() << "\t\tBuffer Features: " << props.bufferFeatures << std::endl;
         }
     }
 
     this->SelectCPU(0);
     result = this->CreateDevice(this->defaultDeviceEnableLayers, this->defaultDeviceEnableExtensions);
     if (result != VK_SUCCESS) {
-        std::cout << "Failed to create device, err=" << string_VkResult(result) << std::endl;
+        Logger() << "Failed to create device, err=" << string_VkResult(result) << std::endl;
     }
     this->GetQueue();
 
@@ -232,7 +234,7 @@ VkResult VkGPUContext::Init() {
     descriptorPoolCreateInfo.pPoolSizes = descriptorPoolSizes.data();
     result = vkCreateDescriptorPool(this->device, &descriptorPoolCreateInfo, nullptr, &this->descriptorPool);
     if (result != VK_SUCCESS) {
-        std::cout << "Failed to create descriptor pool, err=" << string_VkResult(result) << std::endl;
+        Logger() << "Failed to create descriptor pool, err=" << string_VkResult(result) << std::endl;
     }
 
     VkCommandPoolCreateInfo commandPoolCreateInfo{};
@@ -242,7 +244,7 @@ VkResult VkGPUContext::Init() {
     commandPoolCreateInfo.queueFamilyIndex = queueFamilyIndex;
     result = vkCreateCommandPool(this->device, &commandPoolCreateInfo, nullptr, &this->commandPool);
     if (result != VK_SUCCESS) {
-        std::cout << "Failed to create command pool, err=" << string_VkResult(result) << std::endl;
+        Logger() << "Failed to create command pool, err=" << string_VkResult(result) << std::endl;
     }
 
     return result;

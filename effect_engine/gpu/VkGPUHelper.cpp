@@ -12,6 +12,7 @@
 #include <vulkan/vk_enum_string_helper.h>
 #endif
 
+#include "effect_engine/log/Log.h"
 #include "effect_engine/utils/IOUtils.h"
 #include "effect_engine/utils/TimeUtils.h"
 
@@ -29,14 +30,14 @@ VkResult VkGPUHelper::CreateStorageBufferAndUploadData(const VkDevice device,
                                                  buffer,
                                                  bufferMemory);
     if (ret != VK_SUCCESS) {
-        std::cout << "Failed to create input storage buffer!" << std::endl;
+        Logger() << "Failed to create input storage buffer!" << std::endl;
         return ret;
     }
 
     void *data = nullptr;
     ret = vkMapMemory(device, *bufferMemory, 0, bufferSize, 0, &data);
     if (ret != VK_SUCCESS) {
-        std::cout << "Failed to map input storage buffer memory, err=" << string_VkResult(ret) << std::endl;
+        Logger() << "Failed to map input storage buffer memory, err=" << string_VkResult(ret) << std::endl;
         return ret;
     }
     memcpy(data, uploadData, bufferSize);
@@ -119,7 +120,7 @@ VkResult VkGPUHelper::GPUQueueSubmit(const VkQueue queue,
                                      const VkFence fence) {
     const VkResult ret = vkQueueSubmit(queue, submitInfos.size(), submitInfos.data(), fence);
     if (ret != VK_SUCCESS) {
-        std::cout << "vkQueueSubmit failed, err=" << string_VkResult(ret) << std::endl;
+        Logger() << "vkQueueSubmit failed, err=" << string_VkResult(ret) << std::endl;
     }
     return ret;
 }
@@ -171,7 +172,7 @@ VkResult VkGPUHelper::AllocateCommandBuffers(const VkDevice device,
 
     const VkResult result = vkAllocateCommandBuffers(device, &allocInfo, commandBuffers);
     if (result != VK_SUCCESS) {
-        std::cout << "Failed to allocate command buffer, err = " << string_VkResult(result) << std::endl;
+        Logger() << "Failed to allocate command buffer, err = " << string_VkResult(result) << std::endl;
     }
     return result;
 }
@@ -183,7 +184,7 @@ VkResult VkGPUHelper::CreateFence(const VkDevice device, VkFence *fence) {
     info.pNext = nullptr;
     const VkResult result = vkCreateFence(device, &info, nullptr, fence);
     if (result != VK_SUCCESS) {
-        std::cout << "vkCreateFence failed, err=" << string_VkResult(result) << std::endl;
+        Logger() << "vkCreateFence failed, err=" << string_VkResult(result) << std::endl;
     }
     return result;
 }
@@ -232,7 +233,7 @@ VkResult VkGPUHelper::AllocateDescriptorSets(const VkDevice device,
 
     const VkResult result = vkAllocateDescriptorSets(device, &descriptorSetAllocateInfo, descriptorSets);
     if (result != VK_SUCCESS) {
-        std::cout << "failed to allocate descriptor sets, err=" << string_VkResult(result) << std::endl;
+        Logger() << "failed to allocate descriptor sets, err=" << string_VkResult(result) << std::endl;
     }
     return result;
 }
@@ -250,7 +251,7 @@ VkResult VkGPUHelper::CreateShaderModule(const VkDevice device,
 
     const VkResult result = vkCreateShaderModule(device, &createInfo, nullptr, shaderModule);
     if (result != VK_SUCCESS) {
-        std::cout << "failed to create shader module, err=" << string_VkResult(result) << std::endl;
+        Logger() << "failed to create shader module, err=" << string_VkResult(result) << std::endl;
     }
     return result;
 }
@@ -267,7 +268,7 @@ VkResult VkGPUHelper::CreateShaderModuleFromPath(const VkDevice device,
                                                reinterpret_cast<uint32_t *>(shaderSpvCode.data()),
                                                shaderModule);
     if (result != VK_SUCCESS) {
-        std::cout << "Failed to create shader module, err=" << string_VkResult(result) << std::endl;
+        Logger() << "Failed to create shader module, err=" << string_VkResult(result) << std::endl;
     }
     return result;
 }
@@ -303,7 +304,7 @@ VkResult VkGPUHelper::CreateComputePipeline(const VkDevice device,
                                                      nullptr,
                                                      pipeline);
     if (result != VK_SUCCESS) {
-        std::cout << "failed to create compute pipeline, err=" << string_VkResult(result) << std::endl;
+        Logger() << "failed to create compute pipeline, err=" << string_VkResult(result) << std::endl;
     }
     return result;
 }
@@ -323,7 +324,7 @@ VkResult VkGPUHelper::CreatePipelineLayout(const VkDevice device,
 
     const VkResult ret = vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, pipelineLayout);
     if (ret != VK_SUCCESS) {
-        std::cout << "failed to create pipeline layout, " << string_VkResult(ret) << std::endl;
+        Logger() << "failed to create pipeline layout, " << string_VkResult(ret) << std::endl;
     }
     return ret;
 }
@@ -367,7 +368,7 @@ VkResult VkGPUHelper::CreateBuffer(const VkDevice device,
     bufferInfo.pQueueFamilyIndices = queueFamilyIndices.data();
     const VkResult ret = vkCreateBuffer(device, &bufferInfo, nullptr, buffer);
     if (ret != VK_SUCCESS) {
-        std::cout << "vkCreateBuffer failed, err=" << string_VkResult(ret) << std::endl;
+        Logger() << "vkCreateBuffer failed, err=" << string_VkResult(ret) << std::endl;
     }
     return ret;
 }
@@ -398,7 +399,7 @@ VkResult VkGPUHelper::CreateStorageBufferAndBindMem(const VkDevice device,
                                 queueFamilyIndices,
                                 storageBuffer);
     if (ret != VK_SUCCESS) {
-        std::cout << "vkCreateBuffer failed, err=" << string_VkResult(ret) << std::endl;
+        Logger() << "vkCreateBuffer failed, err=" << string_VkResult(ret) << std::endl;
     }
 
     VkMemoryRequirements memRequirements;
@@ -414,12 +415,12 @@ VkResult VkGPUHelper::CreateStorageBufferAndBindMem(const VkDevice device,
                                                         VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
     ret = vkAllocateMemory(device, &allocInfo, nullptr, storageBufferMemory);
     if (ret != VK_SUCCESS) {
-        std::cout << "vkAllocateMemory failed, err=" << string_VkResult(ret) << std::endl;
+        Logger() << "vkAllocateMemory failed, err=" << string_VkResult(ret) << std::endl;
         return ret;
     }
     ret = vkBindBufferMemory(device, *storageBuffer, *storageBufferMemory, 0);
     if (ret != VK_SUCCESS) {
-        std::cout << "vkBindBufferMemory failed, err=" << string_VkResult(ret) << std::endl;
+        Logger() << "vkBindBufferMemory failed, err=" << string_VkResult(ret) << std::endl;
         return ret;
     }
     return ret;

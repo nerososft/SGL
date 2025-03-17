@@ -13,6 +13,7 @@
 #endif
 
 #include "VkGPUHelper.h"
+#include "effect_engine/log/Log.h"
 
 VkGPUComputePipeline::VkGPUComputePipeline(const std::string &computeShaderPath,
                                            const std::vector<VkDescriptorSetLayoutBinding> &descriptorSetLayoutBindings,
@@ -36,7 +37,7 @@ VkResult VkGPUComputePipeline::CreateComputePipeline(const VkDevice device,
                                                           descriptorSetLayoutBindings,
                                                           &this->descriptorSetLayout);
     if (ret != VK_SUCCESS) {
-        std::cout << "failed to create descriptor set layout, err=" << string_VkResult(ret) << std::endl;
+        Logger() << "failed to create descriptor set layout, err=" << string_VkResult(ret) << std::endl;
         return ret;
     }
     std::vector<VkDescriptorSetLayout> descriptorSetLayouts;
@@ -46,14 +47,14 @@ VkResult VkGPUComputePipeline::CreateComputePipeline(const VkDevice device,
                                             this->pushConstantRanges,
                                             &this->pipelineLayout);
     if (ret != VK_SUCCESS) {
-        std::cout << "failed to create pipeline layout, err=" << string_VkResult(ret) << std::endl;
+        Logger() << "failed to create pipeline layout, err=" << string_VkResult(ret) << std::endl;
         return ret;
     }
     ret = VkGPUHelper::CreateShaderModuleFromPath(device,
                                                   computeShaderPath,
                                                   &this->computeShaderModule);
     if (ret != VK_SUCCESS) {
-        std::cout << "failed to create shader module, err=" << string_VkResult(ret) << std::endl;
+        Logger() << "failed to create shader module, err=" << string_VkResult(ret) << std::endl;
         return ret;
     }
     return VkGPUHelper::CreateComputePipeline(device,

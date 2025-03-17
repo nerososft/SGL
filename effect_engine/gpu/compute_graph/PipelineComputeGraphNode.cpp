@@ -14,6 +14,7 @@
 #include "effect_engine/gpu/VkGPUComputePipeline.h"
 #include "effect_engine/gpu/VkGPUDescriptorSet.h"
 #include "effect_engine/gpu/VkGPUHelper.h"
+#include "effect_engine/log/Log.h"
 
 PipelineComputeGraphNode::PipelineComputeGraphNode(const std::shared_ptr<VkGPUContext> &gpuCtx,
                                                    const std::string &name,
@@ -64,7 +65,7 @@ VkResult PipelineComputeGraphNode::CreateComputeGraphNode() {
     VkResult ret = computePipeline->CreateComputePipeline(gpuCtx->GetCurrentDevice(),
                                                           gpuCtx->GetPipelineCache());
     if (ret != VK_SUCCESS) {
-        std::cout << "Failed to create compute pipeline, err =" << string_VkResult(ret) << std::endl;
+        Logger() << "Failed to create compute pipeline, err =" << string_VkResult(ret) << std::endl;
         return ret;
     }
 
@@ -73,7 +74,7 @@ VkResult PipelineComputeGraphNode::CreateComputeGraphNode() {
                                                                  computePipeline->GetDescriptorSetLayout());
     ret = pipelineDescriptorSet->AllocateDescriptorSets(gpuCtx->GetDescriptorPool());
     if (ret != VK_SUCCESS) {
-        std::cout << "Failed to allocate descriptor sets, err =" << string_VkResult(ret) << std::endl;
+        Logger() << "Failed to allocate descriptor sets, err =" << string_VkResult(ret) << std::endl;
         return ret;
     }
 
@@ -92,10 +93,10 @@ VkResult PipelineComputeGraphNode::CreateComputeGraphNode() {
 }
 
 void PipelineComputeGraphNode::Compute(const VkCommandBuffer commandBuffer) {
-    std::cout << "Executing Compute Node: " << name << std::endl;
+    Logger() << "Executing Compute Node: " << name << std::endl;
     if (!this->dependencies.empty()) {
         for (const auto &dependence: this->dependencies) {
-            std::cout << "Node: " << name << " Depend On:" << dependence->GetName() << std::endl;
+            Logger() << "Node: " << name << " Depend On:" << dependence->GetName() << std::endl;
             dependence->Compute(commandBuffer);
         }
     }

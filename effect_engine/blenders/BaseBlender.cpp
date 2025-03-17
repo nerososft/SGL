@@ -14,6 +14,7 @@
 #include "effect_engine/gpu/compute_graph/BufferCopyComputeGraphNode.h"
 #include "effect_engine/gpu/compute_graph/ComputeGraph.h"
 #include "effect_engine/gpu/compute_graph/PipelineComputeGraphNode.h"
+#include "effect_engine/log/Log.h"
 
 VkResult BaseBlender::DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                               const std::string &name,
@@ -27,7 +28,7 @@ VkResult BaseBlender::DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     this->computeGraph = std::make_shared<ComputeGraph>(gpuCtx);
     VkResult ret = this->computeGraph->Init();
     if (ret != VK_SUCCESS) {
-        std::cout << "Failed to create compute graph, err =" << string_VkResult(ret) << std::endl;
+        Logger() << "Failed to create compute graph, err =" << string_VkResult(ret) << std::endl;
         return ret;
     }
 
@@ -75,7 +76,7 @@ VkResult BaseBlender::DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                                                                       workGroupZ);
     ret = blendNode->CreateComputeGraphNode();
     if (ret != VK_SUCCESS) {
-        std::cout << "Failed to create compute graph, err =" << string_VkResult(ret) << std::endl;
+        Logger() << "Failed to create compute graph, err =" << string_VkResult(ret) << std::endl;
         return ret;
     }
 
