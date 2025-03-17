@@ -58,3 +58,6 @@ add_library(gpu_effect_engine
         config.h
 )
 target_link_libraries(gpu_effect_engine vulkan)
+if (CMAKE_SYSTEM_NAME MATCHES "OHOS")
+    target_link_libraries(gpu_effect_engine hilog_ndk.z)
+endif ()
