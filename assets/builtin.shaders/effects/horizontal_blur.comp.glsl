@@ -57,7 +57,7 @@ void main() {
         s_Pixels[i + R] = inputImage.pixels[x + y * width];
     }
 
-    barrier(); // 等待所有线程完成加载
+    // barrier(); // 等待所有线程完成加载
 
     // 计算输出坐标
     uint outputX = gl_WorkGroupID.x * 512 + gl_LocalInvocationID.x;

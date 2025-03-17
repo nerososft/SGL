@@ -4,13 +4,15 @@
 
 #ifndef LOG_H
 #define LOG_H
-
+#include <string>
 
 
 class Log {
+public:
+    Log() = default;
 
+    ~Log() = default;
 };
-
 
 
 #endif //LOG_H

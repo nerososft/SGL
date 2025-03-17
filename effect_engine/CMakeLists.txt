@@ -54,5 +54,6 @@ add_library(gpu_effect_engine
         blenders/impl/OverlayBlender.h
         blenders/impl/LighterColorBlender.cpp
         blenders/impl/LighterColorBlender.h
+        log/Log.h
 )
 target_link_libraries(gpu_effect_engine vulkan)
