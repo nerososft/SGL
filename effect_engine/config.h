@@ -6,6 +6,7 @@
 #define CONFIG_H
 
 #define SHADER_PATH "../../shader_compiled/"
+
 #define SHADER(path) (SHADER_PATH # path)
 
 #endif //CONFIG_H
