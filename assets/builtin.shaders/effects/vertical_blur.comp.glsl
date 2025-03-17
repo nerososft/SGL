@@ -61,7 +61,7 @@ void main() {
         s_Pixels[j + R] = inputImage.pixels[gid.x + y * filterParams.width];
     }
 
-    // barrier();
+    barrier();
 
     // 计算输出坐标
     uint outputY = gl_WorkGroupID.y * 512 + gl_LocalInvocationID.y;
