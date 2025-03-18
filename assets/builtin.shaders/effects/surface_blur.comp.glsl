@@ -15,7 +15,7 @@ layout (push_constant) uniform FilterParams {
     uint channels;
     uint bytesPerLine;
     uint blurRadius;
-    float threshold; // Normalized threshold (0.0 - 1.0)
+    float threshold;
 } filterParams;
 
 uint packColor(vec4 color) {
@@ -37,38 +37,32 @@ vec4 unpackColor(uint color) {
 
 void main() {
     uvec2 coord = gl_GlobalInvocationID.xy;
-    if (any(greaterThanEqual(coord, uvec2(filterParams.width, filterParams.height)))) {
-        return;
-    }
+    if (any(greaterThanEqual(coord, uvec2(filterParams.width, filterParams.height)))) return;
 
-    uint centerIndex = coord.y * (filterParams.bytesPerLine / 4) + coord.x;
-    vec4 centerColor = unpackColor(inputImage.pixels[centerIndex]);
-    vec4 sum = vec4(0.0);
+    const uint pixelsPerLine = filterParams.bytesPerLine / 4;
+    const uint centerIdx = coord.y * pixelsPerLine + coord.x;
+    const vec4 centerCol = unpackColor(inputImage.pixels[centerIdx]);
+    const ivec2 iCoord = ivec2(coord);
+    const int radius = int(filterParams.blurRadius);
+
+    vec4 sum = vec4(0);
     float totalWeight = 0.0;
-    int radius = int(filterParams.blurRadius);
 
     for (int y = -radius; y <= radius; ++y) {
         for (int x = -radius; x <= radius; ++x) {
-            ivec2 sampleCoord = ivec2(coord) + ivec2(x, y);
-            if (all(greaterThanEqual(sampleCoord, ivec2(0))) &&
-            all(lessThan(sampleCoord, ivec2(filterParams.width, filterParams.height)))) {
-                uint index = uint(sampleCoord.y) * (filterParams.bytesPerLine / 4) + uint(sampleCoord.x);
-                vec4 sampleColor = unpackColor(inputImage.pixels[index]);
+            ivec2 sampleCoord = clamp(iCoord + ivec2(x, y), ivec2(0), ivec2(filterParams.width - 1, filterParams.height - 1));
+            vec4 sampleCol = unpackColor(inputImage.pixels[sampleCoord.y * pixelsPerLine + sampleCoord.x]);
 
-                // Calculate color difference (max channel difference)
-                float dr = abs(centerColor.r - sampleColor.r);
-                float dg = abs(centerColor.g - sampleColor.g);
-                float db = abs(centerColor.b - sampleColor.b);
-                float diff = max(max(dr, dg), db);
+            float diff = max(max(abs(centerCol.r - sampleCol.r),
+                                 abs(centerCol.g - sampleCol.g)), abs(centerCol.b - sampleCol.b));
 
-                // Calculate weight based on threshold
-                float weight = max(0.0, 1.0 - diff / filterParams.threshold);
-                sum += sampleColor * weight;
+            if (diff < filterParams.threshold) {
+                float weight = 1.0 - diff / filterParams.threshold;
+                sum += sampleCol * weight;
                 totalWeight += weight;
             }
         }
     }
 
-    vec4 resultColor = totalWeight > 0.0 ? sum / totalWeight : centerColor;
-    outputImage.pixels[centerIndex] = packColor(resultColor);
+    outputImage.pixels[centerIdx] = packColor(totalWeight > 0.0 ? sum / totalWeight : centerCol);
 }

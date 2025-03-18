@@ -94,13 +94,13 @@ int main(int argc, char *argv[]) {
     // effectEngine.Process("../../demo/images/colorful.png", "../../demo/images/colorful_focus_blur.png", filter);
 
     // const auto filter = std::make_shared<AverageBlurFilter>();
-    // filter->SetBlurRadius(100);
+    // filter->SetBlurRadius(30);
     // effectEngine.Process("../../demo/images/colorful.png", "../../demo/images/colorful_average_blur.png", filter);
 
-    // const auto filter = std::make_shared<SurfaceBlurFilter>();
-    // filter->SetBlurRadius(60);
-    // filter->SetThreshold(128);
-    // effectEngine.Process("../../demo/images/colorful.png", "../../demo/images/colorful_surface_blur.png", filter);
+    const auto filter = std::make_shared<SurfaceBlurFilter>();
+    filter->SetBlurRadius(60);
+    filter->SetThreshold(128);
+    effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_surface_blur.png", filter);
 
     // const auto blender = std::make_shared<DissolveBlender>();
     // blender->SetDissolveFactor(0.5);
@@ -134,9 +134,9 @@ int main(int argc, char *argv[]) {
     //                      800,
     //                      "../../demo/images/girl_colorful_lighter.png", blender);
 
-    const auto filter = std::make_shared<OldGaussianBlurFilter>();
-    filter->SetRadius(128);
-    effectEngine.Process("../../demo/images/2billion.png", "../../demo/images/2billion_blur.png", filter);
+    // const auto filter = std::make_shared<OldGaussianBlurFilter>();
+    // filter->SetRadius(128);
+    // effectEngine.Process("../../demo/images/2billion.png", "../../demo/images/2billion_blur.png", filter);
 
     // getchar();
     return 0;
