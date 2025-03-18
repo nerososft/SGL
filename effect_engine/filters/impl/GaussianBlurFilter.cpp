@@ -20,15 +20,14 @@
 std::vector<float> GaussianBlurFilter::CalculateWeights() {
     std::vector<float> weights(2 * MAX_RADIUS + 1);
     float sum = 0.0f;
-    constexpr float sigma = static_cast<float>(MAX_RADIUS) / 2.0f; // σ通常取半径的1/2
+    constexpr float sigma = static_cast<float>(MAX_RADIUS) / 2.0f;
 
     for (int i = 0; i <= 2 * MAX_RADIUS; ++i) {
-        const int x = i - MAX_RADIUS; // 偏移量x ∈ [-MAX_RADIUS, +MAX_RADIUS]
+        const int x = i - MAX_RADIUS;
         weights[i] = exp(-x * x / (2 * sigma * sigma));
         sum += weights[i];
     }
 
-    // 归一化
     for (auto &w: weights) w /= sum;
     return weights;
 }
@@ -104,7 +103,7 @@ VkResult GaussianBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
         pushConstantInfo,
         vPipelineBuffers,
         width,
-        (height + 255) / 256,
+        (height + 511) / 512,
         1);
 
     ret = gaussianVerticalNode->CreateComputeGraphNode();
@@ -133,7 +132,7 @@ VkResult GaussianBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
         SHADER(horizontal_blur.comp.glsl.spv),
         pushConstantInfo,
         hPipelineBuffers,
-        (width + 255) / 256,
+        (width + 511) / 512,
         height,
         1);
 

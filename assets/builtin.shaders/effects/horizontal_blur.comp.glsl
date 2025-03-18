@@ -1,5 +1,5 @@
 #version 450
-layout (local_size_x = 256, local_size_y = 1, local_size_z = 1) in; // 1D工作组
+layout (local_size_x = 512, local_size_y = 1, local_size_z = 1) in; // 1D工作组
 
 layout (std430, binding = 0) buffer InputImageStorageBuffer {
     uint pixels[];
@@ -39,7 +39,7 @@ vec4 unpackColor(uint color) {
 }
 
 // 共享内存声明（必须全局）
-shared uint s_Pixels[256 + 2 * MAX_RADIUS];  // 核心256像素+两侧各MAX_RADIUS边界
+shared uint s_Pixels[512 + 2 * MAX_RADIUS];  // 核心512像素+两侧各MAX_RADIUS边界
 
 void main() {
     const int R = filterParams.radius;
@@ -48,14 +48,14 @@ void main() {
     ivec2 gid = ivec2(gl_GlobalInvocationID.xy);
 
     // 连续加载共享内存
-    for (int i = int(gl_LocalInvocationID.x) - R; i < 256 + R; i += 256) {
-        int x = clamp(int(gl_WorkGroupID.x * 256) + i, 0, int(width) - 1);
+    for (int i = int(gl_LocalInvocationID.x) - R; i < 512 + R; i += 512) {
+        int x = clamp(int(gl_WorkGroupID.x * 512) + i, 0, int(width) - 1);
         s_Pixels[i + R] = inputImage.pixels[x + y * width];
     }
 
     barrier();
 
-    uint outputX = gl_WorkGroupID.x * 256 + gl_LocalInvocationID.x;
+    uint outputX = gl_WorkGroupID.x * 512 + gl_LocalInvocationID.x;
     if (outputX >= width) return;
 
     // 展开卷积循环
