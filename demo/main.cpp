@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <effect_engine/blenders/impl/LighterColorBlender.h>
+#include <effect_engine/filters/impl/OldGaussianBlurFilter.h>
 #include <effect_engine/filters/impl/RadialBlurFilter.h>
 
 #include "effect_engine/blenders/impl/LighterColorBlender.h"
@@ -133,7 +134,7 @@ int main(int argc, char *argv[]) {
     //                      800,
     //                      "../../demo/images/girl_colorful_lighter.png", blender);
 
-    const auto filter = std::make_shared<GaussianBlurFilter>();
+    const auto filter = std::make_shared<OldGaussianBlurFilter>();
     filter->SetRadius(128);
     effectEngine.Process("../../demo/images/2billion.png", "../../demo/images/2billion_blur.png", filter);
 

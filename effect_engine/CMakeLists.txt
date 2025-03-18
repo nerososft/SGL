@@ -39,6 +39,8 @@ add_library(gpu_effect_engine SHARED
         gpu/compute_graph/PipelineComputeGraphNode.h
         filters/impl/GaussianBlurFilter.cpp
         filters/impl/GaussianBlurFilter.h
+        filters/impl/OldGaussianBlurFilter.cpp
+        filters/impl/OldGaussianBlurFilter.h
         gpu/compute_graph/BufferCopyComputeGraphNode.h
         gpu/compute_graph/BufferCopyComputeGraphNode.cpp
         filters/impl/ChinesePaintFilter.h
@@ -74,7 +76,7 @@ add_library(gpu_effect_engine SHARED
 target_link_libraries(gpu_effect_engine vulkan)
 if (CMAKE_SYSTEM_NAME MATCHES "OHOS")
 else ()
-target_link_libraries(gpu_effect_engine png)
+    target_link_libraries(gpu_effect_engine png)
 endif ()
 if (CMAKE_SYSTEM_NAME MATCHES "OHOS")
     target_link_libraries(gpu_effect_engine hilog_ndk.z)
