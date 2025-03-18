@@ -16,8 +16,9 @@ typedef struct {
 } PushConstantInfo;
 
 typedef enum {
-    PIPELINE_NODE_BUFFER_READ,
-    PIPELINE_NODE_BUFFER_WRITE,
+    PIPELINE_NODE_BUFFER_UNIFORM,
+    PIPELINE_NODE_BUFFER_STORAGE_READ,
+    PIPELINE_NODE_BUFFER_STORAGE_WRITE,
 } PipelineNodeBufferType;
 
 typedef struct {

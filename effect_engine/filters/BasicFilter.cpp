@@ -37,12 +37,12 @@ VkResult BasicFilter::DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     pushConstantInfo.data = filterParams.paramsData;
 
     PipelineNodeBuffer pipelineNodeInput;
-    pipelineNodeInput.type = PIPELINE_NODE_BUFFER_READ;
+    pipelineNodeInput.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
     pipelineNodeInput.buffer = inputBuffer;
     pipelineNodeInput.bufferSize = bufferSize;
 
     PipelineNodeBuffer pipelineNodeOutput;
-    pipelineNodeOutput.type = PIPELINE_NODE_BUFFER_WRITE;
+    pipelineNodeOutput.type = PIPELINE_NODE_BUFFER_STORAGE_WRITE;
     pipelineNodeOutput.buffer = outputBuffer;
     pipelineNodeOutput.bufferSize = bufferSize;
 

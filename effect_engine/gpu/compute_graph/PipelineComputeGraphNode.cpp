@@ -45,7 +45,11 @@ VkResult PipelineComputeGraphNode::CreateComputeGraphNode() {
     for (uint32_t i = 0; i < pipelineBuffers.size(); ++i) {
         VkDescriptorSetLayoutBinding bufferBinding;
         bufferBinding.binding = i;
-        bufferBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+        if (pipelineBuffers[i].type == PIPELINE_NODE_BUFFER_UNIFORM) {
+            bufferBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        } else if (pipelineBuffers[i].type == PIPELINE_NODE_BUFFER_STORAGE_READ | PIPELINE_NODE_BUFFER_STORAGE_WRITE) {
+            bufferBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+        }
         bufferBinding.descriptorCount = 1;
         bufferBinding.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
         bufferBinding.pImmutableSamplers = nullptr;
@@ -112,7 +116,7 @@ void PipelineComputeGraphNode::Compute(const VkCommandBuffer commandBuffer) {
 
     std::vector<VkBufferMemoryBarrier> bufferMemoryBarriers;
     for (const auto &pipelineBuffer: pipelineBuffers) {
-        if (pipelineBuffer.type == PIPELINE_NODE_BUFFER_WRITE) {
+        if (pipelineBuffer.type == PIPELINE_NODE_BUFFER_STORAGE_WRITE) {
             bufferMemoryBarriers.push_back(VkGPUHelper::BuildBufferMemoryBarrier(VK_ACCESS_SHADER_WRITE_BIT,
                 VK_ACCESS_TRANSFER_READ_BIT,
                 pipelineBuffer.buffer,

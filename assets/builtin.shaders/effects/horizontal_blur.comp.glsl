@@ -9,6 +9,11 @@ layout (std430, binding = 1) buffer OutputImageStorageBuffer {
     uint pixels[];
 } outputImage;
 
+const uint MAX_RADIUS = 1000;
+layout(binding = 2) uniform WeightUBO {
+    float weights[2 * MAX_RADIUS + 1];
+};
+
 layout (push_constant) uniform FilterParams {
     uint width;
     uint height;
@@ -33,23 +38,14 @@ vec4 unpackColor(uint color) {
     float((color >> 24) & 0xFF) / 255.0f);
 }
 
-const uint MAX_RADIUS = 1000;
 // 共享内存声明（必须全局）
 shared uint s_Pixels[256 + 2 * MAX_RADIUS];  // 核心256像素+两侧各MAX_RADIUS边界
-shared float s_Weights[2 * MAX_RADIUS + 1];      // R=MAX_RADIUS时权重数组
 
 void main() {
     const int R = filterParams.radius;
     uint width = filterParams.width;
     uint y = gl_GlobalInvocationID.y;
     ivec2 gid = ivec2(gl_GlobalInvocationID.xy);
-
-    // 预计算权重（仅首个线程执行）
-    if (gl_LocalInvocationID.x == 0) {
-        float sigma = float(R) / 2; // sigma=R/2
-        for (int dx = -R; dx <= R; ++dx)
-        s_Weights[dx + R] = exp(-dx * dx / (2.0 * sigma * sigma));
-    }
 
     // 协作加载共享内存（跨步加载）
     for (int i = int(gl_LocalInvocationID.x) - R; i < 256 + R; i += 256) {
@@ -68,7 +64,7 @@ void main() {
     float wsum = 0.0;
     #pragma unroll // 展开循环提升性能
     for (int dx = -R; dx <= R; ++dx) {
-        float w = s_Weights[dx + R];
+        float w = weights[dx + R];
         sum += unpackColor(s_Pixels[gl_LocalInvocationID.x + R + dx]) * w;
         wsum += w;
     }
