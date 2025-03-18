@@ -14,6 +14,14 @@ public:
 
     ~VkGPUHelper() = default;
 
+    static VkResult CreateUniformBufferAndUploadData(VkDevice device,
+                                                     const std::vector<uint32_t> &queueFamilyIndices,
+                                                     const VkPhysicalDeviceMemoryProperties *memoryProperties,
+                                                     VkDeviceSize bufferSize,
+                                                     VkBuffer *buffer,
+                                                     VkDeviceMemory *bufferMemory,
+                                                     const void *uploadData);
+
     static VkResult CreateStorageBufferAndUploadData(VkDevice device,
                                                      const std::vector<uint32_t> &queueFamilyIndices,
                                                      const VkPhysicalDeviceMemoryProperties *memoryProperties,
@@ -74,8 +82,8 @@ public:
     static VkWriteDescriptorSet BuildWriteDescriptorSet(VkDescriptorSet descriptorSet,
                                                         uint32_t dtsBinding, VkDescriptorType type,
                                                         const VkDescriptorImageInfo *imageInfo,
-                                                        const VkDescriptorBufferInfo *
-                                                        bufferInfo, const VkBufferView *texelBufferView);
+                                                        const VkDescriptorBufferInfo *bufferInfo,
+                                                        const VkBufferView *texelBufferView);
 
     static VkWriteDescriptorSet BuildWriteStorageBufferDescriptorSet(VkDescriptorSet descriptorSet,
                                                                      uint32_t dstBinding,
@@ -122,7 +130,15 @@ public:
                                             const VkMemoryRequirements &memRequirements,
                                             uint32_t memoryPropertyFlagsBits);
 
-    static VkResult CreateStorageBufferAndBindMem(VkDevice device, VkDeviceSize size,
+    static VkResult CreateStorageBufferAndBindMem(VkDevice device,
+                                                  VkDeviceSize size,
+                                                  const std::vector<uint32_t> &queueFamilyIndices,
+                                                  const VkPhysicalDeviceMemoryProperties *memProps,
+                                                  VkBuffer *storageBuffer,
+                                                  VkDeviceMemory *storageBufferMemory);
+
+    static VkResult CreateUniformBufferAndBindMem(VkDevice device,
+                                                  VkDeviceSize size,
                                                   const std::vector<uint32_t> &queueFamilyIndices,
                                                   const VkPhysicalDeviceMemoryProperties *memProps,
                                                   VkBuffer *storageBuffer,

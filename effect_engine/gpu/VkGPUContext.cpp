@@ -225,6 +225,11 @@ VkResult VkGPUContext::Init() {
     storageBufferDescriptorPoolSize.descriptorCount = 10;
     descriptorPoolSizes.push_back(storageBufferDescriptorPoolSize);
 
+    VkDescriptorPoolSize uniformBufferDescriptorPoolSize;
+    uniformBufferDescriptorPoolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    uniformBufferDescriptorPoolSize.descriptorCount = 10;
+    descriptorPoolSizes.push_back(uniformBufferDescriptorPoolSize);
+
     VkDescriptorPoolCreateInfo descriptorPoolCreateInfo;
     descriptorPoolCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
     descriptorPoolCreateInfo.flags = 0;

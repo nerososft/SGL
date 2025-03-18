@@ -8,6 +8,8 @@
 #include "effect_engine/filters/IFilter.h"
 #include "effect_engine/gpu/compute_graph/ComputeGraph.h"
 
+#define MAX_RADIUS (1000)
+
 struct GaussianBlurFilterParams {
     BasicFilterParam imageSize;
     int radius;
@@ -17,6 +19,8 @@ class GaussianBlurFilter final : public IFilter {
     GaussianBlurFilterParams blurFilterParams{};
     std::shared_ptr<ComputeGraph> computeGraph = nullptr;
 
+private:
+    static std::vector<float> CalculateWeights();
 public:
     GaussianBlurFilter() = default;
 

@@ -124,18 +124,18 @@ int main(int argc, char *argv[]) {
     //                      "../../demo/images/girl_colorful_lighter.png", blender);
     //                      "../../demo/images/girl_colorful_overlay.png", blender);
 
-    const auto blender = std::make_shared<LighterColorBlender>();
-    blender->SetBrightnessThreshold(0.7f);
-    blender->SetBlendFactor(0.3f);
-    effectEngine.Process("../../demo/images/girl.png",
-                         "../../demo/images/colorful.png",
-                         500,
-                         800,
-                         "../../demo/images/girl_colorful_lighter.png", blender);
+    // const auto blender = std::make_shared<LighterColorBlender>();
+    // blender->SetBrightnessThreshold(0.7f);
+    // blender->SetBlendFactor(0.3f);
+    // effectEngine.Process("../../demo/images/girl.png",
+    //                      "../../demo/images/colorful.png",
+    //                      500,
+    //                      800,
+    //                      "../../demo/images/girl_colorful_lighter.png", blender);
 
-    // const auto filter = std::make_shared<GaussianBlurFilter>();
-    // filter->SetRadius(1);
-    // effectEngine.Process("../../demo/images/2billion.png", "../../demo/images/2billion_blur.png", filter);
+    const auto filter = std::make_shared<GaussianBlurFilter>();
+    filter->SetRadius(128);
+    effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_blur.png", filter);
 
     // getchar();
     return 0;
