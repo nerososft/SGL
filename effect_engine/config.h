@@ -5,6 +5,8 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+#define VERSION "1.0.2"
+
 #define SHADER_PATH "../../shader_compiled/"
 
 #define SHADER(path) (SHADER_PATH # path)

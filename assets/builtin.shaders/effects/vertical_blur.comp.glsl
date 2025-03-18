@@ -10,7 +10,7 @@ layout (std430, binding = 1) buffer OutputImageStorageBuffer {
     uint pixels[];
 } outputImage;
 
-const uint MAX_RADIUS = 512;
+const uint MAX_RADIUS = 1024;
 layout (binding = 2) uniform WeightUBO {
     float weights[2 * MAX_RADIUS + 1];
 };
@@ -44,7 +44,7 @@ vec4 unpackColor(uint color) {
 }
 
 // 共享内存声明（必须全局）
-shared vec4 s_Pixels[256 + 2 * MAX_RADIUS];  // 核心256像素+两侧各MAX_RADIUS边界
+shared uint s_Pixels[256 + 2 * MAX_RADIUS];  // 核心256像素+两侧各MAX_RADIUS边界
 
 void main() {
     const int R = filterParams.radius;
@@ -54,7 +54,7 @@ void main() {
     // 垂直方向数据加载
     for (int j = int(gl_LocalInvocationID.y) - R; j < 256 + R; j += 256) {
         int y = clamp(int(gl_WorkGroupID.y * 256) + j, 0, int(height) - 1);
-        s_Pixels[j + R] = unpackColor(inputImage.pixels[gid.x + y * filterParams.width]);
+        s_Pixels[j + R] = inputImage.pixels[gid.x + y * filterParams.width];
     }
 
     barrier();
@@ -63,12 +63,47 @@ void main() {
     uint outputY = gl_WorkGroupID.y * 256 + gl_LocalInvocationID.y;
     if (outputY >= height) return;
 
-    // 垂直卷积
+    // 展开卷积循环
     vec4 sum = vec4(0);
     float wsum = 0.0;
-    for (int dy = -R; dy <= R; ++dy) {
+    int dy = -R;
+    for (; dy + 15 <= R; dy += 16) {
+        sum += s_Pixels[gl_LocalInvocationID.y + R + dy] * weights[dy + R];
+        sum += s_Pixels[gl_LocalInvocationID.y + R + dy + 1] * weights[dy + R + 1];
+        sum += s_Pixels[gl_LocalInvocationID.y + R + dy + 2] * weights[dy + R + 2];
+        sum += s_Pixels[gl_LocalInvocationID.y + R + dy + 3] * weights[dy + R + 3];
+        sum += s_Pixels[gl_LocalInvocationID.y + R + dy + 4] * weights[dy + R + 4];
+        sum += s_Pixels[gl_LocalInvocationID.y + R + dy + 5] * weights[dy + R + 5];
+        sum += s_Pixels[gl_LocalInvocationID.y + R + dy + 6] * weights[dy + R + 6];
+        sum += s_Pixels[gl_LocalInvocationID.y + R + dy + 7] * weights[dy + R + 7];
+        sum += s_Pixels[gl_LocalInvocationID.y + R + dy + 8] * weights[dy + R + 8];
+        sum += s_Pixels[gl_LocalInvocationID.y + R + dy + 9] * weights[dy + R + 9];
+        sum += s_Pixels[gl_LocalInvocationID.y + R + dy + 0] * weights[dy + R + 10];
+        sum += s_Pixels[gl_LocalInvocationID.y + R + dy + 11] * weights[dy + R + 11];
+        sum += s_Pixels[gl_LocalInvocationID.y + R + dy + 12] * weights[dy + R + 12];
+        sum += s_Pixels[gl_LocalInvocationID.y + R + dy + 13] * weights[dy + R + 13];
+        sum += s_Pixels[gl_LocalInvocationID.y + R + dy + 14] * weights[dy + R + 14];
+        sum += s_Pixels[gl_LocalInvocationID.y + R + dy + 15] * weights[dy + R + 15];
+        wsum += weights[dy + R]
+        + weights[dy + R + 1]
+        + weights[dy + R + 2]
+        + weights[dy + R + 3]
+        + weights[dy + R + 4]
+        + weights[dy + R + 5]
+        + weights[dy + R + 6]
+        + weights[dy + R + 7]
+        + weights[dy + R + 8]
+        + weights[dy + R + 9]
+        + weights[dy + R + 10]
+        + weights[dy + R + 11]
+        + weights[dy + R + 12]
+        + weights[dy + R + 13]
+        + weights[dy + R + 14]
+        + weights[dy + R + 15];
+    }
+    for (; dy <= R; ++dy) {
         float w = weights[dy + R];
-        sum += s_Pixels[gl_LocalInvocationID.y + R + dy] * w;
+        sum += unpackColor(s_Pixels[gl_LocalInvocationID.y + R + dy]) * w;
         wsum += w;
     }
 
