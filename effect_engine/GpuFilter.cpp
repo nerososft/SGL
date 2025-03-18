@@ -10,7 +10,7 @@
 //#include "effect_engine/filters/impl/thresholdSplit.h"
 #include "GpuFilter.h"
 #include "effect_engine/filters/impl/GrayFilter.h"
-
+#include "effect_engine/filters/impl/OldGaussianBlurFilter.h"
 
 #include "himi.h"
 //FunctionPtr g_dbg = nullptr;
@@ -38,7 +38,7 @@ bool gaussian_blur_filter_gpu(void* in, void* out, int r) {
 #endif // ENABLE_HIMI_HILOG
 
 
-    const auto filter = std::make_shared<GaussianBlurFilter>();
+    const auto filter = std::make_shared<OldGaussianBlurFilter>();
     filter->SetRadius(r);
 
     ImageInfo* input = (ImageInfo*)in;
