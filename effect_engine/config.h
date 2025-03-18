@@ -5,7 +5,7 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#define SHADER_PATH "../../shader_compiled/"
+#define SHADER_PATH "/data/storage/el2/base/haps/entry/files/AppData/himirage/"
 
 #define SHADER(path) (SHADER_PATH # path)
 
