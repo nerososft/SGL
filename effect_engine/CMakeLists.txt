@@ -1,6 +1,8 @@
-add_library(gpu_effect_engine
+add_library(gpu_effect_engine SHARED
         EffectEngine.cpp
         EffectEngine.h
+        GpuFilter.cpp
+        GpuFilter.h
         filters/BasicFilter.cpp
         filters/BasicFilter.h
         filters/impl/GrayFilter.cpp
