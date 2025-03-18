@@ -4,6 +4,8 @@
 
 #include "FocusBlurFilter.h"
 
+#include "effect_engine/config.h"
+
 VkResult FocusBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                                 const VkDeviceSize bufferSize,
                                 const uint32_t width,
@@ -17,7 +19,7 @@ VkResult FocusBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     this->focusBlurFilterParams.imageSize.bytesPerLine = this->focusBlurFilterParams.imageSize.width * 4;
     params.paramsSize = sizeof(FocusBlurFilterParams);
     params.paramsData = &this->focusBlurFilterParams;
-    params.shaderPath = "../../shader_compiled/focus_blur.comp.glsl.spv";
+    params.shaderPath = SHADER(focus_blur.comp.glsl.spv);
     return DoApply(gpuCtx,
                    "FocusBlur",
                    bufferSize,

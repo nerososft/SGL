@@ -4,6 +4,8 @@
 
 #include "ColorPencilSketchFilter.h"
 
+#include "effect_engine/config.h"
+
 VkResult ColorPencilSketchFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                                         const VkDeviceSize bufferSize,
                                         const uint32_t width,
@@ -18,7 +20,7 @@ VkResult ColorPencilSketchFilter::Apply(const std::shared_ptr<VkGPUContext> &gpu
             this->colorPencilSketchFilterParams.imageSize.width * 4;
     params.paramsSize = sizeof(ColorPencilSketchFilterParams);
     params.paramsData = &this->colorPencilSketchFilterParams;
-    params.shaderPath = "../../shader_compiled/color_pencil_sketch.comp.glsl.spv";
+    params.shaderPath = SHADER(color_pencil_sketch.comp.glsl.spv);
     return DoApply(gpuCtx, "ColorPencilSketch", bufferSize, width, height, inputBuffer, outputBuffer, params);
 }
 

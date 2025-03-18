@@ -1,9 +1,7 @@
-add_library(gpu_effect_engine SHARED
+add_library(gpu_effect_engine
         EffectEngine.cpp
         EffectEngine.h
-		gpu_filter.cpp   
-		gpu_filter.h
-		filters/BasicFilter.cpp
+        filters/BasicFilter.cpp
         filters/BasicFilter.h
         filters/impl/GrayFilter.cpp
         filters/impl/GrayFilter.h
@@ -45,12 +43,21 @@ add_library(gpu_effect_engine SHARED
         filters/impl/AverageBlurFilter.h
         filters/impl/SurfaceBlurFilter.cpp
         filters/impl/SurfaceBlurFilter.h
-		filters/impl/thresholdSplit.cpp
-        filters/impl/thresholdSplit.h
+        blenders/IBlender.h
+        blenders/BaseBlender.cpp
+        blenders/BaseBlender.h
+        blenders/impl/DissolveBlender.cpp
+        blenders/impl/DissolveBlender.h
+        blenders/impl/MultiplyBlender.cpp
+        blenders/impl/MultiplyBlender.h
+        blenders/impl/OverlayBlender.cpp
+        blenders/impl/OverlayBlender.h
+        blenders/impl/LighterColorBlender.cpp
+        blenders/impl/LighterColorBlender.h
+        log/Log.h
+        config.h
 )
-
-if(DEFINED ENABLE_HIMI_HILOG)
-target_link_libraries(gpu_effect_engine vulkan hilog_ndk.z)
-else()
-target_link_libraries(gpu_effect_engine vulkan )
-endif()
+target_link_libraries(gpu_effect_engine vulkan)
+if (CMAKE_SYSTEM_NAME MATCHES "OHOS")
+    target_link_libraries(gpu_effect_engine hilog_ndk.z)
+endif ()

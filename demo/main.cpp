@@ -3,9 +3,14 @@
 //
 
 #include <iostream>
+#include <effect_engine/blenders/impl/LighterColorBlender.h>
 #include <effect_engine/filters/impl/RadialBlurFilter.h>
 
+#include "effect_engine/blenders/impl/LighterColorBlender.h"
 #include "effect_engine/EffectEngine.h"
+#include "effect_engine/blenders/impl/DissolveBlender.h"
+#include "effect_engine/blenders/impl/MultiplyBlender.h"
+#include "effect_engine/blenders/impl/OverlayBlender.h"
 #include "effect_engine/filters/impl/AverageBlurFilter.h"
 #include "effect_engine/filters/impl/ChinesePaintFilter.h"
 #include "effect_engine/filters/impl/ColorPencilSketchFilter.h"
@@ -15,13 +20,14 @@
 #include "effect_engine/filters/impl/GrayFilter.h"
 #include "effect_engine/filters/impl/ScaleFilter.h"
 #include "effect_engine/filters/impl/SurfaceBlurFilter.h"
+#include "effect_engine/log/Log.h"
 
 int main(int argc, char *argv[]) {
-    std::cout << "Hello World!\n";
+    Logger() << "Hello World!\n";
 
     EffectEngine effectEngine;
     if (!effectEngine.Init()) {
-        std::cout << "Failed to initialize effect_engine" << std::endl;
+        Logger() << "Failed to initialize effect_engine" << std::endl;
         return 0;
     }
 
@@ -45,32 +51,18 @@ int main(int argc, char *argv[]) {
     // outputImageInfo.data = malloc(outputImageInfo.width * outputImageInfo.height * outputImageInfo.channels);
     // effectEngine.Process(inputImageInfo, outputImageInfo, filter);
 
-    const auto filter = std::make_shared<GrayFilter>();
-     filter->SetRedFactor(0.299);
-     filter->SetGreenFactor(0.587);
-     filter->SetBlueFactor(0.114);
-     effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_gray.png", filter);
+    // const auto filter = std::make_shared<GrayFilter>();
+    // filter->SetRedFactor(0.299);
+    // filter->SetGreenFactor(0.587);
+    // filter->SetBlueFactor(0.114);
+    // effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_gray.png", filter);
 
-    const auto filter2 = std::make_shared<GaussianBlurFilter>();
-    filter2->SetRadius(300);
-   // effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_blur.png", filter);
-    //const auto filter = std::make_shared<ChinesePaintFilter>();
-    //effectEngine.Process("D:/effect_engine/demo/images/girl.png", "D:/effect_engine/demo/images/test1.png", filter2);
-    effectEngine.Process("D:/effect_engine/demo/images/144-30.png", "D:/effect_engine/demo/images/144-30.png", filter2);
-    //effectEngine.Process("D:/effect_engine/demo/images/girl.png", "D:/effect_engine/demo/images/test.png", filter);
-    //effectEngine.Process("D:/effect_engine/demo/images/girl.png", "D:/effect_engine/demo/images/test.png", filter);
-    //effectEngine.Process("D:/effect_engine/demo/images/girl.png", "D:/effect_engine/demo/images/test.png", filter);
-    //effectEngine.Process("D:/effect_engine/demo/images/girl.png", "D:/effect_engine/demo/images/test.png", filter);
-    //effectEngine.Process("D:/effect_engine/demo/images/girl.png", "D:/effect_engine/demo/images/test.png", filter);
-    //effectEngine.Process("D:/effect_engine/demo/images/girl.png", "D:/effect_engine/demo/images/test.png", filter);
-    //effectEngine.Process("D:/effect_engine/demo/images/girl.png", "D:/effect_engine/demo/images/test.png", filter);
+    // const auto filter = std::make_shared<GaussianBlurFilter>();
+    // filter->SetRadius(300);
+    // effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_blur.png", filter);
 
-    // // const auto filter = std::make_shared<GaussianBlurFilter>();
-    // // filter->SetRadius(300);
-    // // effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_blur.png", filter);
-
-    //const auto filter = std::make_shared<ChinesePaintFilter>();
-    //effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_chinese_paint.png", filter);
+    // const auto filter = std::make_shared<ChinesePaintFilter>();
+    // effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_chinese_paint.png", filter);
 
     // const auto filter = std::make_shared<ColorPencilSketchFilter>();
     // effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_color_pencil_sketch.png", filter);
@@ -104,11 +96,47 @@ int main(int argc, char *argv[]) {
     // filter->SetBlurRadius(100);
     // effectEngine.Process("../../demo/images/colorful.png", "../../demo/images/colorful_average_blur.png", filter);
 
-    auto filter = std::make_shared<SurfaceBlurFilter>();
-    filter->SetBlurRadius(2); // 模糊半径
-    filter->SetThreshold(2); // 阈值色阶（2-255）
-    effectEngine.Process("../../demo/images/colorful.png", "../../demo/images/colorful_surface_blur.png", filter);
+    // const auto filter = std::make_shared<SurfaceBlurFilter>();
+    // filter->SetBlurRadius(60);
+    // filter->SetThreshold(128);
+    // effectEngine.Process("../../demo/images/colorful.png", "../../demo/images/colorful_surface_blur.png", filter);
 
-    getchar();
+    // const auto blender = std::make_shared<DissolveBlender>();
+    // blender->SetDissolveFactor(0.5);
+    // effectEngine.Process("../../demo/images/girl.png",
+    //                      "../../demo/images/colorful.png",
+    //                      500,
+    //                      800,
+    //                      "../../demo/images/girl_colorful_dissolve.png", blender);
+
+    // const auto blender = std::make_shared<MultiplyBlender>();
+    // effectEngine.Process("../../demo/images/girl.png",
+    //                      "../../demo/images/colorful.png",
+    //                      500,
+    //                      800,
+    //                      "../../demo/images/girl_colorful_multiply.png", blender);
+
+    // const auto blender = std::make_shared<OverlayBlender>();
+    // effectEngine.Process("../../demo/images/girl.png",
+    //                      "../../demo/images/colorful.png",
+    //                      500,
+    //                      800,
+    //                      "../../demo/images/girl_colorful_lighter.png", blender);
+    //                      "../../demo/images/girl_colorful_overlay.png", blender);
+
+    const auto blender = std::make_shared<LighterColorBlender>();
+    blender->SetBrightnessThreshold(0.7f);
+    blender->SetBlendFactor(0.3f);
+    effectEngine.Process("../../demo/images/girl.png",
+                         "../../demo/images/colorful.png",
+                         500,
+                         800,
+                         "../../demo/images/girl_colorful_lighter.png", blender);
+
+    // const auto filter = std::make_shared<GaussianBlurFilter>();
+    // filter->SetRadius(1);
+    // effectEngine.Process("../../demo/images/2billion.png", "../../demo/images/2billion_blur.png", filter);
+
+    // getchar();
     return 0;
 }

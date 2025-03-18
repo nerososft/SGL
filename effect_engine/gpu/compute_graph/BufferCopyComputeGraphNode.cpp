@@ -5,7 +5,7 @@
 #include "BufferCopyComputeGraphNode.h"
 
 #include <iostream>
-#ifdef Q_OS_OPENHARMONY
+#ifdef OS_OPEN_HARMONY
 #include <effect_engine/gpu/utils/vk_enum_string_helper.h>
 #else
 #include <vulkan/vk_enum_string_helper.h>
@@ -13,6 +13,7 @@
 
 #include "effect_engine/gpu/VkGPUComputePipeline.h"
 #include "effect_engine/gpu/VkGPUHelper.h"
+#include "effect_engine/log/Log.h"
 
 BufferCopyComputeGraphNode::BufferCopyComputeGraphNode(const std::shared_ptr<VkGPUContext> &gpuCtx,
                                                        const std::string &name,
@@ -33,10 +34,10 @@ VkResult BufferCopyComputeGraphNode::CreateComputeGraphNode() {
 }
 
 void BufferCopyComputeGraphNode::Compute(const VkCommandBuffer commandBuffer) {
-    std::cout << "Executing Compute Node: " << name << std::endl;
+    Logger() << "Executing Compute Node: " << name << std::endl;
     if (!this->dependencies.empty()) {
         for (const auto &dependence: this->dependencies) {
-            std::cout << "Node: " << name << " Depend On:" << dependence->GetName() << std::endl;
+            Logger() << "Node: " << name << " Depend On:" << dependence->GetName() << std::endl;
             dependence->Compute(commandBuffer);
         }
     }

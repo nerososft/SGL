@@ -4,6 +4,7 @@
 
 #ifndef EFFECTENGINE_H
 #define EFFECTENGINE_H
+#include "blenders/IBlender.h"
 #include "filters/IFilter.h"
 #include "gpu/VkGPUContext.h"
 
@@ -48,6 +49,13 @@ public:
                  uint32_t newWidth,
                  uint32_t newHeight,
                  const std::shared_ptr<IFilter> &filter) const;
+
+    void Process(const char *baseFilePath,
+                 const char *blendFilePath,
+                 uint32_t posX,
+                 uint32_t posY,
+                 const char *outputFilePath,
+                 const std::shared_ptr<IBlender> &blender) const;
 };
 
 

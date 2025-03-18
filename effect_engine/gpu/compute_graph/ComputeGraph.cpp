@@ -5,7 +5,7 @@
 #include "ComputeGraph.h"
 
 #include <iostream>
-#ifdef Q_OS_OPENHARMONY
+#ifdef OS_OPEN_HARMONY
 #include <effect_engine/gpu/utils/vk_enum_string_helper.h>
 #else
 #include <vulkan/vk_enum_string_helper.h>
@@ -13,6 +13,7 @@
 
 #include "effect_engine/gpu/VkGPUContext.h"
 #include "effect_engine/gpu/VkGPUHelper.h"
+#include "effect_engine/log/Log.h"
 
 ComputeGraph::ComputeGraph(const std::shared_ptr<VkGPUContext> &gpuCtx) {
     this->gpuCtx = gpuCtx;
@@ -25,7 +26,7 @@ void ComputeGraph::AddComputeGraphNode(const std::shared_ptr<IComputeGraphNode> 
 VkResult ComputeGraph::Init() {
     VkResult ret = VkGPUHelper::CreateFence(gpuCtx->GetCurrentDevice(), &this->computeFence);
     if (ret != VK_SUCCESS) {
-        std::cout << "Failed to create compute fence, err =" << string_VkResult(ret) << std::endl;
+        Logger() << "Failed to create compute fence, err =" << string_VkResult(ret) << std::endl;
         return ret;
     }
 
@@ -34,7 +35,7 @@ VkResult ComputeGraph::Init() {
                                               1,
                                               &this->commandBuffer);
     if (ret != VK_SUCCESS) {
-        std::cout << "Failed to allocate command buffer, err =" << string_VkResult(ret) << std::endl;
+        Logger() << "Failed to allocate command buffer, err =" << string_VkResult(ret) << std::endl;
         return ret;
     }
 
@@ -74,7 +75,7 @@ VkResult ComputeGraph::Compute() const {
 
     VkResult ret = VkGPUHelper::GPUQueueSubmit(gpuCtx->GetQueue(), submitInfos, computeFence);
     if (ret != VK_SUCCESS) {
-        std::cout << "Failed to submit command buffer, err =" << string_VkResult(ret) << std::endl;
+        Logger() << "Failed to submit command buffer, err =" << string_VkResult(ret) << std::endl;
         return ret;
     }
 
@@ -86,13 +87,13 @@ VkResult ComputeGraph::Compute() const {
                           VK_TRUE,
                           UINT64_MAX);
     if (ret != VK_SUCCESS) {
-        std::cout << "Failed to wait fence, err=" << string_VkResult(ret) << std::endl;
+        Logger() << "Failed to wait fence, err=" << string_VkResult(ret) << std::endl;
         return ret;
     }
 
     ret = vkQueueWaitIdle(gpuCtx->GetQueue());
     if (ret != VK_SUCCESS) {
-        std::cout << "Failed to wait idle, err=" << string_VkResult(ret) << std::endl;
+        Logger() << "Failed to wait idle, err=" << string_VkResult(ret) << std::endl;
         return ret;
     }
     return ret;

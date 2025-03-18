@@ -5,6 +5,7 @@
 #include "ColorSeparationFilter.h"
 
 #include "ColorPencilSketchFilter.h"
+#include "effect_engine/config.h"
 
 VkResult ColorSeparationFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                                       const VkDeviceSize bufferSize,
@@ -20,7 +21,7 @@ VkResult ColorSeparationFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCt
             this->colorSeparationFilterParams.imageSize.width * 4;
     params.paramsSize = sizeof(ColorSeparationFilterParams);
     params.paramsData = &this->colorSeparationFilterParams;
-    params.shaderPath = "../../shader_compiled/color_separation.comp.glsl.spv";
+    params.shaderPath = SHADER(color_separation.comp.glsl.spv);
     return DoApply(gpuCtx, "ColorSeparation", bufferSize, width, height, inputBuffer, outputBuffer, params);
 }
 

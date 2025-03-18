@@ -4,6 +4,8 @@
 
 #include "RadialBlurFilter.h"
 
+#include "effect_engine/config.h"
+
 VkResult RadialBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                                  const VkDeviceSize bufferSize,
                                  const uint32_t width,
@@ -17,7 +19,7 @@ VkResult RadialBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     this->radialBlurFilterParams.imageSize.bytesPerLine = this->radialBlurFilterParams.imageSize.width * 4;
     params.paramsSize = sizeof(RadialBlurFilterParams);
     params.paramsData = &this->radialBlurFilterParams;
-    params.shaderPath = "../../shader_compiled/radial_blur.comp.glsl.spv";
+    params.shaderPath = SHADER(radial_blur.comp.glsl.spv);
     return DoApply(gpuCtx,
                    "RadialBlur",
                    bufferSize,
