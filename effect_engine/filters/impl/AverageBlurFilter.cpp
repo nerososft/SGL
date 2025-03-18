@@ -57,8 +57,8 @@ VkResult AverageBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
         SHADER(average_vblur.comp.glsl.spv),
         pushConstantInfo,
         vPipelineBuffers,
-        width,
-        (height + 255) / 256,
+        (width + 31) / 32,
+        (height + 31) / 32,
         1);
 
     ret = gaussianVerticalNode->CreateComputeGraphNode();
@@ -86,8 +86,8 @@ VkResult AverageBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
         SHADER(average_hblur.comp.glsl.spv),
         pushConstantInfo,
         hPipelineBuffers,
-        (width + 255) / 256,
-        height,
+        (width + 31) / 32,
+        (height + 31) / 32,
         1);
 
     ret = gaussianHorizontalNode->CreateComputeGraphNode();
