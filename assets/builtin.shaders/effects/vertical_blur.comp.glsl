@@ -67,39 +67,13 @@ void main() {
     vec4 sum = vec4(0);
     float wsum = 0.0;
     int dy = -R;
-    for (; dy + 15 <= R; dy += 16) {
-        sum += s_Pixels[gl_LocalInvocationID.y + R + dy] * weights[dy + R];
-        sum += s_Pixels[gl_LocalInvocationID.y + R + dy + 1] * weights[dy + R + 1];
-        sum += s_Pixels[gl_LocalInvocationID.y + R + dy + 2] * weights[dy + R + 2];
-        sum += s_Pixels[gl_LocalInvocationID.y + R + dy + 3] * weights[dy + R + 3];
-        sum += s_Pixels[gl_LocalInvocationID.y + R + dy + 4] * weights[dy + R + 4];
-        sum += s_Pixels[gl_LocalInvocationID.y + R + dy + 5] * weights[dy + R + 5];
-        sum += s_Pixels[gl_LocalInvocationID.y + R + dy + 6] * weights[dy + R + 6];
-        sum += s_Pixels[gl_LocalInvocationID.y + R + dy + 7] * weights[dy + R + 7];
-        sum += s_Pixels[gl_LocalInvocationID.y + R + dy + 8] * weights[dy + R + 8];
-        sum += s_Pixels[gl_LocalInvocationID.y + R + dy + 9] * weights[dy + R + 9];
-        sum += s_Pixels[gl_LocalInvocationID.y + R + dy + 0] * weights[dy + R + 10];
-        sum += s_Pixels[gl_LocalInvocationID.y + R + dy + 11] * weights[dy + R + 11];
-        sum += s_Pixels[gl_LocalInvocationID.y + R + dy + 12] * weights[dy + R + 12];
-        sum += s_Pixels[gl_LocalInvocationID.y + R + dy + 13] * weights[dy + R + 13];
-        sum += s_Pixels[gl_LocalInvocationID.y + R + dy + 14] * weights[dy + R + 14];
-        sum += s_Pixels[gl_LocalInvocationID.y + R + dy + 15] * weights[dy + R + 15];
-        wsum += weights[dy + R]
-        + weights[dy + R + 1]
-        + weights[dy + R + 2]
-        + weights[dy + R + 3]
-        + weights[dy + R + 4]
-        + weights[dy + R + 5]
-        + weights[dy + R + 6]
-        + weights[dy + R + 7]
-        + weights[dy + R + 8]
-        + weights[dy + R + 9]
-        + weights[dy + R + 10]
-        + weights[dy + R + 11]
-        + weights[dy + R + 12]
-        + weights[dy + R + 13]
-        + weights[dy + R + 14]
-        + weights[dy + R + 15];
+    for (; dy + 31 <= R; dy += 32) {
+        #pragma unroll
+        for (int n = 0; n < 32; ++n) {
+            int currentDy = dy + n;
+            sum += unpackColor(s_Pixels[gl_LocalInvocationID.y + R + currentDy]) * weights[currentDy + R];
+            wsum += weights[currentDy + R];
+        }
     }
     for (; dy <= R; ++dy) {
         float w = weights[dy + R];
