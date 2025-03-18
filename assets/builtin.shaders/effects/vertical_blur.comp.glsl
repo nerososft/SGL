@@ -10,7 +10,7 @@ layout (std430, binding = 1) buffer OutputImageStorageBuffer {
     uint pixels[];
 } outputImage;
 
-const uint MAX_RADIUS = 1024;
+const uint MAX_RADIUS = 256;
 layout (binding = 2) uniform WeightUBO {
     float weights[2 * MAX_RADIUS + 1];
 };
