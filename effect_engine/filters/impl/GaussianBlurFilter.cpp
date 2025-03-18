@@ -103,7 +103,7 @@ VkResult GaussianBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
         pushConstantInfo,
         vPipelineBuffers,
         width,
-        (height + 255) / 256,
+        (height + 511) / 512,
         1);
 
     ret = gaussianVerticalNode->CreateComputeGraphNode();
@@ -132,7 +132,7 @@ VkResult GaussianBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
         SHADER(horizontal_blur.comp.glsl.spv),
         pushConstantInfo,
         hPipelineBuffers,
-        (width + 255) / 256,
+        (width + 511) / 512,
         height,
         1);
 
