@@ -1,6 +1,6 @@
 #version 450
 
-layout (local_size_x = 1, local_size_y = 512, local_size_z = 1) in;
+layout (local_size_x = 1, local_size_y = 256, local_size_z = 1) in;
 
 layout (std430, binding = 0) buffer InputImageStorageBuffer {
     uint pixels[];
@@ -44,7 +44,7 @@ vec4 unpackColor(uint color) {
 }
 
 // 共享内存声明（必须全局）
-shared uint s_Pixels[512 + 2 * MAX_RADIUS];  // 核心512像素+两侧各MAX_RADIUS边界
+shared uint s_Pixels[256 + 2 * MAX_RADIUS];  // 核心256像素+两侧各MAX_RADIUS边界
 
 void main() {
     const int R = filterParams.radius;
@@ -52,15 +52,15 @@ void main() {
     ivec2 gid = ivec2(gl_GlobalInvocationID.xy);
 
     // 垂直方向数据加载
-    for (int j = int(gl_LocalInvocationID.y) - R; j < 512 + R; j += 512) {
-        int y = clamp(int(gl_WorkGroupID.y * 512) + j, 0, int(height) - 1);
+    for (int j = int(gl_LocalInvocationID.y) - R; j < 256 + R; j += 256) {
+        int y = clamp(int(gl_WorkGroupID.y * 256) + j, 0, int(height) - 1);
         s_Pixels[j + R] = inputImage.pixels[gid.x + y * filterParams.width];
     }
 
     barrier();
 
     // 计算输出坐标
-    uint outputY = gl_WorkGroupID.y * 512 + gl_LocalInvocationID.y;
+    uint outputY = gl_WorkGroupID.y * 256 + gl_LocalInvocationID.y;
     if (outputY >= height) return;
 
     // 展开卷积循环
