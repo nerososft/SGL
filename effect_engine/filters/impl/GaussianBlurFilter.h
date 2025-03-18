@@ -8,7 +8,7 @@
 #include "effect_engine/filters/IFilter.h"
 #include "effect_engine/gpu/compute_graph/ComputeGraph.h"
 
-#define MAX_RADIUS (1000)
+#define MAX_RADIUS (512)
 
 struct GaussianBlurFilterParams {
     BasicFilterParam imageSize;
