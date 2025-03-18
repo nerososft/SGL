@@ -1,6 +1,6 @@
 
-mkdir build
-cd build
+mkdir build_os
+cd build_os
 
 
 cmake .. -DCMAKE_BUILD_TYPE:STRING=Release \
