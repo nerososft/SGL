@@ -20,6 +20,7 @@
 #include "effect_engine/filters/impl/GrayFilter.h"
 #include "effect_engine/filters/impl/ScaleFilter.h"
 #include "effect_engine/filters/impl/SurfaceBlurFilter.h"
+#include "effect_engine/filters/impl/VibranceFilter.h"
 #include "effect_engine/log/Log.h"
 
 int main(int argc, char *argv[]) {
@@ -79,11 +80,11 @@ int main(int argc, char *argv[]) {
     // effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_scale.png", 400, 600, filter);
 
     // const auto filter = std::make_shared<RadialBlurFilter>();
-    // filter->SetCenter(390, 510);
-    // filter->SetStrength(50);
-    // filter->SetRotationStrength(100);
+    // filter->SetCenter(2000, 3000);
+    // filter->SetStrength(500);
+    // filter->SetRotationStrength(600);
     // filter->SetSharpness(0.1);
-    // effectEngine.Process("../../demo/images/colorful.png", "../../demo/images/colorful_radial_blur.png", filter);
+    // effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_radial_blur.png", filter);
 
     // const auto filter = std::make_shared<FocusBlurFilter>();
     // filter->SetCenter(390, 510);
@@ -92,10 +93,10 @@ int main(int argc, char *argv[]) {
     // filter->SetSharpness(3);
     // effectEngine.Process("../../demo/images/colorful.png", "../../demo/images/colorful_focus_blur.png", filter);
 
-    const auto filter = std::make_shared<SurfaceBlurFilter>();
-    filter->SetBlurRadius(60);
-    filter->SetThreshold(128);
-    effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_surface_blur.png", filter);
+    // const auto filter = std::make_shared<SurfaceBlurFilter>();
+    // filter->SetBlurRadius(60);
+    // filter->SetThreshold(128);
+    // effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_surface_blur.png", filter);
 
     // const auto blender = std::make_shared<DissolveBlender>();
     // blender->SetDissolveFactor(0.5);
@@ -132,6 +133,11 @@ int main(int argc, char *argv[]) {
     // const auto filter = std::make_shared<OldGaussianBlurFilter>();
     // filter->SetRadius(128);
     // effectEngine.Process("../../demo/images/2billion.png", "../../demo/images/2billion_blur.png", filter);
+
+    const auto filter = std::make_shared<VibranceFilter>();
+    filter->SetVibrance(40);
+    filter->SetSaturation(50);
+    effectEngine.Process("../../demo/images/colorful.png", "../../demo/images/colorful_vibrance.png", filter);
 
     // getchar();
     return 0;

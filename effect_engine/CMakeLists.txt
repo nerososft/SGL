@@ -70,6 +70,8 @@ add_library(gpu_effect_engine SHARED
         blenders/impl/LighterColorBlender.h
         log/Log.h
         config.h
+        filters/impl/VibranceFilter.cpp
+        filters/impl/VibranceFilter.h
 )
 target_link_libraries(gpu_effect_engine vulkan)
 if (CMAKE_SYSTEM_NAME MATCHES "OHOS")
