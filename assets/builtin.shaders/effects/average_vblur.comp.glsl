@@ -1,5 +1,5 @@
 #version 450
-layout (local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
+layout (local_size_x = 1, local_size_y = 256, local_size_z = 1) in;
 
 layout (std430, binding = 0) buffer InputImageStorageBuffer {
     uint pixels[];
@@ -44,16 +44,13 @@ void main() {
     int sampleCount = 0;
     int radius = int(filterParams.blurRadius);
 
-    // 采样周围像素
-    for (int y = -radius; y <= radius; ++y) {
-        for (int x = -radius; x <= radius; ++x) {
-            ivec2 sampleCoord = ivec2(coord) + ivec2(x, y);
-            if (all(greaterThanEqual(sampleCoord, ivec2(0))) &&
-            all(lessThan(sampleCoord, ivec2(filterParams.width, filterParams.height)))) {
-                uint index = uint(sampleCoord.y) * (filterParams.bytesPerLine / 4) + uint(sampleCoord.x);
-                sum += unpackColor(inputImage.pixels[index]);
-                sampleCount++;
-            }
+    // 采样垂直像素
+    for (int y = -radius; y <= radius; y++) {
+        ivec2 sampleCoord = ivec2(coord) + ivec2(0, y);
+        if (sampleCoord.y >= 0 && sampleCoord.y < int(filterParams.height)) {
+            uint index = uint(sampleCoord.y) * (filterParams.bytesPerLine / 4) + uint(sampleCoord.x);
+            sum += unpackColor(inputImage.pixels[index]);
+            sampleCount++;
         }
     }
 

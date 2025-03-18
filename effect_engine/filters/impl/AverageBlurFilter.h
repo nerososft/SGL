@@ -4,16 +4,17 @@
 
 #ifndef AVERAGEBLURFILTER_H
 #define AVERAGEBLURFILTER_H
-
 #include "effect_engine/filters/BasicFilter.h"
+#include "effect_engine/filters/IFilter.h"
 
 struct AverageBlurFilterParams {
     BasicFilterParam imageSize;
     uint32_t blurRadius;
 };
 
-class AverageBlurFilter final : public BasicFilter {
+class AverageBlurFilter final : public IFilter {
     AverageBlurFilterParams blurParams = {};
+    std::shared_ptr<ComputeGraph> computeGraph = nullptr;
 
 public:
     AverageBlurFilter() = default;

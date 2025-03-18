@@ -1,0 +1,61 @@
+#version 450
+layout (local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
+
+layout (std430, binding = 0) buffer InputImageStorageBuffer {
+    uint pixels[];
+} inputImage;
+
+layout (std430, binding = 1) buffer OutputImageStorageBuffer {
+    uint pixels[];
+} outputImage;
+
+layout (push_constant) uniform FilterParams {
+    uint width;
+    uint height;
+    uint channels;
+    uint bytesPerLine;
+    uint blurRadius;
+} filterParams;
+
+uint packColor(vec4 color) {
+    return (
+    uint(clamp(color.a, 0.0, 1.0) * 255.0) << 24) |
+    (uint(clamp(color.b, 0.0, 1.0) * 255.0) << 16) |
+    (uint(clamp(color.g, 0.0, 1.0) * 255.0) << 8) |
+    uint(clamp(color.r, 0.0, 1.0) * 255.0);
+}
+
+vec4 unpackColor(uint color) {
+    return vec4(
+    float(color & 0xFF) / 255.0,
+    float((color >> 8) & 0xFF) / 255.0,
+    float((color >> 16) & 0xFF) / 255.0,
+    float((color >> 24) & 0xFF) / 255.0
+    );
+}
+
+void main() {
+    uvec2 coord = gl_GlobalInvocationID.xy;
+    if (any(greaterThanEqual(coord, uvec2(filterParams.width, filterParams.height)))) {
+        return;
+    }
+
+    vec4 sum = vec4(0);
+    int sampleCount = 0;
+    int radius = int(filterParams.blurRadius);
+
+    // 采样水平像素
+    for (int x = -radius; x <= radius; x++) {
+        ivec2 sampleCoord = ivec2(coord) + ivec2(x, 0);
+        if (sampleCoord.x >= 0 && sampleCoord.x < int(filterParams.width)) {
+            uint index = uint(sampleCoord.y) * (filterParams.bytesPerLine / 4) + uint(sampleCoord.x);
+            sum += unpackColor(inputImage.pixels[index]);
+            sampleCount++;
+        }
+    }
+
+    // 计算平均值并写入输出
+    vec4 avgColor = sum / float(sampleCount);
+    uint pixelIndex = coord.y * (filterParams.bytesPerLine / 4) + coord.x;
+    outputImage.pixels[pixelIndex] = packColor(avgColor);
+}

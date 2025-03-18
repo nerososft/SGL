@@ -93,14 +93,14 @@ int main(int argc, char *argv[]) {
     // filter->SetSharpness(3);
     // effectEngine.Process("../../demo/images/colorful.png", "../../demo/images/colorful_focus_blur.png", filter);
 
-    // const auto filter = std::make_shared<AverageBlurFilter>();
-    // filter->SetBlurRadius(30);
-    // effectEngine.Process("../../demo/images/colorful.png", "../../demo/images/colorful_average_blur.png", filter);
+    const auto filter = std::make_shared<AverageBlurFilter>();
+    filter->SetBlurRadius(30);
+    effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_average_blur.png", filter);
 
-    const auto filter = std::make_shared<SurfaceBlurFilter>();
-    filter->SetBlurRadius(60);
-    filter->SetThreshold(128);
-    effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_surface_blur.png", filter);
+    // const auto filter = std::make_shared<SurfaceBlurFilter>();
+    // filter->SetBlurRadius(60);
+    // filter->SetThreshold(128);
+    // effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_surface_blur.png", filter);
 
     // const auto blender = std::make_shared<DissolveBlender>();
     // blender->SetDissolveFactor(0.5);
