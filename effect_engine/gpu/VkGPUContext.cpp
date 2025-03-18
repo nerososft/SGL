@@ -14,6 +14,9 @@
 #include <iostream>
 #include <ostream>
 
+
+#include "../himi.h"
+
 VkGPUContext::VkGPUContext(const std::vector<const char *> &requiredInstanceExtensions) {
     for (auto requiredInstanceExtension: requiredInstanceExtensions) {
         this->instanceEnableExtensions.push_back(requiredInstanceExtension);
@@ -124,6 +127,9 @@ VkResult VkGPUContext::Init() {
 
     vkEnumeratePhysicalDevices(instance, &this->physicalDeviceNums, nullptr);
     std::cout << "physical devices num: " << this->physicalDeviceNums << std::endl;
+#ifdef ENABLE_HIMI_HILOG
+     OH_LOG_INFO(LOG_APP, "hww physical devices num:  %{public}d",this->physicalDeviceNums);
+#endif
     this->physicalDevices.resize(this->physicalDeviceNums);
     this->physicalDeviceFeatures.resize(this->physicalDeviceNums);
     this->physicalDevicesProperties.resize(this->physicalDeviceNums);
@@ -168,6 +174,17 @@ VkResult VkGPUContext::Init() {
                 << ", z=" << this->physicalDevicesProperties[physicalDeviceIndex].limits.
                 maxComputeWorkGroupCount[2]
                 << std::endl;
+    #ifdef ENABLE_HIMI_HILOG
+     OH_LOG_INFO(LOG_APP, "hww maxWorkGroupSize:  x = %{public}d  y = %{public}d z = %{public}d  ", this->physicalDevicesProperties[physicalDeviceIndex].limits.
+                maxComputeWorkGroupSize[0], this->physicalDevicesProperties[physicalDeviceIndex].limits.
+                maxComputeWorkGroupSize[1], this->physicalDevicesProperties[physicalDeviceIndex].limits.
+                maxComputeWorkGroupSize[2]);
+     OH_LOG_INFO(LOG_APP, "hww maxWorkGroupCount:  x=%{public}d y = %{public}d z = %{public}d " ,this->physicalDevicesProperties[physicalDeviceIndex].limits.
+                maxComputeWorkGroupSize[0],this->physicalDevicesProperties[physicalDeviceIndex].limits.
+                maxComputeWorkGroupSize[1],this->physicalDevicesProperties[physicalDeviceIndex].limits.
+                maxComputeWorkGroupSize[2]);
+    #endif
+   //  OH_LOG_INFO(LOG_APP, "hww physical devices num:  %{public}d",this->physicalDeviceNums);
 
         vkGetPhysicalDeviceFeatures(this->physicalDevices[physicalDeviceIndex],
                                     &this->physicalDeviceFeatures[physicalDeviceIndex]);
@@ -181,7 +198,12 @@ VkResult VkGPUContext::Init() {
                     << "size=" << memoryHeaps[heapIndex].size
                     << ", flags=" << memoryHeaps[heapIndex].flags
                     << std::endl;
+#ifdef ENABLE_HIMI_HILOG
+          OH_LOG_INFO(LOG_APP, "hww memoryHeaps:   size= %{public}lld  flags= %{public}d ",memoryHeaps[heapIndex].size,  memoryHeaps[heapIndex].flags);
+#endif
         }
+
+        
         for (uint32_t typeIndex = 0; typeIndex < memoryTypeCount; typeIndex++) {
             std::cout << "\tmemoryTypes[" << typeIndex << "]: "
                     << "heapIndex=" << memoryTypes[typeIndex].heapIndex

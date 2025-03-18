@@ -5,8 +5,18 @@
 #include "TimeUtils.h"
 #ifdef Q_OS_OPENHARMONY
 #include <ctime>
+#include <chrono> // 包含 std::chrono 头文件
+#include <cstdint> // 用于 uint64_t
+
 uint64_t TimeUtils::GetCurrentMonoMs() {
-    return 0;
+        // 使用 steady_clock 获取单调时间
+        auto now = std::chrono::steady_clock::now();
+
+        // 将时间点转换为从时钟起点开始的持续时间
+        auto duration = now.time_since_epoch();
+
+        // 将持续时间转换为毫秒
+        return std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
 }
 
 #elif ENNABLE_WIN64

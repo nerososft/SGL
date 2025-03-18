@@ -12,8 +12,9 @@
 
 
 
-
-
+#include "himi.h"
+//FunctionPtr g_dbg = nullptr;
+FunctionPtr g_dbg ;
 EffectEngine effectEngine;
 
 
@@ -32,6 +33,11 @@ bool threshold_split_filter_gpu(void* in, void* out, int bright) {
 
 
 bool gaussian_blur_filter_gpu(void* in, void* out, int r) {
+#if ENABLE_HIMI_HILOG
+    OH_LOG_INFO(LOG_APP, "hwtest call guassian");
+#endif // ENABLE_HIMI_HILOG
+
+
     const auto filter = std::make_shared<GaussianBlurFilter>();
     filter->SetRadius(r);
 
@@ -46,12 +52,30 @@ bool gaussian_blur_filter_gpu(void* in, void* out, int r) {
 
 bool init_gpu_engine() {
 
+#if ENABLE_HIMI_HILOG
+    OH_LOG_INFO(LOG_APP, "hwtest lib init");
+#endif // ENABLE_HIMI_HILOG
+    if(g_dbg){
+      //  g_dbg("hwtest g_gbd");
+
+    }
     return effectEngine.Init();
 
 }
 
 bool destory_gpu_engine() {
 
+    return true;
+
+}
+
+
+
+
+
+bool set_qdebug_cb(void*  dbg){
+
+    //g_dbg = (FunctionPtr)dbg;
     return true;
 
 }

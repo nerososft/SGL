@@ -14,6 +14,8 @@
 #include "effect_engine/gpu/compute_graph/BufferCopyComputeGraphNode.h"
 #include "effect_engine/gpu/compute_graph/PipelineComputeGraphNode.h"
 #include <fstream>
+#include "effect_engine/himi.h"
+
 VkResult GaussianBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                                    const VkDeviceSize bufferSize,
                                    const uint32_t width,
@@ -24,15 +26,6 @@ VkResult GaussianBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     this->blurFilterParams.imageSize.height = height;
     this->blurFilterParams.imageSize.channels = 4;
     this->blurFilterParams.imageSize.bytesPerLine = this->blurFilterParams.imageSize.width * 4;
-
-
-    std::ofstream outFile(":/android/assets/shader_compiled/engine_output.txt", std::ios::app);
-    if (!outFile) {
-        std::cerr << "无法打开文件!" << std::endl;
-    }
-
-    std::streambuf* originalCoutBuffer = std::cout.rdbuf();
-    std::cout.rdbuf(outFile.rdbuf());
 
 
 
@@ -61,11 +54,15 @@ VkResult GaussianBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     vPipelineBuffers.push_back(vPipelineNodeInput);
     vPipelineBuffers.push_back(vPipelineNodeOutput);
 
- 
+#ifdef ENABLE_HIMI_HILOG
+    std::string shader_path ="/data/storage/el2/base/haps/entry/files/AppData/himirage/vertical_blur.comp.glsl.spv";
+#else
+    std::string shader_path ="../../shader_compiled/vertical_blur.comp.glsl.spv ";
+
+#endif
     const auto gaussianVerticalNode = std::make_shared<PipelineComputeGraphNode>(gpuCtx,
         "gaussianVerticalBlur",
-        //"../../shader_compiled/vertical_blur.comp.glsl.spv",
-        ":/android/assets/shader_compiled/vertical_blur.comp.glsl.spv",
+        shader_path,
         pushConstantInfo,
         vPipelineBuffers,
         width,
@@ -92,10 +89,15 @@ VkResult GaussianBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     hPipelineBuffers.push_back(hPipelineNodeInput);
     hPipelineBuffers.push_back(hPipelineNodeOutput);
 
+
+#ifdef ENABLE_HIMI_HILOG
+     shader_path ="/data/storage/el2/base/haps/entry/files/AppData/himirage/horizontal_blur.comp.glsl.spv";
+#else
+     shader_path ="../../shader_compiled/horizontal_blur.comp.glsl.spv ";
+#endif
     const auto gaussianHorizontalNode = std::make_shared<PipelineComputeGraphNode>(gpuCtx,
         "gaussianHorizontalBlur",
-      //  "../../shader_compiled/horizontal_blur.comp.glsl.spv",
-        ":/android/assets/shader_compiled/horizontal_blur.comp.glsl.spv",
+        shader_path,
         pushConstantInfo,
         hPipelineBuffers,
         (width + 255) / 256,

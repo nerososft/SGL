@@ -16,7 +16,12 @@
 #include "gpu/VkGPUHelper.h"
 #include "utils/TimeUtils.h"
 
- #define DEBUG_ON_HIMIRAGE
+
+
+
+#include "himi.h"
+
+
 
 bool EffectEngine::Init() {
     std::vector<const char *> requiredExtensions;
@@ -25,6 +30,9 @@ bool EffectEngine::Init() {
     const VkResult result = this->gpuCtx->Init();
     if (result != VK_SUCCESS) {
         std::cerr << "Failed to initialize Vulkan GPU context!" << std::endl;
+#ifdef ENABLE_HIMI_HILOG
+         OH_LOG_INFO(LOG_APP, "hwtest Failed to initialize Vulkan GPU context!");
+#endif
         return false;
     }
     return true;
@@ -47,7 +55,7 @@ VkResult EffectEngine::Process(VkBuffer *inputStorageBuffer,
     const VkDeviceSize outputBufferSize = outputWidth * outputHeight * channels;
 
 
-#ifdef DEBUG_ON_HIMIRAGE
+#ifdef ENABLE_HIMI_HILOG
    //std::ofstream outFile("d://temp//engine_output.txt", std::ios::app);
    std::ofstream outFile(":/android/assets/shader_compiled/engine_output.txt", std::ios::app);
     if (!outFile) {
@@ -85,7 +93,9 @@ VkResult EffectEngine::Process(VkBuffer *inputStorageBuffer,
     }
     const uint64_t imageBufferPrepareEnd = TimeUtils::GetCurrentMonoMs();
     std::cout << "Image Buffer Prepare Time: " << imageBufferPrepareEnd - imageBufferPrepareStart << "ms" << std::endl;
-
+#ifdef ENABLE_HIMI_HILOG
+    OH_LOG_INFO(LOG_APP, "hww Image Buffer Prepare Time:  %{public}d", imageBufferPrepareEnd - imageBufferPrepareStart);
+#endif
     const uint64_t imageUploadStart = TimeUtils::GetCurrentMonoMs();
     void *data = nullptr;
     ret = vkMapMemory(gpuCtx->GetCurrentDevice(), *inputStorageBufferMemory, 0, inputBufferSize, 0, &data);
@@ -97,7 +107,10 @@ VkResult EffectEngine::Process(VkBuffer *inputStorageBuffer,
     vkUnmapMemory(gpuCtx->GetCurrentDevice(), *inputStorageBufferMemory);
     const uint64_t imageUploadEnd = TimeUtils::GetCurrentMonoMs();
     std::cout << "Image Upload Time: " << imageUploadEnd - imageUploadStart << "ms" << std::endl;
+#ifdef ENABLE_HIMI_HILOG
+    OH_LOG_INFO(LOG_APP, "hww Image Upload Time:  %{public}d",imageUploadEnd - imageUploadStart);
 
+#endif
     const uint64_t gpuProcessTimeStart = TimeUtils::GetCurrentMonoMs();
     ret = filter->Apply(gpuCtx, inputBufferSize, inputWidth, inputHeight, *inputStorageBuffer, *outputStorageBuffer);
     if (ret != VK_SUCCESS) {
@@ -106,10 +119,13 @@ VkResult EffectEngine::Process(VkBuffer *inputStorageBuffer,
     }
     const uint64_t gpuProcessTimeEnd = TimeUtils::GetCurrentMonoMs();
     std::cout << "GPU Process Time: " << gpuProcessTimeEnd - gpuProcessTimeStart << "ms" << std::endl;
+#ifdef ENABLE_HIMI_HILOG
+    OH_LOG_INFO(LOG_APP, "hww GPU Process Time:  %{public}d",gpuProcessTimeEnd - gpuProcessTimeStart);
+#endif
     filter->Destroy();
 
 
-#ifdef DEBUG_ON_HIMIRAGE
+#ifdef ENABLE_HIMI_HILOG
     std::cout.rdbuf(originalCoutBuffer);
     std::cout << "输出已经重定向到文件." << std::endl;
     outFile.close();

@@ -1,3 +1,9 @@
+
+
+# 与psutil同级别目录，需解压3rdparty  vulkanSDK ,vs2019直接添加工程即可
+
+
+
 # EffectEngine(基于GPU计算管线的高性能离线图像处理引擎)
 1. **性能优越（GPU并行）**
    1. 相对于CPU OpenMP等技术，并行能力更强

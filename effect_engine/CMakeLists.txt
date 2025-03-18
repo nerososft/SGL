@@ -48,4 +48,9 @@ add_library(gpu_effect_engine SHARED
 		filters/impl/thresholdSplit.cpp
         filters/impl/thresholdSplit.h
 )
-target_link_libraries(gpu_effect_engine vulkan)
+
+if(DEFINED ENABLE_HIMI_HILOG)
+target_link_libraries(gpu_effect_engine vulkan hilog_ndk.z)
+else()
+target_link_libraries(gpu_effect_engine vulkan )
+endif()
