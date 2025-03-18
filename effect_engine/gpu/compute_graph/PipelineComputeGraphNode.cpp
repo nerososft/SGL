@@ -47,7 +47,8 @@ VkResult PipelineComputeGraphNode::CreateComputeGraphNode() {
         bufferBinding.binding = i;
         if (pipelineBuffers[i].type == PIPELINE_NODE_BUFFER_UNIFORM) {
             bufferBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        } else if (pipelineBuffers[i].type == PIPELINE_NODE_BUFFER_STORAGE_READ | PIPELINE_NODE_BUFFER_STORAGE_WRITE) {
+        } else if (pipelineBuffers[i].type == PIPELINE_NODE_BUFFER_STORAGE_READ |
+                   pipelineBuffers[i].type == PIPELINE_NODE_BUFFER_STORAGE_WRITE) {
             bufferBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
         }
         bufferBinding.descriptorCount = 1;

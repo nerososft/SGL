@@ -12,6 +12,7 @@
 #include <vulkan/vk_enum_string_helper.h>
 #endif
 
+#include "config.h"
 #include "utils/ImageUtils.h"
 #include "gpu/VkGPUHelper.h"
 #include "log/Log.h"
@@ -26,6 +27,7 @@ bool EffectEngine::Init() {
         Logger() << Logger::ERROR << "Failed to initialize Vulkan GPU context!" << std::endl;
         return false;
     }
+    Logger() << Logger::INFO << "Initialized EffectEngine, version: " << VERSION << std::endl;
     return true;
 }
 

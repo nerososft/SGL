@@ -6,11 +6,12 @@
 
 #include <fstream>
 #include <iostream>
-
+#ifndef OS_OPEN_HARMONY
 #include "png.h"
+#endif
 #include "TimeUtils.h"
 #include "effect_engine/log/Log.h"
-
+#ifndef OS_OPEN_HARMONY
 typedef struct {
     char *data;
     size_t size;
@@ -193,3 +194,24 @@ void ImageUtils::WritePngFile(const std::string &fileName,
     const uint64_t pngWriteEnd = TimeUtils::GetCurrentMonoMs();
     Logger() << "Writing PNG Usage:" << pngWriteEnd - pngWriteStart << "ms" << std::endl;
 }
+#else
+std::vector<char> ImageUtils::ReadPngFile(const std::string &fileName,
+                                      uint32_t *imageWidth,
+                                      uint32_t *imageHeight,
+                                      uint32_t *channel) {
+    Logger() << "Not Support On HarmonyOS" << std::endl;
+    std::vector<char> data;
+    *imageWidth = 0;
+    *imageHeight = 0;
+    *channel = 0;
+    return data;
+}
+
+void ImageUtils::WritePngFile(const std::string &fileName,
+                         uint32_t imageWidth,
+                         uint32_t imageHeight,
+                         uint32_t channel,
+                         const void *imageData) {
+    Logger() << "Not Support On HarmonyOS" << std::endl;
+}
+#endif
