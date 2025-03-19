@@ -18,6 +18,7 @@
 #include "effect_engine/filters/impl/FocusBlurFilter.h"
 #include "effect_engine/filters/impl/GaussianBlurFilter.h"
 #include "effect_engine/filters/impl/GrayFilter.h"
+#include "effect_engine/filters/impl/PaletteKnifeFilter.h"
 #include "effect_engine/filters/impl/ScaleFilter.h"
 #include "effect_engine/filters/impl/SurfaceBlurFilter.h"
 #include "effect_engine/filters/impl/VibranceFilter.h"
@@ -134,10 +135,15 @@ int main(int argc, char *argv[]) {
     // filter->SetRadius(128);
     // effectEngine.Process("../../demo/images/2billion.png", "../../demo/images/2billion_blur.png", filter);
 
-    const auto filter = std::make_shared<VibranceFilter>();
-    filter->SetVibrance(40);
-    filter->SetSaturation(50);
-    effectEngine.Process("../../demo/images/colorful.png", "../../demo/images/colorful_vibrance.png", filter);
+    // const auto filter = std::make_shared<VibranceFilter>();
+    // filter->SetVibrance(40);
+    // filter->SetSaturation(50);
+    // effectEngine.Process("../../demo/images/colorful.png", "../../demo/images/colorful_vibrance.png", filter);
+
+    const auto filter = std::make_shared<PaletteKnifeFilter>();
+    filter->SetRadius(40);
+    filter->SetQuantScale(10);
+    effectEngine.Process("../../demo/images/colorful.png", "../../demo/images/colorful_palette_knife.png", filter);
 
     // getchar();
     return 0;

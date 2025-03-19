@@ -61,6 +61,8 @@ add_library(gpu_effect_engine SHARED
         filters/impl/SurfaceBlurFilter.h
         filters/impl/ThresholdSplitFilter.h
         filters/impl/ThresholdSplitFilter.cpp
+        filters/impl/PaletteKnifeFilter.h
+        filters/impl/PaletteKnifeFilter.cpp
         blenders/IBlender.h
         blenders/BaseBlender.cpp
         blenders/BaseBlender.h
