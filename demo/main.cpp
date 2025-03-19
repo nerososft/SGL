@@ -24,6 +24,7 @@
 #include "effect_engine/filters/impl/SurfaceBlurFilter.h"
 #include "effect_engine/filters/impl/ThresholdSplitFilter.h"
 #include "effect_engine/filters/impl/VibranceFilter.h"
+#include "effect_engine/filters/impl/VoronoiFilter.h"
 #include "effect_engine/log/Log.h"
 
 int main(int argc, char *argv[]) {
@@ -151,10 +152,14 @@ int main(int argc, char *argv[]) {
     // filter->SetBlockSize(64);
     // effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_8bit.png", filter);
 
-    const auto filter = std::make_shared<ThresholdSplitFilter>();
-    filter->SetBright(10);
-    effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_threshold.png", filter);
+    // const auto filter = std::make_shared<ThresholdSplitFilter>();
+    // filter->SetBright(10);
+    // effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_threshold.png", filter);
 
+    const auto filter = std::make_shared<VoronoiFilter>();
+    filter->SetGridSize(100);
+    filter->SetEnableEdge(false);
+    effectEngine.Process("../../demo/images/colorful.png", "../../demo/images/colorful_voronoi.png", filter);
 
     // getchar();
     return 0;
