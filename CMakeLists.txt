@@ -35,7 +35,7 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 endif ()
 
 if (CMAKE_SYSTEM_PROCESSOR MATCHES "arm64")
-    add_compile_options(-O3 -march=armv8-a+simd+fp+crc+crypto --save-temps)
+    add_compile_options(-O3 -march=armv8-a+simd)
 endif ()
 
 # compile builtin shaders
