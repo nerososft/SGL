@@ -136,7 +136,7 @@ int main(int argc, char *argv[]) {
 
     // const auto filter = std::make_shared<OldGaussianBlurFilter>();
     // filter->SetRadius(128);
-    // effectEngine.Process("../../demo/images/2billion.png", "../../demo/images/2billion_blur.png", filter);
+    // effectEngine.Process("../../demo/images/colorful.png", "../../demo/images/colorful_blur.png", filter);
 
     // const auto filter = std::make_shared<VibranceFilter>();
     // filter->SetVibrance(40);

@@ -20,7 +20,12 @@ class GaussianBlurFilter final : public IFilter {
     std::shared_ptr<ComputeGraph> computeGraph = nullptr;
 
 private:
+    std::shared_ptr<VkGPUContext> gpuCtx = nullptr;
+    VkBuffer weightUniformBuffer = VK_NULL_HANDLE;
+    VkDeviceMemory weightUniformBufferMemory = VK_NULL_HANDLE;
+
     static std::vector<float> CalculateWeights();
+
 public:
     GaussianBlurFilter() = default;
 

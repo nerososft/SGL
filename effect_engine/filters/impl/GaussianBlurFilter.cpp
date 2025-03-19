@@ -38,6 +38,7 @@ VkResult GaussianBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                                    const uint32_t height,
                                    const VkBuffer inputBuffer,
                                    const VkBuffer outputBuffer) {
+    this->gpuCtx = gpuCtx;
     this->blurFilterParams.imageSize.width = width;
     this->blurFilterParams.imageSize.height = height;
     this->blurFilterParams.imageSize.channels = 4;
@@ -58,10 +59,8 @@ VkResult GaussianBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     queueFamilyIndices.push_back(0);
     const VkPhysicalDeviceMemoryProperties memoryProperties = gpuCtx->GetMemoryProperties();
 
-    const std::vector<float> weights = CalculateWeights();
+    std::vector<float> weights = CalculateWeights();
     const VkDeviceSize weightBufferSize = weights.size() * sizeof(float);
-    VkBuffer weightUniformBuffer = VK_NULL_HANDLE;
-    VkDeviceMemory weightUniformBufferMemory = VK_NULL_HANDLE;
     ret = VkGPUHelper::CreateUniformBufferAndUploadData(gpuCtx->GetCurrentDevice(),
                                                         queueFamilyIndices,
                                                         &memoryProperties,
@@ -69,6 +68,8 @@ VkResult GaussianBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                                                         &weightUniformBuffer,
                                                         &weightUniformBufferMemory,
                                                         weights.data());
+    weights.clear();
+    weights.resize(0);
     if (ret != VK_SUCCESS) {
         Logger() << "Failed to create weight uniform buffer and upload data, err ="
                 << string_VkResult(ret)
@@ -162,4 +163,8 @@ VkResult GaussianBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
 }
 
 void GaussianBlurFilter::Destroy() {
+    computeGraph->Destroy();
+    vkUnmapMemory(this->gpuCtx->GetCurrentDevice(), weightUniformBufferMemory);
+    vkFreeMemory(this->gpuCtx->GetCurrentDevice(), weightUniformBufferMemory, nullptr);
+    vkDestroyBuffer(this->gpuCtx->GetCurrentDevice(), weightUniformBuffer, nullptr);
 }
