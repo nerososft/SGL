@@ -77,7 +77,7 @@ bool gray_filter_gpu(void *in, void *out, const float r, const float g, const fl
 }
 
 
-bool colorSeparation_filter_gpu(void *in, void *out, const int roff, const int goff, const int boff) {
+bool color_separation_filter_gpu(void *in, void *out, const int roff, const int goff, const int boff) {
     const auto filter = std::make_shared<ColorSeparationFilter>();
 
     filter->SetRedOffsetX(roff);

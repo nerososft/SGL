@@ -14,27 +14,30 @@
 #include <hilog/log.h>
 #endif
 
+static std::ofstream g_log_file;
+
 class Logger {
 public:
     enum Level { DEBUG, INFO, WARNING, ERROR };
 
+    std::ostringstream *buffer = nullptr;
+
     explicit Logger(const Level lvl = INFO): level(lvl) {
         buffer = new std::ostringstream;
         if constexpr (LOG_TO_FILE) {
-            fileBuffer = new std::ofstream(LOG_FILE_PATH);
-            if (!fileBuffer->is_open()) {
+            g_log_file.open(LOG_FILE_PATH, std::ofstream::out | std::ofstream::app);
+            if (!g_log_file.is_open()) {
                 std::cerr << "Failed to open log file!" << std::endl;
                 return;
             }
-            std::cout.rdbuf(fileBuffer->rdbuf());
+            std::cout.rdbuf(g_log_file.rdbuf());
         }
     }
 
     ~Logger() {
-        if (buffer) {
-            output();
-            delete buffer;
-        }
+        output();
+        delete buffer;
+        g_log_file.flush();
     }
 
     template<typename T>
@@ -55,18 +58,17 @@ public:
     }
 
 private:
-    std::ostringstream *buffer = nullptr;
-    const std::ofstream *fileBuffer = nullptr;
     Level level;
 
     void output() const {
+        if (buffer == nullptr) return;
         if (buffer->tellp() > 0) {
 #ifdef OS_OPEN_HARMONY
             OH_LOG_Print(LOG_APP, LOG_INFO, 0xFF00, "[EffectEngine]", "%{public}s", buffer->str().c_str());
 #else
             std::cout << getLevelStr() << buffer->str();
             if constexpr (LOG_TO_FILE) {
-                std::cout.rdbuf(std::cout.rdbuf());
+                std::cout.rdbuf(g_log_file.rdbuf());
             }
 #endif /* OS_OPEN_HARMONY */
             buffer->str("");

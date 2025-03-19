@@ -10,5 +10,3 @@
    1. 可实现滤镜在线下载
 5. **更好的兼容性（相比于OpenCL,CUDA）**
    1. 基本上GPU都支持vulkan
-
-# 与psutil同级别目录，需解压3rdparty  vulkanSDK ,vs2019直接添加工程即可
