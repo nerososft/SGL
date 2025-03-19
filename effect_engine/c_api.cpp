@@ -1,4 +1,4 @@
-#include "GpuFilterCAPI.h"
+#include "c_api.h"
 #include "effect_engine/EffectEngine.h"
 #include "effect_engine/filters/impl/ColorSeparationFilter.h"
 

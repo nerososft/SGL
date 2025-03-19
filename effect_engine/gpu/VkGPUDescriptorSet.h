@@ -31,6 +31,8 @@ public:
     void UpdateDescriptorSets() const;
 
     void GPUCmdBindDescriptorSets(VkCommandBuffer commandBuffer, VkPipelineBindPoint pipelineBindPoint) const;
+
+    void Destroy() const;
 };
 
 

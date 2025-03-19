@@ -34,6 +34,8 @@ public:
     [[nodiscard]] VkDescriptorSetLayout GetDescriptorSetLayout() const { return this->descriptorSetLayout; }
 
     void GPUCmdBindPipeline(VkCommandBuffer commandBuffer) const;
+
+    void Destroy() const;
 };
 
 
