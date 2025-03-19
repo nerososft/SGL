@@ -17,7 +17,6 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     include_directories("D:/vcpkg_install/vcpkg/installed/x64-windows/include/libpng16")
     link_directories("${VULKAN_SDK_PATH}/Lib/")
     link_directories("D:/vcpkg_install/vcpkg/installed/x64-windows/lib")
-    add_compile_options(/O2 /arch:AVX2 /fp:fast)    # 启用AVX2指令集
 elseif (CMAKE_SYSTEM_NAME MATCHES "OHOS")
     message(STATUS "Running on OH")
     set(OH_SDK_PATH "C:/Huawei/DevEcoStudio/sdk")
