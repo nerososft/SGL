@@ -21,7 +21,7 @@ public:
     enum Level { DEBUG, INFO, WARNING, ERROR };
 
     std::ostringstream *buffer = nullptr;
-
+    std::streambuf* coutBuffer = std::cout.rdbuf();
     explicit Logger(const Level lvl = INFO): level(lvl) {
         buffer = new std::ostringstream;
         if constexpr (LOG_TO_FILE) {
@@ -30,14 +30,15 @@ public:
                 std::cerr << "Failed to open log file!" << std::endl;
                 return;
             }
-            std::cout.rdbuf(g_log_file.rdbuf());
+           std::cout.rdbuf(g_log_file.rdbuf());
         }
     }
 
     ~Logger() {
         output();
+        std::cout.rdbuf(coutBuffer);
         delete buffer;
-        g_log_file.flush();
+        g_log_file.close();
     }
 
     template<typename T>
@@ -66,10 +67,9 @@ private:
 #ifdef OS_OPEN_HARMONY
             OH_LOG_Print(LOG_APP, LOG_INFO, 0xFF00, "[EffectEngine]", "%{public}s", buffer->str().c_str());
 #else
+ 
             std::cout << getLevelStr() << buffer->str();
-            if constexpr (LOG_TO_FILE) {
-                std::cout.rdbuf(g_log_file.rdbuf());
-            }
+
 #endif /* OS_OPEN_HARMONY */
             buffer->str("");
         }
