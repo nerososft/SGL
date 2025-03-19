@@ -7,7 +7,7 @@
 #include <vulkan/vulkan_core.h>
 
 #include "effect_engine/gpu/VkGPUContext.h"
-
+#include <memory>
 typedef struct {
     uint32_t width;
     uint32_t height;

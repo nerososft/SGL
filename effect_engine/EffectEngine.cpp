@@ -146,8 +146,8 @@ void EffectEngine::Process(const char *inputFilePath,
                            const char *outputFilePath,
                            const std::shared_ptr<IFilter> &filter) const {
     uint32_t imageWidth = 0, imageHeight = 0, channels = 0;
-    std::vector<char> inputFileData =
-            ImageUtils::ReadPngFile(inputFilePath, &imageWidth, &imageHeight, &channels);
+    std::vector<char> inputFileData;// =
+            //ImageUtils::ReadPngFile(inputFilePath, &imageWidth, &imageHeight, &channels);
 
     if (inputFileData.empty()) {
         std::cerr << "Failed to read input file!" << std::endl;
@@ -186,7 +186,7 @@ void EffectEngine::Process(const char *inputFilePath,
         return;
     }
 
-    ImageUtils::WritePngFile(outputFilePath, imageWidth, imageHeight, channels, data);
+  //  ImageUtils::WritePngFile(outputFilePath, imageWidth, imageHeight, channels, data);
     vkUnmapMemory(gpuCtx->GetCurrentDevice(), outputStorageBufferMemory);
 
     vkFreeMemory(gpuCtx->GetCurrentDevice(), inputStorageBufferMemory, nullptr);
@@ -201,8 +201,8 @@ void EffectEngine::Process(const char *inputFilePath,
                            const uint32_t newHeight,
                            const std::shared_ptr<IFilter> &filter) const {
     uint32_t imageWidth = 0, imageHeight = 0, channels = 0;
-    std::vector<char> inputFileData =
-            ImageUtils::ReadPngFile(inputFilePath, &imageWidth, &imageHeight, &channels);
+    std::vector<char> inputFileData;// =
+            //ImageUtils::ReadPngFile(inputFilePath, &imageWidth, &imageHeight, &channels);
     if (inputFileData.empty()) {
         std::cerr << "Failed to read input file!" << std::endl;
         return;
@@ -240,7 +240,7 @@ void EffectEngine::Process(const char *inputFilePath,
         return;
     }
 
-    ImageUtils::WritePngFile(outputFilePath, newWidth, newHeight, channels, data);
+    //ImageUtils::WritePngFile(outputFilePath, newWidth, newHeight, channels, data);
     vkUnmapMemory(gpuCtx->GetCurrentDevice(), outputStorageBufferMemory);
 
     vkFreeMemory(gpuCtx->GetCurrentDevice(), inputStorageBufferMemory, nullptr);
@@ -256,8 +256,8 @@ void EffectEngine::Process(const char *baseFilePath,
                            const char *outputFilePath,
                            const std::shared_ptr<IBlender> &blender) const {
     uint32_t baseImageWidth = 0, baseImageHeight = 0, baseImageChannels = 0;
-    std::vector<char> baseImageFileData =
-            ImageUtils::ReadPngFile(baseFilePath, &baseImageWidth, &baseImageHeight, &baseImageChannels);
+    std::vector<char> baseImageFileData;// =
+           // ImageUtils::ReadPngFile(baseFilePath, &baseImageWidth, &baseImageHeight, &baseImageChannels);
     if (baseImageFileData.empty()) {
         std::cerr << "Failed to read input base file!" << std::endl;
         return;
@@ -266,8 +266,8 @@ void EffectEngine::Process(const char *baseFilePath,
             baseImageChannels << std::endl;
 
     uint32_t blendImageWidth = 0, blendImageHeight = 0, blendImageChannels = 0;
-    std::vector<char> blendImageFileData =
-            ImageUtils::ReadPngFile(blendFilePath, &blendImageWidth, &blendImageHeight, &blendImageChannels);
+    std::vector<char> blendImageFileData;// =
+           // ImageUtils::ReadPngFile(blendFilePath, &blendImageWidth, &blendImageHeight, &blendImageChannels);
     if (blendImageFileData.empty()) {
         std::cerr << "Failed to read input blend file!" << std::endl;
         return;
@@ -372,7 +372,7 @@ void EffectEngine::Process(const char *baseFilePath,
     }
 
 
-    ImageUtils::WritePngFile(outputFilePath, baseImageWidth, baseImageHeight, baseImageChannels, data);
+   // ImageUtils::WritePngFile(outputFilePath, baseImageWidth, baseImageHeight, baseImageChannels, data);
     vkUnmapMemory(gpuCtx->GetCurrentDevice(), outputStorageBufferMemory);
 
     vkFreeMemory(gpuCtx->GetCurrentDevice(), baseStorageBufferMemory, nullptr);

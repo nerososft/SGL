@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <fstream>
 #ifdef OS_OPEN_HARMONY
 #include <hilog/log.h>
 #endif
@@ -52,7 +53,22 @@ private:
 #ifdef OS_OPEN_HARMONY
             OH_LOG_Print(LOG_APP, LOG_INFO, 0xFF00, "[EffectEngine]", "%{public}s", buffer->str().c_str());
 #else
+
+            // 创建一个字符串流作为 buffer
+
+            // 打开一个文件用于写入
+            std::ofstream outFile("d://temp//output.txt",std::ios::app);
+            if (!outFile.is_open()) {
+                std::cerr << "Failed to open output file!" << std::endl;
+                return ;
+            }
+            std::cout.rdbuf(outFile.rdbuf());
+            // 保存 std::cout 的原始缓冲区
+            std::streambuf* coutBuffer = std::cout.rdbuf();
+
             std::cout << getLevelStr() << buffer->str();
+            std::cout.rdbuf(coutBuffer);
+
 #endif /* OS_OPEN_HARMONY */
             buffer->str("");
         }
