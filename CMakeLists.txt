@@ -31,6 +31,7 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     include_directories("/usr/local/include")
     link_directories("${VULKAN_SDK_PATH}/macOS/lib/")
     link_directories("/opt/homebrew/lib/")
+    add_compile_options(-fdeclspec)
 endif ()
 
 if (CMAKE_SYSTEM_PROCESSOR MATCHES "arm64")

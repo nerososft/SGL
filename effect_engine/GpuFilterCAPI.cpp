@@ -99,8 +99,6 @@ bool destroy_gpu_engine() {
     return true;
 }
 
-
 bool set_debug_cb(void *dbg) {
-    g_dbg = static_cast<FunctionPtr>(dbg);
     return true;
 }
