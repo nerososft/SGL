@@ -133,4 +133,6 @@ void PipelineComputeGraphNode::Compute(const VkCommandBuffer commandBuffer) {
 }
 
 void PipelineComputeGraphNode::Destroy() {
+    computePipeline->Destroy();
+    pipelineDescriptorSet->Destroy();
 }

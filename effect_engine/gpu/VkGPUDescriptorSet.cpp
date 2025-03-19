@@ -58,3 +58,7 @@ void VkGPUDescriptorSet::GPUCmdBindDescriptorSets(const VkCommandBuffer commandB
                             0,
                             nullptr);
 }
+
+void VkGPUDescriptorSet::Destroy() const {
+    vkFreeDescriptorSets(device, descriptorPool, 1, &descriptorSet);
+}

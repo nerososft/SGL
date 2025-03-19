@@ -24,8 +24,6 @@ VkGPUComputePipeline::VkGPUComputePipeline(const std::string &computeShaderPath,
 }
 
 VkGPUComputePipeline::~VkGPUComputePipeline() {
-    vkDestroyPipeline(device, computePipeline, nullptr);
-    vkDestroyShaderModule(device, computeShaderModule, nullptr);
     vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
     vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
 }
@@ -66,4 +64,10 @@ VkResult VkGPUComputePipeline::CreateComputePipeline(const VkDevice device,
 
 void VkGPUComputePipeline::GPUCmdBindPipeline(const VkCommandBuffer commandBuffer) const {
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, this->computePipeline);
+}
+
+void VkGPUComputePipeline::Destroy() const {
+    vkDestroyPipeline(device, computePipeline, nullptr);
+    vkDestroyShaderModule(device, computeShaderModule, nullptr);
+    vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
 }
