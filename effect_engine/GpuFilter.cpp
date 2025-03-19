@@ -11,11 +11,14 @@
 #include "GpuFilter.h"
 #include "effect_engine/filters/impl/GrayFilter.h"
 #include "effect_engine/filters/impl/OldGaussianBlurFilter.h"
-#include "effect_engine/filters/impl/AverageBlurFilter.h"
+//#include "effect_engine/filters/impl/AverageBlurFilter.h"
 #include "effect_engine/filters/impl/SurfaceBlurFilter.h"
 #include "effect_engine/filters/impl/adjustSaturation.h"
+#include "effect_engine/filters/impl/VibranceFilter.h"
 
 #include "himi.h"
+
+#include "log/Log.h"
 //FunctionPtr g_dbg = nullptr;
 FunctionPtr g_dbg ;
 EffectEngine effectEngine;
@@ -69,20 +72,22 @@ bool surface_blur_filter_gpu(void* in, void* out, int r, int th) {
 
 //Æ½¾ùÄ£ºý
 bool average_blur_filter_gpu(void* in, void* out) {
-    const auto filter = std::make_shared<AverageBlurFilter>();
+ //   const auto filter = std::make_shared<AverageBlurFilter>();
 
-    ImageInfo* input = (ImageInfo*)in;
-    ImageInfo* output = (ImageInfo*)out;
+ //   ImageInfo* input = (ImageInfo*)in;
+ //   ImageInfo* output = (ImageInfo*)out;
 
-    effectEngine.Process(*input, *output, filter);
+  //  effectEngine.Process(*input, *output, filter);
     return true;
 
 }
 
 bool adjust_saturation_gpu(void* in, void* out , int v, int s)
 {
-    
+    Logger() << "hw adjust_saturation_gpu "   <<
+        std::endl;
     const auto filter = std::make_shared<adjustSaturationFilter>();
+  // const auto filter = std::make_shared<VibranceFilter>();
 
     filter->SetVibrance(v);
     filter->SetSaturation(s);
