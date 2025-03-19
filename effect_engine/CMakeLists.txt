@@ -13,8 +13,8 @@ endif ()
 add_library(gpu_effect_engine SHARED
         EffectEngine.cpp
         EffectEngine.h
-        GpuFilterCAPI.cpp
-        GpuFilterCAPI.h
+        c_api.cpp
+        c_api.h
         filters/BasicFilter.cpp
         filters/BasicFilter.h
         filters/impl/GrayFilter.cpp
