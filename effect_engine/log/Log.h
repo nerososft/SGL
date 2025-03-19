@@ -26,7 +26,6 @@ public:
         buffer = new std::ostringstream;
         if constexpr (LOG_TO_FILE) {
             if (g_log_file.is_open()) {
-                std::cout.rdbuf(g_log_file.rdbuf());
                 return;
             }
             g_log_file.open(LOG_FILE_PATH, std::ofstream::out | std::ofstream::app);
@@ -34,6 +33,7 @@ public:
                 std::cerr << "Failed to open log file!" << std::endl;
                 return;
             }
+            std::cout.rdbuf(g_log_file.rdbuf());
         }
     }
 
@@ -73,9 +73,6 @@ private:
                 std::cerr << getLevelStr() << buffer->str();
             } else {
                 std::cout << getLevelStr() << buffer->str();
-            }
-            if constexpr (LOG_TO_FILE) {
-                std::cout.rdbuf(g_log_file.rdbuf());
             }
 #endif /* OS_OPEN_HARMONY */
             buffer->str("");
