@@ -25,12 +25,15 @@ public:
     explicit Logger(const Level lvl = INFO): level(lvl) {
         buffer = new std::ostringstream;
         if constexpr (LOG_TO_FILE) {
+            if (g_log_file.is_open()) {
+                std::cout.rdbuf(g_log_file.rdbuf());
+                return;
+            }
             g_log_file.open(LOG_FILE_PATH, std::ofstream::out | std::ofstream::app);
             if (!g_log_file.is_open()) {
                 std::cerr << "Failed to open log file!" << std::endl;
                 return;
             }
-            std::cout.rdbuf(g_log_file.rdbuf());
         }
     }
 
