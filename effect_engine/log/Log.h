@@ -66,7 +66,11 @@ private:
 #ifdef OS_OPEN_HARMONY
             OH_LOG_Print(LOG_APP, LOG_INFO, 0xFF00, "[EffectEngine]", "%{public}s", buffer->str().c_str());
 #else
-            std::cout << getLevelStr() << buffer->str();
+            if (level == ERROR) {
+                std::cerr << getLevelStr() << buffer->str();
+            } else {
+                std::cout << getLevelStr() << buffer->str();
+            }
             if constexpr (LOG_TO_FILE) {
                 std::cout.rdbuf(g_log_file.rdbuf());
             }
