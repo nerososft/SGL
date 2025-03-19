@@ -18,6 +18,7 @@
 #include "effect_engine/filters/impl/FocusBlurFilter.h"
 #include "effect_engine/filters/impl/GaussianBlurFilter.h"
 #include "effect_engine/filters/impl/GrayFilter.h"
+#include "effect_engine/filters/impl/NES8BitMosaicFilter.h"
 #include "effect_engine/filters/impl/PaletteKnifeFilter.h"
 #include "effect_engine/filters/impl/ScaleFilter.h"
 #include "effect_engine/filters/impl/SurfaceBlurFilter.h"
@@ -140,10 +141,14 @@ int main(int argc, char *argv[]) {
     // filter->SetSaturation(50);
     // effectEngine.Process("../../demo/images/colorful.png", "../../demo/images/colorful_vibrance.png", filter);
 
-    const auto filter = std::make_shared<PaletteKnifeFilter>();
-    filter->SetRadius(40);
-    filter->SetQuantScale(10);
-    effectEngine.Process("../../demo/images/colorful.png", "../../demo/images/colorful_palette_knife.png", filter);
+    // const auto filter = std::make_shared<PaletteKnifeFilter>();
+    // filter->SetRadius(10);
+    // filter->SetQuantScale(5);
+    // effectEngine.Process("../../demo/images/colorful.png", "../../demo/images/colorful_palette_knife.png", filter);
+
+    const auto filter = std::make_shared<NES8BitMosaicFilter>();
+    filter->SetBlockSize(64);
+    effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_8bit.png", filter);
 
     // getchar();
     return 0;
