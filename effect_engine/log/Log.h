@@ -20,14 +20,11 @@ class Logger {
 public:
     enum Level { DEBUG, INFO, WARNING, ERROR };
 
-    std::ostringstream *buffer = nullptr;
+    std::ostringstream* buffer = nullptr;
     std::streambuf* coutBuffer = std::cout.rdbuf();
-    explicit Logger(const Level lvl = INFO): level(lvl) {
+    explicit Logger(const Level lvl = INFO) : level(lvl) {
         buffer = new std::ostringstream;
         if constexpr (LOG_TO_FILE) {
-            if (g_log_file.is_open()) {
-                return;
-            }
             g_log_file.open(LOG_FILE_PATH, std::ofstream::out | std::ofstream::app);
             if (!g_log_file.is_open()) {
                 std::cerr << "Failed to open log file!" << std::endl;
@@ -45,17 +42,17 @@ public:
     }
 
     template<typename T>
-    Logger &operator<<(const T &msg) {
+    Logger& operator<<(const T& msg) {
         if (buffer) *buffer << msg;
         return *this;
     }
 
-    Logger &operator<<(std::ostream & (*manip)(std::ostream &)) {
+    Logger& operator<<(std::ostream& (*manip)(std::ostream&)) {
         if (buffer) manip(*buffer);
         return *this;
     }
 
-    Logger &operator<<(const Level lvl) {
+    Logger& operator<<(const Level lvl) {
         output();
         level = lvl;
         return *this;
@@ -70,18 +67,16 @@ private:
 #ifdef OS_OPEN_HARMONY
             OH_LOG_Print(LOG_APP, LOG_INFO, 0xFF00, "[EffectEngine]", "%{public}s", buffer->str().c_str());
 #else
-            if (level == ERROR) {
-                std::cerr << getLevelStr() << buffer->str();
-            } else {
-                std::cout << getLevelStr() << buffer->str();
-            }
+
+            std::cout << getLevelStr() << buffer->str();
+
 #endif /* OS_OPEN_HARMONY */
             buffer->str("");
         }
     }
 
-    [[nodiscard]] const char *getLevelStr() const {
-        static const char *levels[] = {"[DEBUG] ", "[INFO] ", "[WARN] ", "[ERROR] "};
+    [[nodiscard]] const char* getLevelStr() const {
+        static const char* levels[] = { "[DEBUG] ", "[INFO] ", "[WARN] ", "[ERROR] " };
         return levels[level];
     }
 };
