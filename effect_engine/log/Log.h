@@ -25,6 +25,10 @@ public:
     explicit Logger(const Level lvl = INFO): level(lvl) {
         buffer = new std::ostringstream;
         if constexpr (LOG_TO_FILE) {
+            if (g_log_file.is_open()) {
+                std::cout.rdbuf(g_log_file.rdbuf());
+                return;
+            }
             g_log_file.open(LOG_FILE_PATH, std::ofstream::out | std::ofstream::app);
             if (!g_log_file.is_open()) {
                 std::cerr << "Failed to open log file!" << std::endl;
@@ -67,9 +71,14 @@ private:
 #ifdef OS_OPEN_HARMONY
             OH_LOG_Print(LOG_APP, LOG_INFO, 0xFF00, "[EffectEngine]", "%{public}s", buffer->str().c_str());
 #else
- 
-            std::cout << getLevelStr() << buffer->str();
-
+            if (level == ERROR) {
+                std::cerr << getLevelStr() << buffer->str();
+            } else {
+                std::cout << getLevelStr() << buffer->str();
+            }
+            if constexpr (LOG_TO_FILE) {
+                std::cout.rdbuf(g_log_file.rdbuf());
+            }
 #endif /* OS_OPEN_HARMONY */
             buffer->str("");
         }
