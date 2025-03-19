@@ -7,11 +7,11 @@
 #include "effect_engine/config.h"
 
 VkResult VibranceFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                               VkDeviceSize bufferSize,
-                               uint32_t width,
-                               uint32_t height,
-                               VkBuffer inputBuffer,
-                               VkBuffer outputBuffer) {
+                               const VkDeviceSize bufferSize,
+                               const uint32_t width,
+                               const uint32_t height,
+                               const VkBuffer inputBuffer,
+                               const VkBuffer outputBuffer) {
     BasicFilterParams params;
     this->vibranceFilterParams.imageSize.width = width;
     this->vibranceFilterParams.imageSize.height = height;
