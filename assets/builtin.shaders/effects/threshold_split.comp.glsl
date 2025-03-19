@@ -44,10 +44,7 @@ void main() {
         return;
     }
 
-
-
-
-	uint index = coord.y * (filterParams.bytesPerLine / 4) + coord.x;
+    uint index = coord.y * (filterParams.bytesPerLine / 4) + coord.x;
     vec4 color = unpackColor(inputImage.pixels[index]);
     // 计算灰度值
     float gray = 0.2989 * color.r + 0.5870 * color.g + 0.1140 * color.b;

@@ -2,7 +2,6 @@
 mkdir build_os
 cd build_os
 
-
 cmake .. -DCMAKE_BUILD_TYPE:STRING=Release \
 -DCMAKE_CXX_COMPILER:FILEPATH=D:/OHOS/DevEcoStudio/sdk/default/openharmony/native/llvm/bin/clang.exe \
 -DCMAKE_C_COMPILER:FILEPATH=D:/OHOS/DevEcoStudio/sdk/default/openharmony/native/llvm/bin/clang++.exe \

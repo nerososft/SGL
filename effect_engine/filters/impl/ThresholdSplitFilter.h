@@ -9,18 +9,18 @@
 #include "effect_engine/filters/BasicFilter.h"
 #include "effect_engine/gpu/VkGPUContext.h"
 
-struct thresholdSplitFilterParams {
+struct ThresholdSplitFilterParams {
     BasicFilterParam imageSize;
     int bright;
 };
 
-class thresholdSplitFilter final : public BasicFilter {
-    thresholdSplitFilterParams grayFilterParams{};
+class ThresholdSplitFilter final : public BasicFilter {
+    ThresholdSplitFilterParams thresholdSplitFilterParams{};
 
 public:
-    thresholdSplitFilter() = default;
+    ThresholdSplitFilter() = default;
 
-    ~thresholdSplitFilter() override = default;
+    ~ThresholdSplitFilter() override = default;
 
     VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                    VkDeviceSize bufferSize,
@@ -29,10 +29,10 @@ public:
                    VkBuffer inputBuffer,
                    VkBuffer outputBuffer) override;
 
-    void SetBright(const int bright) { this->grayFilterParams.bright = bright; }
+    void SetBright(const int bright) { this->thresholdSplitFilterParams.bright = bright; }
 
     void Destroy() override;
 };
 
 
-#endif //GRAYFILTER_H
+#endif //THREADHOLDFILTER
