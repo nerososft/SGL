@@ -15,7 +15,8 @@ layout (push_constant) uniform FilterParams {
     uint height;
     uint channels;
     uint bytesPerLine;
-    // TODO: filter params
+    float vibrance;
+    float saturation;
 } filterParams;
 
 // ABGR
