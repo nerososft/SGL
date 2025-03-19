@@ -82,7 +82,7 @@ void main() {
     finalColor = unpackColor(color);
 
     if (filterParams.enableEdge > 0) {
-        float edge = smoothstep(0.0, 0.3, minDist); // 调整后的边缘阈值
+        float edge = smoothstep(0.0, 0.1, minDist); // 调整后的边缘阈值
         finalColor.rgb *= edge;
     }
 

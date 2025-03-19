@@ -158,8 +158,8 @@ int main(int argc, char *argv[]) {
 
     const auto filter = std::make_shared<VoronoiFilter>();
     filter->SetGridSize(100);
-    filter->SetEnableEdge(false);
-    effectEngine.Process("../../demo/images/colorful.png", "../../demo/images/colorful_voronoi.png", filter);
+    filter->SetEnableEdge(true);
+    effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_voronoi.png", filter);
 
     // getchar();
     return 0;
