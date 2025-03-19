@@ -10,6 +10,10 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     include_directories("/opt/homebrew/Cellar/libpng/1.6.47/include")
 endif ()
 
+if (CMAKE_SYSTEM_PROCESSOR MATCHES "arm64")
+    add_compile_options(-O3 -march=armv8-a+simd+fp+crc+crypto --save-temps)
+endif ()
+
 add_library(gpu_effect_engine SHARED
         EffectEngine.cpp
         EffectEngine.h

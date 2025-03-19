@@ -4,6 +4,8 @@ project(gpu_effect_engine)
 set(CMAKE_CXX_STANDARD 20)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
+message(STATUS "${CMAKE_SYSTEM_NAME}/${CMAKE_SYSTEM_PROCESSOR}")
+
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     message(STATUS "Running on Linux")
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Windows")
@@ -15,7 +17,7 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     include_directories("D:/vcpkg_install/vcpkg/installed/x64-windows/include/libpng16")
     link_directories("${VULKAN_SDK_PATH}/Lib/")
     link_directories("D:/vcpkg_install/vcpkg/installed/x64-windows/lib")
-    message(STATUS "Running on Windows")
+    add_compile_options(/O2 /arch:AVX2 /fp:fast)    # 启用AVX2指令集
 elseif (CMAKE_SYSTEM_NAME MATCHES "OHOS")
     message(STATUS "Running on OH")
     set(OH_SDK_PATH "C:/Huawei/DevEcoStudio/sdk")
@@ -28,6 +30,10 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     include_directories("/usr/local/include")
     link_directories("${VULKAN_SDK_PATH}/macOS/lib/")
     link_directories("/opt/homebrew/lib/")
+endif ()
+
+if (CMAKE_SYSTEM_PROCESSOR MATCHES "arm64")
+    add_compile_options(-O3 -march=armv8-a+simd+fp+crc+crypto --save-temps)
 endif ()
 
 # compile builtin shaders
