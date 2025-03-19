@@ -9,6 +9,7 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
+#include <effect_engine/config.h>
 #ifdef OS_OPEN_HARMONY
 #include <hilog/log.h>
 #endif
@@ -17,7 +18,16 @@ class Logger {
 public:
     enum Level { DEBUG, INFO, WARNING, ERROR };
 
-    explicit Logger(const Level lvl = INFO) : buffer(new std::ostringstream), level(lvl) {
+    explicit Logger(const Level lvl = INFO): level(lvl) {
+        buffer = new std::ostringstream;
+        if constexpr (LOG_TO_FILE) {
+            fileBuffer = new std::ofstream(LOG_FILE_PATH);
+            if (!fileBuffer->is_open()) {
+                std::cerr << "Failed to open log file!" << std::endl;
+                return;
+            }
+            std::cout.rdbuf(fileBuffer->rdbuf());
+        }
     }
 
     ~Logger() {
@@ -45,7 +55,8 @@ public:
     }
 
 private:
-    std::ostringstream *buffer;
+    std::ostringstream *buffer = nullptr;
+    const std::ofstream *fileBuffer = nullptr;
     Level level;
 
     void output() const {
@@ -53,22 +64,10 @@ private:
 #ifdef OS_OPEN_HARMONY
             OH_LOG_Print(LOG_APP, LOG_INFO, 0xFF00, "[EffectEngine]", "%{public}s", buffer->str().c_str());
 #else
-
-            // 创建一个字符串流作为 buffer
-
-            // 打开一个文件用于写入
-            std::ofstream outFile("d://temp//output.txt",std::ios::app);
-            if (!outFile.is_open()) {
-                std::cerr << "Failed to open output file!" << std::endl;
-                return ;
-            }
-            std::cout.rdbuf(outFile.rdbuf());
-            // 保存 std::cout 的原始缓冲区
-            std::streambuf* coutBuffer = std::cout.rdbuf();
-
             std::cout << getLevelStr() << buffer->str();
-            std::cout.rdbuf(coutBuffer);
-
+            if constexpr (LOG_TO_FILE) {
+                std::cout.rdbuf(std::cout.rdbuf());
+            }
 #endif /* OS_OPEN_HARMONY */
             buffer->str("");
         }
