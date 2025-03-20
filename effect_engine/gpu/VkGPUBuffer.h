@@ -19,16 +19,16 @@ class VkGPUBuffer {
     VkDeviceMemory bufferMemory = VK_NULL_HANDLE;
     void *data = nullptr;
 
-    VkResult MapBuffer(VkDeviceSize size);
-
-    void UnMapBuffer() const;
-
 public:
     explicit VkGPUBuffer(const std::shared_ptr<VkGPUContext> &gpuCtx);
 
     ~VkGPUBuffer();
 
     VkResult AllocateAndBind(VkGPUBufferType type, VkDeviceSize size);
+
+    VkResult MapBuffer(VkDeviceSize size);
+
+    void UnMapBuffer() const;
 
     VkResult UploadData(const void *uploadData, VkDeviceSize size);
 
@@ -37,6 +37,8 @@ public:
     void Destroy() const;
 
     VkBuffer GetBuffer() const { return buffer; }
+
+    void *GetMappedAddr() const { return data; }
 };
 
 #endif //VKGPUBUFFER_H

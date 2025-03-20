@@ -36,7 +36,7 @@ PipelineComputeGraphNode::PipelineComputeGraphNode(const std::shared_ptr<VkGPUCo
 
 VkResult PipelineComputeGraphNode::CreateComputeGraphNode() {
     if (gpuCtx == nullptr) {
-        std::cerr << "gpuCtx is null" << std::endl;
+        Logger() << "gpuCtx is null" << std::endl;
         return VK_ERROR_INITIALIZATION_FAILED;
     }
     const std::string computeShaderPath = shaderPath;

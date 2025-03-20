@@ -32,7 +32,7 @@ void VkGPUContext::AddInstanceEnableExtension(const char *extensionName) {
 
 void VkGPUContext::SelectCPU(const uint32_t gpuIndex) {
     if (gpuIndex >= this->physicalDeviceNums) {
-        std::cerr << "GPU index " << gpuIndex << " is out of bounds" << std::endl;
+        Logger() << "GPU index " << gpuIndex << " is out of bounds" << std::endl;
         return;
     }
     this->selectedGPUIndex = gpuIndex;
@@ -42,7 +42,7 @@ void VkGPUContext::SelectCPU(const uint32_t gpuIndex) {
 VkResult VkGPUContext::CreateDevice(const std::vector<const char *> &deviceEnableLayers,
                                     std::vector<const char *> deviceEnableExtensions) {
     if (this->physicalDevice == VK_NULL_HANDLE) {
-        std::cerr << "Current physical device is not selected" << std::endl;
+        Logger() << "Current physical device is not selected" << std::endl;
         return VK_ERROR_INITIALIZATION_FAILED;
     }
 

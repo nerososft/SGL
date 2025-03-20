@@ -374,7 +374,7 @@ VkResult VkGPUHelper::CreateDescriptorSetLayout(const VkDevice device,
                                                      nullptr,
                                                      descriptorSetLayout);
     if (ret != VK_SUCCESS) {
-        std::cerr << "failed to create descriptor set layout, err=" << string_VkResult(ret) << std::endl;
+        Logger() << "failed to create descriptor set layout, err=" << string_VkResult(ret) << std::endl;
         return ret;
     }
     return ret;
