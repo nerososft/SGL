@@ -61,13 +61,9 @@ VkResult GaussianBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
 
     std::vector<float> weights = CalculateWeights();
     const VkDeviceSize weightBufferSize = weights.size() * sizeof(float);
-    ret = VkGPUHelper::CreateUniformBufferAndUploadData(gpuCtx->GetCurrentDevice(),
-                                                        queueFamilyIndices,
-                                                        &memoryProperties,
-                                                        weightBufferSize,
-                                                        &weightUniformBuffer,
-                                                        &weightUniformBufferMemory,
-                                                        weights.data());
+    weightBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
+    weightBuffer->AllocateAndBind(GPU_BUFFER_TYPE_UNIFORM, weightBufferSize);
+    weightBuffer->UploadData(weights.data(), weightBufferSize);
     weights.clear();
     weights.resize(0);
     if (ret != VK_SUCCESS) {
@@ -79,9 +75,8 @@ VkResult GaussianBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
 
     PipelineNodeBuffer pipelineNodeWeightInput;
     pipelineNodeWeightInput.type = PIPELINE_NODE_BUFFER_UNIFORM;
-    pipelineNodeWeightInput.buffer = weightUniformBuffer;
+    pipelineNodeWeightInput.buffer = weightBuffer->GetBuffer();
     pipelineNodeWeightInput.bufferSize = weightBufferSize;
-
 
     PipelineNodeBuffer vPipelineNodeInput;
     vPipelineNodeInput.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
@@ -164,7 +159,5 @@ VkResult GaussianBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
 
 void GaussianBlurFilter::Destroy() {
     computeGraph->Destroy();
-    vkUnmapMemory(this->gpuCtx->GetCurrentDevice(), weightUniformBufferMemory);
-    vkFreeMemory(this->gpuCtx->GetCurrentDevice(), weightUniformBufferMemory, nullptr);
-    vkDestroyBuffer(this->gpuCtx->GetCurrentDevice(), weightUniformBuffer, nullptr);
+    weightBuffer->Destroy();
 }
