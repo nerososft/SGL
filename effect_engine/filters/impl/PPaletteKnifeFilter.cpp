@@ -105,7 +105,7 @@ VkResult PPaletteKnifeFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     }
 
 
-    if (1) {
+    if (0) {
     
     
         computeGraph->AddComputeGraphNode(gaussianVerticalNode);

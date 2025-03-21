@@ -5,7 +5,7 @@
 #ifndef VKGPUBUFFER_H
 #define VKGPUBUFFER_H
 #include "VkGPUContext.h"
-
+#include <memory>
 typedef enum {
     GPU_BUFFER_TYPE_UNIFORM,
     GPU_BUFFER_TYPE_STORAGE_LOCAL,

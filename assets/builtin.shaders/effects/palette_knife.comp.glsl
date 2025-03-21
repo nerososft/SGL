@@ -51,7 +51,7 @@ void main() {
     }
 
     uint index = coord.y * (filterParams.bytesPerLine / 4) + coord.x;
-    vec4 color ;//= unpackColor(inputImage.pixels[index]);
+    vec4 color = unpackColor(inputImage.pixels[index]);
 
     int histSize = 1000;
     int hist[1000];
