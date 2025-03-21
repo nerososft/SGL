@@ -17,17 +17,20 @@
       {
         "name": "inputBuffer",
         "type": "GPU_BUFFER_TYPE_STORAGE_SHARED",
-        "size": "IMAGE_SIZE"
+        "size": "IMAGE_SIZE",
+        "data": ""
       },
       {
         "name": "qBuffer",
         "type": "GPU_BUFFER_TYPE_STORAGE_LOCAL",
-        "size": "IMAGE_SIZE"
+        "size": "IMAGE_SIZE",
+        "data": ""
       },
       {
         "name": "outputBuffer",
         "type": "GPU_BUFFER_TYPE_STORAGE_SHARED",
-        "size": "IMAGE_SIZE"
+        "size": "IMAGE_SIZE",
+        "data": ""
       }
     ],
     "nodes": [
