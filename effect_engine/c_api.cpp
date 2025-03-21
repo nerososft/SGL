@@ -7,6 +7,8 @@
 #include "effect_engine/filters/impl/SurfaceBlurFilter.h"
 #include "effect_engine/filters/impl/VibranceFilter.h"
 #include "effect_engine/filters/impl/ThresholdSplitFilter.h"
+#include "effect_engine/filters/impl/PaletteKnifeFilter.h"
+#include "effect_engine/filters/impl/PPaletteKnifeFilter.h"
 
 #include "log/Log.h"
 
@@ -56,6 +58,22 @@ bool adjust_saturation_gpu(void *in, void *out, const int v, const int s) {
 
     const auto *input = static_cast<ImageInfo *>(in);
     const auto *output = static_cast<ImageInfo *>(out);
+
+    g_effect_engine.Process(*input, *output, filter);
+
+    return true;
+}
+
+bool palette_knife_gpu(void* in, void* out, int r, int s)
+{
+
+    const auto filter = std::make_shared<PPaletteKnifeFilter>();
+    filter->SetRadius(r);
+    filter->SetQuantScale(s);
+
+
+    const auto* input = static_cast<ImageInfo*>(in);
+    const auto* output = static_cast<ImageInfo*>(out);
 
     g_effect_engine.Process(*input, *output, filter);
 

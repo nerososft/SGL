@@ -6,7 +6,11 @@ layout (std430, binding = 0) buffer InputImageStorageBuffer {
     uint pixels[];
 } inputImage;
 
-layout (std430, binding = 1) buffer OutputImageStorageBuffer {
+layout (std430, binding = 1) buffer QImageStorageBuffer {
+    uint pixels[];
+} Q;
+
+layout (std430, binding = 2) buffer OutputImageStorageBuffer {
     uint pixels[];
 } outputImage;
 
@@ -16,7 +20,7 @@ layout (push_constant) uniform FilterParams {
     uint channels;
     uint bytesPerLine;
     int radius;
-    int quantScale;
+    int s1;
 } filterParams;
 
 // ABGR
@@ -28,6 +32,7 @@ uint packColor(vec4 color) {
     (uint(clamp(color.r, 0.0, 1.0) * 255.0)
     );
 }
+
 
 // ABGR
 vec4 unpackColor(uint color) {
@@ -45,48 +50,47 @@ void main() {
         return;
     }
 
-    const int radius = filterParams.radius;
-    const float quantScale = filterParams.quantScale;
-    const int maxBin = 16;
-    const ivec3 quantFactor = ivec3(1, 4, 16);
-    const uint imageSizeX = filterParams.width;
-    const ivec2 imgBound = ivec2(filterParams.width, filterParams.height) - 1;
+    uint index = coord.y * (filterParams.bytesPerLine / 4) + coord.x;
+    vec4 color ;//= unpackColor(inputImage.pixels[index]);
 
-    vec4 histogram[maxBin];
-    for (int i = 0; i < maxBin;) histogram[i++] = vec4(0);
+    int histSize = 1000;
+    int hist[1000];
+    vec3 C[1000];
+    for (int i = 0; i < histSize; ++i) {
+       hist[i] = 0;
+       C[i] = vec3(0.0);
+    }
+   
 
-    float maxCount = 0.0;
-    int dominantBin = 0;
-    ivec2 baseCoord = ivec2(coord);
+   
 
-    for (int dy = -radius; dy <= radius; dy += 2) {
-        ivec2 yCoords = baseCoord.y + ivec2(dy, min(dy + 1, radius));
-        bvec4 yValid = bvec4(yCoords[0] >= 0, yCoords[0] <= imgBound.y, yCoords[1] >= 0, yCoords[1] <= imgBound.y);
+    // 扫描邻域
+    for (int m = -filterParams.radius; m <= filterParams.radius; ++m) {
+        int row = int(coord.y) + m;
+        if (row < 0 || row >= filterParams.height) continue;
 
-        for (int dx = -radius; dx <= radius; ++dx) {
-            int xCoord = baseCoord.x + dx;
-            bvec2 xValid = bvec2(xCoord >= 0, xCoord <= imgBound.x);
+        for (int n = -filterParams.radius; n <= filterParams.radius; ++n) {
+            int col = int(coord.x) + n;
+            if (col < 0 || col >= filterParams.width) continue;
 
-            vec3 colors[2];
-            for (int i = 0; i < 2; ++i) {
-                bool valid = (i == 0) ? (xValid[0] && yValid[0] && yValid[1]) : (xValid[1] && yValid[2] && yValid[3]);
-                uint addr = valid ? (yCoords[i] * imageSizeX + xCoord) : 0;
-                colors[i] = unpackColor(inputImage.pixels[addr]).rgb * vec3(valid);
-            }
-
-            for (int i = 0; i < 2; ++i) {
-                ivec3 quant = ivec3(colors[i] * quantScale);
-                int bin = (quant.r + (quant.g << 2) + (quant.b << 4)) & 15;
-
-                vec4 entry = histogram[bin];
-                entry.rgb += colors[i];
-                entry.a += 1.0;
-                if (entry.a > maxCount) { maxCount = entry.a; dominantBin = bin; }
-                histogram[bin] = entry;
-            }
+            uint neighborIndex = row * (filterParams.bytesPerLine / 4) + col;
+            uint qVal = Q.pixels[neighborIndex];
+            hist[qVal]++;
+            C[qVal] = unpackColor(inputImage.pixels[neighborIndex]).rgb;
         }
     }
 
-    vec3 result = histogram[dominantBin].rgb / histogram[dominantBin].a;
-    outputImage.pixels[coord.y * imageSizeX + coord.x] = packColor(vec4(result, 1.0));
+    // 找到直方图最大值
+    int maxVal = 0;
+    int maxIdx = 0;
+    for (int i = 1; i < histSize; ++i) {
+        if (hist[i] > maxVal) {
+            maxVal = hist[i];
+            maxIdx = i;
+        }
+    }
+
+    // 设置输出颜色
+    color.rgb = C[maxIdx];
+    outputImage.pixels[index] = packColor(color);
 }
