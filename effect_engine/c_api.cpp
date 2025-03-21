@@ -12,7 +12,7 @@
 
 FunctionPtr g_dbg = nullptr;
 EffectEngine g_effect_engine;
-
+bool g_effect_engine_inited = false;
 
 bool threshold_split_filter_gpu(void *in, void *out, const int bright) {
     const auto filter = std::make_shared<ThresholdSplitFilter>();
@@ -92,7 +92,10 @@ bool color_separation_filter_gpu(void *in, void *out, const int roff, const int 
 
 
 bool init_gpu_engine() {
-    return g_effect_engine.Init();
+    if (!g_effect_engine_inited) {
+        g_effect_engine_inited = g_effect_engine.Init();
+    }
+    return g_effect_engine_inited;
 }
 
 bool destroy_gpu_engine() {
