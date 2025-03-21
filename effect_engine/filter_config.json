@@ -16,17 +16,17 @@
     "buffers": [
       {
         "name": "inputBuffer",
-        "type": "StorageBuffer",
+        "type": "GPU_BUFFER_TYPE_STORAGE_SHARED",
         "size": "imageSize"
       },
       {
         "name": "qBuffer",
-        "type": "StorageBuffer",
+        "type": "GPU_BUFFER_TYPE_STORAGE_LOCAL",
         "size": "imageSize"
       },
       {
         "name": "outputBuffer",
-        "type": "StorageBuffer",
+        "type": "GPU_BUFFER_TYPE_STORAGE_SHARED",
         "size": "imageSize"
       }
     ],
