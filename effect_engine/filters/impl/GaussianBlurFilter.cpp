@@ -38,6 +38,7 @@ VkResult GaussianBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                                    const uint32_t height,
                                    const VkBuffer inputBuffer,
                                    const VkBuffer outputBuffer) {
+    this->gpuCtx = gpuCtx;
     this->blurFilterParams.imageSize.width = width;
     this->blurFilterParams.imageSize.height = height;
     this->blurFilterParams.imageSize.channels = 4;
@@ -54,33 +55,18 @@ VkResult GaussianBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     pushConstantInfo.size = sizeof(GaussianBlurFilterParams);
     pushConstantInfo.data = &this->blurFilterParams;
 
-    std::vector<uint32_t> queueFamilyIndices;
-    queueFamilyIndices.push_back(0);
-    const VkPhysicalDeviceMemoryProperties memoryProperties = gpuCtx->GetMemoryProperties();
-
-    const std::vector<float> weights = CalculateWeights();
+    std::vector<float> weights = CalculateWeights();
     const VkDeviceSize weightBufferSize = weights.size() * sizeof(float);
-    VkBuffer weightUniformBuffer = VK_NULL_HANDLE;
-    VkDeviceMemory weightUniformBufferMemory = VK_NULL_HANDLE;
-    ret = VkGPUHelper::CreateUniformBufferAndUploadData(gpuCtx->GetCurrentDevice(),
-                                                        queueFamilyIndices,
-                                                        &memoryProperties,
-                                                        weightBufferSize,
-                                                        &weightUniformBuffer,
-                                                        &weightUniformBufferMemory,
-                                                        weights.data());
-    if (ret != VK_SUCCESS) {
-        Logger() << "Failed to create weight uniform buffer and upload data, err ="
-                << string_VkResult(ret)
-                << std::endl;
-        return ret;
-    }
+    weightBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
+    weightBuffer->AllocateAndBind(GPU_BUFFER_TYPE_UNIFORM, weightBufferSize);
+    weightBuffer->UploadData(weights.data(), weightBufferSize);
+    weights.clear();
+    weights.resize(0);
 
     PipelineNodeBuffer pipelineNodeWeightInput;
     pipelineNodeWeightInput.type = PIPELINE_NODE_BUFFER_UNIFORM;
-    pipelineNodeWeightInput.buffer = weightUniformBuffer;
+    pipelineNodeWeightInput.buffer = weightBuffer->GetBuffer();
     pipelineNodeWeightInput.bufferSize = weightBufferSize;
-
 
     PipelineNodeBuffer vPipelineNodeInput;
     vPipelineNodeInput.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
@@ -162,4 +148,6 @@ VkResult GaussianBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
 }
 
 void GaussianBlurFilter::Destroy() {
+    computeGraph->Destroy();
+    weightBuffer->Destroy();
 }

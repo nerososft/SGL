@@ -21,7 +21,7 @@ typedef struct {
 void png_read_func(png_structp png, png_bytep outBuffer, size_t bufferToRead) {
     auto *buf = static_cast<PngReadBuf *>(png_get_io_ptr(png));
     if (buf->offset + bufferToRead > buf->size) {
-        std::cerr << "png_read_func: out of buffer" << std::endl;
+        Logger() << "png_read_func: out of buffer" << std::endl;
         return;
     }
     memcpy(outBuffer, buf->data + buf->offset, bufferToRead);
@@ -31,12 +31,12 @@ void png_read_func(png_structp png, png_bytep outBuffer, size_t bufferToRead) {
 void png_write_func(png_structp png, png_bytep inBuffer, size_t bufferToWrite) {
     auto *ofs = static_cast<std::ofstream *>(png_get_io_ptr(png));
     if (!ofs->good()) {
-        std::cerr << "png_write_func: bad ofstream" << std::endl;
+        Logger() << "png_write_func: bad ofstream" << std::endl;
         return;
     }
     ofs->write(reinterpret_cast<char *>(inBuffer), bufferToWrite);
     if (!ofs->good()) {
-        std::cerr << "png_write_func: bad ofstream" << std::endl;
+        Logger() << "png_write_func: bad ofstream" << std::endl;
     }
 }
 
@@ -58,7 +58,7 @@ std::vector<char> ImageUtils::ReadPngFile(const std::string &fileName,
     std::ifstream file;
     file.open(fileName, std::ios::binary | std::ios::in | std::ios::ate);
     if (!file.is_open()) {
-        std::cerr << "Failed to open file " << fileName << std::endl;
+        Logger() << "Failed to open file " << fileName << std::endl;
         return data;
     }
 
@@ -70,12 +70,12 @@ std::vector<char> ImageUtils::ReadPngFile(const std::string &fileName,
 
     png_structp png = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
     if (!png) {
-        std::cerr << "Failed to create png struct" << std::endl;
+        Logger() << "Failed to create png struct" << std::endl;
         return data;
     }
     const png_infop info = png_create_info_struct(png);
     if (!info) {
-        std::cerr << "Failed to create png info" << std::endl;
+        Logger() << "Failed to create png info" << std::endl;
         png_destroy_read_struct(&png, nullptr, nullptr);
         return data;
     }
@@ -124,7 +124,7 @@ std::vector<char> ImageUtils::ReadPngFile(const std::string &fileName,
     for (size_t row = 0; row < *imageHeight; row++) {
         auto *rowPixels = static_cast<unsigned char *>(malloc(rowBytes));
         if (rowPixels == nullptr) {
-            std::cerr << "Failed to allocate row pointer" << std::endl;
+            Logger() << "Failed to allocate row pointer" << std::endl;
             png_destroy_read_struct(&png, nullptr, nullptr);
             return data;
         }
@@ -149,12 +149,12 @@ void ImageUtils::WritePngFile(const std::string &fileName,
     const uint64_t pngWriteStart = TimeUtils::GetCurrentMonoMs();
     png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
     if (!png) {
-        std::cerr << "Failed to create png struct" << std::endl;
+        Logger() << "Failed to create png struct" << std::endl;
         return;
     }
     png_infop info = png_create_info_struct(png);
     if (!info) {
-        std::cerr << "Failed to create png info" << std::endl;
+        Logger() << "Failed to create png info" << std::endl;
         png_destroy_write_struct(&png, nullptr);
         return;
     }
@@ -166,7 +166,7 @@ void ImageUtils::WritePngFile(const std::string &fileName,
     std::ofstream file;
     file.open(fileName, std::ios::binary | std::ios::out | std::ios::app);
     if (!file.is_open()) {
-        std::cerr << "Failed to open file " << fileName << std::endl;
+        Logger() << "Failed to open file " << fileName << std::endl;
         png_destroy_write_struct(&png, &info);
         return;
     }

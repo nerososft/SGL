@@ -18,10 +18,13 @@
 #include "effect_engine/filters/impl/FocusBlurFilter.h"
 #include "effect_engine/filters/impl/GaussianBlurFilter.h"
 #include "effect_engine/filters/impl/GrayFilter.h"
+#include "effect_engine/filters/impl/NES8BitMosaicFilter.h"
 #include "effect_engine/filters/impl/PaletteKnifeFilter.h"
 #include "effect_engine/filters/impl/ScaleFilter.h"
 #include "effect_engine/filters/impl/SurfaceBlurFilter.h"
+#include "effect_engine/filters/impl/ThresholdSplitFilter.h"
 #include "effect_engine/filters/impl/VibranceFilter.h"
+#include "effect_engine/filters/impl/VoronoiFilter.h"
 #include "effect_engine/log/Log.h"
 
 int main(int argc, char *argv[]) {
@@ -133,17 +136,30 @@ int main(int argc, char *argv[]) {
 
     // const auto filter = std::make_shared<OldGaussianBlurFilter>();
     // filter->SetRadius(128);
-    // effectEngine.Process("../../demo/images/2billion.png", "../../demo/images/2billion_blur.png", filter);
+    // effectEngine.Process("../../demo/images/colorful.png", "../../demo/images/colorful_blur.png", filter);
 
     // const auto filter = std::make_shared<VibranceFilter>();
     // filter->SetVibrance(40);
     // filter->SetSaturation(50);
     // effectEngine.Process("../../demo/images/colorful.png", "../../demo/images/colorful_vibrance.png", filter);
 
-    const auto filter = std::make_shared<PaletteKnifeFilter>();
-    filter->SetRadius(40);
-    filter->SetQuantScale(10);
-    effectEngine.Process("../../demo/images/colorful.png", "../../demo/images/colorful_palette_knife.png", filter);
+    // const auto filter = std::make_shared<PaletteKnifeFilter>();
+    // filter->SetRadius(10);
+    // filter->SetQuantScale(5);
+    // effectEngine.Process("../../demo/images/colorful.png", "../../demo/images/colorful_palette_knife.png", filter);
+
+    // const auto filter = std::make_shared<NES8BitMosaicFilter>();
+    // filter->SetBlockSize(64);
+    // effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_8bit.png", filter);
+
+    // const auto filter = std::make_shared<ThresholdSplitFilter>();
+    // filter->SetBright(10);
+    // effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_threshold.png", filter);
+
+    const auto filter = std::make_shared<VoronoiFilter>();
+    filter->SetGridSize(64);
+    filter->SetEnableEdge(true);
+    effectEngine.Process("../../demo/images/colorful.png", "../../demo/images/colorful_voronoi.png", filter);
 
     // getchar();
     return 0;

@@ -6,6 +6,7 @@
 #define EFFECTENGINE_H
 #include "blenders/IBlender.h"
 #include "filters/IFilter.h"
+#include "gpu/VkGPUBuffer.h"
 #include "gpu/VkGPUContext.h"
 
 struct ImageInfo {
@@ -26,15 +27,15 @@ public:
 
     bool Init();
 
-    VkResult Process(VkBuffer *inputStorageBuffer,
-                     VkDeviceMemory *inputStorageBufferMemory,
-                     uint32_t inputWidth,
-                     uint32_t inputHeight,
-                     uint32_t outputWidth,
-                     uint32_t outputHeight,
-                     uint32_t channels, const void *uploadData, VkBuffer *outputStorageBuffer,
-                     VkDeviceMemory *outputStorageBufferMemory, const
-                     std::shared_ptr<IFilter> &filter) const;
+    VkResult Process(const std::shared_ptr<VkGPUBuffer> &inputBuffer,
+                     const uint32_t inputWidth,
+                     const uint32_t inputHeight,
+                     const uint32_t outputWidth,
+                     const uint32_t outputHeight,
+                     const uint32_t channels,
+                     const void *uploadData,
+                     const std::shared_ptr<VkGPUBuffer> &outputBuffer,
+                     const std::shared_ptr<IFilter> &filter) const;
 
     void Process(const ImageInfo &input,
                  const ImageInfo &output,

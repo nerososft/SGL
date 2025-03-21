@@ -134,6 +134,14 @@ public:
                                                   VkDeviceSize size,
                                                   const std::vector<uint32_t> &queueFamilyIndices,
                                                   const VkPhysicalDeviceMemoryProperties *memProps,
+                                                  uint32_t memoryPropertyFlagsBits,
+                                                  VkBuffer *storageBuffer,
+                                                  VkDeviceMemory *storageBufferMemory);
+
+    static VkResult CreateStorageBufferAndBindMem(VkDevice device,
+                                                  VkDeviceSize size,
+                                                  const std::vector<uint32_t> &queueFamilyIndices,
+                                                  const VkPhysicalDeviceMemoryProperties *memProps,
                                                   VkBuffer *storageBuffer,
                                                   VkDeviceMemory *storageBufferMemory);
 

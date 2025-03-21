@@ -113,8 +113,8 @@ void VkGPUHelper::GPUCmdPipelineBufferMemBarrier(const VkCommandBuffer commandBu
                                                  const VkPipelineStageFlags dstStageMask,
                                                  const VkDependencyFlags dependencyFlags,
                                                  const std::vector<VkBufferMemoryBarrier> &bufferMemoryBarriers) {
-    const std::vector<VkMemoryBarrier> memoryBarriers;
-    const std::vector<VkImageMemoryBarrier> imageMemoryBarrier;
+    constexpr std::vector<VkMemoryBarrier> memoryBarriers;
+    constexpr std::vector<VkImageMemoryBarrier> imageMemoryBarrier;
     GPUCmdPipelineBarrier(commandBuffer,
                           srcStageMask,
                           dstStageMask,
@@ -374,7 +374,7 @@ VkResult VkGPUHelper::CreateDescriptorSetLayout(const VkDevice device,
                                                      nullptr,
                                                      descriptorSetLayout);
     if (ret != VK_SUCCESS) {
-        std::cerr << "failed to create descriptor set layout, err=" << string_VkResult(ret) << std::endl;
+        Logger() << "failed to create descriptor set layout, err=" << string_VkResult(ret) << std::endl;
         return ret;
     }
     return ret;
@@ -419,6 +419,7 @@ VkResult VkGPUHelper::CreateStorageBufferAndBindMem(const VkDevice device,
                                                     const VkDeviceSize size,
                                                     const std::vector<uint32_t> &queueFamilyIndices,
                                                     const VkPhysicalDeviceMemoryProperties *memProps,
+                                                    const uint32_t memoryPropertyFlagsBits,
                                                     VkBuffer *storageBuffer,
                                                     VkDeviceMemory *storageBufferMemory) {
     VkResult ret = CreateBuffer(device,
@@ -440,8 +441,7 @@ VkResult VkGPUHelper::CreateStorageBufferAndBindMem(const VkDevice device,
     allocInfo.allocationSize = memRequirements.size;
     allocInfo.memoryTypeIndex = GetRequiredMemTypeIndex(memProps,
                                                         memRequirements,
-                                                        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-                                                        VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+                                                        memoryPropertyFlagsBits);
     ret = vkAllocateMemory(device, &allocInfo, nullptr, storageBufferMemory);
     if (ret != VK_SUCCESS) {
         Logger() << "vkAllocateMemory failed, err=" << string_VkResult(ret) << std::endl;
@@ -453,6 +453,18 @@ VkResult VkGPUHelper::CreateStorageBufferAndBindMem(const VkDevice device,
         return ret;
     }
     return ret;
+}
+
+VkResult VkGPUHelper::CreateStorageBufferAndBindMem(const VkDevice device,
+                                                    const VkDeviceSize size,
+                                                    const std::vector<uint32_t> &queueFamilyIndices,
+                                                    const VkPhysicalDeviceMemoryProperties *memProps,
+                                                    VkBuffer *storageBuffer,
+                                                    VkDeviceMemory *storageBufferMemory) {
+    return CreateStorageBufferAndBindMem(device, size,
+                                         queueFamilyIndices, memProps,
+                                         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                                         storageBuffer, storageBufferMemory);
 }
 
 

@@ -11,7 +11,6 @@
 #include <vulkan/vk_enum_string_helper.h>
 #endif
 
-#include "effect_engine/gpu/VkGPUComputePipeline.h"
 #include "effect_engine/gpu/VkGPUHelper.h"
 #include "effect_engine/log/Log.h"
 
@@ -27,7 +26,7 @@ BufferCopyComputeGraphNode::BufferCopyComputeGraphNode(const std::shared_ptr<VkG
 
 VkResult BufferCopyComputeGraphNode::CreateComputeGraphNode() {
     if (gpuCtx == nullptr) {
-        std::cerr << "gpuCtx is null" << std::endl;
+        Logger() << "gpuCtx is null" << std::endl;
         return VK_ERROR_INITIALIZATION_FAILED;
     }
     return VK_SUCCESS;

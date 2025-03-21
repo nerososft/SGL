@@ -6,6 +6,7 @@
 #define GAUSSIANBLURFILTER_H
 #include "effect_engine/filters/BasicFilter.h"
 #include "effect_engine/filters/IFilter.h"
+#include "effect_engine/gpu/VkGPUBuffer.h"
 #include "effect_engine/gpu/compute_graph/ComputeGraph.h"
 
 #define MAX_RADIUS (256)
@@ -20,7 +21,12 @@ class GaussianBlurFilter final : public IFilter {
     std::shared_ptr<ComputeGraph> computeGraph = nullptr;
 
 private:
+    std::shared_ptr<VkGPUContext> gpuCtx = nullptr;
+
     static std::vector<float> CalculateWeights();
+
+    std::shared_ptr<VkGPUBuffer> weightBuffer = nullptr;
+
 public:
     GaussianBlurFilter() = default;
 

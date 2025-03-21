@@ -80,6 +80,12 @@ add_library(gpu_effect_engine SHARED
         config.h
         filters/impl/VibranceFilter.cpp
         filters/impl/VibranceFilter.h
+        filters/impl/NES8BitMosaicFilter.cpp
+        filters/impl/NES8BitMosaicFilter.h
+        filters/impl/VoronoiFilter.cpp
+        filters/impl/VoronoiFilter.h
+        gpu/VkGPUBuffer.cpp
+        gpu/VkGPUBuffer.h
 )
 target_link_libraries(gpu_effect_engine vulkan)
 if (CMAKE_SYSTEM_NAME MATCHES "OHOS")
