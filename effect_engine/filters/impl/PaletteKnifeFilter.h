@@ -2,8 +2,10 @@
 // Created by neo on 2025/3/18.
 //
 
-#ifndef PALETTEKNIFEFILTER_H
-#define PALETTEKNIFEFILTER_H
+#ifndef PPALETTEKNIFEFILTER_H
+#define PPALETTEKNIFEFILTER_H
+#include <effect_engine/gpu/VkGPUBuffer.h>
+
 #include "effect_engine/filters/BasicFilter.h"
 
 struct PaletteKnifeFilterParams {
@@ -14,6 +16,8 @@ struct PaletteKnifeFilterParams {
 
 class PaletteKnifeFilter final : public BasicFilter {
     PaletteKnifeFilterParams paletteKnifeFilterParams{};
+    std::shared_ptr<ComputeGraph> computeGraph = nullptr;
+    std::shared_ptr<VkGPUBuffer> qBuffer = nullptr;
 
 public:
     PaletteKnifeFilter() = default;

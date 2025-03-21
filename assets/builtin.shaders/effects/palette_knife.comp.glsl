@@ -33,7 +33,6 @@ uint packColor(vec4 color) {
     );
 }
 
-
 // ABGR
 vec4 unpackColor(uint color) {
     return vec4(
@@ -57,12 +56,9 @@ void main() {
     int hist[1000];
     vec3 C[1000];
     for (int i = 0; i < histSize; ++i) {
-       hist[i] = 0;
-       C[i] = vec3(0.0);
+        hist[i] = 0;
+        C[i] = vec3(0.0);
     }
-   
-
-   
 
     // 扫描邻域
     for (int m = -filterParams.radius; m <= filterParams.radius; ++m) {

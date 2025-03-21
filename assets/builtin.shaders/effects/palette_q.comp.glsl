@@ -10,8 +10,6 @@ layout (std430, binding = 1) buffer OutputImageStorageBuffer {
     uint pixels[];
 } Q;
 
-
-
 layout (push_constant) uniform FilterParams {
     uint width;
     uint height;
@@ -41,21 +39,19 @@ vec4 unpackColor(uint color) {
     );
 }
 
-
 void main() {
-
-	uvec2 coord = gl_GlobalInvocationID.xy;
+    uvec2 coord = gl_GlobalInvocationID.xy;
     if (any(greaterThanEqual(coord, uvec2(filterParams.width, filterParams.height)))) {
         return;
     }
 
     uint index = coord.y * (filterParams.bytesPerLine / 4) + coord.x;
-	vec4 color = unpackColor(inputImage.pixels[index]);
-	//uint qs = uint((color.r + color.g + color.b) * filterParams.s1 / 255.0);
-	//uint qs = uint((color.r + color.g  + color.b ) * 40 / 255.0);
-	uint qs = uint((color.r + color.g  + color.b ) * 40);
-	//vec4 write_color (qs, qs, qs);
-	Q.pixels[index] = qs; 
+    vec4 color = unpackColor(inputImage.pixels[index]);
+    //uint qs = uint((color.r + color.g + color.b) * filterParams.s1 / 255.0);
+    //uint qs = uint((color.r + color.g  + color.b ) * 40 / 255.0);
+    uint qs = uint((color.r + color.g + color.b) * 40);
+    //vec4 write_color (qs, qs, qs);
+    Q.pixels[index] = qs;
 
-	
+
 }
