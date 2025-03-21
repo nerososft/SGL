@@ -52,6 +52,4 @@ void main() {
     uint qs = uint((color.r + color.g + color.b) * 40);
     //vec4 write_color (qs, qs, qs);
     Q.pixels[index] = qs;
-
-
 }

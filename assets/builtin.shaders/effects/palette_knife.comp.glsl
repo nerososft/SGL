@@ -50,14 +50,13 @@ void main() {
     }
 
     uint index = coord.y * (filterParams.bytesPerLine / 4) + coord.x;
-    vec4 color = unpackColor(inputImage.pixels[index]);
+    vec4 currentColor = vec4(0.0f);
+    uint currentMax = 0;
 
-    int histSize = 1000;
-    int hist[1000];
-    vec3 C[1000];
-    for (int i = 0; i < histSize; ++i) {
+    uint histSize = 1000;
+    uint hist[1000];
+    for (uint i = 0; i < histSize; ++i) {
         hist[i] = 0;
-        C[i] = vec3(0.0);
     }
 
     // 扫描邻域
@@ -72,21 +71,13 @@ void main() {
             uint neighborIndex = row * (filterParams.bytesPerLine / 4) + col;
             uint qVal = Q.pixels[neighborIndex];
             hist[qVal]++;
-            C[qVal] = unpackColor(inputImage.pixels[neighborIndex]).rgb;
+            if (hist[qVal] >= currentMax) {
+                currentColor = unpackColor(inputImage.pixels[neighborIndex]);
+                currentMax = hist[qVal];
+            }
         }
     }
 
-    // 找到直方图最大值
-    int maxVal = 0;
-    int maxIdx = 0;
-    for (int i = 1; i < histSize; ++i) {
-        if (hist[i] > maxVal) {
-            maxVal = hist[i];
-            maxIdx = i;
-        }
-    }
-
-    // 设置输出颜色
-    color.rgb = C[maxIdx];
-    outputImage.pixels[index] = packColor(color);
+    // 设置输出颜
+    outputImage.pixels[index] = packColor(currentColor);
 }

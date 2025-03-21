@@ -143,10 +143,10 @@ int main(int argc, char *argv[]) {
     // filter->SetSaturation(50);
     // effectEngine.Process("../../demo/images/colorful.png", "../../demo/images/colorful_vibrance.png", filter);
 
-    // const auto filter = std::make_shared<PaletteKnifeFilter>();
-    // filter->SetRadius(10);
-    // filter->SetQuantScale(5);
-    // effectEngine.Process("../../demo/images/colorful.png", "../../demo/images/colorful_palette_knife.png", filter);
+    const auto filter = std::make_shared<PaletteKnifeFilter>();
+    filter->SetRadius(10);
+    filter->SetQuantScale(5);
+    effectEngine.Process("../../demo/images/colorful.png", "../../demo/images/colorful_palette_knife.png", filter);
 
     // const auto filter = std::make_shared<NES8BitMosaicFilter>();
     // filter->SetBlockSize(64);
@@ -156,10 +156,10 @@ int main(int argc, char *argv[]) {
     // filter->SetBright(10);
     // effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_threshold.png", filter);
 
-    const auto filter = std::make_shared<VoronoiFilter>();
-    filter->SetGridSize(64);
-    filter->SetEnableEdge(true);
-    effectEngine.Process("../../demo/images/colorful.png", "../../demo/images/colorful_voronoi.png", filter);
+    // const auto filter = std::make_shared<VoronoiFilter>();
+    // filter->SetGridSize(64);
+    // filter->SetEnableEdge(true);
+    // effectEngine.Process("../../demo/images/colorful.png", "../../demo/images/colorful_voronoi.png", filter);
 
     // getchar();
     return 0;
