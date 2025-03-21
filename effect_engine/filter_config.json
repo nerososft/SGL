@@ -1,0 +1,62 @@
+{
+  "name": "PaletteKnife",
+  "params": [
+    {
+      "name": "radius",
+      "type": "uint"
+    },
+    {
+      "name": "quantSize",
+      "type": "uint"
+    }
+  ],
+  "compute_graph": {
+    "input": "inputBuffer",
+    "output": "outputBuffer",
+    "buffers": [
+      {
+        "name": "inputBuffer",
+        "type": "StorageBuffer",
+        "size": "imageSize"
+      },
+      {
+        "name": "qBuffer",
+        "type": "StorageBuffer",
+        "size": "imageSize"
+      },
+      {
+        "name": "outputBuffer",
+        "type": "StorageBuffer",
+        "size": "imageSize"
+      }
+    ],
+    "nodes": [
+      {
+        "name": "QCalculate",
+        "inputBuffer": [
+          "inputBuffer"
+        ],
+        "outputBuffer": [
+          "qBuffer"
+        ],
+        "shader": "q.comp.glsl.spv",
+        "deps": []
+      },
+      {
+        "name": "PaletteKnife",
+        "inputBuffer": [
+          "inputBuffer",
+          "qBuffer"
+        ],
+        "outputBuffer": [
+          "outBuffer"
+        ],
+        "shader": "palette_knife.comp.glsl.spv",
+        "deps": [
+          "QCalculate"
+        ]
+      }
+    ],
+    "entry": "PaletteKnife"
+  }
+}
