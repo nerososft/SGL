@@ -115,8 +115,17 @@ void EffectEngine::Process(const ImageInfo &input,
     const uint64_t imageDownloadEnd = TimeUtils::GetCurrentMonoMs();
     Logger() << "Image Download Time: " << imageDownloadEnd - imageDownloadStart << "ms" << std::endl;
 
+
+
+    Logger() << "inputStorageBuffer destory begin " << std::endl;
     inputStorageBuffer->Destroy();
+    Logger() << "inputStorageBuffer destory end " << std::endl;
+
+
+    Logger() << "outputStorageBuffer destory begin " << std::endl;
     outputStorageBuffer->Destroy();
+    Logger() << "outputStorageBuffer destory end " << std::endl;
+
 }
 
 void EffectEngine::Process(const char *inputFilePath,

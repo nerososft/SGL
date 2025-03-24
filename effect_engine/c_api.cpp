@@ -8,6 +8,7 @@
 #include "effect_engine/filters/impl/VibranceFilter.h"
 #include "effect_engine/filters/impl/ThresholdSplitFilter.h"
 #include "effect_engine/filters/impl/PaletteKnifeFilter.h"
+#include "effect_engine/filters/impl/HueEqualFilter.h"
 
 #include "log/Log.h"
 
@@ -57,8 +58,15 @@ bool adjust_saturation_gpu(void *in, void *out, const int v, const int s) {
 
     const auto *input = static_cast<ImageInfo *>(in);
     const auto *output = static_cast<ImageInfo *>(out);
-
+    Logger() << "c_api adjust_saturation_gpu begin " << std::endl;
     g_effect_engine.Process(*input, *output, filter);
+    Logger() << "c_api adjust_saturation_gpu end  " << std::endl;
+
+
+    Logger() << "c_api filter destory begin  " << std::endl;
+
+    filter->Destroy();
+    Logger() << "c_api filter destory end  " << std::endl;
 
     return true;
 }
@@ -76,6 +84,18 @@ bool palette_knife_gpu(void *in, void *out, const int r, const int s) {
     return true;
 }
 
+
+
+bool hue_equal_filter_gpu(void* in, void* out) {
+
+    const auto filter = std::make_shared<HueEqualFilter>();
+    const auto* input = static_cast<ImageInfo*>(in);
+    const auto* output = static_cast<ImageInfo*>(out);
+
+    g_effect_engine.Process(*input, *output, filter);
+
+    return true;
+}
 
 bool gray_filter_gpu(void *in, void *out, const float r, const float g, const float b) {
     const auto filter = std::make_shared<GrayFilter>();
