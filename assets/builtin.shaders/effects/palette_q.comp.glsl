@@ -50,6 +50,5 @@ void main() {
     //uint qs = uint((color.r + color.g + color.b) * filterParams.s1 / 255.0);
     //uint qs = uint((color.r + color.g  + color.b ) * 40 / 255.0);
     uint qs = uint((color.r + color.g + color.b) * 40);
-    //vec4 write_color (qs, qs, qs);
     Q.pixels[index] = qs;
 }

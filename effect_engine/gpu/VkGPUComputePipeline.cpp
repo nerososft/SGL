@@ -23,11 +23,6 @@ VkGPUComputePipeline::VkGPUComputePipeline(const std::string &computeShaderPath,
     this->pushConstantRanges = pushConstantRanges;
 }
 
-VkGPUComputePipeline::~VkGPUComputePipeline() {
-    vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
-    vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
-}
-
 VkResult VkGPUComputePipeline::CreateComputePipeline(const VkDevice device,
                                                      const VkPipelineCache pipelineCache) {
     this->device = device;
@@ -67,7 +62,16 @@ void VkGPUComputePipeline::GPUCmdBindPipeline(const VkCommandBuffer commandBuffe
 }
 
 void VkGPUComputePipeline::Destroy() const {
-    vkDestroyPipeline(device, computePipeline, nullptr);
-    vkDestroyShaderModule(device, computeShaderModule, nullptr);
-    vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
+    if (this->computePipeline != VK_NULL_HANDLE) {
+        vkDestroyPipeline(device, computePipeline, nullptr);
+    }
+    if (this->computeShaderModule != VK_NULL_HANDLE) {
+        vkDestroyShaderModule(device, computeShaderModule, nullptr);
+    }
+    if (this->descriptorSetLayout != VK_NULL_HANDLE) {
+        vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
+    }
+    if (this->pipelineLayout != VK_NULL_HANDLE) {
+        vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
+    }
 }
