@@ -19,7 +19,9 @@ public:
                                            VkPipelineLayout pipelineLayout,
                                            VkShaderModule vertexShaderModule,
                                            VkShaderModule fragmentShaderModule,
-                                           VkRenderPass renderPass, VkPipeline *pipeline);
+                                           VkRenderPass renderPass, std::vector<VkVertexInputBindingDescription> vertexInputBindingDescriptions, std::vector<
+                                           VkVertexInputAttributeDescription> vertexInputAttributeDescriptions, VkPrimitiveTopology inputAssemblyTopology, VkBool32
+                                           primitiveRestartEnable, VkPipeline *pipeline);
 
     static VkResult CreateUniformBufferAndUploadData(VkDevice device,
                                                      const std::vector<uint32_t> &queueFamilyIndices,

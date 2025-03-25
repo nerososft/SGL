@@ -14,7 +14,6 @@
 
 #include "effect_engine/log/Log.h"
 #include "effect_engine/utils/IOUtils.h"
-#include "effect_engine/utils/TimeUtils.h"
 
 VkResult VkGPUHelper::CreateGraphicsPipeline(const VkDevice device,
                                              const VkPipelineCache pipelineCache,
@@ -22,6 +21,12 @@ VkResult VkGPUHelper::CreateGraphicsPipeline(const VkDevice device,
                                              const VkShaderModule vertexShaderModule,
                                              const VkShaderModule fragmentShaderModule,
                                              const VkRenderPass renderPass,
+                                             std::vector<VkVertexInputBindingDescription>
+                                             vertexInputBindingDescriptions,
+                                             std::vector<VkVertexInputAttributeDescription>
+                                             vertexInputAttributeDescriptions,
+                                             VkPrimitiveTopology inputAssemblyTopology,
+                                             VkBool32 primitiveRestartEnable,
                                              VkPipeline *pipeline) {
     VkResult ret = VK_SUCCESS;
     std::vector<VkGraphicsPipelineCreateInfo> pipelineCreateInfos;
@@ -47,9 +52,23 @@ VkResult VkGPUHelper::CreateGraphicsPipeline(const VkDevice device,
     fragmentShaderStageCreateInfo.pSpecializationInfo = nullptr;
     shaderStages.push_back(fragmentShaderStageCreateInfo);
 
-    // TODO:
     VkPipelineVertexInputStateCreateInfo vertexInputStateCreateInfo = {};
+    vertexInputStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+    vertexInputStateCreateInfo.flags = 0;
+    vertexInputStateCreateInfo.pNext = nullptr;
+    vertexInputStateCreateInfo.vertexBindingDescriptionCount = vertexInputBindingDescriptions.size();
+    vertexInputStateCreateInfo.vertexAttributeDescriptionCount = vertexInputAttributeDescriptions.size();
+    vertexInputStateCreateInfo.pVertexBindingDescriptions = vertexInputBindingDescriptions.data();
+    vertexInputStateCreateInfo.pVertexAttributeDescriptions = vertexInputAttributeDescriptions.data();
+
     VkPipelineInputAssemblyStateCreateInfo inputAssemblyState = {};
+    inputAssemblyState.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+    inputAssemblyState.flags = 0;
+    inputAssemblyState.pNext = nullptr;
+    inputAssemblyState.topology = inputAssemblyTopology;
+    inputAssemblyState.primitiveRestartEnable = primitiveRestartEnable;
+
+    // TODO:
     VkPipelineTessellationStateCreateInfo tessellationState = {};
     VkPipelineViewportStateCreateInfo viewportState = {};
     VkPipelineRasterizationStateCreateInfo rasterizationState = {};

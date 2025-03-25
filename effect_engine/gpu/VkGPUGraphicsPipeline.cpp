@@ -23,6 +23,8 @@ VkResult VkGPUGraphicsPipeline::CreateGraphicsPipeline(const VkDevice device,
     VkResult result = VK_SUCCESS;
 
     // TODO:
+    constexpr std::vector<VkVertexInputBindingDescription> vertexInputBindingDescriptions;
+    constexpr std::vector<VkVertexInputAttributeDescription> vertexInputAttributeDescriptions;
 
     result = VkGPUHelper::CreateGraphicsPipeline(device,
                                                  pipelineCache,
@@ -30,6 +32,10 @@ VkResult VkGPUGraphicsPipeline::CreateGraphicsPipeline(const VkDevice device,
                                                  this->vertexShaderModule,
                                                  this->fragmentShaderModule,
                                                  renderPass,
+                                                 vertexInputBindingDescriptions,
+                                                 vertexInputAttributeDescriptions,
+                                                 VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
+                                                 VK_TRUE,
                                                  &this->graphicsPipeline);
     return result;
 }
