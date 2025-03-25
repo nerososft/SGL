@@ -117,4 +117,8 @@ void GraphicsPipelineNode::Compute(VkCommandBuffer commandBuffer) {
 }
 
 void GraphicsPipelineNode::Destroy() {
+    graphicsPipeline->Destroy();
+    for (size_t i = 0; i < pipelineDescriptorSets.size(); ++i) {
+        pipelineDescriptorSets[i]->Destroy();
+    }
 }
