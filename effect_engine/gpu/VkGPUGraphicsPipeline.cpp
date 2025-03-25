@@ -4,7 +4,14 @@
 
 #include "VkGPUGraphicsPipeline.h"
 
+#ifdef OS_OPEN_HARMONY
+#include <effect_engine/gpu/utils/vk_enum_string_helper.h>
+#else
+#include <vulkan/vk_enum_string_helper.h>
+#endif
+
 #include "VkGPUHelper.h"
+#include "effect_engine/log/Log.h"
 
 VkGPUGraphicsPipeline::VkGPUGraphicsPipeline(const std::string &vertexShaderPath,
                                              const std::string &fragShaderPath,
@@ -21,6 +28,41 @@ VkResult VkGPUGraphicsPipeline::CreateGraphicsPipeline(const VkDevice device,
                                                        const VkPipelineCache pipelineCache,
                                                        const VkRenderPass renderPass) {
     VkResult result = VK_SUCCESS;
+    this->device = device;
+    VkResult ret = VkGPUHelper::CreateDescriptorSetLayout(device,
+                                                          descriptorSetLayoutBindings,
+                                                          &this->descriptorSetLayout);
+    if (ret != VK_SUCCESS) {
+        Logger() << "failed to create descriptor set layout, err=" << string_VkResult(ret) << std::endl;
+        return ret;
+    }
+
+    std::vector<VkDescriptorSetLayout> descriptorSetLayouts;
+    descriptorSetLayouts.push_back(this->descriptorSetLayout);
+    ret = VkGPUHelper::CreatePipelineLayout(device,
+                                            descriptorSetLayouts,
+                                            this->pushConstantRanges,
+                                            &this->pipelineLayout);
+    if (ret != VK_SUCCESS) {
+        Logger() << "failed to create pipeline layout, err=" << string_VkResult(ret) << std::endl;
+        return ret;
+    }
+
+    ret = VkGPUHelper::CreateShaderModuleFromPath(device,
+                                                  vertexShaderPath,
+                                                  &this->vertexShaderModule);
+    if (ret != VK_SUCCESS) {
+        Logger() << "failed to create vertex shader module, err=" << string_VkResult(ret) << std::endl;
+        return ret;
+    }
+
+    ret = VkGPUHelper::CreateShaderModuleFromPath(device,
+                                                  fragShaderPath,
+                                                  &this->fragmentShaderModule);
+    if (ret != VK_SUCCESS) {
+        Logger() << "failed to create fragment shader module, err=" << string_VkResult(ret) << std::endl;
+        return ret;
+    }
 
     // TODO:
     constexpr std::vector<VkVertexInputBindingDescription> vertexInputBindingDescriptions;
