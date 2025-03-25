@@ -10,23 +10,6 @@
 #include "effect_engine/gpu/VkGPUContext.h"
 #include "effect_engine/gpu/VkGPUDescriptorSet.h"
 
-typedef struct {
-    VkDeviceSize size;
-    void *data;
-} PushConstantInfo;
-
-typedef enum {
-    PIPELINE_NODE_BUFFER_UNIFORM,
-    PIPELINE_NODE_BUFFER_STORAGE_READ,
-    PIPELINE_NODE_BUFFER_STORAGE_WRITE,
-} PipelineNodeBufferType;
-
-typedef struct {
-    PipelineNodeBufferType type;
-    VkDeviceSize bufferSize;
-    VkBuffer buffer;
-} PipelineNodeBuffer;
-
 class ComputePipelineNode final : public IComputeGraphNode {
     std::string shaderPath;
     PushConstantInfo pushConstantInfo{};
@@ -44,13 +27,13 @@ class ComputePipelineNode final : public IComputeGraphNode {
 
 public:
     ComputePipelineNode(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                             const std::string &name,
-                             const std::string &shaderPath,
-                             PushConstantInfo pushConstantInfo,
-                             const std::vector<PipelineNodeBuffer> &buffers,
-                             uint32_t workGroupCountX,
-                             uint32_t workGroupCountY,
-                             uint32_t workGroupCountZ);
+                        const std::string &name,
+                        const std::string &shaderPath,
+                        PushConstantInfo pushConstantInfo,
+                        const std::vector<PipelineNodeBuffer> &buffers,
+                        uint32_t workGroupCountX,
+                        uint32_t workGroupCountY,
+                        uint32_t workGroupCountZ);
 
     ~ComputePipelineNode() override = default;
 

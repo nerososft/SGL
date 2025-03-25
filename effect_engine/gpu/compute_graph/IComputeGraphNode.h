@@ -6,10 +6,25 @@
 #define COMPUTEGRAPHNODE_H
 #include <vector>
 #include <string>
-#include <memory>
 #include <vulkan/vulkan_core.h>
-#include<string>
-#include <memory>
+
+typedef struct {
+    VkDeviceSize size;
+    void *data;
+} PushConstantInfo;
+
+typedef enum {
+    PIPELINE_NODE_BUFFER_UNIFORM,
+    PIPELINE_NODE_BUFFER_STORAGE_READ,
+    PIPELINE_NODE_BUFFER_STORAGE_WRITE,
+} PipelineNodeBufferType;
+
+typedef struct {
+    PipelineNodeBufferType type;
+    VkDeviceSize bufferSize;
+    VkBuffer buffer;
+} PipelineNodeBuffer;
+
 class IComputeGraphNode {
 protected:
     std::string name;
