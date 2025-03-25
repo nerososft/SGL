@@ -26,6 +26,12 @@ VkResult VkGPUGraphicsPipeline::CreateGraphicsPipeline(const VkDevice device,
     constexpr std::vector<VkVertexInputBindingDescription> vertexInputBindingDescriptions;
     constexpr std::vector<VkVertexInputAttributeDescription> vertexInputAttributeDescriptions;
 
+    constexpr std::vector<VkViewport> viewports;
+    constexpr std::vector<VkRect2D> viewportScissors;
+
+    constexpr std::vector<VkPipelineColorBlendAttachmentState> colorBlendStateCreateInfos;
+    constexpr std::vector<VkDynamicState> dynamicStates;
+
     result = VkGPUHelper::CreateGraphicsPipeline(device,
                                                  pipelineCache,
                                                  this->pipelineLayout,
@@ -36,6 +42,12 @@ VkResult VkGPUGraphicsPipeline::CreateGraphicsPipeline(const VkDevice device,
                                                  vertexInputAttributeDescriptions,
                                                  VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
                                                  VK_TRUE,
+                                                 viewports,
+                                                 viewportScissors,
+                                                 VK_POLYGON_MODE_FILL,
+                                                 1.0f,
+                                                 colorBlendStateCreateInfos,
+                                                 dynamicStates,
                                                  &this->graphicsPipeline);
     return result;
 }

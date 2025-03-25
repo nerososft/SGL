@@ -21,7 +21,9 @@ public:
                                            VkShaderModule fragmentShaderModule,
                                            VkRenderPass renderPass, std::vector<VkVertexInputBindingDescription> vertexInputBindingDescriptions, std::vector<
                                            VkVertexInputAttributeDescription> vertexInputAttributeDescriptions, VkPrimitiveTopology inputAssemblyTopology, VkBool32
-                                           primitiveRestartEnable, VkPipeline *pipeline);
+                                           primitiveRestartEnable, std::vector<VkViewport> viewports, std::vector<VkRect2D> viewportScissors, VkPolygonMode
+                                           polygonMode, float lineWidth, std::vector<VkPipelineColorBlendAttachmentState> colorBlendStateCreateInfos, std::vector<
+                                           VkDynamicState> dynamicStates, VkPipeline *pipeline);
 
     static VkResult CreateUniformBufferAndUploadData(VkDevice device,
                                                      const std::vector<uint32_t> &queueFamilyIndices,
