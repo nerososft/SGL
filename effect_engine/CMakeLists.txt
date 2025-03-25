@@ -65,6 +65,8 @@ add_library(gpu_effect_engine SHARED
         filters/impl/ThresholdSplitFilter.cpp
         filters/impl/HueEqualFilter.h
         filters/impl/HueEqualFilter.cpp
+        filters/impl/customKernelFilter.h
+        filters/impl/customKernelFilter.cpp
         blenders/IBlender.h
         blenders/BaseBlender.cpp
         blenders/BaseBlender.h

@@ -9,6 +9,7 @@
 #include "effect_engine/filters/impl/ThresholdSplitFilter.h"
 #include "effect_engine/filters/impl/PaletteKnifeFilter.h"
 #include "effect_engine/filters/impl/HueEqualFilter.h"
+#include "effect_engine/filters/impl/customKernelFilter.h"
 
 #include "log/Log.h"
 
@@ -88,11 +89,36 @@ bool palette_knife_gpu(void *in, void *out, const int r, const int s) {
 
 bool hue_equal_filter_gpu(void* in, void* out) {
 
-    const auto filter = std::make_shared<HueEqualFilter>();
+    //const auto filter = std::make_shared<HueEqualFilter>();
+    //const auto* input = static_cast<ImageInfo*>(in);
+    //const auto* output = static_cast<ImageInfo*>(out);
+
+    //g_effect_engine.Process(*input, *output, filter);
+
+
+
+
+    const auto filter = std::make_shared<customKernelFilter>();
     const auto* input = static_cast<ImageInfo*>(in);
     const auto* output = static_cast<ImageInfo*>(out);
 
+
+    int k[25] = {0 , 0 ,0 ,0 ,0,
+                0 , 0 ,-1 ,0 ,0,
+                0 , -1 ,5 ,-1 ,0,
+                0 , 0 ,-1 ,0 ,0,
+               0 , 0 ,0 ,0 ,0 };
+
+
+
+    filter->SetK(k, 25);
+    filter->SetOffset(0);
+    filter->SetScale(1);
+    filter->SetRadius(2);
+
     g_effect_engine.Process(*input, *output, filter);
+
+
 
     return true;
 }

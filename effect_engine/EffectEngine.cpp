@@ -75,7 +75,12 @@ VkResult EffectEngine::Process(const std::shared_ptr<VkGPUBuffer> &inputBuffer,
     }
     const uint64_t gpuProcessTimeEnd = TimeUtils::GetCurrentMonoMs();
     Logger() << "GPU Process Time: " << gpuProcessTimeEnd - gpuProcessTimeStart << "ms" << std::endl;
+
+
+    Logger() << "filter begin destory: " << std::endl;
+
     filter->Destroy();
+    Logger() << "filter end destory: " << std::endl;
 
     return ret;
 }

@@ -135,6 +135,12 @@ void PipelineComputeGraphNode::Compute(const VkCommandBuffer commandBuffer) {
 void PipelineComputeGraphNode::Destroy() {
 
     Logger() << "debug:" << __func__ << "(" << __LINE__ << ")" << std::endl;
-    computePipeline->Destroy();
+    if (computePipeline) {
+
+        Logger() << "debug:  not null" << __func__ << "(" << __LINE__ << ")" << std::endl;
+        computePipeline->Destroy();
+    }
+    Logger() << "debug:" << __func__ << "(" << __LINE__ << ")" << std::endl;
+
     pipelineDescriptorSet->Destroy();
 }
