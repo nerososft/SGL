@@ -53,6 +53,7 @@ VkResult VkGPUHelper::CreateGraphicsPipeline(const VkDevice device,
     pipelineCreateInfo.pNext = nullptr;
     pipelineCreateInfo.stageCount = shaderStages.size();
     pipelineCreateInfo.pStages = shaderStages.data();
+    // TODO:
     // const VkPipelineVertexInputStateCreateInfo *pVertexInputState;
     // const VkPipelineInputAssemblyStateCreateInfo *pInputAssemblyState;
     // const VkPipelineTessellationStateCreateInfo *pTessellationState;

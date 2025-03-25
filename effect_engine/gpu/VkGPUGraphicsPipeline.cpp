@@ -22,6 +22,8 @@ VkResult VkGPUGraphicsPipeline::CreateGraphicsPipeline(const VkDevice device,
                                                        const VkRenderPass renderPass) {
     VkResult result = VK_SUCCESS;
 
+    // TODO:
+
     result = VkGPUHelper::CreateGraphicsPipeline(device,
                                                  pipelineCache,
                                                  this->pipelineLayout,
