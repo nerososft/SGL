@@ -14,8 +14,6 @@ GraphicsPipelineNode::GraphicsPipelineNode(const std::shared_ptr<VkGPUContext> &
                                            const std::shared_ptr<VkGPURenderPass> &renderPass,
                                            const std::string &vertexShaderPath,
                                            const std::string &fragmentShaderPath,
-                                           const PushConstantInfo pushConstantInfo,
-                                           const std::vector<PipelineNodeBuffer> &buffers,
                                            const float width,
                                            const float height) {
     this->gpuCtx = gpuCtx;
@@ -23,10 +21,12 @@ GraphicsPipelineNode::GraphicsPipelineNode(const std::shared_ptr<VkGPUContext> &
     this->renderPass = renderPass;
     this->vertexShaderPath = vertexShaderPath;
     this->fragmentShaderPath = fragmentShaderPath;
-    this->pushConstantInfo = pushConstantInfo;
     this->width = width;
     this->height = height;
-    this->pipelineBuffers = buffers;
+}
+
+void GraphicsPipelineNode::AddGraphicsElement(const GraphicsElement &graphicsElement) {
+    this->graphicsElements.push_back(graphicsElement);
 }
 
 VkResult GraphicsPipelineNode::CreateComputeGraphNode() {
@@ -34,15 +34,21 @@ VkResult GraphicsPipelineNode::CreateComputeGraphNode() {
         Logger() << "gpuCtx is null" << std::endl;
         return VK_ERROR_INITIALIZATION_FAILED;
     }
-    std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
 
-    for (uint32_t i = 0; i < pipelineBuffers.size(); ++i) {
+    if (graphicsElements.empty()) {
+        Logger() << "no graphics element" << std::endl;
+        return VK_ERROR_INITIALIZATION_FAILED;
+    }
+
+    std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
+    const auto [pushConstantInfo, buffers] = graphicsElements[0];
+    for (uint32_t i = 0; i < buffers.size(); ++i) {
         VkDescriptorSetLayoutBinding bufferBinding;
         bufferBinding.binding = i;
-        if (pipelineBuffers[i].type == PIPELINE_NODE_BUFFER_UNIFORM) {
+        if (buffers[i].type == PIPELINE_NODE_BUFFER_UNIFORM) {
             bufferBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        } else if (pipelineBuffers[i].type == PIPELINE_NODE_BUFFER_STORAGE_READ |
-                   pipelineBuffers[i].type == PIPELINE_NODE_BUFFER_STORAGE_WRITE) {
+        } else if (buffers[i].type == PIPELINE_NODE_BUFFER_STORAGE_READ |
+                   buffers[i].type == PIPELINE_NODE_BUFFER_STORAGE_WRITE) {
             bufferBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
         }
         bufferBinding.descriptorCount = 1;
@@ -78,26 +84,31 @@ VkResult GraphicsPipelineNode::CreateComputeGraphNode() {
         return ret;
     }
 
-    pipelineDescriptorSet = std::make_shared<VkGPUDescriptorSet>(gpuCtx->GetCurrentDevice(),
-                                                                 graphicsPipeline->GetPipelineLayout(),
-                                                                 graphicsPipeline->GetDescriptorSetLayout());
-    ret = pipelineDescriptorSet->AllocateDescriptorSets(gpuCtx->GetDescriptorPool());
-    if (ret != VK_SUCCESS) {
-        Logger() << "Failed to allocate descriptor sets, err =" << string_VkResult(ret) << std::endl;
-        return ret;
-    }
 
-    for (const auto &pipelineBuffer: pipelineBuffers) {
-        VkDescriptorBufferInfo bufferInfo = {};
-        bufferInfo.offset = 0;
-        bufferInfo.range = pipelineBuffer.bufferSize;
-        bufferInfo.buffer = pipelineBuffer.buffer;
-        this->pipelineDescriptorBufferInfos.push_back(bufferInfo);
+    for (const auto &[pushConstantInfo, buffers]: graphicsElements) {
+        auto descriptorSet = std::make_shared<VkGPUDescriptorSet>(
+            gpuCtx->GetCurrentDevice(),
+            graphicsPipeline->GetPipelineLayout(),
+            graphicsPipeline->GetDescriptorSetLayout());
+        ret = descriptorSet->AllocateDescriptorSets(gpuCtx->GetDescriptorPool());
+        if (ret != VK_SUCCESS) {
+            Logger() << "Failed to allocate descriptor sets, err =" << string_VkResult(ret) << std::endl;
+            return ret;
+        }
+
+        for (const auto &buffer: buffers) {
+            VkDescriptorBufferInfo bufferInfo = {};
+            bufferInfo.offset = 0;
+            bufferInfo.range = buffer.bufferSize;
+            bufferInfo.buffer = buffer.buffer;
+            this->pipelineDescriptorBufferInfos.push_back(bufferInfo);
+        }
+        for (uint32_t i = 0; i < pipelineDescriptorBufferInfos.size(); ++i) {
+            descriptorSet->AddStorageBufferDescriptorSet(i, pipelineDescriptorBufferInfos.at(i));
+        }
+        descriptorSet->UpdateDescriptorSets();
+        pipelineDescriptorSets.push_back(descriptorSet);
     }
-    for (uint32_t i = 0; i < pipelineDescriptorBufferInfos.size(); ++i) {
-        pipelineDescriptorSet->AddStorageBufferDescriptorSet(i, pipelineDescriptorBufferInfos.at(i));
-    }
-    pipelineDescriptorSet->UpdateDescriptorSets();
     return ret;
 }
 

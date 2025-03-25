@@ -11,12 +11,14 @@
 #include "effect_engine/gpu/VkGPUGraphicsPipeline.h"
 #include "effect_engine/gpu/VkGPURenderPass.h"
 
+struct GraphicsElement {
+    PushConstantInfo pushConstantInfo;
+    std::vector<PipelineNodeBuffer> buffers;
+};
+
 class GraphicsPipelineNode final : public IComputeGraphNode {
     std::string vertexShaderPath;
     std::string fragmentShaderPath;
-    PushConstantInfo pushConstantInfo{};
-
-    std::vector<PipelineNodeBuffer> pipelineBuffers;
 
     float width = 1.0f;
     float height = 1.0f;
@@ -25,7 +27,9 @@ class GraphicsPipelineNode final : public IComputeGraphNode {
     std::shared_ptr<VkGPURenderPass> renderPass = nullptr;
     std::shared_ptr<VkGPUGraphicsPipeline> graphicsPipeline = nullptr;
     std::vector<VkDescriptorBufferInfo> pipelineDescriptorBufferInfos;
-    std::shared_ptr<VkGPUDescriptorSet> pipelineDescriptorSet = nullptr;
+    std::vector<std::shared_ptr<VkGPUDescriptorSet> > pipelineDescriptorSets;
+
+    std::vector<GraphicsElement> graphicsElements;
 
 public:
     GraphicsPipelineNode(const std::shared_ptr<VkGPUContext> &gpuCtx,
@@ -33,10 +37,10 @@ public:
                          const std::shared_ptr<VkGPURenderPass> &renderPass,
                          const std::string &vertexShaderPath,
                          const std::string &fragmentShaderPath,
-                         PushConstantInfo pushConstantInfo,
-                         const std::vector<PipelineNodeBuffer> &buffers,
                          float width,
                          float height);
+
+    void AddGraphicsElement(const GraphicsElement &graphicsElement);
 
     ~GraphicsPipelineNode() override = default;
 

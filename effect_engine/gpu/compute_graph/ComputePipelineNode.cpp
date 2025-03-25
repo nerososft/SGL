@@ -39,14 +39,14 @@ VkResult ComputePipelineNode::CreateComputeGraphNode() {
         Logger() << "gpuCtx is null" << std::endl;
         return VK_ERROR_INITIALIZATION_FAILED;
     }
-    const std::string computeShaderPath = shaderPath;
-    std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
 
     if (computeElements.empty()) {
         Logger() << "no compute element" << std::endl;
         return VK_ERROR_INITIALIZATION_FAILED;
     }
 
+    const std::string computeShaderPath = shaderPath;
+    std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
     const auto [pushConstantInfo, buffers] = computeElements[0];
     for (uint32_t i = 0; i < buffers.size(); ++i) {
         VkDescriptorSetLayoutBinding bufferBinding;
