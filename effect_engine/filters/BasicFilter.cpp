@@ -50,20 +50,22 @@ VkResult BasicFilter::DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     pipelineBuffers.push_back(pipelineNodeInput);
     pipelineBuffers.push_back(pipelineNodeOutput);
 
-    const auto grayNode = std::make_shared<ComputePipelineNode>(gpuCtx,
-                                                                     name,
-                                                                     filterParams.shaderPath,
-                                                                     pushConstantInfo,
-                                                                     pipelineBuffers,
-                                                                     workGroupX,
-                                                                     workGroupY,
-                                                                     workGroupZ);
-    ret = grayNode->CreateComputeGraphNode();
+    const auto node = std::make_shared<ComputePipelineNode>(gpuCtx,
+                                                            name,
+                                                            filterParams.shaderPath,
+                                                            workGroupX,
+                                                            workGroupY,
+                                                            workGroupZ);
+    node->AddComputeElement({
+        .pushConstantInfo = pushConstantInfo,
+        .buffers = pipelineBuffers
+    });
+    ret = node->CreateComputeGraphNode();
     if (ret != VK_SUCCESS) {
         Logger() << "Failed to create compute graph, err =" << string_VkResult(ret) << std::endl;
         return ret;
     }
-    computeGraph->AddComputeGraphNode(grayNode);
+    computeGraph->AddComputeGraphNode(node);
 
     return computeGraph->Compute();
 }

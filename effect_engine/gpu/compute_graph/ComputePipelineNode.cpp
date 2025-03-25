@@ -19,19 +19,19 @@
 ComputePipelineNode::ComputePipelineNode(const std::shared_ptr<VkGPUContext> &gpuCtx,
                                          const std::string &name,
                                          const std::string &shaderPath,
-                                         const PushConstantInfo pushConstantInfo,
-                                         const std::vector<PipelineNodeBuffer> &buffers,
                                          const uint32_t workGroupCountX,
                                          const uint32_t workGroupCountY,
                                          const uint32_t workGroupCountZ) {
     this->gpuCtx = gpuCtx;
     this->name = name;
     this->shaderPath = shaderPath;
-    this->pushConstantInfo = pushConstantInfo;
     this->workGroupCountX = workGroupCountX;
     this->workGroupCountY = workGroupCountY;
     this->workGroupCountZ = workGroupCountZ;
-    this->pipelineBuffers = buffers;
+}
+
+void ComputePipelineNode::AddComputeElement(const ComputeElement &computeElement) {
+    this->computeElements.push_back(computeElement);
 }
 
 VkResult ComputePipelineNode::CreateComputeGraphNode() {
@@ -42,13 +42,19 @@ VkResult ComputePipelineNode::CreateComputeGraphNode() {
     const std::string computeShaderPath = shaderPath;
     std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
 
-    for (uint32_t i = 0; i < pipelineBuffers.size(); ++i) {
+    if (computeElements.empty()) {
+        Logger() << "no compute element" << std::endl;
+        return VK_ERROR_INITIALIZATION_FAILED;
+    }
+
+    const auto [pushConstantInfo, buffers] = computeElements[0];
+    for (uint32_t i = 0; i < buffers.size(); ++i) {
         VkDescriptorSetLayoutBinding bufferBinding;
         bufferBinding.binding = i;
-        if (pipelineBuffers[i].type == PIPELINE_NODE_BUFFER_UNIFORM) {
+        if (buffers[i].type == PIPELINE_NODE_BUFFER_UNIFORM) {
             bufferBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        } else if (pipelineBuffers[i].type == PIPELINE_NODE_BUFFER_STORAGE_READ |
-                   pipelineBuffers[i].type == PIPELINE_NODE_BUFFER_STORAGE_WRITE) {
+        } else if (buffers[i].type == PIPELINE_NODE_BUFFER_STORAGE_READ |
+                   buffers[i].type == PIPELINE_NODE_BUFFER_STORAGE_WRITE) {
             bufferBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
         }
         bufferBinding.descriptorCount = 1;
@@ -74,26 +80,30 @@ VkResult ComputePipelineNode::CreateComputeGraphNode() {
         return ret;
     }
 
-    pipelineDescriptorSet = std::make_shared<VkGPUDescriptorSet>(gpuCtx->GetCurrentDevice(),
-                                                                 computePipeline->GetPipelineLayout(),
-                                                                 computePipeline->GetDescriptorSetLayout());
-    ret = pipelineDescriptorSet->AllocateDescriptorSets(gpuCtx->GetDescriptorPool());
-    if (ret != VK_SUCCESS) {
-        Logger() << "Failed to allocate descriptor sets, err =" << string_VkResult(ret) << std::endl;
-        return ret;
-    }
+    for (const auto &[pushConstantInfo, buffers]: computeElements) {
+        auto descriptorSet = std::make_shared<VkGPUDescriptorSet>(
+            gpuCtx->GetCurrentDevice(),
+            computePipeline->GetPipelineLayout(),
+            computePipeline->GetDescriptorSetLayout());
+        ret = descriptorSet->AllocateDescriptorSets(gpuCtx->GetDescriptorPool());
+        if (ret != VK_SUCCESS) {
+            Logger() << "Failed to allocate descriptor sets, err =" << string_VkResult(ret) << std::endl;
+            return ret;
+        }
 
-    for (const auto &pipelineBuffer: pipelineBuffers) {
-        VkDescriptorBufferInfo bufferInfo = {};
-        bufferInfo.offset = 0;
-        bufferInfo.range = pipelineBuffer.bufferSize;
-        bufferInfo.buffer = pipelineBuffer.buffer;
-        this->pipelineDescriptorBufferInfos.push_back(bufferInfo);
+        for (const auto &buffer: buffers) {
+            VkDescriptorBufferInfo bufferInfo = {};
+            bufferInfo.offset = 0;
+            bufferInfo.range = buffer.bufferSize;
+            bufferInfo.buffer = buffer.buffer;
+            this->pipelineDescriptorBufferInfos.push_back(bufferInfo);
+        }
+        for (uint32_t i = 0; i < pipelineDescriptorBufferInfos.size(); ++i) {
+            descriptorSet->AddStorageBufferDescriptorSet(i, pipelineDescriptorBufferInfos.at(i));
+        }
+        descriptorSet->UpdateDescriptorSets();
+        pipelineDescriptorSets.push_back(descriptorSet);
     }
-    for (uint32_t i = 0; i < pipelineDescriptorBufferInfos.size(); ++i) {
-        pipelineDescriptorSet->AddStorageBufferDescriptorSet(i, pipelineDescriptorBufferInfos.at(i));
-    }
-    pipelineDescriptorSet->UpdateDescriptorSets();
     return ret;
 }
 
@@ -106,33 +116,37 @@ void ComputePipelineNode::Compute(const VkCommandBuffer commandBuffer) {
         }
     }
     computePipeline->GPUCmdBindPipeline(commandBuffer);
-    pipelineDescriptorSet->GPUCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE);
-    VkGPUHelper::GPUCmdPushConstant(commandBuffer,
-                                    computePipeline->GetPipelineLayout(),
-                                    VK_SHADER_STAGE_COMPUTE_BIT,
-                                    0,
-                                    pushConstantInfo.size,
-                                    pushConstantInfo.data);
-    VkGPUHelper::GPUCmdDispatch(commandBuffer, this->workGroupCountX, workGroupCountY, workGroupCountZ);
+    for (size_t i = 0; i < computeElements.size(); ++i) {
+        pipelineDescriptorSets[i]->GPUCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE);
+        VkGPUHelper::GPUCmdPushConstant(commandBuffer,
+                                        computePipeline->GetPipelineLayout(),
+                                        VK_SHADER_STAGE_COMPUTE_BIT,
+                                        0,
+                                        computeElements[i].pushConstantInfo.size,
+                                        computeElements[i].pushConstantInfo.data);
+        VkGPUHelper::GPUCmdDispatch(commandBuffer, this->workGroupCountX, workGroupCountY, workGroupCountZ);
 
-    std::vector<VkBufferMemoryBarrier> bufferMemoryBarriers;
-    for (const auto &pipelineBuffer: pipelineBuffers) {
-        if (pipelineBuffer.type == PIPELINE_NODE_BUFFER_STORAGE_WRITE) {
-            bufferMemoryBarriers.push_back(VkGPUHelper::BuildBufferMemoryBarrier(VK_ACCESS_SHADER_WRITE_BIT,
-                VK_ACCESS_TRANSFER_READ_BIT,
-                pipelineBuffer.buffer,
-                pipelineBuffer.bufferSize));
+        std::vector<VkBufferMemoryBarrier> bufferMemoryBarriers;
+        for (const auto &[type, bufferSize, buffer]: computeElements[i].buffers) {
+            if (type == PIPELINE_NODE_BUFFER_STORAGE_WRITE) {
+                bufferMemoryBarriers.push_back(VkGPUHelper::BuildBufferMemoryBarrier(VK_ACCESS_SHADER_WRITE_BIT,
+                    VK_ACCESS_TRANSFER_READ_BIT,
+                    buffer,
+                    bufferSize));
+            }
         }
-    }
 
-    VkGPUHelper::GPUCmdPipelineBufferMemBarrier(commandBuffer,
-                                                VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
-                                                VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                                0,
-                                                bufferMemoryBarriers);
+        VkGPUHelper::GPUCmdPipelineBufferMemBarrier(commandBuffer,
+                                                    VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+                                                    VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                                    0,
+                                                    bufferMemoryBarriers);
+    }
 }
 
 void ComputePipelineNode::Destroy() {
     computePipeline->Destroy();
-    pipelineDescriptorSet->Destroy();
+    for (size_t i = 0; i < pipelineDescriptorSets.size(); ++i) {
+        pipelineDescriptorSets[i]->Destroy();
+    }
 }

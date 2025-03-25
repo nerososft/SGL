@@ -52,18 +52,20 @@ VkResult PaletteKnifeFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     qPipelineNodeOutput.buffer = qBuffer->GetBuffer();
     qPipelineNodeOutput.bufferSize = bufferSize;
 
-    std::vector<PipelineNodeBuffer> vPipelineBuffers;
-    vPipelineBuffers.push_back(qPipelineNodeInput);
-    vPipelineBuffers.push_back(qPipelineNodeOutput);
+    std::vector<PipelineNodeBuffer> qPipelineBuffers;
+    qPipelineBuffers.push_back(qPipelineNodeInput);
+    qPipelineBuffers.push_back(qPipelineNodeOutput);
 
     const auto qCalculateNode = std::make_shared<ComputePipelineNode>(gpuCtx,
-                                                                           "QCalculate",
-                                                                           SHADER(palette_q.comp.glsl.spv),
-                                                                           pushConstantInfo,
-                                                                           vPipelineBuffers,
-                                                                           (width + 31) / 32,
-                                                                           (height + 31) / 32,
-                                                                           1);
+                                                                      "QCalculate",
+                                                                      SHADER(palette_q.comp.glsl.spv),
+                                                                      (width + 31) / 32,
+                                                                      (height + 31) / 32,
+                                                                      1);
+    qCalculateNode->AddComputeElement({
+        .pushConstantInfo = pushConstantInfo,
+        .buffers = qPipelineBuffers
+    });
 
     ret = qCalculateNode->CreateComputeGraphNode();
     if (ret != VK_SUCCESS) {
@@ -86,19 +88,21 @@ VkResult PaletteKnifeFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     pipelineNodeOutput.buffer = outputBuffer;
     pipelineNodeOutput.bufferSize = bufferSize;
 
-    std::vector<PipelineNodeBuffer> hPipelineBuffers;
-    hPipelineBuffers.push_back(qPipelineNodeInput);
-    hPipelineBuffers.push_back(pipelineNodeQInput);
-    hPipelineBuffers.push_back(pipelineNodeOutput);
+    std::vector<PipelineNodeBuffer> pkPipelineBuffers;
+    pkPipelineBuffers.push_back(qPipelineNodeInput);
+    pkPipelineBuffers.push_back(pipelineNodeQInput);
+    pkPipelineBuffers.push_back(pipelineNodeOutput);
 
     const auto paletteKnifeNode = std::make_shared<ComputePipelineNode>(gpuCtx,
-                                                                             "PaletteKnife",
-                                                                             SHADER(palette_knife.comp.glsl.spv),
-                                                                             pushConstantInfo,
-                                                                             hPipelineBuffers,
-                                                                             (width + 31) / 32,
-                                                                             (height + 31) / 32,
-                                                                             1);
+                                                                        "PaletteKnife",
+                                                                        SHADER(palette_knife.comp.glsl.spv),
+                                                                        (width + 31) / 32,
+                                                                        (height + 31) / 32,
+                                                                        1);
+    paletteKnifeNode->AddComputeElement({
+        .pushConstantInfo = pushConstantInfo,
+        .buffers = pkPipelineBuffers
+    });
 
     ret = paletteKnifeNode->CreateComputeGraphNode();
     if (ret != VK_SUCCESS) {

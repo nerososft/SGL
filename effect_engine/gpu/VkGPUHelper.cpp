@@ -301,8 +301,8 @@ void VkGPUHelper::GPUCmdPipelineBufferMemBarrier(const VkCommandBuffer commandBu
                                                  const VkPipelineStageFlags dstStageMask,
                                                  const VkDependencyFlags dependencyFlags,
                                                  const std::vector<VkBufferMemoryBarrier> &bufferMemoryBarriers) {
-    constexpr std::vector<VkMemoryBarrier> memoryBarriers;
-    constexpr std::vector<VkImageMemoryBarrier> imageMemoryBarrier;
+    const std::vector<VkMemoryBarrier> memoryBarriers;
+    const std::vector<VkImageMemoryBarrier> imageMemoryBarrier;
     GPUCmdPipelineBarrier(commandBuffer,
                           srcStageMask,
                           dstStageMask,

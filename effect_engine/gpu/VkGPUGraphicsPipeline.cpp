@@ -90,8 +90,8 @@ VkResult VkGPUGraphicsPipeline::CreateGraphicsPipeline(const VkDevice device,
     scissor.extent.height = static_cast<uint32_t>(viewHeight);
     viewportScissors.push_back(scissor);
 
-    constexpr std::vector<VkPipelineColorBlendAttachmentState> colorBlendStateCreateInfos;
-    constexpr std::vector<VkDynamicState> dynamicStates;
+    const std::vector<VkPipelineColorBlendAttachmentState> colorBlendStateCreateInfos;
+    const std::vector<VkDynamicState> dynamicStates;
 
     result = VkGPUHelper::CreateGraphicsPipeline(device,
                                                  pipelineCache,

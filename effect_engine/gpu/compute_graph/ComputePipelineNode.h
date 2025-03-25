@@ -10,11 +10,14 @@
 #include "effect_engine/gpu/VkGPUContext.h"
 #include "effect_engine/gpu/VkGPUDescriptorSet.h"
 
+
+struct ComputeElement {
+    PushConstantInfo pushConstantInfo;
+    const std::vector<PipelineNodeBuffer> buffers;
+};
+
 class ComputePipelineNode final : public IComputeGraphNode {
     std::string shaderPath;
-    PushConstantInfo pushConstantInfo{};
-
-    std::vector<PipelineNodeBuffer> pipelineBuffers;
 
     uint32_t workGroupCountX = 1;
     uint32_t workGroupCountY = 1;
@@ -23,17 +26,19 @@ class ComputePipelineNode final : public IComputeGraphNode {
     std::shared_ptr<VkGPUContext> gpuCtx = nullptr;
     std::shared_ptr<VkGPUComputePipeline> computePipeline = nullptr;
     std::vector<VkDescriptorBufferInfo> pipelineDescriptorBufferInfos;
-    std::shared_ptr<VkGPUDescriptorSet> pipelineDescriptorSet = nullptr;
+    std::vector<std::shared_ptr<VkGPUDescriptorSet> > pipelineDescriptorSets;
+
+    std::vector<ComputeElement> computeElements;
 
 public:
     ComputePipelineNode(const std::shared_ptr<VkGPUContext> &gpuCtx,
                         const std::string &name,
                         const std::string &shaderPath,
-                        PushConstantInfo pushConstantInfo,
-                        const std::vector<PipelineNodeBuffer> &buffers,
                         uint32_t workGroupCountX,
                         uint32_t workGroupCountY,
                         uint32_t workGroupCountZ);
+
+    void AddComputeElement(const ComputeElement &computeElement);
 
     ~ComputePipelineNode() override = default;
 
