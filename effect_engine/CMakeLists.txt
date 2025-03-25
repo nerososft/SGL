@@ -84,6 +84,8 @@ add_library(gpu_effect_engine SHARED
         filters/impl/VoronoiFilter.h
         gpu/VkGPUBuffer.cpp
         gpu/VkGPUBuffer.h
+        gpu/VkGPUGraphicsPipeline.cpp
+        gpu/VkGPUGraphicsPipeline.h
 )
 target_link_libraries(gpu_effect_engine vulkan)
 if (CMAKE_SYSTEM_NAME MATCHES "OHOS")

@@ -14,6 +14,13 @@ public:
 
     ~VkGPUHelper() = default;
 
+    static VkResult CreateGraphicsPipeline(VkDevice device,
+                                           VkPipelineCache pipelineCache,
+                                           VkPipelineLayout pipelineLayout,
+                                           VkShaderModule vertexShaderModule,
+                                           VkShaderModule fragmentShaderModule,
+                                           VkRenderPass renderPass, VkPipeline *pipeline);
+
     static VkResult CreateUniformBufferAndUploadData(VkDevice device,
                                                      const std::vector<uint32_t> &queueFamilyIndices,
                                                      const VkPhysicalDeviceMemoryProperties *memoryProperties,

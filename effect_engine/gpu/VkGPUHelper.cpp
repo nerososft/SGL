@@ -16,6 +16,72 @@
 #include "effect_engine/utils/IOUtils.h"
 #include "effect_engine/utils/TimeUtils.h"
 
+VkResult VkGPUHelper::CreateGraphicsPipeline(const VkDevice device,
+                                             const VkPipelineCache pipelineCache,
+                                             const VkPipelineLayout pipelineLayout,
+                                             const VkShaderModule vertexShaderModule,
+                                             const VkShaderModule fragmentShaderModule,
+                                             const VkRenderPass renderPass,
+                                             VkPipeline *pipeline) {
+    VkResult ret = VK_SUCCESS;
+    std::vector<VkGraphicsPipelineCreateInfo> pipelineCreateInfos;
+
+    std::vector<VkPipelineShaderStageCreateInfo> shaderStages;
+    VkPipelineShaderStageCreateInfo vertexShaderStageCreateInfo = {};
+    vertexShaderStageCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+    vertexShaderStageCreateInfo.flags = 0;
+    vertexShaderStageCreateInfo.pNext = nullptr;
+    vertexShaderStageCreateInfo.pName = "main";
+    vertexShaderStageCreateInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
+    vertexShaderStageCreateInfo.module = vertexShaderModule;
+    vertexShaderStageCreateInfo.pSpecializationInfo = nullptr;
+    shaderStages.push_back(vertexShaderStageCreateInfo);
+
+    VkPipelineShaderStageCreateInfo fragmentShaderStageCreateInfo = {};
+    fragmentShaderStageCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+    fragmentShaderStageCreateInfo.flags = 0;
+    fragmentShaderStageCreateInfo.pNext = nullptr;
+    fragmentShaderStageCreateInfo.pName = "main";
+    fragmentShaderStageCreateInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+    fragmentShaderStageCreateInfo.module = fragmentShaderModule;
+    fragmentShaderStageCreateInfo.pSpecializationInfo = nullptr;
+    shaderStages.push_back(fragmentShaderStageCreateInfo);
+
+    VkGraphicsPipelineCreateInfo pipelineCreateInfo = {};
+    pipelineCreateInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+    pipelineCreateInfo.flags = 0;
+    pipelineCreateInfo.pNext = nullptr;
+    pipelineCreateInfo.stageCount = shaderStages.size();
+    pipelineCreateInfo.pStages = shaderStages.data();
+    // const VkPipelineVertexInputStateCreateInfo *pVertexInputState;
+    // const VkPipelineInputAssemblyStateCreateInfo *pInputAssemblyState;
+    // const VkPipelineTessellationStateCreateInfo *pTessellationState;
+    // const VkPipelineViewportStateCreateInfo *pViewportState;
+    // const VkPipelineRasterizationStateCreateInfo *pRasterizationState;
+    // const VkPipelineMultisampleStateCreateInfo *pMultisampleState;
+    // const VkPipelineDepthStencilStateCreateInfo *pDepthStencilState;
+    // const VkPipelineColorBlendStateCreateInfo *pColorBlendState;
+    // const VkPipelineDynamicStateCreateInfo *pDynamicState;
+    pipelineCreateInfo.layout = pipelineLayout;
+    pipelineCreateInfo.renderPass = renderPass;
+    pipelineCreateInfo.subpass = 0;
+    pipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;
+    pipelineCreateInfo.basePipelineIndex = 0;
+    pipelineCreateInfos.push_back(pipelineCreateInfo);
+
+    ret = vkCreateGraphicsPipelines(device,
+                                    pipelineCache,
+                                    pipelineCreateInfos.size(),
+                                    pipelineCreateInfos.data(),
+                                    nullptr,
+                                    pipeline);
+    if (ret != VK_SUCCESS) {
+        Logger() << "Failed to create graphics pipeline." << std::endl;
+        return ret;
+    }
+    return ret;
+}
+
 VkResult VkGPUHelper::CreateUniformBufferAndUploadData(const VkDevice device,
                                                        const std::vector<uint32_t> &queueFamilyIndices,
                                                        const VkPhysicalDeviceMemoryProperties *memoryProperties,

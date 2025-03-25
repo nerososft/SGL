@@ -17,13 +17,13 @@
 #include "effect_engine/log/Log.h"
 
 ComputePipelineNode::ComputePipelineNode(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                                                   const std::string &name,
-                                                   const std::string &shaderPath,
-                                                   const PushConstantInfo pushConstantInfo,
-                                                   const std::vector<PipelineNodeBuffer> &buffers,
-                                                   const uint32_t workGroupCountX,
-                                                   const uint32_t workGroupCountY,
-                                                   const uint32_t workGroupCountZ) {
+                                         const std::string &name,
+                                         const std::string &shaderPath,
+                                         const PushConstantInfo pushConstantInfo,
+                                         const std::vector<PipelineNodeBuffer> &buffers,
+                                         const uint32_t workGroupCountX,
+                                         const uint32_t workGroupCountY,
+                                         const uint32_t workGroupCountZ) {
     this->gpuCtx = gpuCtx;
     this->name = name;
     this->shaderPath = shaderPath;
