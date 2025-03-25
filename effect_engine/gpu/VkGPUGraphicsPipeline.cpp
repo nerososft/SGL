@@ -15,13 +15,23 @@
 
 VkGPUGraphicsPipeline::VkGPUGraphicsPipeline(const std::string &vertexShaderPath,
                                              const std::string &fragShaderPath,
+                                             const float viewWidth,
+                                             const float viewHeight,
                                              const std::vector<VkDescriptorSetLayoutBinding> &
                                              descriptorSetLayoutBindings,
-                                             const std::vector<VkPushConstantRange> &pushConstantRanges) {
+                                             const std::vector<VkPushConstantRange> &pushConstantRanges,
+                                             const std::vector<VkVertexInputBindingDescription>
+                                             &vertexInputBindingDescriptions,
+                                             const std::vector<VkVertexInputAttributeDescription>
+                                             &vertexInputAttributeDescriptions) {
     this->vertexShaderPath = vertexShaderPath;
     this->fragShaderPath = fragShaderPath;
+    this->viewWidth = viewWidth;
+    this->viewHeight = viewHeight;
     this->descriptorSetLayoutBindings = descriptorSetLayoutBindings;
     this->pushConstantRanges = pushConstantRanges;
+    this->vertexInputBindingDescriptions = vertexInputBindingDescriptions;
+    this->vertexInputAttributeDescriptions = vertexInputAttributeDescriptions;
 }
 
 VkResult VkGPUGraphicsPipeline::CreateGraphicsPipeline(const VkDevice device,
@@ -64,12 +74,21 @@ VkResult VkGPUGraphicsPipeline::CreateGraphicsPipeline(const VkDevice device,
         return ret;
     }
 
-    // TODO:
-    constexpr std::vector<VkVertexInputBindingDescription> vertexInputBindingDescriptions;
-    constexpr std::vector<VkVertexInputAttributeDescription> vertexInputAttributeDescriptions;
-
-    constexpr std::vector<VkViewport> viewports;
-    constexpr std::vector<VkRect2D> viewportScissors;
+    std::vector<VkViewport> viewports;
+    VkViewport viewport;
+    viewport.minDepth = 0.0f;
+    viewport.maxDepth = 1.0f;
+    viewport.x = 0.0f;
+    viewport.y = 0.0f;
+    viewport.width = viewWidth;
+    viewport.height = viewHeight;
+    viewports.push_back(viewport);
+    std::vector<VkRect2D> viewportScissors;
+    VkRect2D scissor;
+    scissor.offset = {0, 0};
+    scissor.extent.width = static_cast<uint32_t>(viewWidth);
+    scissor.extent.height = static_cast<uint32_t>(viewHeight);
+    viewportScissors.push_back(scissor);
 
     constexpr std::vector<VkPipelineColorBlendAttachmentState> colorBlendStateCreateInfos;
     constexpr std::vector<VkDynamicState> dynamicStates;

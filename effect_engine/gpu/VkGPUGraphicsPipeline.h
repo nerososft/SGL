@@ -12,9 +12,13 @@ class VkGPUGraphicsPipeline {
     VkDevice device = VK_NULL_HANDLE;
     std::string vertexShaderPath;
     std::string fragShaderPath;
+    float viewWidth, viewHeight;
 
     std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
     std::vector<VkPushConstantRange> pushConstantRanges;
+
+    std::vector<VkVertexInputBindingDescription> vertexInputBindingDescriptions;
+    std::vector<VkVertexInputAttributeDescription> vertexInputAttributeDescriptions;
 
     VkDescriptorSetLayout descriptorSetLayout = VK_NULL_HANDLE;
     VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
@@ -25,8 +29,12 @@ class VkGPUGraphicsPipeline {
 public:
     VkGPUGraphicsPipeline(const std::string &vertexShaderPath,
                           const std::string &fragShaderPath,
+                          float viewWidth,
+                          float viewHeight,
                           const std::vector<VkDescriptorSetLayoutBinding> &descriptorSetLayoutBindings,
-                          const std::vector<VkPushConstantRange> &pushConstantRanges);
+                          const std::vector<VkPushConstantRange> &pushConstantRanges,
+                          const std::vector<VkVertexInputBindingDescription> &vertexInputBindingDescriptions,
+                          const std::vector<VkVertexInputAttributeDescription> &vertexInputAttributeDescriptions);
 
     ~VkGPUGraphicsPipeline() = default;
 
