@@ -39,14 +39,14 @@ add_library(gpu_effect_engine SHARED
         gpu/compute_graph/ComputeGraph.cpp
         gpu/compute_graph/ComputeGraph.h
         gpu/compute_graph/IComputeGraphNode.h
-        gpu/compute_graph/PipelineComputeGraphNode.cpp
-        gpu/compute_graph/PipelineComputeGraphNode.h
+        gpu/compute_graph/ComputePipelineNode.cpp
+        gpu/compute_graph/ComputePipelineNode.h
         filters/impl/GaussianBlurFilter.cpp
         filters/impl/GaussianBlurFilter.h
         filters/impl/OldGaussianBlurFilter.cpp
         filters/impl/OldGaussianBlurFilter.h
-        gpu/compute_graph/BufferCopyComputeGraphNode.h
-        gpu/compute_graph/BufferCopyComputeGraphNode.cpp
+        gpu/compute_graph/BufferCopyNode.h
+        gpu/compute_graph/BufferCopyNode.cpp
         filters/impl/ChinesePaintFilter.h
         filters/impl/ChinesePaintFilter.cpp
         filters/impl/ColorPencilSketchFilter.cpp

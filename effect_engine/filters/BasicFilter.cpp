@@ -13,7 +13,7 @@
 #endif
 
 #include "effect_engine/gpu/VkGPUComputePipeline.h"
-#include "effect_engine/gpu/compute_graph/PipelineComputeGraphNode.h"
+#include "effect_engine/gpu/compute_graph/ComputePipelineNode.h"
 #include "effect_engine/log/Log.h"
 
 VkResult BasicFilter::DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
@@ -50,7 +50,7 @@ VkResult BasicFilter::DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     pipelineBuffers.push_back(pipelineNodeInput);
     pipelineBuffers.push_back(pipelineNodeOutput);
 
-    const auto grayNode = std::make_shared<PipelineComputeGraphNode>(gpuCtx,
+    const auto grayNode = std::make_shared<ComputePipelineNode>(gpuCtx,
                                                                      name,
                                                                      filterParams.shaderPath,
                                                                      pushConstantInfo,

@@ -13,8 +13,8 @@
 #include "effect_engine/config.h"
 #include "effect_engine/filters/BasicFilter.h"
 #include "effect_engine/gpu/VkGPUHelper.h"
-#include "effect_engine/gpu/compute_graph/BufferCopyComputeGraphNode.h"
-#include "effect_engine/gpu/compute_graph/PipelineComputeGraphNode.h"
+#include "effect_engine/gpu/compute_graph/BufferCopyNode.h"
+#include "effect_engine/gpu/compute_graph/ComputePipelineNode.h"
 #include "effect_engine/log/Log.h"
 
 VkResult PaletteKnifeFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
@@ -56,7 +56,7 @@ VkResult PaletteKnifeFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     vPipelineBuffers.push_back(qPipelineNodeInput);
     vPipelineBuffers.push_back(qPipelineNodeOutput);
 
-    const auto qCalculateNode = std::make_shared<PipelineComputeGraphNode>(gpuCtx,
+    const auto qCalculateNode = std::make_shared<ComputePipelineNode>(gpuCtx,
                                                                            "QCalculate",
                                                                            SHADER(palette_q.comp.glsl.spv),
                                                                            pushConstantInfo,
@@ -91,7 +91,7 @@ VkResult PaletteKnifeFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     hPipelineBuffers.push_back(pipelineNodeQInput);
     hPipelineBuffers.push_back(pipelineNodeOutput);
 
-    const auto paletteKnifeNode = std::make_shared<PipelineComputeGraphNode>(gpuCtx,
+    const auto paletteKnifeNode = std::make_shared<ComputePipelineNode>(gpuCtx,
                                                                              "PaletteKnife",
                                                                              SHADER(palette_knife.comp.glsl.spv),
                                                                              pushConstantInfo,

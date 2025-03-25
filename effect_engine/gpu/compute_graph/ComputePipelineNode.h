@@ -27,7 +27,7 @@ typedef struct {
     VkBuffer buffer;
 } PipelineNodeBuffer;
 
-class PipelineComputeGraphNode final : public IComputeGraphNode {
+class ComputePipelineNode final : public IComputeGraphNode {
     std::string shaderPath;
     PushConstantInfo pushConstantInfo{};
 
@@ -43,7 +43,7 @@ class PipelineComputeGraphNode final : public IComputeGraphNode {
     std::shared_ptr<VkGPUDescriptorSet> pipelineDescriptorSet = nullptr;
 
 public:
-    PipelineComputeGraphNode(const std::shared_ptr<VkGPUContext> &gpuCtx,
+    ComputePipelineNode(const std::shared_ptr<VkGPUContext> &gpuCtx,
                              const std::string &name,
                              const std::string &shaderPath,
                              PushConstantInfo pushConstantInfo,
@@ -52,7 +52,7 @@ public:
                              uint32_t workGroupCountY,
                              uint32_t workGroupCountZ);
 
-    ~PipelineComputeGraphNode() override = default;
+    ~ComputePipelineNode() override = default;
 
     VkResult CreateComputeGraphNode() override;
 

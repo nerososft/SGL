@@ -2,7 +2,7 @@
 // Created by neo on 2025/3/11.
 //
 
-#include "BufferCopyComputeGraphNode.h"
+#include "BufferCopyNode.h"
 
 #include <iostream>
 #ifdef OS_OPEN_HARMONY
@@ -14,7 +14,7 @@
 #include "effect_engine/gpu/VkGPUHelper.h"
 #include "effect_engine/log/Log.h"
 
-BufferCopyComputeGraphNode::BufferCopyComputeGraphNode(const std::shared_ptr<VkGPUContext> &gpuCtx,
+BufferCopyNode::BufferCopyNode(const std::shared_ptr<VkGPUContext> &gpuCtx,
                                                        const std::string &name,
                                                        const BufferCopyNodeBufferInfo srcBuffer,
                                                        const BufferCopyNodeBufferInfo dstBuffer) {
@@ -24,7 +24,7 @@ BufferCopyComputeGraphNode::BufferCopyComputeGraphNode(const std::shared_ptr<VkG
     this->gpuCtx = gpuCtx;
 }
 
-VkResult BufferCopyComputeGraphNode::CreateComputeGraphNode() {
+VkResult BufferCopyNode::CreateComputeGraphNode() {
     if (gpuCtx == nullptr) {
         Logger() << "gpuCtx is null" << std::endl;
         return VK_ERROR_INITIALIZATION_FAILED;
@@ -32,7 +32,7 @@ VkResult BufferCopyComputeGraphNode::CreateComputeGraphNode() {
     return VK_SUCCESS;
 }
 
-void BufferCopyComputeGraphNode::Compute(const VkCommandBuffer commandBuffer) {
+void BufferCopyNode::Compute(const VkCommandBuffer commandBuffer) {
     Logger() << "Executing Compute Node: " << name << std::endl;
     if (!this->dependencies.empty()) {
         for (const auto &dependence: this->dependencies) {
@@ -72,5 +72,5 @@ void BufferCopyComputeGraphNode::Compute(const VkCommandBuffer commandBuffer) {
                                                 dtsBufferMemoryBarriers);
 }
 
-void BufferCopyComputeGraphNode::Destroy() {
+void BufferCopyNode::Destroy() {
 }

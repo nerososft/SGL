@@ -11,9 +11,9 @@
 #include <vulkan/vk_enum_string_helper.h>
 #endif
 
-#include "effect_engine/gpu/compute_graph/BufferCopyComputeGraphNode.h"
+#include "effect_engine/gpu/compute_graph/BufferCopyNode.h"
 #include "effect_engine/gpu/compute_graph/ComputeGraph.h"
-#include "effect_engine/gpu/compute_graph/PipelineComputeGraphNode.h"
+#include "effect_engine/gpu/compute_graph/ComputePipelineNode.h"
 #include "effect_engine/log/Log.h"
 
 VkResult BaseBlender::DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
@@ -38,7 +38,7 @@ VkResult BaseBlender::DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     BufferCopyNodeBufferInfo dstBufferInfo;
     dstBufferInfo.buffer = outputBuffer;
     dstBufferInfo.bufferSize = baseImageInfo.bufferSize;
-    const auto copyBufferNode = std::make_shared<BufferCopyComputeGraphNode>(gpuCtx,
+    const auto copyBufferNode = std::make_shared<BufferCopyNode>(gpuCtx,
                                                                              "CopyBufferToOutputBuffer",
                                                                              srcBufferInfo,
                                                                              dstBufferInfo);
@@ -66,7 +66,7 @@ VkResult BaseBlender::DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     pipelineBuffers.push_back(pipelineNodeInput0);
     pipelineBuffers.push_back(pipelineNodeInput1);
     pipelineBuffers.push_back(pipelineNodeOutput);
-    const auto blendNode = std::make_shared<PipelineComputeGraphNode>(gpuCtx,
+    const auto blendNode = std::make_shared<ComputePipelineNode>(gpuCtx,
                                                                       name,
                                                                       blenderParams.shaderPath,
                                                                       pushConstantInfo,

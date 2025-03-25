@@ -2,7 +2,7 @@
 // Created by neo on 2025/3/11.
 //
 
-#include "PipelineComputeGraphNode.h"
+#include "ComputePipelineNode.h"
 
 #include <iostream>
 #ifdef OS_OPEN_HARMONY
@@ -16,7 +16,7 @@
 #include "effect_engine/gpu/VkGPUHelper.h"
 #include "effect_engine/log/Log.h"
 
-PipelineComputeGraphNode::PipelineComputeGraphNode(const std::shared_ptr<VkGPUContext> &gpuCtx,
+ComputePipelineNode::ComputePipelineNode(const std::shared_ptr<VkGPUContext> &gpuCtx,
                                                    const std::string &name,
                                                    const std::string &shaderPath,
                                                    const PushConstantInfo pushConstantInfo,
@@ -34,7 +34,7 @@ PipelineComputeGraphNode::PipelineComputeGraphNode(const std::shared_ptr<VkGPUCo
     this->pipelineBuffers = buffers;
 }
 
-VkResult PipelineComputeGraphNode::CreateComputeGraphNode() {
+VkResult ComputePipelineNode::CreateComputeGraphNode() {
     if (gpuCtx == nullptr) {
         Logger() << "gpuCtx is null" << std::endl;
         return VK_ERROR_INITIALIZATION_FAILED;
@@ -97,7 +97,7 @@ VkResult PipelineComputeGraphNode::CreateComputeGraphNode() {
     return ret;
 }
 
-void PipelineComputeGraphNode::Compute(const VkCommandBuffer commandBuffer) {
+void ComputePipelineNode::Compute(const VkCommandBuffer commandBuffer) {
     Logger() << "Executing Compute Node: " << name << std::endl;
     if (!this->dependencies.empty()) {
         for (const auto &dependence: this->dependencies) {
@@ -132,7 +132,7 @@ void PipelineComputeGraphNode::Compute(const VkCommandBuffer commandBuffer) {
                                                 bufferMemoryBarriers);
 }
 
-void PipelineComputeGraphNode::Destroy() {
+void ComputePipelineNode::Destroy() {
     computePipeline->Destroy();
     pipelineDescriptorSet->Destroy();
 }

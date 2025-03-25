@@ -13,8 +13,8 @@
 #include "effect_engine/config.h"
 #include "effect_engine/filters/BasicFilter.h"
 #include "effect_engine/gpu/VkGPUHelper.h"
-#include "effect_engine/gpu/compute_graph/BufferCopyComputeGraphNode.h"
-#include "effect_engine/gpu/compute_graph/PipelineComputeGraphNode.h"
+#include "effect_engine/gpu/compute_graph/BufferCopyNode.h"
+#include "effect_engine/gpu/compute_graph/ComputePipelineNode.h"
 #include "effect_engine/log/Log.h"
 
 VkResult OldGaussianBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
@@ -53,7 +53,7 @@ VkResult OldGaussianBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCt
     vPipelineBuffers.push_back(vPipelineNodeInput);
     vPipelineBuffers.push_back(vPipelineNodeOutput);
 
-    const auto gaussianVerticalNode = std::make_shared<PipelineComputeGraphNode>(gpuCtx,
+    const auto gaussianVerticalNode = std::make_shared<ComputePipelineNode>(gpuCtx,
         "OldGaussianVerticalBlur",
         SHADER(vertical_blur_old.comp.glsl.spv),
         pushConstantInfo,
@@ -82,7 +82,7 @@ VkResult OldGaussianBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCt
     hPipelineBuffers.push_back(hPipelineNodeInput);
     hPipelineBuffers.push_back(hPipelineNodeOutput);
 
-    const auto gaussianHorizontalNode = std::make_shared<PipelineComputeGraphNode>(gpuCtx,
+    const auto gaussianHorizontalNode = std::make_shared<ComputePipelineNode>(gpuCtx,
         "OldGaussianHorizontalBlur",
         SHADER(horizontal_blur_old.comp.glsl.spv),
         pushConstantInfo,
@@ -103,7 +103,7 @@ VkResult OldGaussianBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCt
     BufferCopyNodeBufferInfo dstBufferInfo;
     dstBufferInfo.buffer = outputBuffer;
     dstBufferInfo.bufferSize = bufferSize;
-    const auto copyBufferNode = std::make_shared<BufferCopyComputeGraphNode>(gpuCtx,
+    const auto copyBufferNode = std::make_shared<BufferCopyNode>(gpuCtx,
                                                                              "CopyBufferToOutputBuffer",
                                                                              srcBufferInfo,
                                                                              dstBufferInfo);
