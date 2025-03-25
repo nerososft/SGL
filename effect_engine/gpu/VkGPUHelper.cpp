@@ -47,22 +47,33 @@ VkResult VkGPUHelper::CreateGraphicsPipeline(const VkDevice device,
     fragmentShaderStageCreateInfo.pSpecializationInfo = nullptr;
     shaderStages.push_back(fragmentShaderStageCreateInfo);
 
+    // TODO:
+    VkPipelineVertexInputStateCreateInfo vertexInputStateCreateInfo = {};
+    VkPipelineInputAssemblyStateCreateInfo inputAssemblyState = {};
+    VkPipelineTessellationStateCreateInfo tessellationState = {};
+    VkPipelineViewportStateCreateInfo viewportState = {};
+    VkPipelineRasterizationStateCreateInfo rasterizationState = {};
+    VkPipelineMultisampleStateCreateInfo multisampleState = {};
+    VkPipelineDepthStencilStateCreateInfo depthStencilState = {};
+    VkPipelineColorBlendStateCreateInfo colorBlendState = {};
+    VkPipelineDynamicStateCreateInfo dynamicState = {};
+
     VkGraphicsPipelineCreateInfo pipelineCreateInfo = {};
     pipelineCreateInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
     pipelineCreateInfo.flags = 0;
     pipelineCreateInfo.pNext = nullptr;
     pipelineCreateInfo.stageCount = shaderStages.size();
     pipelineCreateInfo.pStages = shaderStages.data();
-    // TODO:
-    // const VkPipelineVertexInputStateCreateInfo *pVertexInputState;
-    // const VkPipelineInputAssemblyStateCreateInfo *pInputAssemblyState;
-    // const VkPipelineTessellationStateCreateInfo *pTessellationState;
-    // const VkPipelineViewportStateCreateInfo *pViewportState;
-    // const VkPipelineRasterizationStateCreateInfo *pRasterizationState;
-    // const VkPipelineMultisampleStateCreateInfo *pMultisampleState;
-    // const VkPipelineDepthStencilStateCreateInfo *pDepthStencilState;
-    // const VkPipelineColorBlendStateCreateInfo *pColorBlendState;
-    // const VkPipelineDynamicStateCreateInfo *pDynamicState;
+
+    pipelineCreateInfo.pVertexInputState = &vertexInputStateCreateInfo;
+    pipelineCreateInfo.pInputAssemblyState = &inputAssemblyState;
+    pipelineCreateInfo.pTessellationState = &tessellationState;
+    pipelineCreateInfo.pViewportState = &viewportState;
+    pipelineCreateInfo.pRasterizationState = &rasterizationState;
+    pipelineCreateInfo.pMultisampleState = &multisampleState;
+    pipelineCreateInfo.pDepthStencilState = &depthStencilState;
+    pipelineCreateInfo.pColorBlendState = &colorBlendState;
+    pipelineCreateInfo.pDynamicState = &dynamicState;
     pipelineCreateInfo.layout = pipelineLayout;
     pipelineCreateInfo.renderPass = renderPass;
     pipelineCreateInfo.subpass = 0;
