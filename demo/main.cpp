@@ -143,10 +143,10 @@ int main(int argc, char *argv[]) {
     // filter->SetSaturation(50);
     // effectEngine.Process("../../demo/images/colorful.png", "../../demo/images/colorful_vibrance.png", filter);
 
-    const auto filter = std::make_shared<PaletteKnifeFilter>();
-    filter->SetRadius(10);
-    filter->SetQuantScale(5);
-    effectEngine.Process("../../demo/images/colorful.png", "../../demo/images/colorful_palette_knife.png", filter);
+    //const auto filter = std::make_shared<PaletteKnifeFilter>();
+    //filter->SetRadius(10);
+    //filter->SetQuantScale(5);
+    //effectEngine.Process("../../demo/images/colorful.png", "../../demo/images/colorful_palette_knife.png", filter);
 
     // const auto filter = std::make_shared<NES8BitMosaicFilter>();
     // filter->SetBlockSize(64);
