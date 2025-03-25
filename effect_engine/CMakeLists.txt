@@ -88,6 +88,8 @@ add_library(gpu_effect_engine SHARED
         gpu/VkGPUGraphicsPipeline.h
         gpu/compute_graph/GraphicsPipelineNode.cpp
         gpu/compute_graph/GraphicsPipelineNode.h
+        gpu/VkGPURenderPass.cpp
+        gpu/VkGPURenderPass.h
 )
 target_link_libraries(gpu_effect_engine vulkan)
 if (CMAKE_SYSTEM_NAME MATCHES "OHOS")
