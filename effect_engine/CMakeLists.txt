@@ -67,6 +67,8 @@ add_library(gpu_effect_engine SHARED
         filters/impl/HueEqualFilter.cpp
         filters/impl/customKernelFilter.h
         filters/impl/customKernelFilter.cpp
+        filters/impl/colorBalanceFilter.h
+        filters/impl/colorBalanceFilter.cpp
         blenders/IBlender.h
         blenders/BaseBlender.cpp
         blenders/BaseBlender.h

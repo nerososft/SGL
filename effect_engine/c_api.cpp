@@ -10,6 +10,7 @@
 #include "effect_engine/filters/impl/PaletteKnifeFilter.h"
 #include "effect_engine/filters/impl/HueEqualFilter.h"
 #include "effect_engine/filters/impl/customKernelFilter.h"
+#include "effect_engine/filters/impl/colorBalanceFilter.h"
 
 #include "log/Log.h"
 
@@ -98,26 +99,120 @@ bool hue_equal_filter_gpu(void* in, void* out) {
 
 
 
+    //const auto filter = std::make_shared<customKernelFilter>();
+    //const auto* input = static_cast<ImageInfo*>(in);
+    //const auto* output = static_cast<ImageInfo*>(out);
+
+
+    //int k[25] = {0 , 0 ,0 ,0 ,0,
+    //            0 , 0 ,-1 ,0 ,0,
+    //            0 , -1 ,5 ,-1 ,0,
+    //            0 , 0 ,-1 ,0 ,0,
+    //           0 , 0 ,0 ,0 ,0 };
+
+
+
+    //filter->SetK(k, 25);
+    //filter->SetOffset(0);
+    //filter->SetScale(1);
+    //filter->SetRadius(2);
+
+    //g_effect_engine.Process(*input, *output, filter);
+
+
+        const auto filter = std::make_shared<colorBalanceFilter>();
+    const auto* input = static_cast<ImageInfo*>(in);
+    const auto* output = static_cast<ImageInfo*>(out);
+
+
+
+
+
+    int p[9] = {0 , 100 ,0 ,
+                0 , 100 ,0 ,
+                0 , 100 ,0  };
+
+    int adjustP[9] = { 0 , 0 ,0 ,
+            0 , 0 ,0 ,
+            0 , 0 ,0 };
+
+
+
+    filter->SetP(p, 9);
+    filter->SetP(adjustP, 9);
+    filter->SetL(0);
+
+    g_effect_engine.Process(*input, *output, filter);
+
+
+    return true;
+}
+
+bool custom_kernel_filter_gpu(void* in, void* out, int * k , int radius, int offset, int scale)
+{
+
+
     const auto filter = std::make_shared<customKernelFilter>();
     const auto* input = static_cast<ImageInfo*>(in);
     const auto* output = static_cast<ImageInfo*>(out);
 
 
-    int k[25] = {0 , 0 ,0 ,0 ,0,
-                0 , 0 ,-1 ,0 ,0,
-                0 , -1 ,5 ,-1 ,0,
-                0 , 0 ,-1 ,0 ,0,
-               0 , 0 ,0 ,0 ,0 };
+    //int k[25] = { 0 , 0 ,0 ,0 ,0,
+    //            0 , 0 ,-1 ,0 ,0,
+    //            0 , -1 ,5 ,-1 ,0,
+    //            0 , 0 ,-1 ,0 ,0,
+    //           0 , 0 ,0 ,0 ,0 };
 
 
-
-    filter->SetK(k, 25);
-    filter->SetOffset(0);
-    filter->SetScale(1);
-    filter->SetRadius(2);
+    int k_size = 2 * radius + 1;
+    filter->SetK(k, k_size * k_size);
+    filter->SetOffset(offset);
+    filter->SetScale(scale);
+    filter->SetRadius(radius);
 
     g_effect_engine.Process(*input, *output, filter);
 
+    return true;
+
+
+
+
+
+
+
+
+
+
+
+    return true;
+}
+
+bool color_balance_filter_gpu(void* in, void* out,  float* adjustP, int *p, int l)
+{
+
+    const auto filter = std::make_shared<colorBalanceFilter>();
+    const auto* input = static_cast<ImageInfo*>(in);
+    const auto* output = static_cast<ImageInfo*>(out);
+
+
+
+
+
+    //int p[9] = { 0 , 50 ,0 ,
+    //            0 , 50 ,0 ,
+    //            0 , 50 ,0 };
+
+    //int adjustP[9] = { 0 , 0 ,0 ,
+    //                   0 , 0 ,0 ,
+    //                   0 , 0 ,0 };
+
+
+
+    filter->SetP(p, 9);
+    filter->SetAdjustP(adjustP, 9);
+    filter->SetL(0);
+
+    g_effect_engine.Process(*input, *output, filter);
 
 
     return true;

@@ -1,0 +1,110 @@
+//
+// Created by 1234 on 2025/3/6.
+//
+
+#include "colorBalanceFilter.h"
+
+#include "effect_engine/config.h"
+
+
+
+#include <iostream>
+#ifdef OS_OPEN_HARMONY
+#include <effect_engine/gpu/utils/vk_enum_string_helper.h>
+#else
+#include <vulkan/vk_enum_string_helper.h>
+#endif
+
+#include "effect_engine/filters/BasicFilter.h"
+#include "effect_engine/gpu/VkGPUHelper.h"
+#include "effect_engine/gpu/compute_graph/BufferCopyComputeGraphNode.h"
+#include "effect_engine/gpu/compute_graph/PipelineComputeGraphNode.h"
+#include "effect_engine/log/Log.h"
+
+
+VkResult colorBalanceFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                           const VkDeviceSize bufferSize,
+                           const uint32_t width,
+                           const uint32_t height,
+                           const VkBuffer inputBuffer,
+                           const VkBuffer outputBuffer) {
+    BasicFilterParams params;
+    this->bFilterParams.imageSize.width = width;
+    this->bFilterParams.imageSize.height = height;
+    this->bFilterParams.imageSize.channels = 4;
+    this->bFilterParams.imageSize.bytesPerLine = this->bFilterParams.imageSize.width * 4;
+
+
+    this->computeGraph = std::make_shared<ComputeGraph>(gpuCtx);
+    VkResult ret = this->computeGraph->Init();
+    if (ret != VK_SUCCESS) {
+        Logger() << "Failed to create compute graph, err =" << string_VkResult(ret) << std::endl;
+        return ret;
+    }
+
+    PushConstantInfo pushConstantInfo;
+    pushConstantInfo.size = sizeof(colorBalanceFilterParams);
+    pushConstantInfo.data = &this->bFilterParams;
+
+
+
+    PBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
+    PBuffer->AllocateAndBind(GPU_BUFFER_TYPE_UNIFORM, pSize * sizeof(int) );
+
+
+    adjustPBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
+    adjustPBuffer->AllocateAndBind(GPU_BUFFER_TYPE_UNIFORM, adjustPSize * sizeof(float));
+    //kBuffer->GetBuffer();
+    PBuffer->UploadData(P, pSize * sizeof(int));
+    adjustPBuffer->UploadData(adjustP , adjustPSize * sizeof(float) );
+
+    PipelineNodeBuffer pipelineNodeInput;
+    pipelineNodeInput.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
+    pipelineNodeInput.buffer = inputBuffer;
+    pipelineNodeInput.bufferSize = bufferSize;
+
+    PipelineNodeBuffer pipelineNodeAdjustPInput;
+    pipelineNodeAdjustPInput.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
+    pipelineNodeAdjustPInput.buffer = adjustPBuffer->GetBuffer();
+    pipelineNodeAdjustPInput.bufferSize = pSize * sizeof(float);
+
+    PipelineNodeBuffer pipelineNodePInput;
+    pipelineNodePInput.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
+    pipelineNodePInput.buffer = PBuffer->GetBuffer();
+    pipelineNodePInput.bufferSize = pSize * sizeof(int);
+
+    PipelineNodeBuffer pipelineNodeOutput;
+    pipelineNodeOutput.type = PIPELINE_NODE_BUFFER_STORAGE_WRITE;
+    pipelineNodeOutput.buffer = outputBuffer;
+    pipelineNodeOutput.bufferSize = bufferSize;
+
+    std::vector<PipelineNodeBuffer> vPipelineBuffers;
+    vPipelineBuffers.push_back(pipelineNodeInput);
+    vPipelineBuffers.push_back(pipelineNodeAdjustPInput);
+    vPipelineBuffers.push_back(pipelineNodePInput);
+    vPipelineBuffers.push_back(pipelineNodeOutput);
+
+    const auto kCalculateNode = std::make_shared<PipelineComputeGraphNode>(gpuCtx,
+        "colorBalance",
+        SHADER(color_balance.comp.glsl.spv),
+        pushConstantInfo,
+        vPipelineBuffers,
+        (width + 31) / 32,
+        (height + 31) / 32,
+        1);
+
+    ret = kCalculateNode->CreateComputeGraphNode();
+    if (ret != VK_SUCCESS) {
+        Logger() << "Failed to create compute graph, err =" << string_VkResult(ret) << std::endl;
+        return ret;
+    }
+
+    computeGraph->AddComputeGraphNode(kCalculateNode);
+
+    return computeGraph->Compute();
+}
+
+void colorBalanceFilter::Destroy() {
+    Logger() << "customKernelFilter begin" << std::endl;
+    BasicFilter::Destroy();
+}
