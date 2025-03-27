@@ -24,6 +24,7 @@ ComputePipelineNode::ComputePipelineNode(const std::shared_ptr<VkGPUContext> &gp
                                          const uint32_t workGroupCountZ) {
     this->gpuCtx = gpuCtx;
     this->name = name;
+    this->type = COMPUTE_GRAPH_NODE_COMPUTE;
     this->shaderPath = shaderPath;
     this->workGroupCountX = workGroupCountX;
     this->workGroupCountY = workGroupCountY;

@@ -18,6 +18,7 @@ GraphicsPipelineNode::GraphicsPipelineNode(const std::shared_ptr<VkGPUContext> &
                                            const float height) {
     this->gpuCtx = gpuCtx;
     this->name = name;
+    this->type = COMPUTE_GRAPH_NODE_GRAPHICS;
     this->renderPass = renderPass;
     this->vertexShaderPath = vertexShaderPath;
     this->fragmentShaderPath = fragmentShaderPath;

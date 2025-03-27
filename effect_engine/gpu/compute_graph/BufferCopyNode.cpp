@@ -19,6 +19,7 @@ BufferCopyNode::BufferCopyNode(const std::shared_ptr<VkGPUContext> &gpuCtx,
                                                        const BufferCopyNodeBufferInfo srcBuffer,
                                                        const BufferCopyNodeBufferInfo dstBuffer) {
     this->name = name;
+    this->type = COMPUTE_GRAPH_NODE_BUF_COPY;
     this->srcBuffer = srcBuffer;
     this->dstBuffer = dstBuffer;
     this->gpuCtx = gpuCtx;

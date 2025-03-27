@@ -27,8 +27,15 @@ typedef struct {
     VkBuffer buffer;
 } PipelineNodeBuffer;
 
+typedef enum {
+    COMPUTE_GRAPH_NODE_COMPUTE,
+    COMPUTE_GRAPH_NODE_GRAPHICS,
+    COMPUTE_GRAPH_NODE_BUF_COPY,
+} ComputeGraphNodeType;
+
 class IComputeGraphNode {
 protected:
+    ComputeGraphNodeType type;
     std::string name;
     std::vector<std::shared_ptr<IComputeGraphNode> > dependencies;
 
@@ -44,6 +51,8 @@ public:
     virtual void Compute(VkCommandBuffer commandBuffer) = 0;
 
     std::string &GetName() { return name; }
+
+    [[nodiscard]] bool IsGraphics() const { return type == COMPUTE_GRAPH_NODE_GRAPHICS; }
 
     virtual void Destroy() = 0;
 };
