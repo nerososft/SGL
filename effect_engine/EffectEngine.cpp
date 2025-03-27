@@ -205,7 +205,7 @@ void EffectEngine::Process(const char *inputFilePath,
         return;
     }
 
-    ImageUtils::WritePngFile(outputFilePath, imageWidth, imageHeight, channels, outputStorageBuffer->GetMappedAddr());
+    ImageUtils::WritePngFile(outputFilePath, newWidth, newHeight, channels, outputStorageBuffer->GetMappedAddr());
     inputStorageBuffer->Destroy();
     outputStorageBuffer->Destroy();
 }

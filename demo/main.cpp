@@ -81,7 +81,17 @@ int main(int argc, char *argv[]) {
     // const auto filter = std::make_shared<ScaleFilter>();
     // filter->SetTargetWidth(400);
     // filter->SetTargetHeight(600);
-    // effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_scale.png", 400, 600, filter);
+    // effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_scale_down.png", 400, 600, filter);
+
+    // const auto filter = std::make_shared<OldGaussianBlurFilter>();
+    // filter->SetRadius(12);
+    // effectEngine.Process("../../demo/images/girl_scale_down.png", "../../demo/images/girl_scale_down_blur.png", filter);
+
+    const auto filter = std::make_shared<ScaleFilter>();
+    filter->SetTargetWidth(4093);
+    filter->SetTargetHeight(6139);
+    effectEngine.Process("../../demo/images/girl_scale_down_blur.png",
+                         "../../demo/images/girl_scale_up_blur.png", 4093, 6139, filter);
 
     // const auto filter = std::make_shared<RadialBlurFilter>();
     // filter->SetCenter(2000, 3000);
@@ -134,9 +144,9 @@ int main(int argc, char *argv[]) {
     //                      800,
     //                      "../../demo/images/girl_colorful_lighter.png", blender);
 
-    const auto filter = std::make_shared<OldGaussianBlurFilter>();
-    filter->SetRadius(128);
-    effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_blur.png", filter);
+    // const auto filter = std::make_shared<OldGaussianBlurFilter>();
+    // filter->SetRadius(128);
+    // effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_blur.png", filter);
 
     // const auto filter = std::make_shared<VibranceFilter>();
     // filter->SetVibrance(40);
