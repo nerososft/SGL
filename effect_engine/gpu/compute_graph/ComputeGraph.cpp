@@ -41,24 +41,6 @@ VkResult ComputeGraph::Init() {
 
     vkResetCommandBuffer(commandBuffer, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
     vkResetFences(gpuCtx->GetCurrentDevice(), 1, &computeFence);
-
-    // TODO:
-    const std::vector<VkAttachmentDescription> attachments;
-    const std::vector<VkSubpassDependency> dependencies;
-    const std::vector<VkSubpassDescription> subPasses;
-    VkRect2D renderArea;
-    const std::vector<VkClearValue> clearValues;
-    renderPass = std::make_shared<VkGPURenderPass>(gpuCtx,
-                                                   attachments,
-                                                   dependencies,
-                                                   subPasses,
-                                                   renderArea,
-                                                   clearValues);
-    ret = renderPass->CreateRenderPass();
-    if (ret != VK_SUCCESS) {
-        Logger() << "Failed to create render pass, err = " << string_VkResult(ret) << std::endl;
-        return ret;
-    }
     return ret;
 }
 
@@ -71,13 +53,7 @@ VkResult ComputeGraph::Compute() const {
 
     if (!this->computeGraphNodes.empty()) {
         for (const auto &computeGraphNode: this->computeGraphNodes) {
-            if (computeGraphNode->IsGraphics()) {
-                this->renderPass->GPUCmdBeginRenderPass(commandBuffer);
-            }
             computeGraphNode->Compute(commandBuffer);
-            if (computeGraphNode->IsGraphics()) {
-                this->renderPass->GPUCmdEndRenderPass(commandBuffer);
-            }
         }
     }
 

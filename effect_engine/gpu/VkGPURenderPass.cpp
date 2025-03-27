@@ -38,7 +38,8 @@ VkResult VkGPURenderPass::CreateRenderPass() {
     return VK_SUCCESS;
 }
 
-void VkGPURenderPass::GPUCmdBeginRenderPass(const VkCommandBuffer &commandBuffer) const {
+void VkGPURenderPass::GPUCmdBeginRenderPass(const VkCommandBuffer &commandBuffer,
+                                            const VkFramebuffer &framebuffer) const {
     VkGPUHelper::GPUCmdBeginRenderPass(commandBuffer, renderPass, framebuffer, renderArea, clearValues);
 }
 

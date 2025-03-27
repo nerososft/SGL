@@ -15,7 +15,6 @@ class VkGPUContext;
 
 class ComputeGraph {
     std::shared_ptr<VkGPUContext> gpuCtx = nullptr;
-    std::shared_ptr<VkGPURenderPass> renderPass = nullptr;
     VkFence computeFence = VK_NULL_HANDLE;
     VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
     std::vector<std::shared_ptr<IComputeGraphNode> > computeGraphNodes;

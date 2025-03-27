@@ -13,7 +13,6 @@
 class VkGPURenderPass {
     std::shared_ptr<VkGPUContext> gpuCtx = nullptr;
     VkRenderPass renderPass = VK_NULL_HANDLE;
-    VkFramebuffer framebuffer = VK_NULL_HANDLE;
 
     std::vector<VkAttachmentDescription> attachments;
     std::vector<VkSubpassDependency> dependencies;
@@ -34,7 +33,8 @@ public:
 
     VkResult CreateRenderPass();
 
-    void GPUCmdBeginRenderPass(const VkCommandBuffer &commandBuffer) const;
+    void GPUCmdBeginRenderPass(const VkCommandBuffer &commandBuffer,
+                               const VkFramebuffer &framebuffer) const;
 
     static void GPUCmdEndRenderPass(const VkCommandBuffer &commandBuffer);
 

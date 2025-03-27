@@ -31,11 +31,12 @@ typedef enum {
     COMPUTE_GRAPH_NODE_COMPUTE,
     COMPUTE_GRAPH_NODE_GRAPHICS,
     COMPUTE_GRAPH_NODE_BUF_COPY,
+    COMPUTE_GRAPH_NODE_UNKNOWN,
 } ComputeGraphNodeType;
 
 class IComputeGraphNode {
 protected:
-    ComputeGraphNodeType type;
+    ComputeGraphNodeType type = COMPUTE_GRAPH_NODE_UNKNOWN;
     std::string name;
     std::vector<std::shared_ptr<IComputeGraphNode> > dependencies;
 
