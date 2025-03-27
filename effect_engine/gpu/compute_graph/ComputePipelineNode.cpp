@@ -47,7 +47,7 @@ VkResult ComputePipelineNode::CreateComputeGraphNode() {
 
     const std::string computeShaderPath = shaderPath;
     std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
-    const auto [pushConstantInfo, buffers] = computeElements[0];
+    const auto [pushConstantInfo, buffers, customDrawFunc] = computeElements[0];
     for (uint32_t i = 0; i < buffers.size(); ++i) {
         VkDescriptorSetLayoutBinding bufferBinding;
         bufferBinding.binding = i;
@@ -80,7 +80,7 @@ VkResult ComputePipelineNode::CreateComputeGraphNode() {
         return ret;
     }
 
-    for (const auto &[pushConstantInfo, buffers]: computeElements) {
+    for (const auto &[pushConstantInfo, buffers, customDrawFunc]: computeElements) {
         auto descriptorSet = std::make_shared<VkGPUDescriptorSet>(
             gpuCtx->GetCurrentDevice(),
             computePipeline->GetPipelineLayout(),
@@ -141,6 +141,10 @@ void ComputePipelineNode::Compute(const VkCommandBuffer commandBuffer) {
                                                     VK_PIPELINE_STAGE_TRANSFER_BIT,
                                                     0,
                                                     bufferMemoryBarriers);
+
+        if (computeElements[i].customDrawFunc != nullptr) {
+            computeElements[i].customDrawFunc(commandBuffer);
+        }
     }
 }
 

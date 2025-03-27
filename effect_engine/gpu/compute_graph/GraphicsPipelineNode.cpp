@@ -41,7 +41,7 @@ VkResult GraphicsPipelineNode::CreateComputeGraphNode() {
     }
 
     std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
-    const auto [pushConstantInfo, buffers] = graphicsElements[0];
+    const auto [pushConstantInfo, buffers, customDrawFunc] = graphicsElements[0];
     for (uint32_t i = 0; i < buffers.size(); ++i) {
         VkDescriptorSetLayoutBinding bufferBinding;
         bufferBinding.binding = i;
@@ -85,7 +85,7 @@ VkResult GraphicsPipelineNode::CreateComputeGraphNode() {
     }
 
 
-    for (const auto &[pushConstantInfo, buffers]: graphicsElements) {
+    for (const auto &[pushConstantInfo, buffers, customDrawFunc]: graphicsElements) {
         auto descriptorSet = std::make_shared<VkGPUDescriptorSet>(
             gpuCtx->GetCurrentDevice(),
             graphicsPipeline->GetPipelineLayout(),

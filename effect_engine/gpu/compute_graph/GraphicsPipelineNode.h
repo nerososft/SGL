@@ -4,6 +4,8 @@
 
 #ifndef GRAPHICSPIPELINENODE_H
 #define GRAPHICSPIPELINENODE_H
+#include <functional>
+
 #include "IComputeGraphNode.h"
 #include "effect_engine/gpu/VkGPUComputePipeline.h"
 #include "effect_engine/gpu/VkGPUContext.h"
@@ -14,6 +16,7 @@
 struct GraphicsElement {
     PushConstantInfo pushConstantInfo;
     std::vector<PipelineNodeBuffer> buffers;
+    std::function<void(VkCommandBuffer commandBuffer)> customDrawFunc;
 };
 
 class GraphicsPipelineNode final : public IComputeGraphNode {
