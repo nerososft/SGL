@@ -15,6 +15,7 @@
 #include "effect_engine/filters/impl/ChinesePaintFilter.h"
 #include "effect_engine/filters/impl/ColorPencilSketchFilter.h"
 #include "effect_engine/filters/impl/ColorSeparationFilter.h"
+#include "effect_engine/filters/impl/FastGaussianBlurFilter.h"
 #include "effect_engine/filters/impl/FocusBlurFilter.h"
 #include "effect_engine/filters/impl/GaussianBlurFilter.h"
 #include "effect_engine/filters/impl/GrayFilter.h"
@@ -87,11 +88,11 @@ int main(int argc, char *argv[]) {
     // filter->SetRadius(12);
     // effectEngine.Process("../../demo/images/girl_scale_down.png", "../../demo/images/girl_scale_down_blur.png", filter);
 
-    const auto filter = std::make_shared<ScaleFilter>();
-    filter->SetTargetWidth(4093);
-    filter->SetTargetHeight(6139);
-    effectEngine.Process("../../demo/images/girl_scale_down_blur.png",
-                         "../../demo/images/girl_scale_up_blur.png", 4093, 6139, filter);
+    // const auto filter = std::make_shared<ScaleFilter>();
+    // filter->SetTargetWidth(4093);
+    // filter->SetTargetHeight(6139);
+    // effectEngine.Process("../../demo/images/girl_scale_down_blur.png",
+    //                      "../../demo/images/girl_scale_up_blur.png", 4093, 6139, filter);
 
     // const auto filter = std::make_shared<RadialBlurFilter>();
     // filter->SetCenter(2000, 3000);
@@ -170,6 +171,10 @@ int main(int argc, char *argv[]) {
     // filter->SetGridSize(64);
     // filter->SetEnableEdge(true);
     // effectEngine.Process("../../demo/images/colorful.png", "../../demo/images/colorful_voronoi.png", filter);
+
+    const auto filter = std::make_shared<FastGaussianBlurFilter>();
+    filter->SetRadius(128);
+    effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_fast_blur.png", filter);
 
     // getchar();
     return 0;
