@@ -92,6 +92,8 @@ add_library(gpu_effect_engine SHARED
         gpu/VkGPURenderPass.h
         gpu/compute_graph/GraphicsRenderPassNode.cpp
         gpu/compute_graph/GraphicsRenderPassNode.h
+        filters/impl/FastGaussianBlurFilter.cpp
+        filters/impl/FastGaussianBlurFilter.h
 )
 target_link_libraries(gpu_effect_engine vulkan)
 if (CMAKE_SYSTEM_NAME MATCHES "OHOS")
