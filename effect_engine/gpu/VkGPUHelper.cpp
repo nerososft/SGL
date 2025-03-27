@@ -15,6 +15,31 @@
 #include "effect_engine/log/Log.h"
 #include "effect_engine/utils/IOUtils.h"
 
+VkResult VkGPUHelper::CreateRenderPass(const VkDevice device,
+                                       const std::vector<VkAttachmentDescription> &attachments,
+                                       const std::vector<VkSubpassDependency> &dependencies,
+                                       const std::vector<VkSubpassDescription> &subPasses,
+                                       VkRenderPass *renderPass) {
+    VkResult ret = VK_SUCCESS;
+
+    VkRenderPassCreateInfo renderPassInfo = {};
+    renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+    renderPassInfo.flags = 0;
+    renderPassInfo.pNext = nullptr;
+    renderPassInfo.attachmentCount = attachments.size();
+    renderPassInfo.pAttachments = attachments.data();
+    renderPassInfo.subpassCount = subPasses.size();
+    renderPassInfo.pSubpasses = subPasses.data();
+    renderPassInfo.dependencyCount = dependencies.size();
+    renderPassInfo.pDependencies = dependencies.data();
+    ret = vkCreateRenderPass(device, &renderPassInfo, nullptr, renderPass);
+    if (ret != VK_SUCCESS) {
+        Logger() << "Failed to create render pass, err=" << string_VkResult(ret) << std::endl;
+        return ret;
+    }
+    return ret;
+}
+
 VkResult VkGPUHelper::CreateGraphicsPipeline(const VkDevice device,
                                              const VkPipelineCache pipelineCache,
                                              const VkPipelineLayout pipelineLayout,

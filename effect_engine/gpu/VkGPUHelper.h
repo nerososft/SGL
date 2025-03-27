@@ -14,16 +14,29 @@ public:
 
     ~VkGPUHelper() = default;
 
+    static VkResult CreateRenderPass(VkDevice device,
+                                     const std::vector<VkAttachmentDescription> &attachments,
+                                     const std::vector<VkSubpassDependency> &dependencies, const std::
+                                     vector<VkSubpassDescription> &subPasses,
+                                     VkRenderPass *renderPass);
+
     static VkResult CreateGraphicsPipeline(VkDevice device,
                                            VkPipelineCache pipelineCache,
                                            VkPipelineLayout pipelineLayout,
                                            VkShaderModule vertexShaderModule,
                                            VkShaderModule fragmentShaderModule,
-                                           VkRenderPass renderPass, std::vector<VkVertexInputBindingDescription> vertexInputBindingDescriptions, std::vector<
-                                           VkVertexInputAttributeDescription> vertexInputAttributeDescriptions, VkPrimitiveTopology inputAssemblyTopology, VkBool32
-                                           primitiveRestartEnable, std::vector<VkViewport> viewports, std::vector<VkRect2D> viewportScissors, VkPolygonMode
-                                           polygonMode, float lineWidth, std::vector<VkPipelineColorBlendAttachmentState> colorBlendStateCreateInfos, std::vector<
-                                           VkDynamicState> dynamicStates, VkPipeline *pipeline);
+                                           VkRenderPass renderPass,
+                                           std::vector<VkVertexInputBindingDescription> vertexInputBindingDescriptions,
+                                           std::vector<VkVertexInputAttributeDescription>
+                                           vertexInputAttributeDescriptions,
+                                           VkPrimitiveTopology inputAssemblyTopology,
+                                           VkBool32 primitiveRestartEnable,
+                                           std::vector<VkViewport> viewports,
+                                           std::vector<VkRect2D> viewportScissors,
+                                           VkPolygonMode polygonMode,
+                                           float lineWidth,
+                                           std::vector<VkPipelineColorBlendAttachmentState> colorBlendStateCreateInfos,
+                                           std::vector<VkDynamicState> dynamicStates, VkPipeline *pipeline);
 
     static VkResult CreateUniformBufferAndUploadData(VkDevice device,
                                                      const std::vector<uint32_t> &queueFamilyIndices,
