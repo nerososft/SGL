@@ -103,5 +103,8 @@ VkResult customKernelFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
 
 void customKernelFilter::Destroy() {
     Logger() << "customKernelFilter begin" << std::endl;
+    kBuffer->Destroy();
     BasicFilter::Destroy();
+
+
 }

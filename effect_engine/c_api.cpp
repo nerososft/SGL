@@ -120,7 +120,7 @@ bool hue_equal_filter_gpu(void* in, void* out) {
     //g_effect_engine.Process(*input, *output, filter);
 
 
-        const auto filter = std::make_shared<colorBalanceFilter>();
+    const auto filter = std::make_shared<colorBalanceFilter>();
     const auto* input = static_cast<ImageInfo*>(in);
     const auto* output = static_cast<ImageInfo*>(out);
 
@@ -171,18 +171,6 @@ bool custom_kernel_filter_gpu(void* in, void* out, int * k , int radius, int off
     filter->SetRadius(radius);
 
     g_effect_engine.Process(*input, *output, filter);
-
-    return true;
-
-
-
-
-
-
-
-
-
-
 
     return true;
 }
