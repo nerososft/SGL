@@ -15,6 +15,27 @@
 #include "effect_engine/log/Log.h"
 #include "effect_engine/utils/IOUtils.h"
 
+void VkGPUHelper::GPUCmdEndRenderPass(const VkCommandBuffer commandBuffer) {
+    vkCmdEndRenderPass(commandBuffer);
+}
+
+void VkGPUHelper::GPUCmdBeginRenderPass(const VkCommandBuffer commandBuffer,
+                                        const VkRenderPass renderPass,
+                                        const VkFramebuffer framebuffer,
+                                        const VkRect2D renderArea,
+                                        const std::vector<VkClearValue> &clearValues) {
+    VkRenderPassBeginInfo renderPassInfo = {};
+    renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    renderPassInfo.pNext = nullptr;
+    renderPassInfo.renderPass = renderPass;
+    renderPassInfo.framebuffer = framebuffer;
+    renderPassInfo.renderArea = renderArea;
+    renderPassInfo.clearValueCount = clearValues.size();
+    renderPassInfo.pClearValues = clearValues.data();
+
+    vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+}
+
 VkResult VkGPUHelper::CreateRenderPass(const VkDevice device,
                                        const std::vector<VkAttachmentDescription> &attachments,
                                        const std::vector<VkSubpassDependency> &dependencies,

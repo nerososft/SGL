@@ -8,12 +8,14 @@
 #include <vulkan/vulkan_core.h>
 
 #include "IComputeGraphNode.h"
+#include "effect_engine/gpu/VkGPURenderPass.h"
 
 
 class VkGPUContext;
 
 class ComputeGraph {
     std::shared_ptr<VkGPUContext> gpuCtx = nullptr;
+    std::shared_ptr<VkGPURenderPass> renderPass = nullptr;
     VkFence computeFence = VK_NULL_HANDLE;
     VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
     std::vector<std::shared_ptr<IComputeGraphNode> > computeGraphNodes;

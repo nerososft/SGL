@@ -14,10 +14,18 @@ public:
 
     ~VkGPUHelper() = default;
 
+    static void GPUCmdEndRenderPass(VkCommandBuffer commandBuffer);
+
+    static void GPUCmdBeginRenderPass(VkCommandBuffer commandBuffer,
+                                      VkRenderPass renderPass,
+                                      VkFramebuffer framebuffer,
+                                      VkRect2D renderArea,
+                                      const std::vector<VkClearValue> &clearValues);
+
     static VkResult CreateRenderPass(VkDevice device,
                                      const std::vector<VkAttachmentDescription> &attachments,
-                                     const std::vector<VkSubpassDependency> &dependencies, const std::
-                                     vector<VkSubpassDescription> &subPasses,
+                                     const std::vector<VkSubpassDependency> &dependencies,
+                                     const std::vector<VkSubpassDescription> &subPasses,
                                      VkRenderPass *renderPass);
 
     static VkResult CreateGraphicsPipeline(VkDevice device,
