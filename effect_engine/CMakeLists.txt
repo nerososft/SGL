@@ -2,6 +2,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     message(STATUS "Running on Linux")
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     message(STATUS "Running on Windows")
+    include_directories("../../")
     #include_directories("D:/vcpkg_install/vcpkg/installed/x64-windows/include/libpng16")
     #link_directories("$D:/vcpkg_install/vcpkg/installed/x64-windows/lib")
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
@@ -69,6 +70,8 @@ add_library(gpu_effect_engine SHARED
         filters/impl/customKernelFilter.cpp
         filters/impl/colorBalanceFilter.h
         filters/impl/colorBalanceFilter.cpp
+        filters/impl/BlackWhiteFilter.h
+        filters/impl/BlackWhiteFilter.cpp
         blenders/IBlender.h
         blenders/BaseBlender.cpp
         blenders/BaseBlender.h
