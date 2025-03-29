@@ -174,8 +174,7 @@ int main(int argc, char *argv[]) {
 
     const auto filter = std::make_shared<FastGaussianBlurFilter>();
     filter->SetRadius(128);
-    effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_fast_blur.png", 4093 / 10,
-                         6139 / 10, filter);
+    effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_fast_blur.png", filter);
 
     // getchar();
     return 0;
