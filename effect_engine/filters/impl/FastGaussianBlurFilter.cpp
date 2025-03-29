@@ -239,7 +239,6 @@ VkResult FastGaussianBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuC
     this->blurFilterParams.imageSize.channels = 4;
     this->blurFilterParams.imageSize.bytesPerLine = targetWidth * 4;
     this->blurFilterParams.radius = newRadius;
-
     scaleDownBlurBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
     ret = scaleDownBlurBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED, scaleDownBufferSize);
     if (ret != VK_SUCCESS) {
@@ -272,8 +271,8 @@ VkResult FastGaussianBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuC
                                                                              width,
                                                                              height);
 
-    scaleUpNode->AddDependenceNode(scaleDownNode);
-    scaleUpNode->AddDependenceNode(vBlurNode);
+    vBlurNode->AddDependenceNode(scaleDownNode);
+    hBlurNode->AddDependenceNode(vBlurNode);
     scaleUpNode->AddDependenceNode(hBlurNode);
     computeGraph->AddComputeGraphNode(scaleUpNode);
 

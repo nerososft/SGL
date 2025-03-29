@@ -109,13 +109,13 @@ VkResult ComputePipelineNode::CreateComputeGraphNode() {
 }
 
 void ComputePipelineNode::Compute(const VkCommandBuffer commandBuffer) {
-    Logger() << "Executing Compute Node: " << name << std::endl;
     if (!this->dependencies.empty()) {
         for (const auto &dependence: this->dependencies) {
             Logger() << "Node: " << name << " Depend On:" << dependence->GetName() << std::endl;
             dependence->Compute(commandBuffer);
         }
     }
+    Logger() << "Executing Compute Node: " << name << std::endl;
     computePipeline->GPUCmdBindPipeline(commandBuffer);
     for (size_t i = 0; i < computeElements.size(); ++i) {
         pipelineDescriptorSets[i]->GPUCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE);
@@ -125,13 +125,29 @@ void ComputePipelineNode::Compute(const VkCommandBuffer commandBuffer) {
                                         0,
                                         computeElements[i].pushConstantInfo.size,
                                         computeElements[i].pushConstantInfo.data);
-        VkGPUHelper::GPUCmdDispatch(commandBuffer, this->workGroupCountX, workGroupCountY, workGroupCountZ);
 
-        std::vector<VkBufferMemoryBarrier> bufferMemoryBarriers;
+        std::vector<VkBufferMemoryBarrier> readBufferMemoryBarriers;
+        for (const auto &[type, bufferSize, buffer]: computeElements[i].buffers) {
+            if (type == PIPELINE_NODE_BUFFER_STORAGE_READ) {
+                readBufferMemoryBarriers.push_back(VkGPUHelper::BuildBufferMemoryBarrier(VK_ACCESS_SHADER_WRITE_BIT,
+                    VK_ACCESS_SHADER_READ_BIT,
+                    buffer,
+                    bufferSize));
+            }
+        }
+        VkGPUHelper::GPUCmdPipelineBufferMemBarrier(commandBuffer,
+                                                    VK_PIPELINE_STAGE_TRANSFER_BIT |
+                                                    VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+                                                    VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+                                                    0,
+                                                    readBufferMemoryBarriers);
+        VkGPUHelper::GPUCmdDispatch(commandBuffer, this->workGroupCountX, workGroupCountY, workGroupCountZ);
+        std::vector<VkBufferMemoryBarrier> writeBufferMemoryBarriers;
         for (const auto &[type, bufferSize, buffer]: computeElements[i].buffers) {
             if (type == PIPELINE_NODE_BUFFER_STORAGE_WRITE) {
-                bufferMemoryBarriers.push_back(VkGPUHelper::BuildBufferMemoryBarrier(VK_ACCESS_SHADER_WRITE_BIT,
-                    VK_ACCESS_TRANSFER_READ_BIT,
+                writeBufferMemoryBarriers.push_back(VkGPUHelper::BuildBufferMemoryBarrier(
+                    VK_ACCESS_MEMORY_WRITE_BIT,
+                    VK_ACCESS_SHADER_READ_BIT,
                     buffer,
                     bufferSize));
             }
@@ -141,7 +157,7 @@ void ComputePipelineNode::Compute(const VkCommandBuffer commandBuffer) {
                                                     VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
                                                     VK_PIPELINE_STAGE_TRANSFER_BIT,
                                                     0,
-                                                    bufferMemoryBarriers);
+                                                    writeBufferMemoryBarriers);
 
         if (computeElements[i].customDrawFunc != nullptr) {
             computeElements[i].customDrawFunc(commandBuffer);
@@ -151,7 +167,7 @@ void ComputePipelineNode::Compute(const VkCommandBuffer commandBuffer) {
 
 void ComputePipelineNode::Destroy() {
     computePipeline->Destroy();
-    for (size_t i = 0; i < pipelineDescriptorSets.size(); ++i) {
-        pipelineDescriptorSets[i]->Destroy();
+    for (const auto &pipelineDescriptorSet: pipelineDescriptorSets) {
+        pipelineDescriptorSet->Destroy();
     }
 }

@@ -80,9 +80,9 @@ int main(int argc, char *argv[]) {
     // effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_color_separation.png", filter);
 
     // const auto filter = std::make_shared<ScaleFilter>();
-    // filter->SetTargetWidth(400);
-    // filter->SetTargetHeight(600);
-    // effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_scale_down.png", 400, 600, filter);
+    // filter->SetTargetWidth(409);
+    // filter->SetTargetHeight(613);
+    // effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_scale_down.png", 409, 613, filter);
 
     // const auto filter = std::make_shared<OldGaussianBlurFilter>();
     // filter->SetRadius(12);
@@ -174,7 +174,8 @@ int main(int argc, char *argv[]) {
 
     const auto filter = std::make_shared<FastGaussianBlurFilter>();
     filter->SetRadius(128);
-    effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_fast_blur.png", filter);
+    effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_fast_blur.png", 4093 / 10,
+                         6139 / 10, filter);
 
     // getchar();
     return 0;
