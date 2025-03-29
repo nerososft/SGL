@@ -129,16 +129,16 @@ void ComputePipelineNode::Compute(const VkCommandBuffer commandBuffer) {
         std::vector<VkBufferMemoryBarrier> readBufferMemoryBarriers;
         for (const auto &[type, bufferSize, buffer]: computeElements[i].buffers) {
             if (type == PIPELINE_NODE_BUFFER_STORAGE_READ) {
-                readBufferMemoryBarriers.push_back(VkGPUHelper::BuildBufferMemoryBarrier(VK_ACCESS_SHADER_WRITE_BIT,
-                    VK_ACCESS_SHADER_READ_BIT,
+                readBufferMemoryBarriers.push_back(VkGPUHelper::BuildBufferMemoryBarrier(
+                    VK_ACCESS_MEMORY_WRITE_BIT,
+                    VK_ACCESS_MEMORY_READ_BIT,
                     buffer,
                     bufferSize));
             }
         }
         VkGPUHelper::GPUCmdPipelineBufferMemBarrier(commandBuffer,
-                                                    VK_PIPELINE_STAGE_TRANSFER_BIT |
-                                                    VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
-                                                    VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+                                                    VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+                                                    VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
                                                     0,
                                                     readBufferMemoryBarriers);
         VkGPUHelper::GPUCmdDispatch(commandBuffer, this->workGroupCountX, workGroupCountY, workGroupCountZ);
@@ -147,15 +147,15 @@ void ComputePipelineNode::Compute(const VkCommandBuffer commandBuffer) {
             if (type == PIPELINE_NODE_BUFFER_STORAGE_WRITE) {
                 writeBufferMemoryBarriers.push_back(VkGPUHelper::BuildBufferMemoryBarrier(
                     VK_ACCESS_MEMORY_WRITE_BIT,
-                    VK_ACCESS_SHADER_READ_BIT,
+                    VK_ACCESS_MEMORY_READ_BIT,
                     buffer,
                     bufferSize));
             }
         }
 
         VkGPUHelper::GPUCmdPipelineBufferMemBarrier(commandBuffer,
-                                                    VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
-                                                    VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                                    VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+                                                    VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
                                                     0,
                                                     writeBufferMemoryBarriers);
 
