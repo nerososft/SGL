@@ -6,12 +6,17 @@
 
 #include <fstream>
 #include <iostream>
-#ifndef OS_OPEN_HARMONY
+#ifndef OS_OPEN_HARMONY   
+#elif ENABLE_WIN64
+#else 
 #include "png.h"
 #endif
 #include "TimeUtils.h"
 #include "effect_engine/log/Log.h"
-#ifndef OS_OPEN_HARMONY
+
+
+
+#ifdef ENABLE_PNG
 typedef struct {
     char *data;
     size_t size;

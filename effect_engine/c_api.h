@@ -16,3 +16,4 @@ extern "C"  GPU_API	 bool hue_equal_filter_gpu(void* in, void* out);
 extern "C"  GPU_API	 bool custom_kernel_filter_gpu(void* in, void* out, int* k, int radius, int offset, int scale);
 extern "C"  GPU_API	 bool color_balance_filter_gpu(void* in, void* out, float* adjustP, int* p, int l);
 extern "C"  GPU_API	 bool black_white_filter_gpu(void* in, void* out, float* weight, int wSize);
+extern "C"  GPU_API	 bool scale_filter_gpu(void* in, void* out, int weight, int height);

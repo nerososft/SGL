@@ -96,6 +96,7 @@ add_library(gpu_effect_engine SHARED
 )
 target_link_libraries(gpu_effect_engine vulkan)
 if (CMAKE_SYSTEM_NAME MATCHES "OHOS")
+elseif (CMAKE_SYSTEM_NAME MATCHES "Windows")
 else ()
     target_link_libraries(gpu_effect_engine png)
 endif ()

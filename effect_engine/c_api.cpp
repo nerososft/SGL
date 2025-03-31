@@ -12,6 +12,7 @@
 #include "effect_engine/filters/impl/customKernelFilter.h"
 #include "effect_engine/filters/impl/colorBalanceFilter.h"
 #include "effect_engine/filters/impl/BlackWhiteFilter.h" 
+#include "effect_engine/filters/impl/ScaleFilter.h"
 
 #include "log/Log.h"
 
@@ -208,6 +209,8 @@ bool color_balance_filter_gpu(void* in, void* out,  float* adjustP, int *p, int 
 }
 
 
+
+
 bool black_white_filter_gpu(void* in, void* out, float* weight, int wSize) {
 
     const auto filter = std::make_shared<BlackWhiteFilter>();
@@ -215,6 +218,18 @@ bool black_white_filter_gpu(void* in, void* out, float* weight, int wSize) {
     const auto* output = static_cast<ImageInfo*>(out);
 
     filter->SetWeight(weight , wSize);
+    g_effect_engine.Process(*input, *output, filter);
+    return true;
+}
+bool scale_filter_gpu(void* in, void* out, int  weight, int height)
+{
+    const auto filter = std::make_shared<ScaleFilter>();
+    filter->SetTargetWidth(weight);
+    filter->SetTargetHeight(height);
+
+    const auto* input = static_cast<ImageInfo*>(in);
+    const auto* output = static_cast<ImageInfo*>(out);
+
     g_effect_engine.Process(*input, *output, filter);
     return true;
 }
