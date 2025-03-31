@@ -6,7 +6,7 @@
 
 #include <fstream>
 #include <iostream>
-#ifndef OS_OPEN_HARMONY   
+#ifdef OS_OPEN_HARMONY   
 #elif ENABLE_WIN64
 #else 
 #include "png.h"
