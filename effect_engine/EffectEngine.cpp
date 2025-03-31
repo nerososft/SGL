@@ -47,6 +47,10 @@ VkResult EffectEngine::Process(const std::shared_ptr<VkGPUBuffer> &inputBuffer,
     const VkDeviceSize outputBufferSize = outputWidth * outputHeight * channels;
     const uint64_t imageBufferPrepareStart = TimeUtils::GetCurrentMonoMs();
     VkResult ret = inputBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED, inputBufferSize);
+
+
+
+
     if (ret != VK_SUCCESS) {
         Logger() << Logger::ERROR << "Failed to allocate input GPU buffer!" << std::endl;
         return ret;
@@ -97,6 +101,8 @@ void EffectEngine::Process(const ImageInfo &input,
                 << ") to (" << output.width << "," << output.height << ")"
                 << std::endl;
     }
+
+    Logger() << "[IMAGE SIZE]" << "WIDTH " << input.width << ", HEIGHT " << input.height << std::endl;
     const VkDeviceSize outputBufferSize = output.width * output.height * output.channels;
     const auto inputStorageBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
     const auto outputStorageBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);

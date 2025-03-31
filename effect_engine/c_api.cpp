@@ -200,7 +200,7 @@ bool color_balance_filter_gpu(void* in, void* out,  float* adjustP, int *p, int 
 
     filter->SetP(p, 9);
     filter->SetAdjustP(adjustP, 9);
-    filter->SetL(0);
+    filter->SetL(l);
 
     g_effect_engine.Process(*input, *output, filter);
 
