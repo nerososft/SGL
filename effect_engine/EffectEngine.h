@@ -28,11 +28,11 @@ public:
     bool Init();
 
     VkResult Process(const std::shared_ptr<VkGPUBuffer> &inputBuffer,
-                     const uint32_t inputWidth,
-                     const uint32_t inputHeight,
-                     const uint32_t outputWidth,
-                     const uint32_t outputHeight,
-                     const uint32_t channels,
+                     uint32_t inputWidth,
+                     uint32_t inputHeight,
+                     uint32_t outputWidth,
+                     uint32_t outputHeight,
+                     uint32_t channels,
                      const void *uploadData,
                      const std::shared_ptr<VkGPUBuffer> &outputBuffer,
                      const std::shared_ptr<IFilter> &filter) const;

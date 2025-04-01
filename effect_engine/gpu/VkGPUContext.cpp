@@ -30,6 +30,14 @@ void VkGPUContext::AddInstanceEnableExtension(const char *extensionName) {
     this->instanceEnableExtensions.push_back(extensionName);
 }
 
+void VkGPUContext::AddDeviceEnabledLayer(const char *layerName) {
+    this->defaultDeviceEnableLayers.push_back(layerName);
+}
+
+void VkGPUContext::AddDeviceEnabledExtension(const char *extensionName) {
+    this->defaultDeviceEnableExtensions.push_back(extensionName);
+}
+
 void VkGPUContext::SelectCPU(const uint32_t gpuIndex) {
     if (gpuIndex >= this->physicalDeviceNums) {
         Logger() << "GPU index " << gpuIndex << " is out of bounds" << std::endl;
@@ -229,7 +237,6 @@ VkResult VkGPUContext::Init() {
     }
     this->GetQueue();
 
-
     std::vector<VkDescriptorPoolSize> descriptorPoolSizes;
     VkDescriptorPoolSize storageBufferDescriptorPoolSize;
     storageBufferDescriptorPoolSize.type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
@@ -264,4 +271,8 @@ VkResult VkGPUContext::Init() {
     }
 
     return result;
+}
+
+void VkGPUContext::Reset() const {
+    vkResetDescriptorPool(device, this->descriptorPool, 0);
 }
