@@ -145,10 +145,6 @@ int main(int argc, char *argv[]) {
     //                      800,
     //                      "../../demo/images/girl_colorful_lighter.png", blender);
 
-    // const auto filter = std::make_shared<OldGaussianBlurFilter>();
-    // filter->SetRadius(128);
-    // effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_blur.png", filter);
-
     // const auto filter = std::make_shared<VibranceFilter>();
     // filter->SetVibrance(40);
     // filter->SetSaturation(50);
@@ -172,8 +168,12 @@ int main(int argc, char *argv[]) {
     // filter->SetEnableEdge(true);
     // effectEngine.Process("../../demo/images/colorful.png", "../../demo/images/colorful_voronoi.png", filter);
 
+    // const auto filter = std::make_shared<OldGaussianBlurFilter>();
+    // filter->SetRadius(128);
+    // effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_blur.png", filter);
+
     const auto filter = std::make_shared<FastGaussianBlurFilter>();
-    filter->SetRadius(128);
+    filter->SetRadius(120);
     effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_fast_blur.png", filter);
 
     // getchar();

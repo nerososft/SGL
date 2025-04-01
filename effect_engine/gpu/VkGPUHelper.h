@@ -14,6 +14,16 @@ public:
 
     ~VkGPUHelper() = default;
 
+    static PFN_vkCmdPipelineBarrier2KHR GetVkCmdPipelineBarrier2Fn(VkDevice device);
+
+    static void GPUCmdPipelineMemBarrier(VkCommandBuffer commandBuffer,
+                                         VkPipelineStageFlags srcStageMask,
+                                         VkPipelineStageFlags dstStageMask,
+                                         VkDependencyFlags dependencyFlags,
+                                         const std::vector<VkMemoryBarrier> &memoryBarriers);
+
+    static VkMemoryBarrier BuildMemoryBarrier(VkAccessFlagBits srcAccessMask, VkAccessFlagBits dstAccessMask);
+
     static void GPUCmdEndRenderPass(VkCommandBuffer commandBuffer);
 
     static void GPUCmdBeginRenderPass(VkCommandBuffer commandBuffer,

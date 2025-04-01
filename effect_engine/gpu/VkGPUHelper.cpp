@@ -15,6 +15,41 @@
 #include "effect_engine/log/Log.h"
 #include "effect_engine/utils/IOUtils.h"
 
+PFN_vkCmdPipelineBarrier2KHR VkGPUHelper::GetVkCmdPipelineBarrier2Fn(const VkDevice device) {
+    PFN_vkCmdPipelineBarrier2KHR func = nullptr;
+    func = reinterpret_cast<PFN_vkCmdPipelineBarrier2KHR>(vkGetDeviceProcAddr(device, "vkCmdPipelineBarrier2KHR"));
+    if (!func) {
+        Logger() << "Failed to get vkCmdPipelineBarrier2" << std::endl;
+    }
+    return func;
+}
+
+void VkGPUHelper::GPUCmdPipelineMemBarrier(const VkCommandBuffer commandBuffer,
+                                           const VkPipelineStageFlags srcStageMask,
+                                           const VkPipelineStageFlags dstStageMask,
+                                           const VkDependencyFlags dependencyFlags,
+                                           const std::vector<VkMemoryBarrier> &memoryBarriers) {
+    const std::vector<VkBufferMemoryBarrier> bufferMemoryBarriers;
+    const std::vector<VkImageMemoryBarrier> imageMemoryBarrier;
+    GPUCmdPipelineBarrier(commandBuffer,
+                          srcStageMask,
+                          dstStageMask,
+                          dependencyFlags,
+                          memoryBarriers,
+                          bufferMemoryBarriers,
+                          imageMemoryBarrier);
+}
+
+VkMemoryBarrier VkGPUHelper::BuildMemoryBarrier(const VkAccessFlagBits srcAccessMask,
+                                                const VkAccessFlagBits dstAccessMask) {
+    VkMemoryBarrier memoryBarrier = {};
+    memoryBarrier.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
+    memoryBarrier.pNext = nullptr;
+    memoryBarrier.srcAccessMask = srcAccessMask;
+    memoryBarrier.dstAccessMask = dstAccessMask;
+    return memoryBarrier;
+}
+
 void VkGPUHelper::GPUCmdEndRenderPass(const VkCommandBuffer commandBuffer) {
     vkCmdEndRenderPass(commandBuffer);
 }

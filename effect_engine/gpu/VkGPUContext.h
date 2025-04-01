@@ -75,9 +75,13 @@ public:
         return this->physicalDevicesMemoryProperties[selectedGPUIndex];
     }
 
-    VkPhysicalDeviceProperties GetPhysicalDeviceProperties() const {
+    [[nodiscard]] VkPhysicalDeviceProperties GetPhysicalDeviceProperties() const {
         return this->physicalDevicesProperties[selectedGPUIndex];
     }
+
+    void AddDeviceEnabledLayer(const char * layerName) { this->defaultDeviceEnableLayers.push_back(layerName); }
+
+    void AddDeviceEnabledExtension(const char * extensionName) { this->defaultDeviceEnableExtensions.push_back(extensionName); }
 };
 
 
