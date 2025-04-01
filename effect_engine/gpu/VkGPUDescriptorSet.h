@@ -16,6 +16,7 @@ class VkGPUDescriptorSet {
 
     VkDescriptorSet descriptorSet = VK_NULL_HANDLE;
     std::vector<VkWriteDescriptorSet> writeDescriptorSets;
+    std::vector<VkDescriptorSet> descriptorSets;
 
 public:
     VkGPUDescriptorSet(VkDevice device,

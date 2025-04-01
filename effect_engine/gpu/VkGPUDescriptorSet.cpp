@@ -5,6 +5,7 @@
 #include "VkGPUDescriptorSet.h"
 
 #include "VkGPUHelper.h"
+#include "effect_engine/log/Log.h"
 
 VkGPUDescriptorSet::VkGPUDescriptorSet(const VkDevice device,
                                        const VkPipelineLayout pipelineLayout,
@@ -15,12 +16,7 @@ VkGPUDescriptorSet::VkGPUDescriptorSet(const VkDevice device,
 }
 
 VkGPUDescriptorSet::~VkGPUDescriptorSet() {
-    if (descriptorPool == VK_NULL_HANDLE) {
-        return;
-    }
-    std::vector<VkDescriptorSet> descriptorSets;
-    descriptorSets.push_back(descriptorSet);
-    vkFreeDescriptorSets(device, descriptorPool, descriptorSets.size(), descriptorSets.data());
+    Destroy();
 }
 
 VkResult VkGPUDescriptorSet::AllocateDescriptorSets(const VkDescriptorPool descriptorPool) {
@@ -28,7 +24,13 @@ VkResult VkGPUDescriptorSet::AllocateDescriptorSets(const VkDescriptorPool descr
     std::vector<VkDescriptorSetLayout> descriptorSetLayouts;
     descriptorSetLayouts.push_back(this->descriptorSetLayout);
     this->writeDescriptorSets.clear();
-    return VkGPUHelper::AllocateDescriptorSets(device, descriptorPool, descriptorSetLayouts, &this->descriptorSet);
+    const VkResult ret = VkGPUHelper::AllocateDescriptorSets(device, descriptorPool, descriptorSetLayouts, &this->descriptorSet);
+    if (ret != VK_SUCCESS) {
+        Logger() << "failed to allocate descriptor sets!" << std::endl;
+        return ret;
+    }
+    this->descriptorSets.push_back(this->descriptorSet);
+    return ret;
 }
 
 void VkGPUDescriptorSet::AddStorageBufferDescriptorSet(const uint32_t dtsBinding,
@@ -39,6 +41,10 @@ void VkGPUDescriptorSet::AddStorageBufferDescriptorSet(const uint32_t dtsBinding
 }
 
 void VkGPUDescriptorSet::UpdateDescriptorSets() const {
+    if (descriptorSet == VK_NULL_HANDLE) {
+        Logger() << "Update descriptor set to VK_NULL_HANDLE failed, descriptor not Allocated." << std::endl;
+        return;
+    }
     vkUpdateDescriptorSets(this->device,
                            this->writeDescriptorSets.size(),
                            this->writeDescriptorSets.data(),
@@ -48,8 +54,10 @@ void VkGPUDescriptorSet::UpdateDescriptorSets() const {
 
 void VkGPUDescriptorSet::GPUCmdBindDescriptorSets(const VkCommandBuffer commandBuffer,
                                                   const VkPipelineBindPoint pipelineBindPoint) const {
-    std::vector<VkDescriptorSet> descriptorSets;
-    descriptorSets.push_back(this->descriptorSet);
+    if (descriptorSet == VK_NULL_HANDLE) {
+        Logger() << "Binding descriptor set to VK_NULL_HANDLE failed, descriptor not Allocated." << std::endl;
+        return;
+    }
     vkCmdBindDescriptorSets(commandBuffer, pipelineBindPoint,
                             this->pipelineLayout,
                             0,
@@ -60,5 +68,10 @@ void VkGPUDescriptorSet::GPUCmdBindDescriptorSets(const VkCommandBuffer commandB
 }
 
 void VkGPUDescriptorSet::Destroy() const {
-    vkFreeDescriptorSets(device, descriptorPool, 1, &descriptorSet);
+    if (descriptorPool == VK_NULL_HANDLE) {
+        return;
+    }
+    if (descriptorSet != VK_NULL_HANDLE) {
+        vkFreeDescriptorSets(device, descriptorPool, this->descriptorSets.size(), descriptorSets.data());
+    }
 }

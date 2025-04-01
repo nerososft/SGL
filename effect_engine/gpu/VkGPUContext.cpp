@@ -243,7 +243,7 @@ VkResult VkGPUContext::Init() {
 
     VkDescriptorPoolCreateInfo descriptorPoolCreateInfo;
     descriptorPoolCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-    descriptorPoolCreateInfo.flags = 0;
+    descriptorPoolCreateInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
     descriptorPoolCreateInfo.pNext = nullptr;
     descriptorPoolCreateInfo.maxSets = 10;
     descriptorPoolCreateInfo.poolSizeCount = descriptorPoolSizes.size();
