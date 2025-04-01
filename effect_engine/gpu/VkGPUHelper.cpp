@@ -716,6 +716,8 @@ VkResult VkGPUHelper::CreateStorageBufferAndBindMem(const VkDevice device,
         Logger() << "vkAllocateMemory failed, err=" << string_VkResult(ret) << std::endl;
         return ret;
     }
+    Logger() << "VkMemory Allocate " << allocInfo.allocationSize << " bytes, need: " << size << " bytes, align " <<
+            memRequirements.alignment << std::endl;
     ret = vkBindBufferMemory(device, *storageBuffer, *storageBufferMemory, 0);
     if (ret != VK_SUCCESS) {
         Logger() << "vkBindBufferMemory failed, err=" << string_VkResult(ret) << std::endl;

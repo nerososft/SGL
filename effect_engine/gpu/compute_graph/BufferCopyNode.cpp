@@ -15,9 +15,9 @@
 #include "effect_engine/log/Log.h"
 
 BufferCopyNode::BufferCopyNode(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                                                       const std::string &name,
-                                                       const BufferCopyNodeBufferInfo srcBuffer,
-                                                       const BufferCopyNodeBufferInfo dstBuffer) {
+                               const std::string &name,
+                               const BufferCopyNodeBufferInfo srcBuffer,
+                               const BufferCopyNodeBufferInfo dstBuffer) {
     this->name = name;
     this->type = COMPUTE_GRAPH_NODE_BUF_COPY;
     this->srcBuffer = srcBuffer;
@@ -58,7 +58,10 @@ void BufferCopyNode::Compute(const VkCommandBuffer commandBuffer) {
     copyRegion.srcOffset = 0;
     copyRegion.dstOffset = 0;
     copyRegions.push_back(copyRegion);
-    vkCmdCopyBuffer(commandBuffer, this->srcBuffer.buffer, this->dstBuffer.buffer, copyRegions.size(),
+    vkCmdCopyBuffer(commandBuffer,
+                    this->srcBuffer.buffer,
+                    this->dstBuffer.buffer,
+                    copyRegions.size(),
                     copyRegions.data());
 
     std::vector<VkBufferMemoryBarrier> dtsBufferMemoryBarriers;
