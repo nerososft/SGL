@@ -66,6 +66,14 @@ VkResult VkGPUContext::CreateDevice(const std::vector<const char *> &deviceEnabl
     deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
     deviceCreateInfo.flags = 0;
     deviceCreateInfo.pNext = nullptr;
+    VkPhysicalDeviceSynchronization2Features sync2Feature{};
+    for (const auto extName: deviceEnableExtensions) {
+        if (std::strcmp(extName, "VK_KHR_synchronization2") == 0) {
+            sync2Feature.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SYNCHRONIZATION_2_FEATURES;
+            sync2Feature.synchronization2 = VK_TRUE;
+            deviceCreateInfo.pNext = &sync2Feature;
+        }
+    }
     deviceCreateInfo.enabledExtensionCount = deviceEnableExtensions.size();
     deviceCreateInfo.ppEnabledExtensionNames = deviceEnableExtensions.data();
     deviceCreateInfo.enabledLayerCount = deviceEnableLayers.size();
