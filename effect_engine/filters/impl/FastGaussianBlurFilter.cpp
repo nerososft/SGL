@@ -213,7 +213,7 @@ VkResult FastGaussianBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuC
     const int newRadius = this->blurFilterParams.radius / sigma;
 
     scaleDownBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
-    const VkDeviceSize scaleDownBufferSize = targetWidth * targetWidth * 4;
+    const VkDeviceSize scaleDownBufferSize = targetWidth * targetHeight * 4;
     ret = scaleDownBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED, scaleDownBufferSize);
     if (ret != VK_SUCCESS) {
         Logger() << "Failed to allocate scale buffer memory, err =" << string_VkResult(ret) << std::endl;
