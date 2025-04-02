@@ -8,7 +8,6 @@
 #include <vector>
 #include <vulkan/vulkan_core.h>
 
-
 class VkGPUComputePipeline {
     VkDevice device = VK_NULL_HANDLE;
     std::string computeShaderPath;

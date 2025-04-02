@@ -6,7 +6,7 @@
 #define BUFFERCOPYCOMPUTEGRAPHNODE_H
 
 #include "IComputeGraphNode.h"
-#include "PipelineComputeGraphNode.h"
+#include "ComputePipelineNode.h"
 #include "effect_engine/gpu/VkGPUContext.h"
 
 typedef struct {
@@ -14,18 +14,18 @@ typedef struct {
     VkBuffer buffer;
 } BufferCopyNodeBufferInfo;
 
-class BufferCopyComputeGraphNode final : public IComputeGraphNode {
+class BufferCopyNode final : public IComputeGraphNode {
     BufferCopyNodeBufferInfo srcBuffer{};
     BufferCopyNodeBufferInfo dstBuffer{};
     std::shared_ptr<VkGPUContext> gpuCtx = nullptr;
 
 public:
-    BufferCopyComputeGraphNode(const std::shared_ptr<VkGPUContext> &gpuCtx,
+    BufferCopyNode(const std::shared_ptr<VkGPUContext> &gpuCtx,
                                const std::string &name,
                                BufferCopyNodeBufferInfo srcBuffer,
                                BufferCopyNodeBufferInfo dstBuffer);
 
-    ~BufferCopyComputeGraphNode() override = default;
+    ~BufferCopyNode() override = default;
 
     VkResult CreateComputeGraphNode() override;
 

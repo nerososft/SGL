@@ -45,7 +45,7 @@ void main() {
     }
     vec4 colorSum = vec4(0.0);
     float weightSum = 0.0;
-    float sigma = float(filterParams.radius) / 2;
+    float sigma = float(filterParams.radius) / 3;
     for (int dy = -filterParams.radius; dy <= filterParams.radius; ++dy) {
         int sampleY = int(coord.y) + dy;
         sampleY = clamp(sampleY, 0, int(filterParams.height) - 1);
