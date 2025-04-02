@@ -24,8 +24,8 @@ bool EffectEngine::Init() {
     this->gpuCtx = std::make_shared<VkGPUContext>(requiredExtensions);
     // this->gpuCtx->AddInstanceEnableLayer("VK_LAYER_KHRONOS_validation");
     // this->gpuCtx->AddInstanceEnableLayer("VK_LAYER_LUNARG_api_dump");
-    this->gpuCtx->AddInstanceEnableLayer("VK_LAYER_KHRONOS_synchronization2");
-    this->gpuCtx->AddDeviceEnabledExtension("VK_KHR_synchronization2");
+    // this->gpuCtx->AddInstanceEnableLayer("VK_LAYER_KHRONOS_synchronization2");
+    // this->gpuCtx->AddDeviceEnabledExtension("VK_KHR_synchronization2");
     const VkResult result = this->gpuCtx->Init();
     if (result != VK_SUCCESS) {
         Logger() << Logger::ERROR << "Failed to initialize Vulkan GPU context!" << std::endl;
@@ -206,7 +206,8 @@ void EffectEngine::Process(const char *inputFilePath,
         return;
     }
 
-    ImageUtils::WritePngFile(outputFilePath, newWidth, newHeight, channels, outputStorageBuffer->GetMappedAddr());
+    const void* outputDataAddr = outputStorageBuffer->GetMappedAddr();
+    ImageUtils::WritePngFile(outputFilePath, newWidth, newHeight, channels, outputDataAddr);
     inputStorageBuffer->Destroy();
     outputStorageBuffer->Destroy();
 }

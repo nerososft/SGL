@@ -137,7 +137,8 @@ void ComputePipelineNode::Compute(const VkCommandBuffer commandBuffer) {
             }
         }
 
-        PFN_vkCmdPipelineBarrier2KHR vkCmdPipelineBarrier2Fn = vkCmdPipelineBarrier2Fn = VkGPUHelper::GetVkCmdPipelineBarrier2Fn(this->gpuCtx->GetCurrentDevice());
+        PFN_vkCmdPipelineBarrier2KHR vkCmdPipelineBarrier2Fn =
+                vkCmdPipelineBarrier2Fn = VkGPUHelper::GetVkCmdPipelineBarrier2Fn(this->gpuCtx->GetCurrentDevice());
         if (vkCmdPipelineBarrier2Fn != nullptr) {
             VkMemoryBarrier2KHR memoryBarrier;
             memoryBarrier.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER_2_KHR;
