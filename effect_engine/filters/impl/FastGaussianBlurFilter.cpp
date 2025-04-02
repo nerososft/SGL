@@ -207,7 +207,10 @@ VkResult FastGaussianBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuC
         return ret;
     }
 
-    const uint32_t sigma = this->blurFilterParams.radius / 3;
+    uint32_t sigma = this->blurFilterParams.radius / 3;
+    sigma = sigma > 4 ? 4 : sigma;
+    sigma = sigma < 2 ? 2 : sigma;
+    Logger() << "Downsampling ratio: " << sigma << std::endl;
     const uint32_t targetWidth = width / sigma;
     const uint32_t targetHeight = height / sigma;
     const int newRadius = this->blurFilterParams.radius / sigma;
