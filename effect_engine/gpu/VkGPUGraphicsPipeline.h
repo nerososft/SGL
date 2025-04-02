@@ -6,7 +6,7 @@
 #define VKGPUGRAPHICSPIPELINE_H
 #include <vector>
 #include <vulkan/vulkan_core.h>
-
+#include <string>
 
 class VkGPUGraphicsPipeline {
     VkDevice device = VK_NULL_HANDLE;

@@ -13,6 +13,8 @@
 #include "effect_engine/filters/impl/colorBalanceFilter.h"
 #include "effect_engine/filters/impl/BlackWhiteFilter.h" 
 #include "effect_engine/filters/impl/ScaleFilter.h"
+#include "effect_engine/filters/impl/FastGaussianBlurFilter.h"
+
 
 #include "log/Log.h"
 
@@ -39,6 +41,8 @@ bool gaussian_blur_filter_gpu(void *in, void *out, const int r) {
     const ImageInfo *output = static_cast<ImageInfo *>(out);
 
     g_effect_engine.Process(*input, *output, filter);
+
+
     return true;
 }
 
