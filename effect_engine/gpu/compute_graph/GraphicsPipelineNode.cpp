@@ -4,7 +4,11 @@
 
 #include "GraphicsPipelineNode.h"
 
+#ifdef OS_OPEN_HARMONY
+#include <effect_engine/gpu/utils/vk_enum_string_helper.h>
+#else
 #include <vulkan/vk_enum_string_helper.h>
+#endif
 
 #include "effect_engine/gpu/VkGPUGraphicsPipeline.h"
 #include "effect_engine/log/Log.h"
