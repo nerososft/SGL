@@ -121,13 +121,18 @@ void parallel_copy(void* dst, const void* src, size_t size, int num_threads) {
 
 VkResult VkGPUBuffer::DownloadData(void *downloadAddr, const VkDeviceSize size) {
     const VkResult result = MapBuffer(size);
+
+    int buffer_size = 9000000;
     if (result != VK_SUCCESS) {
         Logger() << "Failed to map buffer, err =" << string_VkResult(result) << std::endl;
         return result;
     }
-    //memcpy(downloadAddr, data, size);
-    parallel_copy(downloadAddr, data, size, 8);
-  
+    if (size < buffer_size) {
+        memcpy(downloadAddr, data, size);
+    }
+    else {
+        parallel_copy(downloadAddr, data, size, 8);
+    }
 
     UnMapBuffer();
     return VK_SUCCESS;
