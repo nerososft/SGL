@@ -99,6 +99,8 @@ add_library(gpu_effect_engine SHARED
         operators/UnaryOperator.h
         operators/BinaryOperator.cpp
         operators/BinaryOperator.h
+        filters/impl/HPSBlurFilter.cpp
+        filters/impl/HPSBlurFilter.h
 )
 target_link_libraries(gpu_effect_engine vulkan)
 if (CMAKE_SYSTEM_NAME MATCHES "OHOS")
