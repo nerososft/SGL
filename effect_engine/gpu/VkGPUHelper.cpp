@@ -18,9 +18,6 @@
 PFN_vkCmdPipelineBarrier2KHR VkGPUHelper::GetVkCmdPipelineBarrier2Fn(const VkDevice device) {
     PFN_vkCmdPipelineBarrier2KHR func = nullptr;
     func = reinterpret_cast<PFN_vkCmdPipelineBarrier2KHR>(vkGetDeviceProcAddr(device, "vkCmdPipelineBarrier2KHR"));
-    if (!func) {
-        Logger() << "Failed to get vkCmdPipelineBarrier2" << std::endl;
-    }
     return func;
 }
 

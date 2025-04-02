@@ -206,11 +206,13 @@ VkResult FastGaussianBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuC
         Logger() << "Failed to create compute graph, err =" << string_VkResult(ret) << std::endl;
         return ret;
     }
-
-    const uint32_t sigma = this->blurFilterParams.radius / 3;
-    const uint32_t targetWidth = width / sigma;
-    const uint32_t targetHeight = height / sigma;
-    const int newRadius = this->blurFilterParams.radius / sigma;
+    uint32_t ratio = this->blurFilterParams.radius / 3;
+    ratio = ratio > 4 ? 4 : ratio;
+    ratio = ratio < 2 ? 2 : ratio;
+    Logger() << "Downsampling ratio: " << ratio << std::endl;
+    const uint32_t targetWidth = width / ratio;
+    const uint32_t targetHeight = height / ratio;
+    const int newRadius = this->blurFilterParams.radius / ratio;
 
     scaleDownBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
     const VkDeviceSize scaleDownBufferSize = targetWidth * targetHeight * 4;

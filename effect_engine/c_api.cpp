@@ -8,6 +8,7 @@
 #include "effect_engine/filters/impl/VibranceFilter.h"
 #include "effect_engine/filters/impl/ThresholdSplitFilter.h"
 #include "effect_engine/filters/impl/PaletteKnifeFilter.h"
+#include "filters/impl/FastGaussianBlurFilter.h"
 #include "effect_engine/filters/impl/HueEqualFilter.h"
 #include "effect_engine/filters/impl/customKernelFilter.h"
 #include "effect_engine/filters/impl/colorBalanceFilter.h"
@@ -34,15 +35,18 @@ bool threshold_split_filter_gpu(void *in, void *out, const int bright) {
 }
 
 bool gaussian_blur_filter_gpu(void *in, void *out, const int r) {
-    const auto filter = std::make_shared<OldGaussianBlurFilter>();
-    filter->SetRadius(r);
-
     const ImageInfo *input = static_cast<ImageInfo *>(in);
     const ImageInfo *output = static_cast<ImageInfo *>(out);
 
-    g_effect_engine.Process(*input, *output, filter);
-
-
+    if (r >= 3) {
+        const auto filter = std::make_shared<FastGaussianBlurFilter>();
+        filter->SetRadius(r);
+        g_effect_engine.Process(*input, *output, filter);
+    } else {
+        const auto filter = std::make_shared<OldGaussianBlurFilter>();
+        filter->SetRadius(r);
+        g_effect_engine.Process(*input, *output, filter);
+    }
     return true;
 }
 
