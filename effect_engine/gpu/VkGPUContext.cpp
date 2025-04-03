@@ -30,6 +30,14 @@ void VkGPUContext::AddInstanceEnableExtension(const char *extensionName) {
     this->instanceEnableExtensions.push_back(extensionName);
 }
 
+void VkGPUContext::AddDeviceEnabledLayer(const char *layerName) {
+    this->defaultDeviceEnableLayers.push_back(layerName);
+}
+
+void VkGPUContext::AddDeviceEnabledExtension(const char *extensionName) {
+    this->defaultDeviceEnableExtensions.push_back(extensionName);
+}
+
 void VkGPUContext::SelectCPU(const uint32_t gpuIndex) {
     if (gpuIndex >= this->physicalDeviceNums) {
         Logger() << "GPU index " << gpuIndex << " is out of bounds" << std::endl;
@@ -66,6 +74,14 @@ VkResult VkGPUContext::CreateDevice(const std::vector<const char *> &deviceEnabl
     deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
     deviceCreateInfo.flags = 0;
     deviceCreateInfo.pNext = nullptr;
+    VkPhysicalDeviceSynchronization2Features sync2Feature{};
+    for (const auto extName: deviceEnableExtensions) {
+        if (std::strcmp(extName, "VK_KHR_synchronization2") == 0) {
+            sync2Feature.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SYNCHRONIZATION_2_FEATURES;
+            sync2Feature.synchronization2 = VK_TRUE;
+            deviceCreateInfo.pNext = &sync2Feature;
+        }
+    }
     deviceCreateInfo.enabledExtensionCount = deviceEnableExtensions.size();
     deviceCreateInfo.ppEnabledExtensionNames = deviceEnableExtensions.data();
     deviceCreateInfo.enabledLayerCount = deviceEnableLayers.size();
@@ -221,7 +237,6 @@ VkResult VkGPUContext::Init() {
     }
     this->GetQueue();
 
-
     std::vector<VkDescriptorPoolSize> descriptorPoolSizes;
     VkDescriptorPoolSize storageBufferDescriptorPoolSize;
     storageBufferDescriptorPoolSize.type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
@@ -235,7 +250,7 @@ VkResult VkGPUContext::Init() {
 
     VkDescriptorPoolCreateInfo descriptorPoolCreateInfo;
     descriptorPoolCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-    descriptorPoolCreateInfo.flags = 0;
+    descriptorPoolCreateInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
     descriptorPoolCreateInfo.pNext = nullptr;
     descriptorPoolCreateInfo.maxSets = 10;
     descriptorPoolCreateInfo.poolSizeCount = descriptorPoolSizes.size();
@@ -256,4 +271,8 @@ VkResult VkGPUContext::Init() {
     }
 
     return result;
+}
+
+void VkGPUContext::Reset() const {
+    vkResetDescriptorPool(device, this->descriptorPool, 0);
 }

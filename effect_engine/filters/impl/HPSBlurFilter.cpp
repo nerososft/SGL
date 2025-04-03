@@ -1,0 +1,59 @@
+//
+// Created by neo on 25-4-2.
+//
+
+#include "HPSBlurFilter.h"
+#ifdef OS_OPEN_HARMONY
+#include <effect_engine/gpu/utils/vk_enum_string_helper.h>
+#else
+#include <vulkan/vk_enum_string_helper.h>
+#endif
+#include "effect_engine/gpu/compute_graph/GraphicsPipelineNode.h"
+#include "effect_engine/gpu/compute_graph/GraphicsRenderPassNode.h"
+#include "effect_engine/log/Log.h"
+
+VkResult HPSBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                              VkDeviceSize bufferSize,
+                              uint32_t width,
+                              uint32_t height,
+                              VkBuffer inputBuffer,
+                              VkBuffer outputBuffer) {
+    this->computeGraph = std::make_shared<ComputeGraph>(gpuCtx);
+    VkResult ret = this->computeGraph->Init();
+    if (ret != VK_SUCCESS) {
+        Logger() << "Failed to create compute graph, err =" << string_VkResult(ret) << std::endl;
+        return ret;
+    }
+
+    const auto renderPassNode = std::make_shared<GraphicsRenderPassNode>(gpuCtx,
+        "HPSBlurPass",
+        width,
+        height);
+    ret = renderPassNode->CreateComputeGraphNode();
+    if (ret != VK_SUCCESS) {
+        Logger() << "Failed to create graphics renderpass node, err =" << string_VkResult(ret) << std::endl;
+        return ret;
+    }
+
+    const auto graphicsNode = std::make_shared<GraphicsPipelineNode>(gpuCtx,
+        "HPSBlurPipeline",
+        renderPassNode->GetRenderPass(),
+        SHADER(hpsblur.vert.glsl.spv), SHADER(hpsblur.frag.glsl.spv),
+        width, height);
+
+    // TODO:
+    graphicsNode->AddGraphicsElement({});
+
+    ret = graphicsNode->CreateComputeGraphNode();
+    if (ret != VK_SUCCESS) {
+        Logger() << "Failed to create graphics pipeline node, err =" << string_VkResult(ret) << std::endl;
+        return ret;
+    }
+
+    renderPassNode->AddDependenceNode(graphicsNode);
+    this->computeGraph->AddComputeGraphNode(renderPassNode);
+    return this->computeGraph->Compute();
+}
+
+void HPSBlurFilter::Destroy() {
+}

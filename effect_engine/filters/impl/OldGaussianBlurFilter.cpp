@@ -13,8 +13,8 @@
 #include "effect_engine/config.h"
 #include "effect_engine/filters/BasicFilter.h"
 #include "effect_engine/gpu/VkGPUHelper.h"
-#include "effect_engine/gpu/compute_graph/BufferCopyComputeGraphNode.h"
-#include "effect_engine/gpu/compute_graph/PipelineComputeGraphNode.h"
+#include "effect_engine/gpu/compute_graph/BufferCopyNode.h"
+#include "effect_engine/gpu/compute_graph/ComputePipelineNode.h"
 #include "effect_engine/log/Log.h"
 
 VkResult OldGaussianBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
@@ -53,14 +53,16 @@ VkResult OldGaussianBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCt
     vPipelineBuffers.push_back(vPipelineNodeInput);
     vPipelineBuffers.push_back(vPipelineNodeOutput);
 
-    const auto gaussianVerticalNode = std::make_shared<PipelineComputeGraphNode>(gpuCtx,
-        "OldGaussianVerticalBlur",
-        SHADER(vertical_blur_old.comp.glsl.spv),
-        pushConstantInfo,
-        vPipelineBuffers,
-        (width + 31) / 32,
-        (height + 31) / 32,
-        1);
+    const auto gaussianVerticalNode = std::make_shared<ComputePipelineNode>(gpuCtx,
+                                                                            "OldGaussianVerticalBlur",
+                                                                            SHADER(vertical_blur_old.comp.glsl.spv),
+                                                                            (width + 31) / 32,
+                                                                            (height + 31) / 32,
+                                                                            1);
+    gaussianVerticalNode->AddComputeElement({
+        .pushConstantInfo = pushConstantInfo,
+        .buffers = vPipelineBuffers
+    });
 
     ret = gaussianVerticalNode->CreateComputeGraphNode();
     if (ret != VK_SUCCESS) {
@@ -82,14 +84,16 @@ VkResult OldGaussianBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCt
     hPipelineBuffers.push_back(hPipelineNodeInput);
     hPipelineBuffers.push_back(hPipelineNodeOutput);
 
-    const auto gaussianHorizontalNode = std::make_shared<PipelineComputeGraphNode>(gpuCtx,
-        "OldGaussianHorizontalBlur",
-        SHADER(horizontal_blur_old.comp.glsl.spv),
-        pushConstantInfo,
-        hPipelineBuffers,
-        (width + 31) / 32,
-        (height + 31) / 32,
-        1);
+    const auto gaussianHorizontalNode = std::make_shared<ComputePipelineNode>(gpuCtx,
+                                                                              "OldGaussianHorizontalBlur",
+                                                                              SHADER(horizontal_blur_old.comp.glsl.spv),
+                                                                              (width + 31) / 32,
+                                                                              (height + 31) / 32,
+                                                                              1);
+    gaussianHorizontalNode->AddComputeElement({
+        .pushConstantInfo = pushConstantInfo,
+        .buffers = hPipelineBuffers
+    });
 
     ret = gaussianHorizontalNode->CreateComputeGraphNode();
     if (ret != VK_SUCCESS) {
@@ -103,10 +107,10 @@ VkResult OldGaussianBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCt
     BufferCopyNodeBufferInfo dstBufferInfo;
     dstBufferInfo.buffer = outputBuffer;
     dstBufferInfo.bufferSize = bufferSize;
-    const auto copyBufferNode = std::make_shared<BufferCopyComputeGraphNode>(gpuCtx,
-                                                                             "CopyBufferToOutputBuffer",
-                                                                             srcBufferInfo,
-                                                                             dstBufferInfo);
+    const auto copyBufferNode = std::make_shared<BufferCopyNode>(gpuCtx,
+                                                                 "CopyBufferToOutputBuffer",
+                                                                 srcBufferInfo,
+                                                                 dstBufferInfo);
     copyBufferNode->CreateComputeGraphNode();
 
     copyBufferNode->AddDependenceNode(gaussianVerticalNode);

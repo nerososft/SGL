@@ -20,14 +20,15 @@ VkResult ScaleFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     params.paramsSize = sizeof(ScaleFilterParams);
     params.paramsData = &this->scaleFilterParams;
     params.shaderPath = SHADER(scale.comp.glsl.spv);
+
     return DoApply(gpuCtx,
                    "Scale",
                    bufferSize,
                    inputBuffer,
                    outputBuffer,
                    params,
-                   (width + 31) / 32,
-                   (height + 31) / 32,
+                   (this->scaleFilterParams.targetWidth + 31) / 32,
+                   (this->scaleFilterParams.targetHeight + 31) / 32,
                    1);
 }
 

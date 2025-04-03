@@ -17,8 +17,8 @@
 
 #include "effect_engine/filters/BasicFilter.h"
 #include "effect_engine/gpu/VkGPUHelper.h"
-#include "effect_engine/gpu/compute_graph/BufferCopyComputeGraphNode.h"
-#include "effect_engine/gpu/compute_graph/PipelineComputeGraphNode.h"
+#include "effect_engine/gpu/compute_graph/BufferCopyNode.h"
+#include "effect_engine/gpu/compute_graph/ComputePipelineNode.h"
 #include "effect_engine/log/Log.h"
 
 
@@ -84,14 +84,18 @@ VkResult colorBalanceFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     vPipelineBuffers.push_back(pipelineNodePInput);
     vPipelineBuffers.push_back(pipelineNodeOutput);
 
-    const auto kCalculateNode = std::make_shared<PipelineComputeGraphNode>(gpuCtx,
+    const auto kCalculateNode = std::make_shared<ComputePipelineNode>(gpuCtx,
         "colorBalance",
         SHADER(color_balance.comp.glsl.spv),
-        pushConstantInfo,
-        vPipelineBuffers,
         (width + 31) / 32,
         (height + 31) / 32,
         1);
+
+
+    kCalculateNode->AddComputeElement({
+.pushConstantInfo = pushConstantInfo,
+.buffers = vPipelineBuffers
+        });
 
     ret = kCalculateNode->CreateComputeGraphNode();
     if (ret != VK_SUCCESS) {

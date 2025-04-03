@@ -33,6 +33,7 @@ VkResult VkGPUComputePipeline::CreateComputePipeline(const VkDevice device,
         Logger() << "failed to create descriptor set layout, err=" << string_VkResult(ret) << std::endl;
         return ret;
     }
+
     std::vector<VkDescriptorSetLayout> descriptorSetLayouts;
     descriptorSetLayouts.push_back(this->descriptorSetLayout);
     ret = VkGPUHelper::CreatePipelineLayout(device,
@@ -43,6 +44,7 @@ VkResult VkGPUComputePipeline::CreateComputePipeline(const VkDevice device,
         Logger() << "failed to create pipeline layout, err=" << string_VkResult(ret) << std::endl;
         return ret;
     }
+
     ret = VkGPUHelper::CreateShaderModuleFromPath(device,
                                                   computeShaderPath,
                                                   &this->computeShaderModule);
@@ -50,6 +52,7 @@ VkResult VkGPUComputePipeline::CreateComputePipeline(const VkDevice device,
         Logger() << "failed to create shader module, err=" << string_VkResult(ret) << std::endl;
         return ret;
     }
+
     return VkGPUHelper::CreateComputePipeline(device,
                                               pipelineCache,
                                               this->pipelineLayout,

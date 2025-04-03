@@ -22,6 +22,8 @@ add_library(gpu_effect_engine SHARED
         filters/impl/GrayFilter.h
         filters/impl/PaletteKnifeFilter.h
         filters/impl/PaletteKnifeFilter.cpp
+        filters/impl/BlurEdgeFilter.h
+        filters/impl/BlurEdgeFilter.cpp
         gpu/VkGPUHelper.cpp
         gpu/VkGPUHelper.h
         utils/IOUtils.cpp
@@ -40,14 +42,14 @@ add_library(gpu_effect_engine SHARED
         gpu/compute_graph/ComputeGraph.cpp
         gpu/compute_graph/ComputeGraph.h
         gpu/compute_graph/IComputeGraphNode.h
-        gpu/compute_graph/PipelineComputeGraphNode.cpp
-        gpu/compute_graph/PipelineComputeGraphNode.h
+        gpu/compute_graph/ComputePipelineNode.cpp
+        gpu/compute_graph/ComputePipelineNode.h
         filters/impl/GaussianBlurFilter.cpp
         filters/impl/GaussianBlurFilter.h
         filters/impl/OldGaussianBlurFilter.cpp
         filters/impl/OldGaussianBlurFilter.h
-        gpu/compute_graph/BufferCopyComputeGraphNode.h
-        gpu/compute_graph/BufferCopyComputeGraphNode.cpp
+        gpu/compute_graph/BufferCopyNode.h
+        gpu/compute_graph/BufferCopyNode.cpp
         filters/impl/ChinesePaintFilter.h
         filters/impl/ChinesePaintFilter.cpp
         filters/impl/ColorPencilSketchFilter.cpp
@@ -93,9 +95,27 @@ add_library(gpu_effect_engine SHARED
         filters/impl/VoronoiFilter.h
         gpu/VkGPUBuffer.cpp
         gpu/VkGPUBuffer.h
+        gpu/VkGPUGraphicsPipeline.cpp
+        gpu/VkGPUGraphicsPipeline.h
+        gpu/compute_graph/GraphicsPipelineNode.cpp
+        gpu/compute_graph/GraphicsPipelineNode.h
+        gpu/VkGPURenderPass.cpp
+        gpu/VkGPURenderPass.h
+        gpu/compute_graph/GraphicsRenderPassNode.cpp
+        gpu/compute_graph/GraphicsRenderPassNode.h
+        filters/impl/FastGaussianBlurFilter.cpp
+        filters/impl/FastGaussianBlurFilter.h
+        operators/IOperator.h
+        operators/UnaryOperator.cpp
+        operators/UnaryOperator.h
+        operators/BinaryOperator.cpp
+        operators/BinaryOperator.h
+        filters/impl/HPSBlurFilter.cpp
+        filters/impl/HPSBlurFilter.h
 )
 target_link_libraries(gpu_effect_engine vulkan)
 if (CMAKE_SYSTEM_NAME MATCHES "OHOS")
+elseif (CMAKE_SYSTEM_NAME MATCHES "Windows")
 else ()
     target_link_libraries(gpu_effect_engine png)
 endif ()

@@ -51,6 +51,10 @@ public:
 
     void AddInstanceEnableExtension(const char *extensionName);
 
+    void AddDeviceEnabledLayer(const char * layerName);
+
+    void AddDeviceEnabledExtension(const char * extensionName);
+
     void SelectCPU(uint32_t gpuIndex);
 
     VkResult CreateDevice(const std::vector<const char *> &deviceEnableLayers,
@@ -59,6 +63,8 @@ public:
     VkQueue GetQueue();
 
     VkResult Init();
+
+    void Reset() const;
 
     ~VkGPUContext() = default;
 
@@ -75,7 +81,7 @@ public:
         return this->physicalDevicesMemoryProperties[selectedGPUIndex];
     }
 
-    VkPhysicalDeviceProperties GetPhysicalDeviceProperties() const {
+    [[nodiscard]] VkPhysicalDeviceProperties GetPhysicalDeviceProperties() const {
         return this->physicalDevicesProperties[selectedGPUIndex];
     }
 };

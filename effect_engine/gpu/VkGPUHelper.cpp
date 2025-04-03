@@ -14,7 +14,273 @@
 
 #include "effect_engine/log/Log.h"
 #include "effect_engine/utils/IOUtils.h"
-#include "effect_engine/utils/TimeUtils.h"
+
+PFN_vkCmdPipelineBarrier2KHR VkGPUHelper::GetVkCmdPipelineBarrier2Fn(const VkDevice device) {
+    PFN_vkCmdPipelineBarrier2KHR func = nullptr;
+    func = reinterpret_cast<PFN_vkCmdPipelineBarrier2KHR>(vkGetDeviceProcAddr(device, "vkCmdPipelineBarrier2KHR"));
+    return func;
+}
+
+void VkGPUHelper::GPUCmdPipelineMemBarrier(const VkCommandBuffer commandBuffer,
+                                           const VkPipelineStageFlags srcStageMask,
+                                           const VkPipelineStageFlags dstStageMask,
+                                           const VkDependencyFlags dependencyFlags,
+                                           const std::vector<VkMemoryBarrier> &memoryBarriers) {
+    const std::vector<VkBufferMemoryBarrier> bufferMemoryBarriers;
+    const std::vector<VkImageMemoryBarrier> imageMemoryBarrier;
+    GPUCmdPipelineBarrier(commandBuffer,
+                          srcStageMask,
+                          dstStageMask,
+                          dependencyFlags,
+                          memoryBarriers,
+                          bufferMemoryBarriers,
+                          imageMemoryBarrier);
+}
+
+VkMemoryBarrier VkGPUHelper::BuildMemoryBarrier(const VkAccessFlagBits srcAccessMask,
+                                                const VkAccessFlagBits dstAccessMask) {
+    VkMemoryBarrier memoryBarrier = {};
+    memoryBarrier.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
+    memoryBarrier.pNext = nullptr;
+    memoryBarrier.srcAccessMask = srcAccessMask;
+    memoryBarrier.dstAccessMask = dstAccessMask;
+    return memoryBarrier;
+}
+
+void VkGPUHelper::GPUCmdEndRenderPass(const VkCommandBuffer commandBuffer) {
+    vkCmdEndRenderPass(commandBuffer);
+}
+
+void VkGPUHelper::GPUCmdBeginRenderPass(const VkCommandBuffer commandBuffer,
+                                        const VkRenderPass renderPass,
+                                        const VkFramebuffer framebuffer,
+                                        const VkRect2D renderArea,
+                                        const std::vector<VkClearValue> &clearValues) {
+    VkRenderPassBeginInfo renderPassInfo = {};
+    renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    renderPassInfo.pNext = nullptr;
+    renderPassInfo.renderPass = renderPass;
+    renderPassInfo.framebuffer = framebuffer;
+    renderPassInfo.renderArea = renderArea;
+    renderPassInfo.clearValueCount = clearValues.size();
+    renderPassInfo.pClearValues = clearValues.data();
+
+    vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+}
+
+VkResult VkGPUHelper::CreateRenderPass(const VkDevice device,
+                                       const std::vector<VkAttachmentDescription> &attachments,
+                                       const std::vector<VkSubpassDependency> &dependencies,
+                                       const std::vector<VkSubpassDescription> &subPasses,
+                                       VkRenderPass *renderPass) {
+    VkResult ret = VK_SUCCESS;
+
+    VkRenderPassCreateInfo renderPassInfo = {};
+    renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+    renderPassInfo.flags = 0;
+    renderPassInfo.pNext = nullptr;
+    renderPassInfo.attachmentCount = attachments.size();
+    renderPassInfo.pAttachments = attachments.data();
+    renderPassInfo.subpassCount = subPasses.size();
+    renderPassInfo.pSubpasses = subPasses.data();
+    renderPassInfo.dependencyCount = dependencies.size();
+    renderPassInfo.pDependencies = dependencies.data();
+    ret = vkCreateRenderPass(device, &renderPassInfo, nullptr, renderPass);
+    if (ret != VK_SUCCESS) {
+        Logger() << "Failed to create render pass, err=" << string_VkResult(ret) << std::endl;
+        return ret;
+    }
+    return ret;
+}
+
+VkResult VkGPUHelper::CreateGraphicsPipeline(const VkDevice device,
+                                             const VkPipelineCache pipelineCache,
+                                             const VkPipelineLayout pipelineLayout,
+                                             const VkShaderModule vertexShaderModule,
+                                             const VkShaderModule fragmentShaderModule,
+                                             const VkRenderPass renderPass,
+                                             std::vector<VkVertexInputBindingDescription>
+                                             vertexInputBindingDescriptions,
+                                             std::vector<VkVertexInputAttributeDescription>
+                                             vertexInputAttributeDescriptions,
+                                             VkPrimitiveTopology inputAssemblyTopology,
+                                             VkBool32 primitiveRestartEnable,
+                                             std::vector<VkViewport> viewports,
+                                             std::vector<VkRect2D> viewportScissors,
+                                             VkPolygonMode polygonMode,
+                                             float lineWidth,
+                                             std::vector<VkPipelineColorBlendAttachmentState>
+                                             colorBlendStateCreateInfos,
+                                             std::vector<VkDynamicState> dynamicStates,
+                                             VkPipeline *pipeline) {
+    VkResult ret = VK_SUCCESS;
+    std::vector<VkGraphicsPipelineCreateInfo> pipelineCreateInfos;
+
+    std::vector<VkPipelineShaderStageCreateInfo> shaderStages;
+    VkPipelineShaderStageCreateInfo vertexShaderStageCreateInfo = {};
+    vertexShaderStageCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+    vertexShaderStageCreateInfo.flags = 0;
+    vertexShaderStageCreateInfo.pNext = nullptr;
+    vertexShaderStageCreateInfo.pName = "main";
+    vertexShaderStageCreateInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
+    vertexShaderStageCreateInfo.module = vertexShaderModule;
+    vertexShaderStageCreateInfo.pSpecializationInfo = nullptr;
+    shaderStages.push_back(vertexShaderStageCreateInfo);
+
+    VkPipelineShaderStageCreateInfo fragmentShaderStageCreateInfo = {};
+    fragmentShaderStageCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+    fragmentShaderStageCreateInfo.flags = 0;
+    fragmentShaderStageCreateInfo.pNext = nullptr;
+    fragmentShaderStageCreateInfo.pName = "main";
+    fragmentShaderStageCreateInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+    fragmentShaderStageCreateInfo.module = fragmentShaderModule;
+    fragmentShaderStageCreateInfo.pSpecializationInfo = nullptr;
+    shaderStages.push_back(fragmentShaderStageCreateInfo);
+
+    VkPipelineVertexInputStateCreateInfo vertexInputStateCreateInfo = {};
+    vertexInputStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+    vertexInputStateCreateInfo.flags = 0;
+    vertexInputStateCreateInfo.pNext = nullptr;
+    vertexInputStateCreateInfo.vertexBindingDescriptionCount = vertexInputBindingDescriptions.size();
+    vertexInputStateCreateInfo.vertexAttributeDescriptionCount = vertexInputAttributeDescriptions.size();
+    vertexInputStateCreateInfo.pVertexBindingDescriptions = vertexInputBindingDescriptions.data();
+    vertexInputStateCreateInfo.pVertexAttributeDescriptions = vertexInputAttributeDescriptions.data();
+
+    VkPipelineInputAssemblyStateCreateInfo inputAssemblyState = {};
+    inputAssemblyState.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+    inputAssemblyState.flags = 0;
+    inputAssemblyState.pNext = nullptr;
+    inputAssemblyState.topology = inputAssemblyTopology;
+    inputAssemblyState.primitiveRestartEnable = primitiveRestartEnable;
+
+    VkPipelineTessellationStateCreateInfo tessellationState = {};
+    tessellationState.sType = VK_STRUCTURE_TYPE_PIPELINE_TESSELLATION_STATE_CREATE_INFO;
+    tessellationState.flags = 0;
+    tessellationState.pNext = nullptr;
+    tessellationState.patchControlPoints = 0;
+
+    VkPipelineViewportStateCreateInfo viewportState = {};
+    viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+    viewportState.flags = 0;
+    viewportState.pNext = nullptr;
+    viewportState.scissorCount = viewportScissors.size();
+    viewportState.pScissors = viewportScissors.data();
+    viewportState.viewportCount = viewports.size();
+    viewportState.pViewports = viewports.data();
+
+    VkPipelineRasterizationStateCreateInfo rasterizationState = {};
+    rasterizationState.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+    rasterizationState.flags = 0;
+    rasterizationState.pNext = nullptr;
+    rasterizationState.depthClampEnable = VK_TRUE;
+    rasterizationState.rasterizerDiscardEnable = VK_FALSE;
+    rasterizationState.polygonMode = polygonMode;
+    rasterizationState.cullMode = VK_CULL_MODE_BACK_BIT;
+    rasterizationState.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
+    rasterizationState.depthBiasEnable = VK_FALSE;
+    rasterizationState.depthBiasConstantFactor = 0.0f;
+    rasterizationState.depthBiasClamp = 0.0f;
+    rasterizationState.depthBiasSlopeFactor = 0.0f;
+    rasterizationState.lineWidth = lineWidth;
+
+    VkPipelineMultisampleStateCreateInfo multisampleState = {};
+    multisampleState.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+    multisampleState.flags = 0;
+    multisampleState.pNext = nullptr;
+    multisampleState.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+    multisampleState.sampleShadingEnable = VK_FALSE;
+    multisampleState.minSampleShading = 0.0f;
+    multisampleState.pSampleMask = nullptr;
+    multisampleState.alphaToCoverageEnable = VK_FALSE;
+    multisampleState.alphaToOneEnable = VK_FALSE;
+
+    VkPipelineDepthStencilStateCreateInfo depthStencilState = {};
+    depthStencilState.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+    depthStencilState.flags = 0;
+    depthStencilState.pNext = nullptr;
+    depthStencilState.depthTestEnable = VK_TRUE;
+    depthStencilState.depthWriteEnable = VK_TRUE;
+    depthStencilState.depthCompareOp = VK_COMPARE_OP_LESS;
+    depthStencilState.depthBoundsTestEnable = VK_FALSE;
+    depthStencilState.stencilTestEnable = VK_FALSE;
+
+    VkStencilOpState frontStencilState = {};
+    frontStencilState.failOp = VK_STENCIL_OP_KEEP;
+    frontStencilState.passOp = VK_STENCIL_OP_KEEP;
+    frontStencilState.depthFailOp = VK_STENCIL_OP_KEEP;
+    frontStencilState.compareOp = VK_COMPARE_OP_LESS;
+    frontStencilState.compareMask = 0;
+    frontStencilState.writeMask = 0;
+    frontStencilState.reference = 0;
+    depthStencilState.front = frontStencilState;
+
+    VkStencilOpState backStencilState = {};
+    backStencilState.failOp = VK_STENCIL_OP_KEEP;
+    backStencilState.passOp = VK_STENCIL_OP_KEEP;
+    backStencilState.depthFailOp = VK_STENCIL_OP_KEEP;
+    backStencilState.compareOp = VK_COMPARE_OP_LESS;
+    backStencilState.compareMask = 0;
+    backStencilState.writeMask = 0;
+    backStencilState.reference = 0;
+    depthStencilState.front = backStencilState;
+    depthStencilState.maxDepthBounds = 0;
+    depthStencilState.maxDepthBounds = 1;
+
+    VkPipelineColorBlendStateCreateInfo colorBlendState = {};
+    colorBlendState.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+    colorBlendState.flags = 0;
+    colorBlendState.pNext = nullptr;
+    colorBlendState.logicOpEnable = VK_FALSE;
+    colorBlendState.logicOp = VK_LOGIC_OP_COPY;
+    colorBlendState.attachmentCount = colorBlendStateCreateInfos.size();
+    colorBlendState.pAttachments = colorBlendStateCreateInfos.data();
+    colorBlendState.blendConstants[0] = 0.0f;
+    colorBlendState.blendConstants[1] = 0.0f;
+    colorBlendState.blendConstants[2] = 0.0f;
+    colorBlendState.blendConstants[3] = 0.0f;
+
+    VkPipelineDynamicStateCreateInfo dynamicState = {};
+    dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+    dynamicState.flags = 0;
+    dynamicState.pNext = nullptr;
+    dynamicState.dynamicStateCount = dynamicStates.size();
+    dynamicState.pDynamicStates = dynamicStates.data();
+
+    VkGraphicsPipelineCreateInfo pipelineCreateInfo = {};
+    pipelineCreateInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+    pipelineCreateInfo.flags = 0;
+    pipelineCreateInfo.pNext = nullptr;
+    pipelineCreateInfo.stageCount = shaderStages.size();
+    pipelineCreateInfo.pStages = shaderStages.data();
+
+    pipelineCreateInfo.pVertexInputState = &vertexInputStateCreateInfo;
+    pipelineCreateInfo.pInputAssemblyState = &inputAssemblyState;
+    pipelineCreateInfo.pTessellationState = &tessellationState;
+    pipelineCreateInfo.pViewportState = &viewportState;
+    pipelineCreateInfo.pRasterizationState = &rasterizationState;
+    pipelineCreateInfo.pMultisampleState = &multisampleState;
+    pipelineCreateInfo.pDepthStencilState = &depthStencilState;
+    pipelineCreateInfo.pColorBlendState = &colorBlendState;
+    pipelineCreateInfo.pDynamicState = &dynamicState;
+    pipelineCreateInfo.layout = pipelineLayout;
+    pipelineCreateInfo.renderPass = renderPass;
+    pipelineCreateInfo.subpass = 0;
+    pipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;
+    pipelineCreateInfo.basePipelineIndex = 0;
+    pipelineCreateInfos.push_back(pipelineCreateInfo);
+
+    ret = vkCreateGraphicsPipelines(device,
+                                    pipelineCache,
+                                    pipelineCreateInfos.size(),
+                                    pipelineCreateInfos.data(),
+                                    nullptr,
+                                    pipeline);
+    if (ret != VK_SUCCESS) {
+        Logger() << "Failed to create graphics pipeline." << std::endl;
+        return ret;
+    }
+    return ret;
+}
 
 VkResult VkGPUHelper::CreateUniformBufferAndUploadData(const VkDevice device,
                                                        const std::vector<uint32_t> &queueFamilyIndices,
@@ -447,6 +713,8 @@ VkResult VkGPUHelper::CreateStorageBufferAndBindMem(const VkDevice device,
         Logger() << "vkAllocateMemory failed, err=" << string_VkResult(ret) << std::endl;
         return ret;
     }
+    Logger() << "VkMemory Allocate " << allocInfo.allocationSize << " bytes, need: " << size << " bytes, align " <<
+            memRequirements.alignment << std::endl;
     ret = vkBindBufferMemory(device, *storageBuffer, *storageBufferMemory, 0);
     if (ret != VK_SUCCESS) {
         Logger() << "vkBindBufferMemory failed, err=" << string_VkResult(ret) << std::endl;

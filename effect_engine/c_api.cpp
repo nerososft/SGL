@@ -8,10 +8,14 @@
 #include "effect_engine/filters/impl/VibranceFilter.h"
 #include "effect_engine/filters/impl/ThresholdSplitFilter.h"
 #include "effect_engine/filters/impl/PaletteKnifeFilter.h"
+#include "filters/impl/FastGaussianBlurFilter.h"
 #include "effect_engine/filters/impl/HueEqualFilter.h"
 #include "effect_engine/filters/impl/customKernelFilter.h"
 #include "effect_engine/filters/impl/colorBalanceFilter.h"
 #include "effect_engine/filters/impl/BlackWhiteFilter.h" 
+#include "effect_engine/filters/impl/ScaleFilter.h"
+#include "effect_engine/filters/impl/FastGaussianBlurFilter.h"
+
 #include "effect_engine/filters/impl/MidValueFilter.h" 
 #include"effect_engine/filters/impl/PathBlurFilter.h" 
 
@@ -33,13 +37,18 @@ bool threshold_split_filter_gpu(void *in, void *out, const int bright) {
 }
 
 bool gaussian_blur_filter_gpu(void *in, void *out, const int r) {
-    const auto filter = std::make_shared<OldGaussianBlurFilter>();
-    filter->SetRadius(r);
-
     const ImageInfo *input = static_cast<ImageInfo *>(in);
     const ImageInfo *output = static_cast<ImageInfo *>(out);
 
-    g_effect_engine.Process(*input, *output, filter);
+    if (r >= 3) {
+        const auto filter = std::make_shared<FastGaussianBlurFilter>();
+        filter->SetRadius(r);
+        g_effect_engine.Process(*input, *output, filter);
+    } else {
+        const auto filter = std::make_shared<OldGaussianBlurFilter>();
+        filter->SetRadius(r);
+        g_effect_engine.Process(*input, *output, filter);
+    }
     return true;
 }
 
@@ -201,13 +210,15 @@ bool color_balance_filter_gpu(void* in, void* out,  float* adjustP, int *p, int 
 
     filter->SetP(p, 9);
     filter->SetAdjustP(adjustP, 9);
-    filter->SetL(0);
+    filter->SetL(l);
 
     g_effect_engine.Process(*input, *output, filter);
 
 
     return true;
 }
+
+
 
 
 bool black_white_filter_gpu(void* in, void* out, float* weight, int wSize) {
@@ -217,6 +228,18 @@ bool black_white_filter_gpu(void* in, void* out, float* weight, int wSize) {
     const auto* output = static_cast<ImageInfo*>(out);
 
     filter->SetWeight(weight , wSize);
+    g_effect_engine.Process(*input, *output, filter);
+    return true;
+}
+bool scale_filter_gpu(void* in, void* out, int  weight, int height)
+{
+    const auto filter = std::make_shared<ScaleFilter>();
+    filter->SetTargetWidth(weight);
+    filter->SetTargetHeight(height);
+
+    const auto* input = static_cast<ImageInfo*>(in);
+    const auto* output = static_cast<ImageInfo*>(out);
+
     g_effect_engine.Process(*input, *output, filter);
     return true;
 }
