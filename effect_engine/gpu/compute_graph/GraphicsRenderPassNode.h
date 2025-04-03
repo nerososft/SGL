@@ -8,7 +8,7 @@
 #include "effect_engine/gpu/VkGPUContext.h"
 #include "effect_engine/gpu/VkGPURenderPass.h"
 
-class GraphicsRenderPassNode final : IComputeGraphNode {
+class GraphicsRenderPassNode final : public IComputeGraphNode {
     float width = 1.0f;
     float height = 1.0f;
 
@@ -29,6 +29,8 @@ public:
     void Compute(VkCommandBuffer commandBuffer) override;
 
     void Destroy() override;
+
+    std::shared_ptr<VkGPURenderPass> GetRenderPass() {return this->renderPass;}
 };
 
 

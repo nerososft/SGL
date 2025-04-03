@@ -85,6 +85,7 @@ VkResult EffectEngine::Process(const std::shared_ptr<VkGPUBuffer> &inputBuffer,
     Logger() << "filter begin destory: " << std::endl;
 
     filter->Destroy();
+    this->gpuCtx->Reset();
     Logger() << "filter end destory: " << std::endl;
 
     return ret;
