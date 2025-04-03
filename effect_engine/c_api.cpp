@@ -12,6 +12,8 @@
 #include "effect_engine/filters/impl/customKernelFilter.h"
 #include "effect_engine/filters/impl/colorBalanceFilter.h"
 #include "effect_engine/filters/impl/BlackWhiteFilter.h" 
+#include "effect_engine/filters/impl/MidValueFilter.h" 
+#include"effect_engine/filters/impl/PathBlurFilter.h" 
 
 #include "log/Log.h"
 
@@ -260,3 +262,34 @@ bool destroy_gpu_engine() {
 bool set_debug_cb(void *dbg) {
     return true;
 }
+
+
+/*bool midvalue_filter_gpu(void* in, void* out, const float radius, const float threshold) {
+    const auto filter = std::make_shared<MidValueFilter>();
+    filter->SetRadius(radius);
+    filter->SetThreshold(threshold);
+
+    const auto* input = static_cast<ImageInfo*>(in);
+    const auto* output = static_cast<ImageInfo*>(out);
+
+    g_effect_engine.Process(*input, *output, filter);
+    return true;
+}
+
+
+bool pathblur_filter_gpu(void* in, void* out, float* vec, int amount,int width,int height)
+{
+
+
+    const auto filter = std::make_shared<pathBlurFilter>();
+    const auto* input = static_cast<ImageInfo*>(in);
+    const auto* output = static_cast<ImageInfo*>(out);
+
+    int k_size = width*height*2;
+    filter->SetK(vec, k_size);
+    filter->SetAmount(amount);
+
+    g_effect_engine.Process(*input, *output, filter);
+
+    return true;
+}*/
