@@ -22,6 +22,8 @@ add_library(gpu_effect_engine SHARED
         filters/impl/GrayFilter.h
         filters/impl/PaletteKnifeFilter.h
         filters/impl/PaletteKnifeFilter.cpp
+        filters/impl/BlurEdgeFilter.h
+        filters/impl/BlurEdgeFilter.cpp
         gpu/VkGPUHelper.cpp
         gpu/VkGPUHelper.h
         utils/IOUtils.cpp

@@ -15,6 +15,7 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     add_compile_options(/DENABLE_WIN64=1) 
     #add_definitions(-DDEBUG_ON_HIMIRAGE=1)
     #add_definitions(-DENABLE_HIMI_HILOG=1)
+    set(CMAKE_CXX_STANDARD 20)
     include_directories("../3rdparty/vulkanSDK/Include")
     link_directories("../3rdparty/vulkanSDK/Lib/")
 
