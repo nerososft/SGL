@@ -39,12 +39,12 @@ vec4 unpackColor(uint color) {
     );
 }
 uvec4 unpackColor3u(uint color) {
-    return uvec4((color) & 0xFF,(color >> 8) & 0xFF,(color >> 16) & 0xFF,(color >> 24) & 0xFF);
+    return uvec4((color) & 0xFF, (color >> 8) & 0xFF, (color >> 16) & 0xFF, (color >> 24) & 0xFF);
 }
 
 void main() {
-	ivec2 imgCoord = ivec2(gl_GlobalInvocationID.xy);
-    
+    ivec2 imgCoord = ivec2(gl_GlobalInvocationID.xy);
+
     //uint index = coord.y * (filterParams.bytesPerLine / 4) + coord.x;
     // 计算有效半径
     int radius = int(ceil(filterParams.radius));
@@ -53,28 +53,28 @@ void main() {
 
     // 初始化直方图
     uint rHist[256], gHist[256], bHist[256];
-    for(int i = 0; i < 256; i++) {
+    for (int i = 0; i < 256; i++) {
         rHist[i] = 0;
         gHist[i] = 0;
         bHist[i] = 0;
     }
 
     // 收集邻域像素
-    for(int dy = -radius; dy <= radius; dy++) {
-        for(int dx = -radius; dx <= radius; dx++) {
+    for (int dy = -radius; dy <= radius; dy++) {
+        for (int dx = -radius; dx <= radius; dx++) {
             ivec2 sampleCoord = imgCoord + ivec2(dx, dy);
-            
+
             // 边界裁剪
-            sampleCoord = clamp(sampleCoord, ivec2(0), 
-                ivec2(filterParams.width-1, filterParams.height-1));
+            sampleCoord = clamp(sampleCoord, ivec2(0),
+            ivec2(filterParams.width-1, filterParams.height-1));
 
             // 计算存储位置
             uint rowOffset = uint(sampleCoord.y) * (filterParams.bytesPerLine / 4);
             uint pixelIndex = rowOffset + uint(sampleCoord.x);
-            
+
             // 解包颜色
             uvec4 colorInt = unpackColor3u(inputImage.pixels[pixelIndex]);
-      
+
             rHist[colorInt.r]++;
             gHist[colorInt.g]++;
             bHist[colorInt.b]++;
@@ -84,30 +84,30 @@ void main() {
     // 计算中值
     vec3 median = vec3(0.0);
     uint targetCount = (totalPixels + 1) / 2;
-    
-    // 红色通道
-    uint countr = 0,countg=0,countb=0;
-	int flagr=1,flagg=1,flagb=1;
 
-	#pragma unroll
-    for(int i = 0; i < 256; i++) {
+    // 红色通道
+    uint countr = 0, countg=0, countb=0;
+    int flagr=1, flagg=1, flagb=1;
+
+    #pragma unroll
+    for (int i = 0; i < 256; i++) {
         countr += rHist[i];
-        if(countr >= targetCount&&flagr!=0) {
+        if (countr >= targetCount&&flagr!=0) {
             median.r = float(i) / 255.0;
             flagr=0;
         }
-		countg+=gHist[i];
-		if(countg >= targetCount&&flagg!=0) {
+        countg+=gHist[i];
+        if (countg >= targetCount&&flagg!=0) {
             median.g = float(i) / 255.0;
             flagg=0;
         }
-		countb+=bHist[i];
-		if(countb >= targetCount&&flagb!=0) {
+        countb+=bHist[i];
+        if (countb >= targetCount&&flagb!=0) {
             median.b = float(i) / 255.0;
             flagb=0;
         }
     }
-    
+
     // 绿色通道
     // for(int i = 0; i < 256; i++) {
     //     countg += gHist[i];
@@ -116,7 +116,7 @@ void main() {
     //         break;
     //     }
     // }
-    
+
     // 蓝色通道
     // count = 0;
     // for(int i = 0; i < 256; i++) {
@@ -129,13 +129,13 @@ void main() {
 
     // 保持alpha通道不变
     vec4 origColor = unpackColor(inputImage.pixels[
-        uint(imgCoord.y) * (filterParams.bytesPerLine / 4) + uint(imgCoord.x)
+    uint(imgCoord.y) * (filterParams.bytesPerLine / 4) + uint(imgCoord.x)
     ]);
-    
+
     // 打包输出
     uint outputIndex = uint(imgCoord.y) * (filterParams.bytesPerLine / 4) + uint(imgCoord.x);
     outputImage.pixels[outputIndex] = packColor(vec4(median, origColor.a));
 
-    
+
 }
 
