@@ -9,8 +9,15 @@
 
 #include <vulkan/vulkan.h>
 
+struct DeviceQueue {
+    VkQueue queue;
+    VkQueueFamilyProperties queueFamilyProp;
+    uint32_t queueFamilyIndex;
+    uint32_t queueIndex;
+};
+
 struct PhysicalDeviceQueueFamilyProps {
-    uint32_t queueNums;
+    uint32_t queueFamilyPropsNums;
     std::vector<VkQueueFamilyProperties> queueFamilyProps;
 };
 
@@ -21,6 +28,7 @@ class VkGPUContext {
     std::vector<VkPhysicalDeviceFeatures> physicalDeviceFeatures;
     std::vector<VkPhysicalDeviceMemoryProperties> physicalDevicesMemoryProperties;
     std::vector<PhysicalDeviceQueueFamilyProps> queuesFamilyProps;
+    std::vector<DeviceQueue> queues;
 
     uint32_t instanceVersion = 0;
 
@@ -35,10 +43,6 @@ class VkGPUContext {
     std::vector<const char *> defaultDeviceEnableLayers;
     std::vector<const char *> defaultDeviceEnableExtensions;
     VkDevice device = VK_NULL_HANDLE;
-
-    uint32_t queueFamilyIndex = 0;
-    uint32_t queueIndex = 0;
-    VkQueue queue = VK_NULL_HANDLE;
 
     VkCommandPool commandPool = VK_NULL_HANDLE;
     VkDescriptorPool descriptorPool = VK_NULL_HANDLE;
@@ -60,7 +64,7 @@ public:
     VkResult CreateDevice(const std::vector<const char *> &deviceEnableLayers,
                           std::vector<const char *> deviceEnableExtensions);
 
-    VkQueue GetQueue();
+    VkQueue DispatchQueue(VkQueueFlags flag);
 
     VkResult Init();
 
@@ -75,7 +79,6 @@ public:
     [[nodiscard]] VkPipelineCache GetPipelineCache() const { return this->pipelineCache; }
     [[nodiscard]] VkInstance GetInstance() const { return this->instance; }
     [[nodiscard]] uint32_t GetGPUIndex() const { return this->selectedGPUIndex; }
-    [[nodiscard]] VkQueue GetQueue() const { return this->queue; }
 
     [[nodiscard]] VkPhysicalDeviceMemoryProperties GetMemoryProperties() const {
         return this->physicalDevicesMemoryProperties[selectedGPUIndex];

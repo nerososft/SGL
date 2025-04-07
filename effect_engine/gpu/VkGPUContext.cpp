@@ -92,9 +92,23 @@ VkResult VkGPUContext::CreateDevice(const std::vector<const char *> &deviceEnabl
     return vkCreateDevice(this->physicalDevice, &deviceCreateInfo, VK_NULL_HANDLE, &this->device);
 }
 
-VkQueue VkGPUContext::GetQueue() {
-    vkGetDeviceQueue(this->device, this->queueFamilyIndex, this->queueIndex, &this->queue);
-    return this->queue;
+VkQueue VkGPUContext::DispatchQueue(const VkQueueFlags flag) {
+    for (size_t queueIndex = 0; queueIndex < this->queues.size(); queueIndex++) {
+        if (queues[queueIndex].queueFamilyProp.queueFlags & flag) {
+            Logger() << "Queue selected: " << queues[queueIndex].queueFamilyIndex << "-" << queues[queueIndex].
+                    queueIndex << std::endl;
+            if (queues[queueIndex].queue == VK_NULL_HANDLE) {
+                Logger() << "Getting dispatch queue" << std::endl;
+                vkGetDeviceQueue(this->device,
+                                 queues[queueIndex].queueFamilyIndex,
+                                 queues[queueIndex].queueIndex,
+                                 &queues[queueIndex].queue);
+            }
+            return queues[queueIndex].queue;
+        }
+    }
+    Logger() << "no queue found with flag:" << string_VkQueueFlags(flag) << std::endl;
+    return VK_NULL_HANDLE;
 }
 
 VkResult VkGPUContext::Init() {
@@ -211,11 +225,12 @@ VkResult VkGPUContext::Init() {
                     << std::endl;
         }
         vkGetPhysicalDeviceQueueFamilyProperties(this->physicalDevices[physicalDeviceIndex],
-                                                 &this->queuesFamilyProps[physicalDeviceIndex].queueNums, nullptr);
+                                                 &this->queuesFamilyProps[physicalDeviceIndex].queueFamilyPropsNums,
+                                                 nullptr);
         this->queuesFamilyProps[physicalDeviceIndex].queueFamilyProps.resize(
-            this->queuesFamilyProps[physicalDeviceIndex].queueNums);
+            this->queuesFamilyProps[physicalDeviceIndex].queueFamilyPropsNums);
         vkGetPhysicalDeviceQueueFamilyProperties(this->physicalDevices[physicalDeviceIndex],
-                                                 &this->queuesFamilyProps[physicalDeviceIndex].queueNums,
+                                                 &this->queuesFamilyProps[physicalDeviceIndex].queueFamilyPropsNums,
                                                  this->queuesFamilyProps[physicalDeviceIndex].queueFamilyProps.data());
 
         for (int format = VK_FORMAT_UNDEFINED; format <= VK_FORMAT_UNDEFINED; ++format) {
@@ -235,7 +250,37 @@ VkResult VkGPUContext::Init() {
     if (result != VK_SUCCESS) {
         Logger() << "Failed to create device, err=" << string_VkResult(result) << std::endl;
     }
-    this->GetQueue();
+    const PhysicalDeviceQueueFamilyProps currentQueueFamilyProps = this->queuesFamilyProps[this->selectedGPUIndex];
+    uint32_t currentDeviceQueueNums = 0;
+    for (uint32_t queueFamilyIdx = 0; queueFamilyIdx < currentQueueFamilyProps.queueFamilyProps.size(); queueFamilyIdx
+         ++) {
+        const VkQueueFlags queueFlags = currentQueueFamilyProps.queueFamilyProps[queueFamilyIdx].queueFlags;
+        const uint32_t queueNums = currentQueueFamilyProps.queueFamilyProps[queueFamilyIdx].queueCount;
+        currentDeviceQueueNums += queueNums;
+
+        Logger() << "\tQueue Family Idx: " << queueFamilyIdx << " "
+                << (queueFlags & VK_QUEUE_COMPUTE_BIT ? "[COMPUTE]" : " ")
+                << (queueFlags & VK_QUEUE_TRANSFER_BIT ? "[TRANSFER]" : " ")
+                << (queueFlags & VK_QUEUE_GRAPHICS_BIT ? "[PRESENT]" : " ")
+                << std::endl;
+        for (uint32_t queueIdx = 0; queueIdx < queueNums; queueIdx++) {
+            Logger() << "\t\tQueue Idx: " << queueIdx << std::endl;
+        }
+    }
+    Logger() << "\tQueue Nums: " << currentDeviceQueueNums << std::endl;
+    this->queues.resize(currentDeviceQueueNums);
+    for (uint32_t queueFamilyIdx = 0; queueFamilyIdx < currentQueueFamilyProps.queueFamilyProps.size(); queueFamilyIdx
+         ++) {
+        const uint32_t queueNums = currentQueueFamilyProps.queueFamilyProps[queueFamilyIdx].queueCount;
+        for (uint32_t queueIdx = 0; queueIdx < queueNums; queueIdx++) {
+            DeviceQueue deviceQueue{};
+            deviceQueue.queueFamilyIndex = queueFamilyIdx;
+            deviceQueue.queueIndex = queueIdx;
+            deviceQueue.queueFamilyProp = currentQueueFamilyProps.queueFamilyProps[queueFamilyIdx];
+            deviceQueue.queue = VK_NULL_HANDLE;
+            this->queues.push_back(deviceQueue);
+        }
+    }
 
     std::vector<VkDescriptorPoolSize> descriptorPoolSizes;
     VkDescriptorPoolSize storageBufferDescriptorPoolSize;
@@ -264,7 +309,7 @@ VkResult VkGPUContext::Init() {
     commandPoolCreateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
     commandPoolCreateInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
     commandPoolCreateInfo.pNext = nullptr;
-    commandPoolCreateInfo.queueFamilyIndex = queueFamilyIndex;
+    commandPoolCreateInfo.queueFamilyIndex = 0; // TODO: fix me
     result = vkCreateCommandPool(this->device, &commandPoolCreateInfo, nullptr, &this->commandPool);
     if (result != VK_SUCCESS) {
         Logger() << "Failed to create command pool, err=" << string_VkResult(result) << std::endl;

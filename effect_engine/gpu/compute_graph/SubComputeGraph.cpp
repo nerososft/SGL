@@ -85,7 +85,10 @@ VkResult SubComputeGraph::Compute() const {
                                                        submitSignalSemaphores,
                                                        submitWaitSemaphores));
 
-    VkResult ret = VkGPUHelper::GPUQueueSubmit(gpuCtx->GetQueue(), submitInfos, this->computeFence);
+    VkResult ret = VkGPUHelper::GPUQueueSubmit(
+        gpuCtx->DispatchQueue(VK_QUEUE_COMPUTE_BIT | VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_TRANSFER_BIT),
+        submitInfos,
+        this->computeFence);
     if (ret != VK_SUCCESS) {
         Logger() << "Failed to submit command buffer, err =" << string_VkResult(ret) << std::endl;
         return ret;
@@ -103,7 +106,7 @@ VkResult SubComputeGraph::Compute() const {
         return ret;
     }
 
-    ret = vkQueueWaitIdle(gpuCtx->GetQueue());
+    ret = vkQueueWaitIdle(gpuCtx->DispatchQueue(VK_QUEUE_COMPUTE_BIT | VK_QUEUE_TRANSFER_BIT | VK_QUEUE_GRAPHICS_BIT));
     if (ret != VK_SUCCESS) {
         Logger() << "Failed to wait idle, err=" << string_VkResult(ret) << std::endl;
         return ret;
