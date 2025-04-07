@@ -15,6 +15,19 @@
 #include "effect_engine/log/Log.h"
 #include "effect_engine/utils/IOUtils.h"
 
+VkResult VkGPUHelper::CreateSemaphore(const VkDevice device,
+                                      VkSemaphore *semaphore) {
+    VkSemaphoreCreateInfo semaphoreInfo = {};
+    semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+    semaphoreInfo.pNext = nullptr;
+    semaphoreInfo.flags = 0;
+    const VkResult ret = vkCreateSemaphore(device, &semaphoreInfo, nullptr, semaphore);
+    if (ret != VK_SUCCESS) {
+        Logger() << "failed to create semaphore, err=" << string_VkResult(ret) << std::endl;
+    }
+    return ret;
+}
+
 PFN_vkCmdPipelineBarrier2KHR VkGPUHelper::GetVkCmdPipelineBarrier2Fn(const VkDevice device) {
     PFN_vkCmdPipelineBarrier2KHR func = nullptr;
     func = reinterpret_cast<PFN_vkCmdPipelineBarrier2KHR>(vkGetDeviceProcAddr(device, "vkCmdPipelineBarrier2KHR"));

@@ -19,16 +19,17 @@ VkResult HPSBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                               VkBuffer inputBuffer,
                               VkBuffer outputBuffer) {
     this->computeGraph = std::make_shared<ComputeGraph>(gpuCtx);
-    VkResult ret = this->computeGraph->Init();
+    this->computeSubGraph = std::make_shared<SubComputeGraph>(gpuCtx);
+    VkResult ret = this->computeSubGraph->Init();
     if (ret != VK_SUCCESS) {
         Logger() << "Failed to create compute graph, err =" << string_VkResult(ret) << std::endl;
         return ret;
     }
 
     const auto renderPassNode = std::make_shared<GraphicsRenderPassNode>(gpuCtx,
-        "HPSBlurPass",
-        width,
-        height);
+                                                                         "HPSBlurRenderPass",
+                                                                         width,
+                                                                         height);
     ret = renderPassNode->CreateComputeGraphNode();
     if (ret != VK_SUCCESS) {
         Logger() << "Failed to create graphics renderpass node, err =" << string_VkResult(ret) << std::endl;
@@ -36,10 +37,11 @@ VkResult HPSBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     }
 
     const auto graphicsNode = std::make_shared<GraphicsPipelineNode>(gpuCtx,
-        "HPSBlurPipeline",
-        renderPassNode->GetRenderPass(),
-        SHADER(hpsblur.vert.glsl.spv), SHADER(hpsblur.frag.glsl.spv),
-        width, height);
+                                                                     "HPSBlurPipeline",
+                                                                     renderPassNode->GetRenderPass(),
+                                                                     SHADER(rect.vert.glsl.spv),
+                                                                     SHADER(rect.frag.glsl.spv),
+                                                                     width, height);
 
     // TODO:
     graphicsNode->AddGraphicsElement({});
@@ -51,7 +53,8 @@ VkResult HPSBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     }
 
     renderPassNode->AddDependenceNode(graphicsNode);
-    this->computeGraph->AddComputeGraphNode(renderPassNode);
+    this->computeSubGraph->AddComputeGraphNode(renderPassNode);
+    this->computeGraph->AddSubGraph(computeSubGraph);
     return this->computeGraph->Compute();
 }
 

@@ -201,7 +201,8 @@ VkResult FastGaussianBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuC
                                        const VkBuffer inputBuffer,
                                        const VkBuffer outputBuffer) {
     this->computeGraph = std::make_shared<ComputeGraph>(gpuCtx);
-    VkResult ret = this->computeGraph->Init();
+    this->computeSubGraph = std::make_shared<SubComputeGraph>(gpuCtx);
+    VkResult ret = this->computeSubGraph->Init();
     if (ret != VK_SUCCESS) {
         Logger() << "Failed to create compute graph, err =" << string_VkResult(ret) << std::endl;
         return ret;
@@ -276,7 +277,8 @@ VkResult FastGaussianBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuC
     vBlurNode->AddDependenceNode(scaleDownNode);
     hBlurNode->AddDependenceNode(vBlurNode);
     scaleUpNode->AddDependenceNode(hBlurNode);
-    computeGraph->AddComputeGraphNode(scaleUpNode);
+    this->computeSubGraph->AddComputeGraphNode(scaleUpNode);
+    this->computeGraph->AddSubGraph(computeSubGraph);
 
     return computeGraph->Compute();
 }

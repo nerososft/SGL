@@ -19,6 +19,7 @@ struct GaussianBlurFilterParams {
 class GaussianBlurFilter final : public IFilter {
     GaussianBlurFilterParams blurFilterParams{};
     std::shared_ptr<ComputeGraph> computeGraph = nullptr;
+    std::shared_ptr<SubComputeGraph> computeSubGraph = nullptr;
 
 private:
     std::shared_ptr<VkGPUContext> gpuCtx = nullptr;

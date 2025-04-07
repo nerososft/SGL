@@ -29,6 +29,7 @@ struct BasicBlenderParams {
 
 class BaseBlender : public IBlender {
     std::shared_ptr<ComputeGraph> computeGraph = nullptr;
+    std::shared_ptr<SubComputeGraph> computeSubGraph = nullptr;
 
 public:
     BaseBlender() = default;

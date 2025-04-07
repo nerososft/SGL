@@ -26,7 +26,8 @@ VkResult BasicFilter::DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                               uint32_t workGroupY,
                               uint32_t workGroupZ) {
     this->computeGraph = std::make_shared<ComputeGraph>(gpuCtx);
-    VkResult ret = this->computeGraph->Init();
+    this->computeSubGraph = std::make_shared<SubComputeGraph>(gpuCtx);
+    VkResult ret = this->computeSubGraph->Init();
     if (ret != VK_SUCCESS) {
         Logger() << "Failed to create compute graph, err =" << string_VkResult(ret) << std::endl;
         return ret;
@@ -65,7 +66,8 @@ VkResult BasicFilter::DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
         Logger() << "Failed to create compute graph, err =" << string_VkResult(ret) << std::endl;
         return ret;
     }
-    computeGraph->AddComputeGraphNode(node);
+    computeSubGraph->AddComputeGraphNode(node);
+    computeGraph->AddSubGraph(this->computeSubGraph);
 
     return computeGraph->Compute();
 }

@@ -14,6 +14,7 @@ struct HPSBlurFilterParams {
 class HPSBlurFilter final : public IFilter {
     HPSBlurFilterParams blurFilterParams{};
     std::shared_ptr<ComputeGraph> computeGraph = nullptr;
+    std::shared_ptr<SubComputeGraph> computeSubGraph = nullptr;
 
 public:
     HPSBlurFilter() = default;
