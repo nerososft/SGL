@@ -44,7 +44,10 @@ uvec4 unpackColor3u(uint color) {
 void main() {
     ivec2 imgCoord = ivec2(gl_GlobalInvocationID.xy);
 
-    //uint index = coord.y * (filterParams.bytesPerLine / 4) + coord.x;
+    if (any(greaterThanEqual(imgCoord, ivec2(filterParams.width, filterParams.height)))) {
+        return;
+    }
+
     // 计算有效半径
     int radius = int(ceil(filterParams.radius));
     int diameter = 2 * radius + 1;

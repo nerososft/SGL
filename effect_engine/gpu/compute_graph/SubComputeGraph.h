@@ -12,7 +12,7 @@
 
 class SubComputeGraph {
     std::shared_ptr<VkGPUContext> gpuCtx = nullptr;
-    uint64_t queueId = 0;
+    DeviceQueue queue{};
     VkFence computeFence = VK_NULL_HANDLE;
     VkSemaphore computeDoneSemaphore = VK_NULL_HANDLE;
     VkCommandBuffer commandBuffer = VK_NULL_HANDLE;

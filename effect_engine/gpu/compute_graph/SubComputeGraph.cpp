@@ -30,8 +30,14 @@ VkResult SubComputeGraph::Init() {
         return ret;
     }
 
+    queue = this->gpuCtx->DispatchQueue(VK_QUEUE_COMPUTE_BIT | VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_TRANSFER_BIT);
+    if (queue.queue == VK_NULL_HANDLE) {
+        Logger() << "Failed to create compute queue, err =" << string_VkResult(ret) << std::endl;
+        return ret;
+    }
+
     ret = VkGPUHelper::AllocateCommandBuffers(gpuCtx->GetCurrentDevice(),
-                                              gpuCtx->GetCommandPool(),
+                                              gpuCtx->GetCommandPool(queue.queueFamilyIndex),
                                               1,
                                               &this->commandBuffer);
     if (ret != VK_SUCCESS) {
@@ -85,7 +91,10 @@ VkResult SubComputeGraph::Compute() const {
                                                        submitSignalSemaphores,
                                                        submitWaitSemaphores));
 
-    VkResult ret = VkGPUHelper::GPUQueueSubmit(gpuCtx->GetQueue(), submitInfos, this->computeFence);
+    VkResult ret = VkGPUHelper::GPUQueueSubmit(
+        queue.queue,
+        submitInfos,
+        this->computeFence);
     if (ret != VK_SUCCESS) {
         Logger() << "Failed to submit command buffer, err =" << string_VkResult(ret) << std::endl;
         return ret;
@@ -103,7 +112,7 @@ VkResult SubComputeGraph::Compute() const {
         return ret;
     }
 
-    ret = vkQueueWaitIdle(gpuCtx->GetQueue());
+    ret = vkQueueWaitIdle(queue.queue);
     if (ret != VK_SUCCESS) {
         Logger() << "Failed to wait idle, err=" << string_VkResult(ret) << std::endl;
         return ret;
@@ -117,7 +126,7 @@ void SubComputeGraph::Destroy() const {
     std::vector<VkCommandBuffer> freeCommandBuffers;
     freeCommandBuffers.push_back(commandBuffer);
     vkFreeCommandBuffers(gpuCtx->GetCurrentDevice(),
-                         gpuCtx->GetCommandPool(),
+                         gpuCtx->GetCommandPool(queue.queueFamilyIndex),
                          freeCommandBuffers.size(),
                          freeCommandBuffers.data());
     for (const auto &computeGraphNode: this->computeGraphNodes) {
