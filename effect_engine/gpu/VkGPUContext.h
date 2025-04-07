@@ -11,9 +11,13 @@
 
 struct DeviceQueue {
     VkQueue queue;
+    uint32_t queueIndex;
+};
+
+struct DeviceQueueFamily {
+    std::vector<DeviceQueue> queues;
     VkQueueFamilyProperties queueFamilyProp;
     uint32_t queueFamilyIndex;
-    uint32_t queueIndex;
 };
 
 struct PhysicalDeviceQueueFamilyProps {
@@ -28,7 +32,7 @@ class VkGPUContext {
     std::vector<VkPhysicalDeviceFeatures> physicalDeviceFeatures;
     std::vector<VkPhysicalDeviceMemoryProperties> physicalDevicesMemoryProperties;
     std::vector<PhysicalDeviceQueueFamilyProps> queuesFamilyProps;
-    std::vector<DeviceQueue> queues;
+    std::vector<DeviceQueueFamily> queueFamilies;
 
     uint32_t instanceVersion = 0;
 

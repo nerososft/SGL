@@ -58,17 +58,23 @@ VkResult VkGPUContext::CreateDevice(const std::vector<const char *> &deviceEnabl
     deviceEnableExtensions.push_back("VK_KHR_portability_subset");
 #endif /* __APPLE__ */
 
-    constexpr float queuePriorities[1] = {1.0f};
 
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-    VkDeviceQueueCreateInfo queueCreateInfo = {};
-    queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-    queueCreateInfo.flags = 0;
-    queueCreateInfo.pNext = nullptr;
-    queueCreateInfo.queueFamilyIndex = 0;
-    queueCreateInfo.queueCount = 1;
-    queueCreateInfo.pQueuePriorities = queuePriorities;
-    queueCreateInfos.push_back(queueCreateInfo);
+    for (auto &queueFamily: queueFamilies) {
+        std::vector<float> queuePriorities;
+        queuePriorities.reserve(queueFamilies.size());
+        for (size_t queueIndex = 0; queueIndex < queueFamilies.size(); queueIndex++) {
+            queuePriorities.push_back(1.0f);
+        }
+        VkDeviceQueueCreateInfo queueCreateInfo = {};
+        queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+        queueCreateInfo.flags = 0;
+        queueCreateInfo.pNext = nullptr;
+        queueCreateInfo.queueFamilyIndex = queueFamily.queueFamilyIndex;
+        queueCreateInfo.queueCount = queueFamily.queues.size();
+        queueCreateInfo.pQueuePriorities = queuePriorities.data();
+        queueCreateInfos.push_back(queueCreateInfo);
+    }
 
     VkDeviceCreateInfo deviceCreateInfo = {};
     deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
@@ -93,18 +99,20 @@ VkResult VkGPUContext::CreateDevice(const std::vector<const char *> &deviceEnabl
 }
 
 VkQueue VkGPUContext::DispatchQueue(const VkQueueFlags flag) {
-    for (size_t queueIndex = 0; queueIndex < this->queues.size(); queueIndex++) {
-        if (queues[queueIndex].queueFamilyProp.queueFlags & flag) {
-            Logger() << "Queue selected: " << queues[queueIndex].queueFamilyIndex << "-" << queues[queueIndex].
-                    queueIndex << std::endl;
-            if (queues[queueIndex].queue == VK_NULL_HANDLE) {
-                Logger() << "Getting dispatch queue" << std::endl;
-                vkGetDeviceQueue(this->device,
-                                 queues[queueIndex].queueFamilyIndex,
-                                 queues[queueIndex].queueIndex,
-                                 &queues[queueIndex].queue);
+    for (size_t queueFamilyIndex = 0; queueFamilyIndex < this->queueFamilies.size(); queueFamilyIndex++) {
+        if (this->queueFamilies[queueFamilyIndex].queueFamilyProp.queueFlags & flag) {
+            for (size_t queueIndex = 0; queueIndex < this->queueFamilies[queueFamilyIndex].queues.size(); queueIndex
+                 ++) {
+                if (queueFamilies[queueFamilyIndex].queues[queueIndex].queue == VK_NULL_HANDLE) {
+                    Logger() << "Getting dispatch queue" << std::endl;
+                    vkGetDeviceQueue(this->device,
+                                     queueFamilyIndex,
+                                     queueIndex,
+                                     &queueFamilies[queueFamilyIndex].queues[queueIndex].queue);
+                }
+                Logger() << "Queue selected: " << queueFamilyIndex << "-" << queueIndex << std::endl;
+                return queueFamilies[queueFamilyIndex].queues[queueIndex].queue;
             }
-            return queues[queueIndex].queue;
         }
     }
     Logger() << "no queue found with flag:" << string_VkQueueFlags(flag) << std::endl;
@@ -246,17 +254,25 @@ VkResult VkGPUContext::Init() {
     }
 
     this->SelectCPU(0);
-    result = this->CreateDevice(this->defaultDeviceEnableLayers, this->defaultDeviceEnableExtensions);
-    if (result != VK_SUCCESS) {
-        Logger() << "Failed to create device, err=" << string_VkResult(result) << std::endl;
-    }
+
+    size_t currentDeviceQueueNums = 0;
     const PhysicalDeviceQueueFamilyProps currentQueueFamilyProps = this->queuesFamilyProps[this->selectedGPUIndex];
-    uint32_t currentDeviceQueueNums = 0;
+    this->queueFamilies.resize(currentQueueFamilyProps.queueFamilyProps.size());
     for (uint32_t queueFamilyIdx = 0; queueFamilyIdx < currentQueueFamilyProps.queueFamilyProps.size(); queueFamilyIdx
          ++) {
         const VkQueueFlags queueFlags = currentQueueFamilyProps.queueFamilyProps[queueFamilyIdx].queueFlags;
         const uint32_t queueNums = currentQueueFamilyProps.queueFamilyProps[queueFamilyIdx].queueCount;
+
         currentDeviceQueueNums += queueNums;
+
+        queueFamilies[queueFamilyIdx].queueFamilyIndex = queueFamilyIdx;
+        queueFamilies[queueFamilyIdx].queueFamilyProp = currentQueueFamilyProps.queueFamilyProps[queueFamilyIdx];
+        queueFamilies[queueFamilyIdx].queues.resize(queueNums);
+
+        for (uint32_t queueIdx = 0; queueIdx < queueNums; queueIdx++) {
+            this->queueFamilies[queueFamilyIdx].queues[queueIdx].queueIndex = queueIdx;
+            this->queueFamilies[queueFamilyIdx].queues[queueIdx].queue = VK_NULL_HANDLE;
+        }
 
         Logger() << "\tQueue Family Idx: " << queueFamilyIdx << " "
                 << (queueFlags & VK_QUEUE_COMPUTE_BIT ? "[COMPUTE]" : " ")
@@ -268,18 +284,10 @@ VkResult VkGPUContext::Init() {
         }
     }
     Logger() << "\tQueue Nums: " << currentDeviceQueueNums << std::endl;
-    this->queues.resize(currentDeviceQueueNums);
-    for (uint32_t queueFamilyIdx = 0; queueFamilyIdx < currentQueueFamilyProps.queueFamilyProps.size(); queueFamilyIdx
-         ++) {
-        const uint32_t queueNums = currentQueueFamilyProps.queueFamilyProps[queueFamilyIdx].queueCount;
-        for (uint32_t queueIdx = 0; queueIdx < queueNums; queueIdx++) {
-            DeviceQueue deviceQueue{};
-            deviceQueue.queueFamilyIndex = queueFamilyIdx;
-            deviceQueue.queueIndex = queueIdx;
-            deviceQueue.queueFamilyProp = currentQueueFamilyProps.queueFamilyProps[queueFamilyIdx];
-            deviceQueue.queue = VK_NULL_HANDLE;
-            this->queues.push_back(deviceQueue);
-        }
+
+    result = this->CreateDevice(this->defaultDeviceEnableLayers, this->defaultDeviceEnableExtensions);
+    if (result != VK_SUCCESS) {
+        Logger() << "Failed to create device, err=" << string_VkResult(result) << std::endl;
     }
 
     std::vector<VkDescriptorPoolSize> descriptorPoolSizes;
