@@ -51,9 +51,9 @@ public:
 
     void AddInstanceEnableExtension(const char *extensionName);
 
-    void AddDeviceEnabledLayer(const char * layerName);
+    void AddDeviceEnabledLayer(const char *layerName);
 
-    void AddDeviceEnabledExtension(const char * extensionName);
+    void AddDeviceEnabledExtension(const char *extensionName);
 
     void SelectCPU(uint32_t gpuIndex);
 
