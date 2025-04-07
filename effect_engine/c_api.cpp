@@ -65,6 +65,27 @@ bool surface_blur_filter_gpu(void *in, void *out, const int r, const int th) {
     return true;
 }
 
+bool distort_glass_filter_gpu(void* in, void* out, float scale, float intensity, float zoom) {
+
+    const auto filter = std::make_shared<DistortGlassFilter>();
+
+    scale = scale / 50;
+    intensity = 45 - intensity * 3;
+
+    filter->SetScale(scale);
+    filter->SetIntensity(intensity);
+    filter->SetZoom(1);
+
+
+    const ImageInfo* input = static_cast<ImageInfo*>(in);
+    const ImageInfo* output = static_cast<ImageInfo*>(out);
+
+    g_effect_engine.Process(*input, *output, filter);
+
+    return true;
+
+}
+
 bool adjust_saturation_gpu(void *in, void *out, const int v, const int s) {
 
 

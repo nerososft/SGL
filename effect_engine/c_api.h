@@ -18,3 +18,4 @@ extern "C"  GPU_API	 bool color_balance_filter_gpu(void* in, void* out, float* a
 extern "C"  GPU_API	 bool black_white_filter_gpu(void* in, void* out, float* weight, int wSize);
 extern "C"  GPU_API	 bool scale_filter_gpu(void* in, void* out, int weight, int height);
 extern "C"  GPU_API	 bool blur_edge_filter_gpu(void* in, void* out, int r, int s,int kernel_type);
+extern "C"  GPU_API	 bool distort_glass_filter_gpu(void* in, void* out, float scale, float intensity, float zoom);
