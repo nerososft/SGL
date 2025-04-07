@@ -38,7 +38,9 @@ VkResult customKernelFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     //params.shaderPath = SHADER(customKernel.comp.glsl.spv);
 
     this->computeGraph = std::make_shared<ComputeGraph>(gpuCtx);
-    VkResult ret = this->computeGraph->Init();
+    this->computeSubGraph = std::make_shared<SubComputeGraph>(gpuCtx);
+
+    VkResult ret = this->computeSubGraph->Init();
     if (ret != VK_SUCCESS) {
         Logger() << "Failed to create compute graph, err =" << string_VkResult(ret) << std::endl;
         return ret;
@@ -99,7 +101,9 @@ VkResult customKernelFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
         return ret;
     }
 
-    computeGraph->AddComputeGraphNode(kCalculateNode);
+
+    computeSubGraph->AddComputeGraphNode(kCalculateNode);
+    computeGraph->AddSubGraph(computeSubGraph);
 
     return computeGraph->Compute();
 }

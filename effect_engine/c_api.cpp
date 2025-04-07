@@ -17,6 +17,7 @@
 #include "effect_engine/filters/impl/FastGaussianBlurFilter.h"
 #include "effect_engine/filters/impl/BlurEdgeFilter.h"
 #include "effect_engine/filters/impl/DistortGlassFilter.h"
+#include "effect_engine/filters/impl/MedianFilter.h"
 
 
 #include "log/Log.h"
@@ -68,7 +69,7 @@ bool adjust_saturation_gpu(void *in, void *out, const int v, const int s) {
 
 
 
-    if (0) {
+    if (1) {
         const auto filter = std::make_shared<VibranceFilter>();
 
         filter->SetVibrance(v);
@@ -89,27 +90,37 @@ bool adjust_saturation_gpu(void *in, void *out, const int v, const int s) {
 
     }
 
-
-    const auto filter = std::make_shared<DistortGlassFilter>();
-
-
-    float scale = v + 2;
-    float intensity = s + 2;
-
-    scale = scale / 50;
-    intensity = 45 - intensity * 3;
-
-    filter->SetScale(scale);
-    filter->SetIntensity(intensity);
-    filter->SetZoom(1);
+    if (0) {
+        const auto filter = std::make_shared<DistortGlassFilter>();
 
 
-    const ImageInfo* input = static_cast<ImageInfo*>(in);
-    const ImageInfo* output = static_cast<ImageInfo*>(out);
+        float scale = v + 2;
+        float intensity = s + 2;
 
-    g_effect_engine.Process(*input, *output, filter);
+        scale = scale / 50;
+        intensity = 45 - intensity * 3;
+
+        filter->SetScale(scale);
+        filter->SetIntensity(intensity);
+        filter->SetZoom(1);
 
 
+        const ImageInfo* input = static_cast<ImageInfo*>(in);
+        const ImageInfo* output = static_cast<ImageInfo*>(out);
+
+        g_effect_engine.Process(*input, *output, filter);
+    }
+
+    if (0) {
+    
+        const auto filter = std::make_shared<MedianFilter>();
+
+        const ImageInfo* input = static_cast<ImageInfo*>(in);
+        const ImageInfo* output = static_cast<ImageInfo*>(out);
+        filter->SetRadius(v);
+        g_effect_engine.Process(*input, *output, filter);
+    
+    }
 
 
 

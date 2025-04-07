@@ -16,6 +16,7 @@ struct BlackWhiteFilterParams {
 
 class BlackWhiteFilter final : public BasicFilter {
     BlackWhiteFilterParams wFilterParams{};
+    std::shared_ptr<SubComputeGraph> computeSubGraph = nullptr;
     std::shared_ptr<ComputeGraph> computeGraph = nullptr;
     std::shared_ptr<VkGPUBuffer> weightBuffer = nullptr;
 

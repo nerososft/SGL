@@ -34,9 +34,10 @@ VkResult BlackWhiteFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     this->wFilterParams.imageSize.channels = 4;
     this->wFilterParams.imageSize.bytesPerLine = this->wFilterParams.imageSize.width * 4;
 
-
     this->computeGraph = std::make_shared<ComputeGraph>(gpuCtx);
-    VkResult ret = this->computeGraph->Init();
+    this->computeSubGraph = std::make_shared<SubComputeGraph>(gpuCtx);
+
+    VkResult ret = this->computeSubGraph->Init();
     if (ret != VK_SUCCESS) {
         Logger() << "Failed to create compute graph, err =" << string_VkResult(ret) << std::endl;
         return ret;
@@ -92,7 +93,9 @@ VkResult BlackWhiteFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
         return ret;
     }
 
-    computeGraph->AddComputeGraphNode(kCalculateNode);
+
+    computeSubGraph->AddComputeGraphNode(kCalculateNode);
+    computeGraph->AddSubGraph(computeSubGraph);
 
     return computeGraph->Compute();
 }
