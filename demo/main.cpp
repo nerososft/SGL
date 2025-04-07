@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <effect_engine/blenders/impl/LighterColorBlender.h>
+#include <effect_engine/filters/impl/MedianFilter.h>
 #include <effect_engine/filters/impl/OldGaussianBlurFilter.h>
 #include <effect_engine/filters/impl/RadialBlurFilter.h>
 
@@ -172,9 +173,13 @@ int main(int argc, char *argv[]) {
     // filter->SetRadius(128);
     // effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_blur.png", filter);
 
-    const auto filter = std::make_shared<FastGaussianBlurFilter>();
-    filter->SetRadius(120);
-    effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_fast_blur.png", filter);
+    // const auto filter = std::make_shared<FastGaussianBlurFilter>();
+    // filter->SetRadius(120);
+    // effectEngine.Process("../../demo/images/girl.png", "../../demo/images/girl_fast_blur.png", filter);
+
+    const auto filter = std::make_shared<MedianFilter>();
+    filter->SetRadius(50);
+    effectEngine.Process("../../demo/images/test.png", "../../demo/images/test_median.png", filter);
 
     // getchar();
     return 0;
