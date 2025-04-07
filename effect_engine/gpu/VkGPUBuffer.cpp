@@ -89,7 +89,6 @@ VkGPUBuffer::VkGPUBuffer(const std::shared_ptr<VkGPUContext> &gpuCtx): type(GPU_
 VkGPUBuffer::~VkGPUBuffer() {
 }
 
-
 VkResult VkGPUBuffer::UploadData(const void *uploadData, const VkDeviceSize size) {
     const VkResult result = MapBuffer(size);
     if (result != VK_SUCCESS) {

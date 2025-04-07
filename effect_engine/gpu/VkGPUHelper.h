@@ -14,6 +14,8 @@ public:
 
     ~VkGPUHelper() = default;
 
+    static VkResult CreateSemaphore(VkDevice device, VkSemaphore* semaphore);
+
     static PFN_vkCmdPipelineBarrier2KHR GetVkCmdPipelineBarrier2Fn(VkDevice device);
 
     static void GPUCmdPipelineMemBarrier(VkCommandBuffer commandBuffer,

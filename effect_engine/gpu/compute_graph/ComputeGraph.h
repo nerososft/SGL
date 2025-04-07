@@ -8,6 +8,7 @@
 #include <vulkan/vulkan_core.h>
 
 #include "IComputeGraphNode.h"
+#include "SubComputeGraph.h"
 #include "effect_engine/gpu/VkGPURenderPass.h"
 
 
@@ -15,18 +16,14 @@ class VkGPUContext;
 
 class ComputeGraph {
     std::shared_ptr<VkGPUContext> gpuCtx = nullptr;
-    VkFence computeFence = VK_NULL_HANDLE;
-    VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
-    std::vector<std::shared_ptr<IComputeGraphNode> > computeGraphNodes;
+    std::vector<std::shared_ptr<SubComputeGraph> > subGraphs;
 
 public:
     explicit ComputeGraph(const std::shared_ptr<VkGPUContext> &gpuCtx);
 
     ~ComputeGraph() = default;
 
-    void AddComputeGraphNode(const std::shared_ptr<IComputeGraphNode> &computeGraphNode);
-
-    VkResult Init();
+    void AddSubGraph(const std::shared_ptr<SubComputeGraph> &subGraph);
 
     [[nodiscard]] VkResult Compute() const;
 

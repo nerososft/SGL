@@ -18,6 +18,7 @@ struct OldGaussianBlurFilterParams {
 class OldGaussianBlurFilter final : public IFilter {
     OldGaussianBlurFilterParams blurFilterParams{};
     std::shared_ptr<ComputeGraph> computeGraph = nullptr;
+    std::shared_ptr<SubComputeGraph> computeSubGraph = nullptr;
 
 public:
     OldGaussianBlurFilter() = default;

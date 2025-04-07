@@ -29,7 +29,8 @@ VkResult OldGaussianBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCt
     this->blurFilterParams.imageSize.bytesPerLine = this->blurFilterParams.imageSize.width * 4;
 
     this->computeGraph = std::make_shared<ComputeGraph>(gpuCtx);
-    VkResult ret = this->computeGraph->Init();
+    this->computeSubGraph = std::make_shared<SubComputeGraph>(gpuCtx);
+    VkResult ret = this->computeSubGraph->Init();
     if (ret != VK_SUCCESS) {
         Logger() << "Failed to create compute graph, err =" << string_VkResult(ret) << std::endl;
         return ret;
@@ -115,7 +116,8 @@ VkResult OldGaussianBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCt
 
     copyBufferNode->AddDependenceNode(gaussianVerticalNode);
     copyBufferNode->AddDependenceNode(gaussianHorizontalNode);
-    computeGraph->AddComputeGraphNode(copyBufferNode);
+    computeSubGraph->AddComputeGraphNode(copyBufferNode);
+    computeGraph->AddSubGraph(computeSubGraph);
 
     return computeGraph->Compute();
 }
