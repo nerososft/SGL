@@ -10,7 +10,7 @@
 
 struct MedianFilterParams {
     BasicFilterParam imageSize;
-    int radius;
+    float radius;
 };
 
 class MedianFilter final : public BasicFilter {
@@ -29,7 +29,7 @@ public:
                    VkBuffer inputBuffer,
                    VkBuffer outputBuffer) override;
 
-    void SetRadius(const int radius) { this->medianFilterParams.radius = radius; }
+    void SetRadius(const float radius) { this->medianFilterParams.radius = radius; }
 
     void Destroy() override;
 };
