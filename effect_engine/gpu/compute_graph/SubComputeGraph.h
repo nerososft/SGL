@@ -32,6 +32,9 @@ public:
 
     [[nodiscard]] VkSemaphore GetComputeDoneSemaphore() const { return this->computeDoneSemaphore; }
 
+    [[nodiscard]] DeviceQueue GetQueue() const { return this->queue; }
+    [[nodiscard]] VkFence GetComputeFence() const { return this->computeFence; }
+
     [[nodiscard]] VkResult Compute() const;
 
     void Destroy() const;

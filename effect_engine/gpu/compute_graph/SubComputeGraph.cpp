@@ -99,24 +99,6 @@ VkResult SubComputeGraph::Compute() const {
         Logger() << "Failed to submit command buffer, err =" << string_VkResult(ret) << std::endl;
         return ret;
     }
-
-    std::vector<VkFence> waitFences;
-    waitFences.push_back(computeFence);
-    ret = vkWaitForFences(gpuCtx->GetCurrentDevice(),
-                          waitFences.size(),
-                          waitFences.data(),
-                          VK_TRUE,
-                          UINT64_MAX);
-    if (ret != VK_SUCCESS) {
-        Logger() << "Failed to wait fence, err=" << string_VkResult(ret) << std::endl;
-        return ret;
-    }
-
-    ret = vkQueueWaitIdle(queue.queue);
-    if (ret != VK_SUCCESS) {
-        Logger() << "Failed to wait idle, err=" << string_VkResult(ret) << std::endl;
-        return ret;
-    }
     return ret;
 }
 

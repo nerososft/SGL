@@ -96,25 +96,38 @@ VkResult VkGPUContext::CreateDevice(const std::vector<const char *> &deviceEnabl
     return vkCreateDevice(this->physicalDevice, &deviceCreateInfo, VK_NULL_HANDLE, &this->device);
 }
 
-DeviceQueue VkGPUContext::DispatchQueue(const VkQueueFlags flag) {
+std::vector<DeviceQueue> VkGPUContext::FindQueuesByQueueFlag(const VkQueueFlags flag) {
+    std::vector<DeviceQueue> suitableQueues;
     for (size_t queueFamilyIndex = 0; queueFamilyIndex < this->queueFamilies.size(); queueFamilyIndex++) {
         if (this->queueFamilies[queueFamilyIndex].queueFamilyProp.queueFlags & flag) {
             for (size_t queueIndex = 0; queueIndex < this->queueFamilies[queueFamilyIndex].queues.size(); queueIndex
                  ++) {
-                if (queueFamilies[queueFamilyIndex].queues[queueIndex].queue == VK_NULL_HANDLE) {
-                    Logger() << "Getting dispatch queue" << std::endl;
-                    vkGetDeviceQueue(this->device,
-                                     queueFamilyIndex,
-                                     queueIndex,
-                                     &queueFamilies[queueFamilyIndex].queues[queueIndex].queue);
-                }
-                Logger() << "Queue selected: " << queueFamilyIndex << "-" << queueIndex << std::endl;
-                return queueFamilies[queueFamilyIndex].queues[queueIndex];
+                suitableQueues.push_back(queueFamilies[queueFamilyIndex].queues[queueIndex]);
             }
         }
     }
-    Logger() << "no queue found with flag:" << string_VkQueueFlags(flag) << std::endl;
-    return {};
+    return suitableQueues;
+}
+
+DeviceQueue VkGPUContext::DispatchQueue(const VkQueueFlags flag) {
+    const std::vector<DeviceQueue> suitableQueue = FindQueuesByQueueFlag(flag);
+    if (suitableQueue.empty()) {
+        Logger() << "no queue found with flag:" << string_VkQueueFlags(flag) << std::endl;
+        return {};
+    }
+    const uint32_t selectedQueueIndex = this->dispatchQueueIndex % suitableQueue.size();
+    const uint32_t queueFamilyIndex = suitableQueue[selectedQueueIndex].queueFamilyIndex;
+    const uint32_t queueIndex = suitableQueue[selectedQueueIndex].queueIndex;
+
+    Logger() << "Queue selected: " << queueFamilyIndex << "-" << queueIndex << std::endl;
+    if (suitableQueue[selectedQueueIndex].queue == VK_NULL_HANDLE) {
+        vkGetDeviceQueue(this->device,
+                         queueFamilyIndex,
+                         queueIndex,
+                         &queueFamilies[queueFamilyIndex].queues[queueIndex].queue);
+    }
+    this->dispatchQueueIndex++;
+    return queueFamilies[queueFamilyIndex].queues[queueIndex];
 }
 
 VkResult VkGPUContext::Init() {

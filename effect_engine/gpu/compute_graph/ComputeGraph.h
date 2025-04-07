@@ -7,7 +7,6 @@
 #include <memory>
 #include <vulkan/vulkan_core.h>
 
-#include "IComputeGraphNode.h"
 #include "SubComputeGraph.h"
 #include "effect_engine/gpu/VkGPURenderPass.h"
 
