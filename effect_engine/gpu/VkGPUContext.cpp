@@ -4,8 +4,6 @@
 
 #include "VkGPUContext.h"
 
-#include "VkGPUContext.h"
-
 #ifdef OS_OPEN_HARMONY
 #include <effect_engine/gpu/utils/vk_enum_string_helper.h>
 #else
