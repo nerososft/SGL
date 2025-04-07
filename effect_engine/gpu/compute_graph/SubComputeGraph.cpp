@@ -91,10 +91,9 @@ VkResult SubComputeGraph::Compute() const {
                                                        submitSignalSemaphores,
                                                        submitWaitSemaphores));
 
-    VkResult ret = VkGPUHelper::GPUQueueSubmit(
-        queue.queue,
-        submitInfos,
-        this->computeFence);
+    const VkResult ret = VkGPUHelper::GPUQueueSubmit(queue.queue,
+                                                     submitInfos,
+                                                     this->computeFence);
     if (ret != VK_SUCCESS) {
         Logger() << "Failed to submit command buffer, err =" << string_VkResult(ret) << std::endl;
         return ret;
