@@ -35,7 +35,7 @@ VkResult ComputeGraph::Compute() const {
         }
     }
 
-    ret = vkQueueWaitIdle(gpuCtx->DispatchQueue(VK_QUEUE_COMPUTE_BIT | VK_QUEUE_TRANSFER_BIT | VK_QUEUE_GRAPHICS_BIT));
+    ret = vkQueueWaitIdle(gpuCtx->DispatchQueue(VK_QUEUE_COMPUTE_BIT | VK_QUEUE_TRANSFER_BIT | VK_QUEUE_GRAPHICS_BIT).queue);
     if (ret != VK_SUCCESS) {
         Logger() << "Failed to wait idle, err=" << string_VkResult(ret) << std::endl;
         return ret;

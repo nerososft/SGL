@@ -98,7 +98,7 @@ VkResult VkGPUContext::CreateDevice(const std::vector<const char *> &deviceEnabl
     return vkCreateDevice(this->physicalDevice, &deviceCreateInfo, VK_NULL_HANDLE, &this->device);
 }
 
-VkQueue VkGPUContext::DispatchQueue(const VkQueueFlags flag) {
+DeviceQueue VkGPUContext::DispatchQueue(const VkQueueFlags flag) {
     for (size_t queueFamilyIndex = 0; queueFamilyIndex < this->queueFamilies.size(); queueFamilyIndex++) {
         if (this->queueFamilies[queueFamilyIndex].queueFamilyProp.queueFlags & flag) {
             for (size_t queueIndex = 0; queueIndex < this->queueFamilies[queueFamilyIndex].queues.size(); queueIndex
@@ -111,12 +111,12 @@ VkQueue VkGPUContext::DispatchQueue(const VkQueueFlags flag) {
                                      &queueFamilies[queueFamilyIndex].queues[queueIndex].queue);
                 }
                 Logger() << "Queue selected: " << queueFamilyIndex << "-" << queueIndex << std::endl;
-                return queueFamilies[queueFamilyIndex].queues[queueIndex].queue;
+                return queueFamilies[queueFamilyIndex].queues[queueIndex];
             }
         }
     }
     Logger() << "no queue found with flag:" << string_VkQueueFlags(flag) << std::endl;
-    return VK_NULL_HANDLE;
+    return {};
 }
 
 VkResult VkGPUContext::Init() {
@@ -271,6 +271,7 @@ VkResult VkGPUContext::Init() {
 
         for (uint32_t queueIdx = 0; queueIdx < queueNums; queueIdx++) {
             this->queueFamilies[queueFamilyIdx].queues[queueIdx].queueIndex = queueIdx;
+            this->queueFamilies[queueFamilyIdx].queues[queueIdx].queueFamilyIndex = queueFamilyIdx;
             this->queueFamilies[queueFamilyIdx].queues[queueIdx].queue = VK_NULL_HANDLE;
         }
 
@@ -313,14 +314,20 @@ VkResult VkGPUContext::Init() {
         Logger() << "Failed to create descriptor pool, err=" << string_VkResult(result) << std::endl;
     }
 
-    VkCommandPoolCreateInfo commandPoolCreateInfo{};
-    commandPoolCreateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-    commandPoolCreateInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-    commandPoolCreateInfo.pNext = nullptr;
-    commandPoolCreateInfo.queueFamilyIndex = 0; // TODO: fix me
-    result = vkCreateCommandPool(this->device, &commandPoolCreateInfo, nullptr, &this->commandPool);
-    if (result != VK_SUCCESS) {
-        Logger() << "Failed to create command pool, err=" << string_VkResult(result) << std::endl;
+    this->commandPools.resize(queueFamilies.size());
+
+    for (uint32_t queueFamilyIdx = 0; queueFamilyIdx < queueFamilies.size(); queueFamilyIdx++) {
+        VkCommandPoolCreateInfo commandPoolCreateInfo{};
+        commandPoolCreateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+        commandPoolCreateInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+        commandPoolCreateInfo.pNext = nullptr;
+        commandPoolCreateInfo.queueFamilyIndex = queueFamilyIdx;
+        result = vkCreateCommandPool(this->device, &commandPoolCreateInfo,
+                                     nullptr,
+                                     &this->commandPools[queueFamilyIdx]);
+        if (result != VK_SUCCESS) {
+            Logger() << "Failed to create command pool, err=" << string_VkResult(result) << std::endl;
+        }
     }
 
     return result;

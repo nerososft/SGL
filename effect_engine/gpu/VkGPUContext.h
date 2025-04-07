@@ -12,6 +12,7 @@
 struct DeviceQueue {
     VkQueue queue;
     uint32_t queueIndex;
+    uint32_t queueFamilyIndex;
 };
 
 struct DeviceQueueFamily {
@@ -48,7 +49,7 @@ class VkGPUContext {
     std::vector<const char *> defaultDeviceEnableExtensions;
     VkDevice device = VK_NULL_HANDLE;
 
-    VkCommandPool commandPool = VK_NULL_HANDLE;
+    std::vector<VkCommandPool> commandPools;
     VkDescriptorPool descriptorPool = VK_NULL_HANDLE;
     VkPipelineCache pipelineCache = VK_NULL_HANDLE;
 
@@ -68,7 +69,7 @@ public:
     VkResult CreateDevice(const std::vector<const char *> &deviceEnableLayers,
                           std::vector<const char *> deviceEnableExtensions);
 
-    VkQueue DispatchQueue(VkQueueFlags flag);
+    DeviceQueue DispatchQueue(VkQueueFlags flag);
 
     VkResult Init();
 
@@ -78,7 +79,11 @@ public:
 
     [[nodiscard]] VkDevice GetCurrentDevice() const { return this->device; }
     [[nodiscard]] VkPhysicalDevice GetPhysicalDevice() const { return this->physicalDevice; }
-    [[nodiscard]] VkCommandPool GetCommandPool() const { return this->commandPool; }
+
+    [[nodiscard]] VkCommandPool GetCommandPool(const uint32_t queueFamilyIdx) const {
+        return this->commandPools[queueFamilyIdx];
+    }
+
     [[nodiscard]] VkDescriptorPool GetDescriptorPool() const { return this->descriptorPool; }
     [[nodiscard]] VkPipelineCache GetPipelineCache() const { return this->pipelineCache; }
     [[nodiscard]] VkInstance GetInstance() const { return this->instance; }
