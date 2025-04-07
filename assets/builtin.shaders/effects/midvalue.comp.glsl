@@ -16,7 +16,6 @@ layout (push_constant) uniform FilterParams {
     uint channels;
     uint bytesPerLine;
     float radius;
-    float threshold;
 } filterParams;
 
 // ABGR
@@ -86,56 +85,33 @@ void main() {
     uint targetCount = (totalPixels + 1) / 2;
 
     // 红色通道
-    uint countr = 0, countg=0, countb=0;
-    int flagr=1, flagg=1, flagb=1;
+    uint countr = 0, countg = 0, countb = 0;
+    int flagr = 1, flagg = 1, flagb = 1;
 
     #pragma unroll
     for (int i = 0; i < 256; i++) {
         countr += rHist[i];
-        if (countr >= targetCount&&flagr!=0) {
+        if ((countr >= targetCount) && (flagr!=0)) {
             median.r = float(i) / 255.0;
-            flagr=0;
+            flagr = 0;
         }
-        countg+=gHist[i];
-        if (countg >= targetCount&&flagg!=0) {
+        countg += gHist[i];
+        if ((countg >= targetCount) && (flagg!=0)) {
             median.g = float(i) / 255.0;
-            flagg=0;
+            flagg = 0;
         }
-        countb+=bHist[i];
-        if (countb >= targetCount&&flagb!=0) {
+        countb += bHist[i];
+        if ((countb >= targetCount) && (flagb!=0)) {
             median.b = float(i) / 255.0;
-            flagb=0;
+            flagb = 0;
         }
     }
 
-    // 绿色通道
-    // for(int i = 0; i < 256; i++) {
-    //     countg += gHist[i];
-    //     if(countg >= targetCount) {
-    //         median.g = float(i) / 255.0;
-    //         break;
-    //     }
-    // }
-
-    // 蓝色通道
-    // count = 0;
-    // for(int i = 0; i < 256; i++) {
-    //     countb += bHist[i];
-    //     if(countb >= targetCount) {
-    //         median.b = float(i) / 255.0;
-    //         break;
-    //     }
-    // }
-
     // 保持alpha通道不变
-    vec4 origColor = unpackColor(inputImage.pixels[
-    uint(imgCoord.y) * (filterParams.bytesPerLine / 4) + uint(imgCoord.x)
-    ]);
+    vec4 origColor = unpackColor(inputImage.pixels[uint(imgCoord.y) * (filterParams.bytesPerLine / 4) + uint(imgCoord.x)]);
 
     // 打包输出
     uint outputIndex = uint(imgCoord.y) * (filterParams.bytesPerLine / 4) + uint(imgCoord.x);
     outputImage.pixels[outputIndex] = packColor(vec4(median, origColor.a));
-
-
 }
 
