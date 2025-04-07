@@ -38,16 +38,12 @@ vec4 unpackColor(uint color) {
     );
 }
 uvec4 unpackColor3u(uint color) {
-    return uvec4(
-    (color) & 0xFF,
-    (color >> 8) & 0xFF,
-    (color >> 16) & 0xFF,
-    (color >> 24) & 0xFF
-    );
+    return uvec4((color) & 0xFF, (color >> 8) & 0xFF, (color >> 16) & 0xFF, (color >> 24) & 0xFF);
 }
 
 void main() {
     ivec2 imgCoord = ivec2(gl_GlobalInvocationID.xy);
+
     if (any(greaterThanEqual(imgCoord, ivec2(filterParams.width, filterParams.height)))) {
         return;
     }
@@ -58,24 +54,12 @@ void main() {
     int totalPixels = diameter * diameter;
 
     // 初始化直方图
-    ivec4 hist[256] = {
-    ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0),
-    ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0),
-    ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0),
-    ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0),
-    ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0),
-    ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0),
-    ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0),
-    ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0),
-    ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0),
-    ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0),
-    ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0),
-    ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0),
-    ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0),
-    ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0),
-    ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0),
-    ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0), ivec4(0)
-    };
+    uint rHist[256], gHist[256], bHist[256];
+    for (int i = 0; i < 256; i++) {
+        rHist[i] = 0;
+        gHist[i] = 0;
+        bHist[i] = 0;
+    }
 
     // 收集邻域像素
     for (int dy = -radius; dy <= radius; dy++) {
@@ -83,7 +67,8 @@ void main() {
             ivec2 sampleCoord = imgCoord + ivec2(dx, dy);
 
             // 边界裁剪
-            sampleCoord = clamp(sampleCoord, ivec2(0), ivec2(filterParams.width-1, filterParams.height-1));
+            sampleCoord = clamp(sampleCoord, ivec2(0),
+            ivec2(filterParams.width-1, filterParams.height-1));
 
             // 计算存储位置
             uint rowOffset = uint(sampleCoord.y) * (filterParams.bytesPerLine / 4);
@@ -92,10 +77,9 @@ void main() {
             // 解包颜色
             uvec4 colorInt = unpackColor3u(inputImage.pixels[pixelIndex]);
 
-            hist[colorInt.r] += ivec4(1, 0, 0, 0);
-            hist[colorInt.g] += ivec4(0, 1, 0, 0);
-            hist[colorInt.b] += ivec4(0, 0, 1, 0);
-            hist[colorInt.a] += ivec4(0, 0, 0, 1);
+            rHist[colorInt.r]++;
+            gHist[colorInt.g]++;
+            bHist[colorInt.b]++;
         }
     }
 
@@ -104,23 +88,25 @@ void main() {
     uint targetCount = (totalPixels + 1) / 2;
 
     // 红色通道
-    ivec4 count = ivec4(0);
-    int flagr=1, flagg=1, flagb=1;
+    uint countr = 0, countg = 0, countb = 0;
+    int flagr = 1, flagg = 1, flagb = 1;
 
     #pragma unroll
     for (int i = 0; i < 256; i++) {
-        count += hist[i];
-        if ((count.r >= targetCount) && (flagr != 0)) {
+        countr += rHist[i];
+        if ((countr >= targetCount) && (flagr!=0)) {
             median.r = float(i) / 255.0;
             flagr = 0;
         }
-        if ((count.g >= targetCount) && (flagg!=0)) {
+        countg += gHist[i];
+        if ((countg >= targetCount) && (flagg!=0)) {
             median.g = float(i) / 255.0;
-            flagg=0;
+            flagg = 0;
         }
-        if ((count.b >= targetCount) && (flagb != 0)) {
+        countb += bHist[i];
+        if ((countb >= targetCount) && (flagb!=0)) {
             median.b = float(i) / 255.0;
-            flagb=0;
+            flagb = 0;
         }
     }
 
