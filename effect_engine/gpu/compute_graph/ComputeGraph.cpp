@@ -101,7 +101,7 @@ VkResult ComputeGraph::Compute() const {
 
 void ComputeGraph::Destroy() const {
 
-    if (gpuCtx) {
+    if (false) {
         Logger() << "[debug]" << __LINE__ << std::endl;
         vkDestroyFence(gpuCtx->GetCurrentDevice(), computeFence, nullptr);
         Logger() << "[debug]" << __LINE__ << std::endl;
