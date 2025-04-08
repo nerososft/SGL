@@ -7,28 +7,26 @@
 #include "effect_engine/config.h"
 
 VkResult ThresholdSplitFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                                     const VkDeviceSize bufferSize,
-                                     const uint32_t width,
-                                     const uint32_t height,
-                                     const VkBuffer inputBuffer,
-                                     const VkBuffer outputBuffer) {
+                                     const std::vector<FilterImageInfo> inputImageInfo,
+                                     const std::vector<FilterImageInfo> outputImageInfo) {
     BasicFilterParams params;
-    this->thresholdSplitFilterParams.imageSize.width = width;
-    this->thresholdSplitFilterParams.imageSize.height = height;
+    this->thresholdSplitFilterParams.imageSize.width = inputImageInfo[0].width;
+    this->thresholdSplitFilterParams.imageSize.height = inputImageInfo[0].height;
     this->thresholdSplitFilterParams.imageSize.channels = 4;
-    this->thresholdSplitFilterParams.imageSize.bytesPerLine = this->thresholdSplitFilterParams.imageSize.width * 4;
+    this->thresholdSplitFilterParams.imageSize.bytesPerLine =
+            this->thresholdSplitFilterParams.imageSize.width * 4;
     params.paramsSize = sizeof(ThresholdSplitFilterParams);
     params.paramsData = &this->thresholdSplitFilterParams;
     params.shaderPath = SHADER(threshold_split.comp.glsl.spv);
-    return DoApply(gpuCtx,
-                   "ThresholdSplit",
-                   bufferSize,
-                   inputBuffer,
-                   outputBuffer,
-                   params,
-                   (width + 31) / 32,
-                   (height + 31) / 32,
-                   1);
+    return BasicFilter::Apply(gpuCtx,
+                              "ThresholdSplit",
+                              inputImageInfo[0].bufferSize,
+                              inputImageInfo[0].storageBuffer,
+                              outputImageInfo[0].storageBuffer,
+                              params,
+                              (outputImageInfo[0].width + 31) / 32,
+                              (outputImageInfo[0].height + 31) / 32,
+                              1);
 }
 
 void ThresholdSplitFilter::Destroy() {

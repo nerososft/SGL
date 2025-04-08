@@ -71,9 +71,32 @@ VkResult EffectEngine::Process(const std::shared_ptr<VkGPUBuffer> &inputBuffer,
         return ret;
     }
 
+    std::vector<FilterImageInfo> filterInputImages;
+    FilterImageInfo inputImageInfo{};
+    inputImageInfo.width = inputWidth;
+    inputImageInfo.height = inputHeight;
+    inputImageInfo.channels = channels;
+    inputImageInfo.bufferSize = inputBufferSize;
+    inputImageInfo.posX = 0;
+    inputImageInfo.posY = 0;
+    inputImageInfo.storageBuffer = inputBuffer->GetBuffer();
+    filterInputImages.push_back(inputImageInfo);
+
+    std::vector<FilterImageInfo> filterOutputImages;
+    FilterImageInfo outputImageInfo{};
+    outputImageInfo.width = outputWidth;
+    outputImageInfo.height = outputHeight;
+    outputImageInfo.channels = channels;
+    outputImageInfo.bufferSize = outputBufferSize;
+    outputImageInfo.posX = 0;
+    outputImageInfo.posY = 0;
+    outputImageInfo.storageBuffer = outputBuffer->GetBuffer();
+    filterOutputImages.push_back(outputImageInfo);
+
     const uint64_t gpuProcessTimeStart = TimeUtils::GetCurrentMonoMs();
-    ret = filter->Apply(gpuCtx, inputBufferSize, inputWidth, inputHeight, inputBuffer->GetBuffer(),
-                        outputBuffer->GetBuffer());
+    ret = filter->Apply(gpuCtx,
+                        filterInputImages,
+                        filterOutputImages);
     if (ret != VK_SUCCESS) {
         Logger() << "Failed to apply filter!" << std::endl;
         return ret;
@@ -139,6 +162,117 @@ void EffectEngine::Process(const ImageInfo &input,
     outputStorageBuffer->Destroy();
     Logger() << "outputStorageBuffer destory end " << std::endl;
 
+}
+
+void EffectEngine::Process(const std::vector<ImageInfo> &inputs,
+                           const std::vector<ImageInfo> &outputs,
+                           const std::shared_ptr<IFilter> &filter) const {
+    VkResult ret = VK_SUCCESS;
+
+    std::vector<std::shared_ptr<VkGPUBuffer> > inputBuffers;
+    std::vector<FilterImageInfo> filterInputImages;
+    for (const ImageInfo &input: inputs) {
+        const auto inputBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
+        const uint64_t inputBufferPrepareStart = TimeUtils::GetCurrentMonoMs();
+        const VkDeviceSize inputBufferSize = input.width * input.height * input.channels;
+        ret = inputBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED, inputBufferSize);
+        if (ret != VK_SUCCESS) {
+            Logger() << "Failed to allocate input storage buffer!" << std::endl;
+            for (const std::shared_ptr<VkGPUBuffer> &buffer: inputBuffers) {
+                buffer->Destroy();
+            }
+            return;
+        }
+        inputBuffers.push_back(inputBuffer);
+        ret = inputBuffer->UploadData(input.data, inputBufferSize);
+        if (ret != VK_SUCCESS) {
+            Logger() << "Failed to upload base data!" << std::endl;
+            for (const std::shared_ptr<VkGPUBuffer> &buffer: inputBuffers) {
+                buffer->Destroy();
+            }
+            return;
+        }
+        const uint64_t inputBufferPrepareEnd = TimeUtils::GetCurrentMonoMs();
+        Logger() << "Input Buffer Prepare And Upload Time: " << inputBufferPrepareEnd -
+                inputBufferPrepareStart << "ms" <<
+                std::endl;
+        FilterImageInfo inputImageInfo{};
+        inputImageInfo.width = input.width;
+        inputImageInfo.height = input.height;
+        inputImageInfo.channels = input.channels;
+        inputImageInfo.bufferSize = inputBufferSize;
+        inputImageInfo.posX = 0;
+        inputImageInfo.posY = 0;
+        inputImageInfo.storageBuffer = inputBuffer->GetBuffer();
+        filterInputImages.push_back(inputImageInfo);
+    }
+
+    std::vector<std::shared_ptr<VkGPUBuffer> > outputBuffers;
+    std::vector<FilterImageInfo> filterOutputImages;
+    for (const ImageInfo &output: outputs) {
+        const auto outputBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
+        const uint64_t outputBufferPrepareStart = TimeUtils::GetCurrentMonoMs();
+        const VkDeviceSize outputBufferSize = output.width * output.height * output.channels;
+        ret = outputBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED, outputBufferSize);
+        if (ret != VK_SUCCESS) {
+            for (const std::shared_ptr<VkGPUBuffer> &buffer: inputBuffers) {
+                buffer->Destroy();
+            }
+            for (const std::shared_ptr<VkGPUBuffer> &buffer: outputBuffers) {
+                buffer->Destroy();
+            }
+            Logger() << "Failed to allocate output storage buffer!" << std::endl;
+            return;
+        }
+        outputBuffers.push_back(outputBuffer);
+        const uint64_t outputBufferPrepareEnd = TimeUtils::GetCurrentMonoMs();
+        Logger() << "Output Buffer Prepare And Upload Time: " << outputBufferPrepareEnd -
+                outputBufferPrepareStart << "ms" <<
+                std::endl;
+
+        FilterImageInfo outputImageInfo{};
+        outputImageInfo.width = output.width;
+        outputImageInfo.height = output.height;
+        outputImageInfo.channels = output.channels;
+        outputImageInfo.bufferSize = outputBufferSize;
+        outputImageInfo.posX = 0;
+        outputImageInfo.posY = 0;
+        outputImageInfo.storageBuffer = outputBuffer->GetBuffer();
+        filterOutputImages.push_back(outputImageInfo);
+    }
+
+    const uint64_t gpuProcessTimeStart = TimeUtils::GetCurrentMonoMs();
+    ret = filter->Apply(gpuCtx, filterInputImages, filterOutputImages);
+    if (ret != VK_SUCCESS) {
+        Logger() << "Failed to apply blender!" << std::endl;
+        return;
+    }
+    const uint64_t gpuProcessTimeEnd = TimeUtils::GetCurrentMonoMs();
+    Logger() << "GPU Process Time: " << gpuProcessTimeEnd - gpuProcessTimeStart << "ms" << std::endl;
+
+    for (size_t i = 0; i < filterOutputImages.size(); i++) {
+        const auto &buffer = outputBuffers[i];
+        if (buffer == nullptr) {
+            break;
+        }
+        ret = buffer->MapBuffer(filterOutputImages[i].bufferSize);
+        if (ret != VK_SUCCESS) {
+            Logger() << "Failed to map output storage buffer!" << std::endl;
+            break;
+        }
+        ret = buffer->DownloadData(outputs[i].data, filterOutputImages[i].bufferSize);
+        if (ret != VK_SUCCESS) {
+            Logger() << "Failed to download data from output storage buffer!" << std::endl;
+            break;
+        }
+    }
+
+    for (const std::shared_ptr<VkGPUBuffer> &buffer: outputBuffers) {
+        buffer->Destroy();
+    }
+    for (const std::shared_ptr<VkGPUBuffer> &buffer: outputBuffers) {
+        buffer->Destroy();
+    }
 }
 
 void EffectEngine::Process(const char *inputFilePath,
@@ -227,7 +361,7 @@ void EffectEngine::Process(const char *inputFilePath,
         return;
     }
 
-    const void* outputDataAddr = outputStorageBuffer->GetMappedAddr();
+    const void *outputDataAddr = outputStorageBuffer->GetMappedAddr();
     ImageUtils::WritePngFile(outputFilePath, newWidth, newHeight, channels, outputDataAddr);
     inputStorageBuffer->Destroy();
     outputStorageBuffer->Destroy();

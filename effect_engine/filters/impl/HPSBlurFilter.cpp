@@ -13,11 +13,8 @@
 #include "effect_engine/log/Log.h"
 
 VkResult HPSBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                              VkDeviceSize bufferSize,
-                              uint32_t width,
-                              uint32_t height,
-                              VkBuffer inputBuffer,
-                              VkBuffer outputBuffer) {
+                              std::vector<FilterImageInfo> inputImageInfo,
+                              std::vector<FilterImageInfo> outputImageInfo) {
     this->computeGraph = std::make_shared<ComputeGraph>(gpuCtx);
     this->computeSubGraph = std::make_shared<SubComputeGraph>(gpuCtx);
     VkResult ret = this->computeSubGraph->Init();
@@ -28,8 +25,8 @@ VkResult HPSBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
 
     const auto renderPassNode = std::make_shared<GraphicsRenderPassNode>(gpuCtx,
                                                                          "HPSBlurRenderPass",
-                                                                         width,
-                                                                         height);
+                                                                         inputImageInfo[0].width,
+                                                                         inputImageInfo[0].height);
     ret = renderPassNode->CreateComputeGraphNode();
     if (ret != VK_SUCCESS) {
         Logger() << "Failed to create graphics renderpass node, err =" << string_VkResult(ret) << std::endl;
@@ -41,7 +38,7 @@ VkResult HPSBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                                                                      renderPassNode->GetRenderPass(),
                                                                      SHADER(rect.vert.glsl.spv),
                                                                      SHADER(rect.frag.glsl.spv),
-                                                                     width, height);
+                                                                     inputImageInfo[0].width, inputImageInfo[0].height);
 
     // TODO:
     graphicsNode->AddGraphicsElement({});

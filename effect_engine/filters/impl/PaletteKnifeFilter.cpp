@@ -18,13 +18,10 @@
 #include "effect_engine/log/Log.h"
 
 VkResult PaletteKnifeFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                                   const VkDeviceSize bufferSize,
-                                   const uint32_t width,
-                                   const uint32_t height,
-                                   const VkBuffer inputBuffer,
-                                   const VkBuffer outputBuffer) {
-    this->paletteKnifeFilterParams.imageSize.width = width;
-    this->paletteKnifeFilterParams.imageSize.height = height;
+                                   const std::vector<FilterImageInfo> inputImageInfo,
+                                   const std::vector<FilterImageInfo> outputImageInfo) {
+    this->paletteKnifeFilterParams.imageSize.width = inputImageInfo[0].width;
+    this->paletteKnifeFilterParams.imageSize.height = inputImageInfo[0].height;
     this->paletteKnifeFilterParams.imageSize.channels = 4;
     this->paletteKnifeFilterParams.imageSize.bytesPerLine = this->paletteKnifeFilterParams.imageSize.width * 4;
 
@@ -44,16 +41,16 @@ VkResult PaletteKnifeFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
 
     PipelineNodeBuffer qPipelineNodeInput;
     qPipelineNodeInput.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
-    qPipelineNodeInput.buffer = inputBuffer;
-    qPipelineNodeInput.bufferSize = bufferSize;
+    qPipelineNodeInput.buffer = inputImageInfo[0].storageBuffer;
+    qPipelineNodeInput.bufferSize = inputImageInfo[0].bufferSize;
 
     qBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
-    qBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_LOCAL, bufferSize);
+    qBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_LOCAL, inputImageInfo[0].bufferSize);
 
     PipelineNodeBuffer qPipelineNodeOutput;
     qPipelineNodeOutput.type = PIPELINE_NODE_BUFFER_STORAGE_WRITE;
     qPipelineNodeOutput.buffer = qBuffer->GetBuffer();
-    qPipelineNodeOutput.bufferSize = bufferSize;
+    qPipelineNodeOutput.bufferSize = inputImageInfo[0].bufferSize;
 
     std::vector<PipelineNodeBuffer> qPipelineBuffers;
     qPipelineBuffers.push_back(qPipelineNodeInput);
@@ -62,8 +59,8 @@ VkResult PaletteKnifeFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     const auto qCalculateNode = std::make_shared<ComputePipelineNode>(gpuCtx,
                                                                       "QCalculate",
                                                                       SHADER(palette_q.comp.glsl.spv),
-                                                                      (width + 31) / 32,
-                                                                      (height + 31) / 32,
+                                                                      (inputImageInfo[0].width + 31) / 32,
+                                                                      (inputImageInfo[0].height + 31) / 32,
                                                                       1);
     qCalculateNode->AddComputeElement({
         .pushConstantInfo = pushConstantInfo,
@@ -78,18 +75,18 @@ VkResult PaletteKnifeFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
 
     PipelineNodeBuffer pipelineNodeInput;
     pipelineNodeInput.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
-    pipelineNodeInput.buffer = inputBuffer;
-    pipelineNodeInput.bufferSize = bufferSize;
+    pipelineNodeInput.buffer = inputImageInfo[0].storageBuffer;
+    pipelineNodeInput.bufferSize = inputImageInfo[0].bufferSize;
 
     PipelineNodeBuffer pipelineNodeQInput;
     pipelineNodeQInput.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
     pipelineNodeQInput.buffer = qBuffer->GetBuffer();
-    pipelineNodeQInput.bufferSize = bufferSize;
+    pipelineNodeQInput.bufferSize = inputImageInfo[0].bufferSize;
 
     PipelineNodeBuffer pipelineNodeOutput;
     pipelineNodeOutput.type = PIPELINE_NODE_BUFFER_STORAGE_WRITE;
-    pipelineNodeOutput.buffer = outputBuffer;
-    pipelineNodeOutput.bufferSize = bufferSize;
+    pipelineNodeOutput.buffer = outputImageInfo[0].storageBuffer;
+    pipelineNodeOutput.bufferSize = outputImageInfo[0].bufferSize;
 
     std::vector<PipelineNodeBuffer> pkPipelineBuffers;
     pkPipelineBuffers.push_back(qPipelineNodeInput);
@@ -99,8 +96,8 @@ VkResult PaletteKnifeFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     const auto paletteKnifeNode = std::make_shared<ComputePipelineNode>(gpuCtx,
                                                                         "PaletteKnife",
                                                                         SHADER(palette_knife.comp.glsl.spv),
-                                                                        (width + 31) / 32,
-                                                                        (height + 31) / 32,
+                                                                        (outputImageInfo[0].width + 31) / 32,
+                                                                        (outputImageInfo[0].height + 31) / 32,
                                                                         1);
     paletteKnifeNode->AddComputeElement({
         .pushConstantInfo = pushConstantInfo,
@@ -119,7 +116,6 @@ VkResult PaletteKnifeFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     computeGraph->AddSubGraph(computeSubGraph);
     return computeGraph->Compute();
 }
-
 
 void PaletteKnifeFilter::Destroy() {
     computeGraph->Destroy();

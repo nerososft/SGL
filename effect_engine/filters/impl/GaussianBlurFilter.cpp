@@ -33,14 +33,11 @@ std::vector<float> GaussianBlurFilter::CalculateWeights() {
 }
 
 VkResult GaussianBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                                   const VkDeviceSize bufferSize,
-                                   const uint32_t width,
-                                   const uint32_t height,
-                                   const VkBuffer inputBuffer,
-                                   const VkBuffer outputBuffer) {
+                                   const std::vector<FilterImageInfo> inputImageInfo,
+                                   const std::vector<FilterImageInfo> outputImageInfo) {
     this->gpuCtx = gpuCtx;
-    this->blurFilterParams.imageSize.width = width;
-    this->blurFilterParams.imageSize.height = height;
+    this->blurFilterParams.imageSize.width = inputImageInfo[0].width;
+    this->blurFilterParams.imageSize.height = inputImageInfo[0].height;
     this->blurFilterParams.imageSize.channels = 4;
     this->blurFilterParams.imageSize.bytesPerLine = this->blurFilterParams.imageSize.width * 4;
 
@@ -71,13 +68,13 @@ VkResult GaussianBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
 
     PipelineNodeBuffer vPipelineNodeInput;
     vPipelineNodeInput.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
-    vPipelineNodeInput.buffer = inputBuffer;
-    vPipelineNodeInput.bufferSize = bufferSize;
+    vPipelineNodeInput.buffer = inputImageInfo[0].storageBuffer;
+    vPipelineNodeInput.bufferSize = inputImageInfo[0].bufferSize;
 
     PipelineNodeBuffer vPipelineNodeOutput;
     vPipelineNodeOutput.type = PIPELINE_NODE_BUFFER_STORAGE_WRITE;
-    vPipelineNodeOutput.buffer = outputBuffer;
-    vPipelineNodeOutput.bufferSize = bufferSize;
+    vPipelineNodeOutput.buffer = outputImageInfo[0].storageBuffer;
+    vPipelineNodeOutput.bufferSize = outputImageInfo[0].bufferSize;
 
     std::vector<PipelineNodeBuffer> vPipelineBuffers;
     vPipelineBuffers.push_back(vPipelineNodeInput);
@@ -87,8 +84,8 @@ VkResult GaussianBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     const auto gaussianVerticalNode = std::make_shared<ComputePipelineNode>(gpuCtx,
                                                                             "gaussianVerticalBlur",
                                                                             SHADER(vertical_blur.comp.glsl.spv),
-                                                                            width,
-                                                                            (height + 255) / 256,
+                                                                            inputImageInfo[0].width,
+                                                                            (inputImageInfo[0].height + 255) / 256,
                                                                             1);
     gaussianVerticalNode->AddComputeElement({
         .pushConstantInfo = pushConstantInfo,
@@ -103,13 +100,13 @@ VkResult GaussianBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
 
     PipelineNodeBuffer hPipelineNodeInput;
     hPipelineNodeInput.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
-    hPipelineNodeInput.buffer = outputBuffer;
-    hPipelineNodeInput.bufferSize = bufferSize;
+    hPipelineNodeInput.buffer = outputImageInfo[0].storageBuffer;
+    hPipelineNodeInput.bufferSize = outputImageInfo[0].bufferSize;
 
     PipelineNodeBuffer hPipelineNodeOutput;
     hPipelineNodeOutput.type = PIPELINE_NODE_BUFFER_STORAGE_WRITE;
-    hPipelineNodeOutput.buffer = inputBuffer;
-    hPipelineNodeOutput.bufferSize = bufferSize;
+    hPipelineNodeOutput.buffer = inputImageInfo[0].storageBuffer;
+    hPipelineNodeOutput.bufferSize = inputImageInfo[0].bufferSize;
 
     std::vector<PipelineNodeBuffer> hPipelineBuffers;
     hPipelineBuffers.push_back(hPipelineNodeInput);
@@ -119,8 +116,8 @@ VkResult GaussianBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     const auto gaussianHorizontalNode = std::make_shared<ComputePipelineNode>(gpuCtx,
                                                                               "gaussianHorizontalBlur",
                                                                               SHADER(horizontal_blur.comp.glsl.spv),
-                                                                              (width + 255) / 256,
-                                                                              height,
+                                                                              (outputImageInfo[0].width + 255) / 256,
+                                                                              outputImageInfo[0].height,
                                                                               1);
     gaussianHorizontalNode->AddComputeElement({
         .pushConstantInfo = pushConstantInfo,
@@ -134,11 +131,11 @@ VkResult GaussianBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     }
 
     BufferCopyNodeBufferInfo srcBufferInfo;
-    srcBufferInfo.buffer = inputBuffer;
-    srcBufferInfo.bufferSize = bufferSize;
+    srcBufferInfo.buffer = inputImageInfo[0].storageBuffer;
+    srcBufferInfo.bufferSize = inputImageInfo[0].bufferSize;
     BufferCopyNodeBufferInfo dstBufferInfo;
-    dstBufferInfo.buffer = outputBuffer;
-    dstBufferInfo.bufferSize = bufferSize;
+    dstBufferInfo.buffer = outputImageInfo[0].storageBuffer;
+    dstBufferInfo.bufferSize = outputImageInfo[0].bufferSize;
     const auto copyBufferNode = std::make_shared<BufferCopyNode>(gpuCtx,
                                                                  "CopyBufferToOutputBuffer",
                                                                  srcBufferInfo,

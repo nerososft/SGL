@@ -195,11 +195,8 @@ std::shared_ptr<IComputeGraphNode> FastGaussianBlurFilter::CreateScaleUpNode(
 }
 
 VkResult FastGaussianBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                                       const VkDeviceSize bufferSize,
-                                       const uint32_t width,
-                                       const uint32_t height,
-                                       const VkBuffer inputBuffer,
-                                       const VkBuffer outputBuffer) {
+                                       const std::vector<FilterImageInfo> inputImageInfo,
+                                       const std::vector<FilterImageInfo> outputImageInfo) {
     this->computeGraph = std::make_shared<ComputeGraph>(gpuCtx);
     this->computeSubGraph = std::make_shared<SubComputeGraph>(gpuCtx);
     VkResult ret = this->computeSubGraph->Init();
@@ -211,8 +208,8 @@ VkResult FastGaussianBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuC
     ratio = ratio > 4 ? 4 : ratio;
     ratio = ratio < 2 ? 2 : ratio;
     Logger() << "Downsampling ratio: " << ratio << std::endl;
-    const uint32_t targetWidth = width / ratio;
-    const uint32_t targetHeight = height / ratio;
+    const uint32_t targetWidth = inputImageInfo[0].width / ratio;
+    const uint32_t targetHeight = inputImageInfo[0].height / ratio;
     const int newRadius = this->blurFilterParams.radius / ratio;
 
     scaleDownBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
@@ -223,15 +220,15 @@ VkResult FastGaussianBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuC
         return ret;
     }
 
-    scaleDownParams.imageSize.width = width;
-    scaleDownParams.imageSize.height = height;
+    scaleDownParams.imageSize.width = inputImageInfo[0].width;
+    scaleDownParams.imageSize.height = inputImageInfo[0].height;
     scaleDownParams.imageSize.channels = 4;
-    scaleDownParams.imageSize.bytesPerLine = width * 4;
+    scaleDownParams.imageSize.bytesPerLine = inputImageInfo[0].width * 4;
     scaleDownParams.targetWidth = targetWidth;
     scaleDownParams.targetHeight = targetHeight;
     const std::shared_ptr<IComputeGraphNode> scaleDownNode = CreateScaleDownNode(gpuCtx,
-        inputBuffer,
-        bufferSize,
+        inputImageInfo[0].storageBuffer,
+        inputImageInfo[0].bufferSize,
         scaleDownBuffer->GetBuffer(),
         scaleDownBufferSize,
         targetWidth,
@@ -264,15 +261,15 @@ VkResult FastGaussianBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuC
     scaleUpParams.imageSize.height = targetHeight;
     scaleUpParams.imageSize.channels = 4;
     scaleUpParams.imageSize.bytesPerLine = targetWidth * 4;
-    scaleUpParams.targetWidth = width;
-    scaleUpParams.targetHeight = height;
+    scaleUpParams.targetWidth = inputImageInfo[0].width;
+    scaleUpParams.targetHeight = inputImageInfo[0].height;
     const std::shared_ptr<IComputeGraphNode> scaleUpNode = CreateScaleUpNode(gpuCtx,
                                                                              scaleDownBuffer->GetBuffer(),
                                                                              scaleDownBufferSize,
-                                                                             outputBuffer,
-                                                                             bufferSize,
-                                                                             width,
-                                                                             height);
+                                                                             outputImageInfo[0].storageBuffer,
+                                                                             outputImageInfo[0].bufferSize,
+                                                                             outputImageInfo[0].width,
+                                                                             outputImageInfo[0].height);
 
     vBlurNode->AddDependenceNode(scaleDownNode);
     hBlurNode->AddDependenceNode(vBlurNode);

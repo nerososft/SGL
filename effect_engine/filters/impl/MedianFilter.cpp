@@ -72,18 +72,13 @@ std::shared_ptr<SubComputeGraph> MedianFilter::CreateParallelSubGraph(const size
 }
 
 VkResult MedianFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                             const VkDeviceSize bufferSize,
-                             const uint32_t width,
-                             const uint32_t height,
-                             const VkBuffer inputBuffer,
-                             const VkBuffer outputBuffer) {
+                             const std::vector<FilterImageInfo> inputImageInfo,
+                             const std::vector<FilterImageInfo> outputImageInfo) {
     uint32_t parallelSize;
-    std::vector<DeviceQueue> parallelQueues = gpuCtx->GetAllParallelQueue(
+    const std::vector<DeviceQueue> parallelQueues = gpuCtx->GetAllParallelQueue(
         VK_QUEUE_COMPUTE_BIT | VK_QUEUE_TRANSFER_BIT | VK_QUEUE_GRAPHICS_BIT);
     if (parallelQueues.empty()) {
         Logger() << "No parallel queues found!\n";
-        parallelQueues.push_back(
-            gpuCtx->DispatchQueue(VK_QUEUE_COMPUTE_BIT | VK_QUEUE_TRANSFER_BIT | VK_QUEUE_GRAPHICS_BIT));
         parallelSize = 1;
     } else {
         parallelSize = parallelQueues.size();
@@ -95,8 +90,8 @@ VkResult MedianFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     this->medianFilterParams.resize(parallelSize);
     this->computeGraph = std::make_shared<ComputeGraph>(gpuCtx);
     for (size_t parallelIndex = 0; parallelIndex < parallelSize; parallelIndex++) {
-        this->medianFilterParams[parallelIndex].imageSize.width = width;
-        this->medianFilterParams[parallelIndex].imageSize.height = height;
+        this->medianFilterParams[parallelIndex].imageSize.width = inputImageInfo[0].width;
+        this->medianFilterParams[parallelIndex].imageSize.height = inputImageInfo[0].height;
         this->medianFilterParams[parallelIndex].imageSize.channels = 4;
         this->medianFilterParams[parallelIndex].imageSize.bytesPerLine =
                 this->medianFilterParams[parallelIndex].imageSize.width * 4;
@@ -106,10 +101,10 @@ VkResult MedianFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
 
         const std::shared_ptr<SubComputeGraph> parallelGraph = CreateParallelSubGraph(parallelIndex,
             gpuCtx,
-            inputBuffer,
-            bufferSize,
-            outputBuffer,
-            bufferSize);
+            inputImageInfo[0].storageBuffer,
+            inputImageInfo[0].bufferSize,
+            outputImageInfo[0].storageBuffer,
+            outputImageInfo[0].bufferSize);
         if (parallelGraph == nullptr) {
             return VK_ERROR_INITIALIZATION_FAILED;
         }
