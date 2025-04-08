@@ -30,12 +30,9 @@ public:
 
     ~colorBalanceFilter() override = default;
 
-    VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                   VkDeviceSize bufferSize,
-                   uint32_t width,
-                   uint32_t height,
-                   VkBuffer inputBuffer,
-                   VkBuffer outputBuffer) override;
+    VkResult Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
+        std::vector<FilterImageInfo> inputImageInfo,
+        std::vector<FilterImageInfo> outputImageInfo) override;
 
     void SetP(int * _p , int _size) {
         P = _p;

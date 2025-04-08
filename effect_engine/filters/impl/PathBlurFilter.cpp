@@ -17,14 +17,11 @@
 #include "effect_engine/gpu/compute_graph/ComputePipelineNode.h"
 #include "effect_engine/log/Log.h"
 VkResult pathBlurFilter::Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
-    const VkDeviceSize bufferSize,
-    const uint32_t width,
-    const uint32_t height,
-    const VkBuffer inputBuffer,
-    const VkBuffer outputBuffer) {
+    std::vector<FilterImageInfo> inputImageInfo,
+    std::vector<FilterImageInfo> outputImageInfo){
     BasicFilterParams params;
-    this->pathblurFilterParams.imageSize.width = width;
-    this->pathblurFilterParams.imageSize.height = height;
+    this->pathblurFilterParams.imageSize.width = inputImageInfo[0].width;
+    this->pathblurFilterParams.imageSize.height = inputImageInfo[0].height;
     this->pathblurFilterParams.imageSize.channels = 4;
     this->pathblurFilterParams.imageSize.bytesPerLine = this->pathblurFilterParams.imageSize.width * 4;
     //params.paramsSize = sizeof(customKernelFilterParams);
@@ -50,8 +47,8 @@ VkResult pathBlurFilter::Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
 
     PipelineNodeBuffer pipelineNodeInput;
     pipelineNodeInput.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
-    pipelineNodeInput.buffer = inputBuffer;
-    pipelineNodeInput.bufferSize = bufferSize;
+    pipelineNodeInput.buffer = inputImageInfo[0].storageBuffer;
+    pipelineNodeInput.bufferSize = inputImageInfo[0].bufferSize;
 
     PipelineNodeBuffer pipelineNodeKInput;
     pipelineNodeKInput.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
@@ -60,8 +57,8 @@ VkResult pathBlurFilter::Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
 
     PipelineNodeBuffer pipelineNodeOutput;
     pipelineNodeOutput.type = PIPELINE_NODE_BUFFER_STORAGE_WRITE;
-    pipelineNodeOutput.buffer = outputBuffer;
-    pipelineNodeOutput.bufferSize = bufferSize;
+    pipelineNodeOutput.buffer = outputImageInfo[0].storageBuffer;
+    pipelineNodeOutput.bufferSize = outputImageInfo[0].bufferSize;
 
     std::vector<PipelineNodeBuffer> vPipelineBuffers;
     vPipelineBuffers.push_back(pipelineNodeInput);
@@ -71,8 +68,8 @@ VkResult pathBlurFilter::Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
     const auto kCalculateNode = std::make_shared<ComputePipelineNode>(gpuCtx,
         "pathblur",
         SHADER(pathblur.comp.glsl.spv),
-        (width + 31) / 32,
-        (height + 31) / 32,
+        (inputImageInfo[0].width + 31) / 32,
+        (inputImageInfo[0].height + 31) / 32,
         1);
 
 
