@@ -20,6 +20,7 @@ class FastGaussianBlurFilter final : public IFilter {
     ScaleFilterParams scaleDownParams{};
     ScaleFilterParams scaleUpParams{};
     std::shared_ptr<ComputeGraph> computeGraph = nullptr;
+    std::shared_ptr<SubComputeGraph> computeSubGraph = nullptr;
 
     std::shared_ptr<VkGPUBuffer> scaleDownBuffer = nullptr;
     std::shared_ptr<VkGPUBuffer> scaleDownBlurBuffer = nullptr;
@@ -51,6 +52,7 @@ class FastGaussianBlurFilter final : public IFilter {
                                                          VkDeviceSize outputBufferSize,
                                                          uint32_t targetWidth,
                                                          uint32_t targetHeight);
+
 public:
     FastGaussianBlurFilter() = default;
 

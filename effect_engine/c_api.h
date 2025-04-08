@@ -17,6 +17,9 @@ extern "C"  GPU_API	 bool custom_kernel_filter_gpu(void* in, void* out, int* k, 
 extern "C"  GPU_API	 bool color_balance_filter_gpu(void* in, void* out, float* adjustP, int* p, int l);
 extern "C"  GPU_API	 bool black_white_filter_gpu(void* in, void* out, float* weight, int wSize);
 extern "C"  GPU_API	 bool scale_filter_gpu(void* in, void* out, int weight, int height);
+extern "C"  GPU_API	 bool blur_edge_filter_gpu(void* in, void* out, int r, int s,int kernel_type);
+extern "C"  GPU_API	 bool distort_glass_filter_gpu(void* in, void* out, float scale, float intensity, float zoom);
+extern "C"  GPU_API	 bool scale_filter_gpu(void* in, void* out, int weight, int height);
 extern "C"  GPU_API	 bool midvalue_filter_gpu(void* in, void* out, float radius, float threshold);
 extern "C"  GPU_API  bool pathblur_filter_gpu(void* in, void* out, float* vec, int amount,int width,int height);
 extern "C"  GPU_API  bool crystallize_filter_gpu(void* in, void* out, float* posx, float* posy, int n);

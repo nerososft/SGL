@@ -15,6 +15,9 @@
 #include "effect_engine/filters/impl/BlackWhiteFilter.h" 
 #include "effect_engine/filters/impl/ScaleFilter.h"
 #include "effect_engine/filters/impl/FastGaussianBlurFilter.h"
+#include "effect_engine/filters/impl/BlurEdgeFilter.h"
+#include "effect_engine/filters/impl/DistortGlassFilter.h"
+#include "effect_engine/filters/impl/MedianFilter.h"
 
 #include "effect_engine/filters/impl/MidValueFilter.h" 
 #include"effect_engine/filters/impl/PathBlurFilter.h" 
@@ -66,23 +69,85 @@ bool surface_blur_filter_gpu(void *in, void *out, const int r, const int th) {
     return true;
 }
 
-bool adjust_saturation_gpu(void *in, void *out, const int v, const int s) {
-    const auto filter = std::make_shared<VibranceFilter>();
+bool distort_glass_filter_gpu(void* in, void* out, float scale, float intensity, float zoom) {
 
-    filter->SetVibrance(v);
-    filter->SetSaturation(s);
+    const auto filter = std::make_shared<DistortGlassFilter>();
 
-    const auto *input = static_cast<ImageInfo *>(in);
-    const auto *output = static_cast<ImageInfo *>(out);
-    Logger() << "c_api adjust_saturation_gpu begin " << std::endl;
+    scale = scale / 50;
+    intensity = 45 - intensity * 3;
+
+    filter->SetScale(scale);
+    filter->SetIntensity(intensity);
+    filter->SetZoom(1);
+
+
+    const ImageInfo* input = static_cast<ImageInfo*>(in);
+    const ImageInfo* output = static_cast<ImageInfo*>(out);
+
     g_effect_engine.Process(*input, *output, filter);
-    Logger() << "c_api adjust_saturation_gpu end  " << std::endl;
+
+    return true;
+
+}
+
+bool adjust_saturation_gpu(void *in, void *out, const int v, const int s) {
 
 
-    Logger() << "c_api filter destory begin  " << std::endl;
 
-    filter->Destroy();
-    Logger() << "c_api filter destory end  " << std::endl;
+    if (1) {
+        const auto filter = std::make_shared<VibranceFilter>();
+
+        filter->SetVibrance(v);
+        filter->SetSaturation(s);
+
+        const auto* input = static_cast<ImageInfo*>(in);
+        const auto* output = static_cast<ImageInfo*>(out);
+        Logger() << "c_api adjust_saturation_gpu begin " << std::endl;
+        g_effect_engine.Process(*input, *output, filter);
+        Logger() << "c_api adjust_saturation_gpu end  " << std::endl;
+
+
+        Logger() << "c_api filter destory begin  " << std::endl;
+
+        filter->Destroy();
+        Logger() << "c_api filter destory end  " << std::endl;
+
+
+    }
+
+    if (0) {
+        const auto filter = std::make_shared<DistortGlassFilter>();
+
+
+        float scale = v + 2;
+        float intensity = s + 2;
+
+        scale = scale / 50;
+        intensity = 45 - intensity * 3;
+
+        filter->SetScale(scale);
+        filter->SetIntensity(intensity);
+        filter->SetZoom(1);
+
+
+        const ImageInfo* input = static_cast<ImageInfo*>(in);
+        const ImageInfo* output = static_cast<ImageInfo*>(out);
+
+        g_effect_engine.Process(*input, *output, filter);
+    }
+
+    if (0) {
+    
+        const auto filter = std::make_shared<MedianFilter>();
+
+        const ImageInfo* input = static_cast<ImageInfo*>(in);
+        const ImageInfo* output = static_cast<ImageInfo*>(out);
+        filter->SetRadius(v);
+        g_effect_engine.Process(*input, *output, filter);
+    
+    }
+
+
 
     return true;
 }
@@ -162,6 +227,24 @@ bool hue_equal_filter_gpu(void* in, void* out) {
     return true;
 }
 
+
+bool blur_edge_filter_gpu(void* in, void* out, int r, int s, int kernel_type) {
+
+    const auto filter = std::make_shared<BlurEdgeFilter>();
+
+    filter->SetRadius(r);
+    filter->SetSigma(s);
+    filter->SetKernel(kernel_type);
+
+    const auto* input = static_cast<ImageInfo*>(in);
+    const auto* output = static_cast<ImageInfo*>(out);
+    g_effect_engine.Process(*input, *output, filter);
+
+
+    filter->Destroy();
+
+    return true;
+}
 bool custom_kernel_filter_gpu(void* in, void* out, int * k , int radius, int offset, int scale)
 {
 

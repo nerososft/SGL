@@ -19,6 +19,7 @@ struct customKernelFilterParams {
 class customKernelFilter final : public BasicFilter {
     customKernelFilterParams kFilterParams{};
     std::shared_ptr<ComputeGraph> computeGraph = nullptr;
+    std::shared_ptr<SubComputeGraph> computeSubGraph = nullptr;
     std::shared_ptr<VkGPUBuffer> kBuffer = nullptr;
     int* k = nullptr;
     int k_size = 0;

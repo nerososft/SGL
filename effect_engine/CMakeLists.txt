@@ -23,6 +23,8 @@ add_library(gpu_effect_engine SHARED
         filters/impl/PaletteKnifeFilter.h
         filters/impl/PaletteKnifeFilter.cpp
 
+        filters/impl/DistortGlassFilter.h
+        filters/impl/DistortGlassFilter.cpp
         gpu/VkGPUHelper.cpp
         gpu/VkGPUHelper.h
         utils/IOUtils.cpp
@@ -111,6 +113,10 @@ add_library(gpu_effect_engine SHARED
         operators/BinaryOperator.h
         filters/impl/HPSBlurFilter.cpp
         filters/impl/HPSBlurFilter.h
+        filters/impl/MedianFilter.cpp
+        filters/impl/MedianFilter.h
+        gpu/compute_graph/SubComputeGraph.cpp
+        gpu/compute_graph/SubComputeGraph.h
 
         filters/impl/MidValueFilter.h
         filters/impl/MidValueFilter.cpp

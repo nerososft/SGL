@@ -17,6 +17,7 @@ struct colorBalanceFilterParams {
 class colorBalanceFilter final : public BasicFilter {
     colorBalanceFilterParams bFilterParams{};
     std::shared_ptr<ComputeGraph> computeGraph = nullptr;
+    std::shared_ptr<SubComputeGraph> computeSubGraph = nullptr;
     std::shared_ptr<VkGPUBuffer> adjustPBuffer = nullptr;
     std::shared_ptr<VkGPUBuffer> PBuffer = nullptr;
     int* P = nullptr;

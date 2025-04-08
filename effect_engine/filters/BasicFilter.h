@@ -25,6 +25,7 @@ struct BasicFilterParams {
 
 class BasicFilter : public IFilter {
     std::shared_ptr<ComputeGraph> computeGraph = nullptr;
+    std::shared_ptr<SubComputeGraph> computeSubGraph = nullptr;
 
 public:
     BasicFilter() = default;
