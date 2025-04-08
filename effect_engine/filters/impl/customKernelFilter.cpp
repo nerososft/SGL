@@ -22,15 +22,14 @@
 #include "effect_engine/log/Log.h"
 
 
-VkResult customKernelFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                           const VkDeviceSize bufferSize,
-                           const uint32_t width,
-                           const uint32_t height,
-                           const VkBuffer inputBuffer,
-                           const VkBuffer outputBuffer) {
+
+VkResult customKernelFilter::Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
+    std::vector<FilterImageInfo> inputImageInfo,
+    std::vector<FilterImageInfo> outputImageInfo) 
+ {
     BasicFilterParams params;
-    this->kFilterParams.imageSize.width = width;
-    this->kFilterParams.imageSize.height = height;
+    this->kFilterParams.imageSize.width = inputImageInfo[0].width;
+    this->kFilterParams.imageSize.height = inputImageInfo[0].height;
     this->kFilterParams.imageSize.channels = 4;
     this->kFilterParams.imageSize.bytesPerLine = this->kFilterParams.imageSize.width * 4;
     //params.paramsSize = sizeof(customKernelFilterParams);
@@ -65,18 +64,18 @@ VkResult customKernelFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
 
     PipelineNodeBuffer pipelineNodeInput;
     pipelineNodeInput.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
-    pipelineNodeInput.buffer = inputBuffer;
-    pipelineNodeInput.bufferSize = bufferSize;
+    pipelineNodeInput.buffer = inputImageInfo[0].storageBuffer;
+    pipelineNodeInput.bufferSize = inputImageInfo[0].bufferSize;
 
     PipelineNodeBuffer pipelineNodeKInput;
     pipelineNodeKInput.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
     pipelineNodeKInput.buffer = kBuffer->GetBuffer();
-    pipelineNodeKInput.bufferSize = bufferSize;
+    pipelineNodeKInput.bufferSize = k_size * sizeof(int);
 
     PipelineNodeBuffer pipelineNodeOutput;
     pipelineNodeOutput.type = PIPELINE_NODE_BUFFER_STORAGE_WRITE;
-    pipelineNodeOutput.buffer = outputBuffer;
-    pipelineNodeOutput.bufferSize = bufferSize;
+    pipelineNodeOutput.buffer = outputImageInfo[0].storageBuffer;
+    pipelineNodeOutput.bufferSize = outputImageInfo[0].bufferSize;
 
     std::vector<PipelineNodeBuffer> vPipelineBuffers;
     vPipelineBuffers.push_back(pipelineNodeInput);
@@ -84,10 +83,10 @@ VkResult customKernelFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     vPipelineBuffers.push_back(pipelineNodeOutput);
 
     const auto kCalculateNode = std::make_shared<ComputePipelineNode>(gpuCtx,
-        "KCalculate",
+        "kCalculate",
         SHADER(custom_kernel.comp.glsl.spv),
-        (width + 31) / 32,
-        (height + 31) / 32,
+        (inputImageInfo[0].width + 31) / 32,
+        (inputImageInfo[0].height + 31) / 32,
         1);
 
     kCalculateNode->AddComputeElement({

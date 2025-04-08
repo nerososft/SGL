@@ -17,14 +17,11 @@
 #include "effect_engine/gpu/compute_graph/ComputePipelineNode.h"
 #include "effect_engine/log/Log.h"
 VkResult CrystallizeFilter::Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
-    const VkDeviceSize bufferSize,
-    const uint32_t width,
-    const uint32_t height,
-    const VkBuffer inputBuffer,
-    const VkBuffer outputBuffer) {
+    std::vector<FilterImageInfo> inputImageInfo,
+    std::vector<FilterImageInfo> outputImageInfo){
     BasicFilterParams params;
-    this->crystallizeFilterParams.imageSize.width = width;
-    this->crystallizeFilterParams.imageSize.height = height;
+    this->crystallizeFilterParams.imageSize.width = inputImageInfo[0].width;
+    this->crystallizeFilterParams.imageSize.height = inputImageInfo[0].height;
     this->crystallizeFilterParams.imageSize.channels = 4;
     this->crystallizeFilterParams.imageSize.bytesPerLine = this->crystallizeFilterParams.imageSize.width * 4;
     //params.paramsSize = sizeof(customKernelFilterParams);
@@ -53,8 +50,8 @@ VkResult CrystallizeFilter::Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
 
     PipelineNodeBuffer pipelineNodeInput;
     pipelineNodeInput.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
-    pipelineNodeInput.buffer = inputBuffer;
-    pipelineNodeInput.bufferSize = bufferSize;
+    pipelineNodeInput.buffer = inputImageInfo[0].storageBuffer;
+    pipelineNodeInput.bufferSize = inputImageInfo[0].bufferSize;
 
     PipelineNodeBuffer pipelineNodeKInput;
     pipelineNodeKInput.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
@@ -68,8 +65,8 @@ VkResult CrystallizeFilter::Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
 
     PipelineNodeBuffer pipelineNodeOutput;
     pipelineNodeOutput.type = PIPELINE_NODE_BUFFER_STORAGE_WRITE;
-    pipelineNodeOutput.buffer = outputBuffer;
-    pipelineNodeOutput.bufferSize = bufferSize;
+    pipelineNodeOutput.buffer = outputImageInfo[0].storageBuffer;
+    pipelineNodeOutput.bufferSize = outputImageInfo[0].bufferSize;
 
     std::vector<PipelineNodeBuffer> vPipelineBuffers;
     vPipelineBuffers.push_back(pipelineNodeInput);
@@ -80,8 +77,8 @@ VkResult CrystallizeFilter::Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
     const auto kCalculateNode = std::make_shared<ComputePipelineNode>(gpuCtx,
         "crystallize",
         SHADER(crystallize.comp.glsl.spv),
-        (width + 31) / 32,
-        (height + 31) / 32,
+        (inputImageInfo[0].width + 31) / 32,
+        (inputImageInfo[0].height + 31) / 32,
         1);
 
     kCalculateNode->AddComputeElement({

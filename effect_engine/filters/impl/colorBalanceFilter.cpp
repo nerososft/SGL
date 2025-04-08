@@ -22,15 +22,12 @@
 #include "effect_engine/log/Log.h"
 
 
-VkResult colorBalanceFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                           const VkDeviceSize bufferSize,
-                           const uint32_t width,
-                           const uint32_t height,
-                           const VkBuffer inputBuffer,
-                           const VkBuffer outputBuffer) {
+VkResult colorBalanceFilter::Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
+    std::vector<FilterImageInfo> inputImageInfo,
+    std::vector<FilterImageInfo> outputImageInfo){
     BasicFilterParams params;
-    this->bFilterParams.imageSize.width = width;
-    this->bFilterParams.imageSize.height = height;
+    this->bFilterParams.imageSize.width = inputImageInfo[0].width;
+    this->bFilterParams.imageSize.height = inputImageInfo[0].height;
     this->bFilterParams.imageSize.channels = 4;
     this->bFilterParams.imageSize.bytesPerLine = this->bFilterParams.imageSize.width * 4;
 
@@ -62,8 +59,8 @@ VkResult colorBalanceFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
 
     PipelineNodeBuffer pipelineNodeInput;
     pipelineNodeInput.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
-    pipelineNodeInput.buffer = inputBuffer;
-    pipelineNodeInput.bufferSize = bufferSize;
+    pipelineNodeInput.buffer = inputImageInfo[0].storageBuffer;
+    pipelineNodeInput.bufferSize = inputImageInfo[0].bufferSize;
 
     PipelineNodeBuffer pipelineNodeAdjustPInput;
     pipelineNodeAdjustPInput.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
@@ -77,8 +74,8 @@ VkResult colorBalanceFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
 
     PipelineNodeBuffer pipelineNodeOutput;
     pipelineNodeOutput.type = PIPELINE_NODE_BUFFER_STORAGE_WRITE;
-    pipelineNodeOutput.buffer = outputBuffer;
-    pipelineNodeOutput.bufferSize = bufferSize;
+    pipelineNodeOutput.buffer = outputImageInfo[0].storageBuffer;
+    pipelineNodeOutput.bufferSize = outputImageInfo[0].bufferSize;
 
     std::vector<PipelineNodeBuffer> vPipelineBuffers;
     vPipelineBuffers.push_back(pipelineNodeInput);
@@ -89,8 +86,8 @@ VkResult colorBalanceFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     const auto kCalculateNode = std::make_shared<ComputePipelineNode>(gpuCtx,
         "colorBalance",
         SHADER(color_balance.comp.glsl.spv),
-        (width + 31) / 32,
-        (height + 31) / 32,
+        (inputImageInfo[0].width + 31) / 32,
+        (inputImageInfo[0].height + 31) / 32,
         1);
 
 
