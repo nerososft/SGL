@@ -33,6 +33,8 @@ VkResult PaletteKnifeFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
         return ret;
     }
 
+    Logger() << "PaletteKnifeFilter  radius " << this->paletteKnifeFilterParams.radius   << std::endl;
+
     PushConstantInfo pushConstantInfo;
     pushConstantInfo.size = sizeof(PaletteKnifeFilterParams);
     pushConstantInfo.data = &this->paletteKnifeFilterParams;

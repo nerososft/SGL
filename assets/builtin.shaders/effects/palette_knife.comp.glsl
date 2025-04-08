@@ -70,6 +70,9 @@ void main() {
 
             uint neighborIndex = row * (filterParams.bytesPerLine / 4) + col;
             uint qVal = Q.pixels[neighborIndex];
+			if(qVal >= histSize){
+			   qVal =  histSize - 1;
+			}
             hist[qVal]++;
             if (hist[qVal] >= currentMax) {
                 currentColor = unpackColor(inputImage.pixels[neighborIndex]);

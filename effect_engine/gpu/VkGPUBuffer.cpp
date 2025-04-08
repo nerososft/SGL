@@ -12,6 +12,8 @@
 
 #include "VkGPUHelper.h"
 #include "effect_engine/log/Log.h"
+#include <thread>
+#include <algorithm>
 
 VkResult VkGPUBuffer::AllocateAndBind(const VkGPUBufferType type, const VkDeviceSize size) {
     std::vector<uint32_t> queueFamilyIndices;
@@ -103,13 +105,39 @@ VkResult VkGPUBuffer::UploadData(const void *uploadData, const VkDeviceSize size
     return VK_SUCCESS;
 }
 
+
+
+
+void parallel_copy(void* dst, const void* src, size_t size, int num_threads) {
+    size_t block_size = size / num_threads;
+    std::vector<std::thread> threads;
+    for (int i = 0; i < num_threads; i++) {
+        size_t offset = i * block_size;
+        size_t remain = (i == num_threads - 1) ? size - offset : block_size;
+        threads.emplace_back([=] {
+            memcpy((char*)dst + offset, (const char*)src + offset, remain);
+            });
+    }
+    for (auto& t : threads) t.join();
+}
+
+
+
 VkResult VkGPUBuffer::DownloadData(void *downloadAddr, const VkDeviceSize size) {
     const VkResult result = MapBuffer(size);
+
+    int buffer_size = 9000000;
     if (result != VK_SUCCESS) {
         Logger() << "Failed to map buffer, err =" << string_VkResult(result) << std::endl;
         return result;
     }
-    memcpy(downloadAddr, data, size);
+    if (size < buffer_size) {
+        memcpy(downloadAddr, data, size);
+    }
+    else {
+        parallel_copy(downloadAddr, data, size, 8);
+    }
+
     UnMapBuffer();
     return VK_SUCCESS;
 }

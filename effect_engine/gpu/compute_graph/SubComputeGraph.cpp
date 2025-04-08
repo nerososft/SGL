@@ -102,8 +102,14 @@ VkResult SubComputeGraph::Compute() const {
 }
 
 void SubComputeGraph::Destroy() const {
-    vkDestroyFence(gpuCtx->GetCurrentDevice(), computeFence, nullptr);
-    vkDestroySemaphore(gpuCtx->GetCurrentDevice(), computeDoneSemaphore, nullptr);
+
+    if (computeFence != VK_NULL_HANDLE) {
+        vkDestroyFence(gpuCtx->GetCurrentDevice(), computeFence, nullptr);
+    }
+
+    if (computeDoneSemaphore != VK_NULL_HANDLE) {
+        vkDestroySemaphore(gpuCtx->GetCurrentDevice(), computeDoneSemaphore, nullptr);
+    }
     std::vector<VkCommandBuffer> freeCommandBuffers;
     freeCommandBuffers.push_back(commandBuffer);
     vkFreeCommandBuffers(gpuCtx->GetCurrentDevice(),

@@ -71,7 +71,5 @@ void VkGPUDescriptorSet::Destroy() const {
     if (descriptorPool == VK_NULL_HANDLE) {
         return;
     }
-    if (descriptorSet != VK_NULL_HANDLE) {
-        vkFreeDescriptorSets(device, descriptorPool, this->descriptorSets.size(), descriptorSets.data());
-    }
+
 }

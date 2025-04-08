@@ -2,8 +2,9 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     message(STATUS "Running on Linux")
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     message(STATUS "Running on Windows")
-    include_directories("D:/vcpkg_install/vcpkg/installed/x64-windows/include/libpng16")
-    link_directories("$D:/vcpkg_install/vcpkg/installed/x64-windows/lib")
+    include_directories("../../")
+    #include_directories("D:/vcpkg_install/vcpkg/installed/x64-windows/include/libpng16")
+    #link_directories("$D:/vcpkg_install/vcpkg/installed/x64-windows/lib")
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     message(STATUS "Running on macOS")
     link_directories("/opt/homebrew/Cellar/libpng/1.6.47/lib")
@@ -21,6 +22,11 @@ add_library(gpu_effect_engine SHARED
         filters/impl/GrayFilter.h
         filters/impl/PaletteKnifeFilter.h
         filters/impl/PaletteKnifeFilter.cpp
+        filters/impl/BlurEdgeFilter.h
+        filters/impl/BlurEdgeFilter.cpp
+
+        filters/impl/DistortGlassFilter.h
+        filters/impl/DistortGlassFilter.cpp
         gpu/VkGPUHelper.cpp
         gpu/VkGPUHelper.h
         utils/IOUtils.cpp
@@ -45,6 +51,8 @@ add_library(gpu_effect_engine SHARED
         filters/impl/GaussianBlurFilter.h
         filters/impl/OldGaussianBlurFilter.cpp
         filters/impl/OldGaussianBlurFilter.h
+        filters/impl/OldGaussianBlurFloatFilter.cpp
+        filters/impl/OldGaussianBlurFloatFilter.h
         gpu/compute_graph/BufferCopyNode.h
         gpu/compute_graph/BufferCopyNode.cpp
         filters/impl/ChinesePaintFilter.h
@@ -63,6 +71,14 @@ add_library(gpu_effect_engine SHARED
         filters/impl/SurfaceBlurFilter.h
         filters/impl/ThresholdSplitFilter.h
         filters/impl/ThresholdSplitFilter.cpp
+        filters/impl/HueEqualFilter.h
+        filters/impl/HueEqualFilter.cpp
+        filters/impl/customKernelFilter.h
+        filters/impl/customKernelFilter.cpp
+        filters/impl/colorBalanceFilter.h
+        filters/impl/colorBalanceFilter.cpp
+        filters/impl/BlackWhiteFilter.h
+        filters/impl/BlackWhiteFilter.cpp
         blenders/IBlender.h
         blenders/BaseBlender.cpp
         blenders/BaseBlender.h
@@ -105,9 +121,21 @@ add_library(gpu_effect_engine SHARED
         filters/impl/MedianFilter.h
         gpu/compute_graph/SubComputeGraph.cpp
         gpu/compute_graph/SubComputeGraph.h
+
+        filters/impl/MidValueFilter.h
+        filters/impl/MidValueFilter.cpp
+        filters/impl/PathBlurFilter.h
+        filters/impl/PathBlurFilter.cpp
+
+        filters/impl/CrystallizeFilter.h
+        filters/impl/CrystallizeFilter.cpp
+
+        filters/impl/RotationBlurFilter.h
+        filters/impl/RotationBlurFilter.cpp
 )
 target_link_libraries(gpu_effect_engine vulkan)
 if (CMAKE_SYSTEM_NAME MATCHES "OHOS")
+elseif (CMAKE_SYSTEM_NAME MATCHES "Windows")
 else ()
     target_link_libraries(gpu_effect_engine png)
 endif ()

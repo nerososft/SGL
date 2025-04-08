@@ -7,7 +7,7 @@
 #include <vector>
 #include <string>
 #include <vulkan/vulkan_core.h>
-
+#include <memory>
 typedef struct {
     VkDeviceSize size;
     void *data;
