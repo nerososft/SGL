@@ -77,17 +77,21 @@ VkResult MedianFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                              const uint32_t height,
                              const VkBuffer inputBuffer,
                              const VkBuffer outputBuffer) {
+    uint32_t parallelSize = 1;
     const std::vector<DeviceQueue> parallelQueues = gpuCtx->GetAllParallelQueue();
-    Logger() << "Parallel size:" << parallelQueues.size() << std::endl;
-    this->medianFilterParams.resize(parallelQueues.size());
+    if (parallelQueues.size() >= 4) {
+        parallelSize = 4;
+    }
+    Logger() << "Parallel size:" << parallelSize << ", all queue: " << parallelQueues.size() << std::endl;
+    this->medianFilterParams.resize(parallelSize);
     this->computeGraph = std::make_shared<ComputeGraph>(gpuCtx);
-    for (size_t parallelIndex = 0; parallelIndex < parallelQueues.size(); parallelIndex++) {
+    for (size_t parallelIndex = 0; parallelIndex < parallelSize; parallelIndex++) {
         this->medianFilterParams[parallelIndex].imageSize.width = width;
         this->medianFilterParams[parallelIndex].imageSize.height = height;
         this->medianFilterParams[parallelIndex].imageSize.channels = 4;
         this->medianFilterParams[parallelIndex].imageSize.bytesPerLine =
                 this->medianFilterParams[parallelIndex].imageSize.width * 4;
-        this->medianFilterParams[parallelIndex].pieceCount = parallelQueues.size();
+        this->medianFilterParams[parallelIndex].pieceCount = parallelSize;
         this->medianFilterParams[parallelIndex].piece = parallelIndex;
         this->medianFilterParams[parallelIndex].radius = radius;
 
