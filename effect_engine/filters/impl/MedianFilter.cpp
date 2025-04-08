@@ -78,13 +78,16 @@ VkResult MedianFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                              const VkBuffer inputBuffer,
                              const VkBuffer outputBuffer) {
     uint32_t parallelSize;
-    const std::vector<DeviceQueue> parallelQueues = gpuCtx->GetAllParallelQueue();
-    if (parallelQueues.size() >= 4) {
-        parallelSize = 4;
+    std::vector<DeviceQueue> parallelQueues = gpuCtx->GetAllParallelQueue(
+        VK_QUEUE_COMPUTE_BIT | VK_QUEUE_TRANSFER_BIT | VK_QUEUE_GRAPHICS_BIT);
+    if (parallelQueues.empty()) {
+        Logger() << "No parallel queues found!\n";
+        parallelQueues.push_back(
+            gpuCtx->DispatchQueue(VK_QUEUE_COMPUTE_BIT | VK_QUEUE_TRANSFER_BIT | VK_QUEUE_GRAPHICS_BIT));
     } else {
         parallelSize = parallelQueues.size();
+        Logger() << "Parallel size:" << parallelSize << ", all queue: " << parallelQueues.size() << std::endl;
     }
-    Logger() << "Parallel size:" << parallelSize << ", all queue: " << parallelQueues.size() << std::endl;
     this->medianFilterParams.resize(parallelSize);
     this->computeGraph = std::make_shared<ComputeGraph>(gpuCtx);
     for (size_t parallelIndex = 0; parallelIndex < parallelSize; parallelIndex++) {
