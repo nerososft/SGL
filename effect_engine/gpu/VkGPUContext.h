@@ -71,7 +71,7 @@ public:
     VkResult CreateDevice(const std::vector<const char *> &deviceEnableLayers,
                           std::vector<const char *> deviceEnableExtensions);
 
-    std::vector<DeviceQueue> FindQueuesByQueueFlag(VkQueueFlags flag);
+    std::vector<DeviceQueue> FindQueuesByQueueFlag(VkQueueFlags flag) const;
 
     DeviceQueue DispatchQueue(VkQueueFlags flag);
 
@@ -104,7 +104,8 @@ public:
     [[nodiscard]] std::vector<DeviceQueue> GetAllParallelQueue(const VkQueueFlags flag) const {
         std::vector<DeviceQueue> parallelQueues;
         for (const auto &queueFamily: queueFamilies) {
-            if ((queueFamily.queueFamilyProp.queueFlags & flag) && (queueFamily.queueFamilyProp.queueCount > 1)) {
+            if (((queueFamily.queueFamilyProp.queueFlags & flag) == flag) &&
+                (queueFamily.queueFamilyProp.queueCount > 1)) {
                 for (const auto &queue: queueFamily.queues) {
                     parallelQueues.push_back(queue);
                 }
