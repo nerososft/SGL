@@ -13,7 +13,7 @@
 #define SHADER_PATH "../../pseffect/shader_compiled/"
 #endif
 
-#define LOG_TO_FILE 1
+#define LOG_TO_FILE 0
 #define LOG_FILE_PATH "d://temp//output.txt"
 
 #define SHADER(path) (SHADER_PATH # path)
