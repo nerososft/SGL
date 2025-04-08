@@ -77,10 +77,12 @@ VkResult MedianFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                              const uint32_t height,
                              const VkBuffer inputBuffer,
                              const VkBuffer outputBuffer) {
-    uint32_t parallelSize = 1;
+    uint32_t parallelSize;
     const std::vector<DeviceQueue> parallelQueues = gpuCtx->GetAllParallelQueue();
     if (parallelQueues.size() >= 4) {
         parallelSize = 4;
+    } else {
+        parallelSize = parallelQueues.size();
     }
     Logger() << "Parallel size:" << parallelSize << ", all queue: " << parallelQueues.size() << std::endl;
     this->medianFilterParams.resize(parallelSize);
