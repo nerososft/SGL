@@ -96,10 +96,10 @@ VkResult VkGPUContext::CreateDevice(const std::vector<const char *> &deviceEnabl
     return vkCreateDevice(this->physicalDevice, &deviceCreateInfo, VK_NULL_HANDLE, &this->device);
 }
 
-std::vector<DeviceQueue> VkGPUContext::FindQueuesByQueueFlag(const VkQueueFlags flag) {
+std::vector<DeviceQueue> VkGPUContext::FindQueuesByQueueFlag(const VkQueueFlags flag) const {
     std::vector<DeviceQueue> suitableQueues;
     for (size_t queueFamilyIndex = 0; queueFamilyIndex < this->queueFamilies.size(); queueFamilyIndex++) {
-        if (this->queueFamilies[queueFamilyIndex].queueFamilyProp.queueFlags & flag) {
+        if ((this->queueFamilies[queueFamilyIndex].queueFamilyProp.queueFlags & flag) == flag) {
             for (size_t queueIndex = 0; queueIndex < this->queueFamilies[queueFamilyIndex].queues.size(); queueIndex
                  ++) {
                 suitableQueues.push_back(queueFamilies[queueFamilyIndex].queues[queueIndex]);
