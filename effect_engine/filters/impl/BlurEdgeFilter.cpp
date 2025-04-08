@@ -17,18 +17,16 @@
 #include "effect_engine/gpu/compute_graph/ComputePipelineNode.h"
 #include "effect_engine/log/Log.h"
 
-VkResult BlurEdgeFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                                   const VkDeviceSize bufferSize,
-                                   const uint32_t width,
-                                   const uint32_t height,
-                                   const VkBuffer inputBuffer,
-                                   const VkBuffer outputBuffer) {
+
+VkResult BlurEdgeFilter::Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
+    std::vector<FilterImageInfo> inputImageInfo,
+    std::vector<FilterImageInfo> outputImageInfo) {
 
 
 
     BasicFilterParams params;
-    this->blurEdgeFilterParams.imageSize.width = width;
-    this->blurEdgeFilterParams.imageSize.height = height;
+    this->blurEdgeFilterParams.imageSize.width = inputImageInfo[0].width;
+    this->blurEdgeFilterParams.imageSize.height = inputImageInfo[0].height;
     this->blurEdgeFilterParams.imageSize.channels = 4;
     this->blurEdgeFilterParams.imageSize.bytesPerLine = this->blurEdgeFilterParams.imageSize.width * 4;
     params.paramsSize = sizeof(BlurEdgeFilterParams);
@@ -38,14 +36,14 @@ VkResult BlurEdgeFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     this->computeGraph = std::make_shared<ComputeGraph>(gpuCtx);
 
 
-    return DoApply(gpuCtx,
+    return BasicFilter::Apply(gpuCtx,
         "BlurEdge",
-        bufferSize,
-        inputBuffer,
-        outputBuffer,
+        inputImageInfo[0].bufferSize,
+        inputImageInfo[0].storageBuffer,
+        outputImageInfo[0].storageBuffer,
         params,
-        (width + 31) / 32,
-        (height + 31) / 32,
+        (outputImageInfo[0].width + 31) / 32,
+        (outputImageInfo[0].height + 31) / 32,
         1);
 
 }

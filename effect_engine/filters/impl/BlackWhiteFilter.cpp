@@ -22,15 +22,13 @@
 #include "effect_engine/log/Log.h"
 
 
-VkResult BlackWhiteFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                           const VkDeviceSize bufferSize,
-                           const uint32_t width,
-                           const uint32_t height,
-                           const VkBuffer inputBuffer,
-                           const VkBuffer outputBuffer) {
+VkResult BlackWhiteFilter::Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
+    std::vector<FilterImageInfo> inputImageInfo,
+    std::vector<FilterImageInfo> outputImageInfo) {
+
     BasicFilterParams params;
-    this->wFilterParams.imageSize.width = width;
-    this->wFilterParams.imageSize.height = height;
+    this->wFilterParams.imageSize.width = inputImageInfo[0].width;
+    this->wFilterParams.imageSize.height = inputImageInfo[0].height;
     this->wFilterParams.imageSize.channels = 4;
     this->wFilterParams.imageSize.bytesPerLine = this->wFilterParams.imageSize.width * 4;
 
@@ -56,8 +54,8 @@ VkResult BlackWhiteFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
 
     PipelineNodeBuffer pipelineNodeInput;
     pipelineNodeInput.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
-    pipelineNodeInput.buffer = inputBuffer;
-    pipelineNodeInput.bufferSize = bufferSize;
+    pipelineNodeInput.buffer = inputImageInfo[0].storageBuffer;
+    pipelineNodeInput.bufferSize = inputImageInfo[0].bufferSize;
 
     PipelineNodeBuffer pipelineNodeWInput;
     pipelineNodeWInput.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
@@ -67,8 +65,8 @@ VkResult BlackWhiteFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
 
     PipelineNodeBuffer pipelineNodeOutput;
     pipelineNodeOutput.type = PIPELINE_NODE_BUFFER_STORAGE_WRITE;
-    pipelineNodeOutput.buffer = outputBuffer;
-    pipelineNodeOutput.bufferSize = bufferSize;
+    pipelineNodeOutput.buffer = outputImageInfo[0].storageBuffer;
+    pipelineNodeOutput.bufferSize = outputImageInfo[0].bufferSize;
 
     std::vector<PipelineNodeBuffer> vPipelineBuffers;
     vPipelineBuffers.push_back(pipelineNodeInput);
@@ -78,8 +76,8 @@ VkResult BlackWhiteFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     const auto kCalculateNode = std::make_shared<ComputePipelineNode>(gpuCtx,
         "BlackWhite",
         SHADER(black_white.comp.glsl.spv),
-        (width + 31) / 32,
-        (height + 31) / 32,
+        (inputImageInfo[0].width + 31) / 32,
+        (inputImageInfo[0].height + 31) / 32,
         1);
 
     kCalculateNode->AddComputeElement({

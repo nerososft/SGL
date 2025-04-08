@@ -17,18 +17,16 @@
 #include "effect_engine/gpu/compute_graph/ComputePipelineNode.h"
 #include "effect_engine/log/Log.h"
 
-VkResult DistortGlassFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                                   const VkDeviceSize bufferSize,
-                                   const uint32_t width,
-                                   const uint32_t height,
-                                   const VkBuffer inputBuffer,
-                                   const VkBuffer outputBuffer) {
+
+VkResult DistortGlassFilter::Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
+    std::vector<FilterImageInfo> inputImageInfo,
+    std::vector<FilterImageInfo> outputImageInfo){
 
 
 
     BasicFilterParams params;
-    this->glassFilterParams.imageSize.width = width;
-    this->glassFilterParams.imageSize.height = height;
+    this->glassFilterParams.imageSize.width = inputImageInfo[0].width;
+    this->glassFilterParams.imageSize.height = inputImageInfo[0].height;
     this->glassFilterParams.imageSize.channels = 4;
     this->glassFilterParams.imageSize.bytesPerLine = this->glassFilterParams.imageSize.width * 4;
     params.paramsSize = sizeof(DistortGlassFilterParams);
@@ -36,16 +34,14 @@ VkResult DistortGlassFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     params.shaderPath = SHADER(distort_glass.comp.glsl.spv);
 
 
-
-
-    return DoApply(gpuCtx,
+    return BasicFilter::Apply(gpuCtx,
         "DistortGlass",
-        bufferSize,
-        inputBuffer,
-        outputBuffer,
+        inputImageInfo[0].bufferSize,
+        inputImageInfo[0].storageBuffer,
+        outputImageInfo[0].storageBuffer,
         params,
-        (width + 31) / 32,
-        (height + 31) / 32,
+        (outputImageInfo[0].width + 31) / 32,
+        (outputImageInfo[0].height + 31) / 32,
         1);
 
 }
