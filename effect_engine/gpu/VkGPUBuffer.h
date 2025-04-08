@@ -6,6 +6,7 @@
 #define VKGPUBUFFER_H
 #include "VkGPUContext.h"
 #include <memory>
+
 typedef enum {
     GPU_BUFFER_TYPE_UNIFORM,
     GPU_BUFFER_TYPE_STORAGE_LOCAL,
@@ -18,6 +19,7 @@ class VkGPUBuffer {
     VkBuffer buffer = VK_NULL_HANDLE;
     VkDeviceMemory bufferMemory = VK_NULL_HANDLE;
     void *data = nullptr;
+    VkDeviceSize bufferSize = 0;
 
 public:
     explicit VkGPUBuffer(const std::shared_ptr<VkGPUContext> &gpuCtx);
@@ -28,6 +30,8 @@ public:
 
     VkResult MapBuffer(VkDeviceSize size);
 
+    VkResult MapBuffer();
+
     void UnMapBuffer() const;
 
     VkResult UploadData(const void *uploadData, VkDeviceSize size);
@@ -36,9 +40,9 @@ public:
 
     void Destroy() const;
 
-    VkBuffer GetBuffer() const { return buffer; }
+    [[nodiscard]] VkBuffer GetBuffer() const { return buffer; }
 
-    void *GetMappedAddr() const { return data; }
+    [[nodiscard]] void *GetMappedAddr() const { return data; }
 };
 
 #endif //VKGPUBUFFER_H

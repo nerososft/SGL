@@ -30,6 +30,12 @@ public:
                    VkBuffer inputBuffer,
                    VkBuffer outputBuffer) override;
 
+    VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
+    std::vector<FilterImageInfo> inputImageInfo,
+    std::vector<FilterImageInfo> outputImageInfo) override {
+        return VK_SUCCESS;
+    }
+
     void SetCenter(const uint32_t xPos, const uint32_t yPos) {
         this->radialBlurFilterParams.centerX = xPos;
         this->radialBlurFilterParams.centerY = yPos;

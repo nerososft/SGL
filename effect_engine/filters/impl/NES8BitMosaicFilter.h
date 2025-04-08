@@ -27,6 +27,12 @@ public:
                    VkBuffer inputBuffer,
                    VkBuffer outputBuffer) override;
 
+    VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                   std::vector<FilterImageInfo> inputImageInfo,
+                   std::vector<FilterImageInfo> outputImageInfo) override {
+        return VK_SUCCESS;
+    }
+
     void SetBlockSize(const uint32_t blockSize) { nes8BitMosaicFilterParams.blockSize = blockSize; }
 
     void Destroy() override;

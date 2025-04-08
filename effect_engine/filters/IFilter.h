@@ -9,6 +9,18 @@
 #include "effect_engine/gpu/VkGPUContext.h"
 
 #include <memory>
+
+typedef struct {
+    uint32_t width;
+    uint32_t height;
+    uint32_t channels;
+    uint32_t posX;
+    uint32_t posY;
+    VkDeviceSize bufferSize;
+    VkBuffer storageBuffer;
+} FilterImageInfo;
+
+
 class IFilter {
 public:
     IFilter() = default;
@@ -21,6 +33,10 @@ public:
                            uint32_t height,
                            VkBuffer inputBuffer,
                            VkBuffer outputBuffer) = 0;
+
+    virtual VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                           std::vector<FilterImageInfo> inputImageInfo,
+                           std::vector<FilterImageInfo> outputImageInfo) = 0;
 
     virtual void Destroy() = 0;
 };

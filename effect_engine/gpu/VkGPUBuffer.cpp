@@ -52,6 +52,7 @@ VkResult VkGPUBuffer::AllocateAndBind(const VkGPUBufferType type, const VkDevice
                 << std::endl;
         return result;
     }
+    this->bufferSize = size;
     return result;
 }
 
@@ -68,6 +69,10 @@ VkResult VkGPUBuffer::MapBuffer(const VkDeviceSize size) {
         return result;
     }
     return result;
+}
+
+VkResult VkGPUBuffer::MapBuffer() {
+    return this->MapBuffer(this->bufferSize);
 }
 
 void VkGPUBuffer::UnMapBuffer() const {

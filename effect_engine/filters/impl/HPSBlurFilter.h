@@ -28,6 +28,12 @@ public:
                    VkBuffer inputBuffer,
                    VkBuffer outputBuffer) override;
 
+    VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                   std::vector<FilterImageInfo> inputImageInfo,
+                   std::vector<FilterImageInfo> outputImageInfo) override {
+        return VK_SUCCESS;
+    }
+
     void SetRadius(const int radius) { this->blurFilterParams.radius = radius; }
 
     void Destroy() override;
