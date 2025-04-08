@@ -26,11 +26,8 @@ public:
     ~RotationBlurFilter() override = default;
 
     VkResult Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
-        VkDeviceSize bufferSize,
-        uint32_t width,
-        uint32_t height,
-        VkBuffer inputBuffer,
-        VkBuffer outputBuffer) override;
+        std::vector<FilterImageInfo> inputImageInfo,
+        std::vector<FilterImageInfo> outputImageInfo) override;
 
     void SetCenterX(const float _x) { this->rotationblurFilterParams.x = _x; }
     void SetCenterY(const float _y) { this->rotationblurFilterParams.y = _y; }

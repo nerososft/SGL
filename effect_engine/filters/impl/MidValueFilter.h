@@ -20,11 +20,8 @@ public:
     ~MidValueFilter() override = default;
 
     VkResult Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
-        VkDeviceSize bufferSize,
-        uint32_t width,
-        uint32_t height,
-        VkBuffer inputBuffer,
-        VkBuffer outputBuffer) override;
+        std::vector<FilterImageInfo> inputImageInfo,
+        std::vector<FilterImageInfo> outputImageInfo) override;
 
     void SetRadius(const float radius) { this->midvalueFilterParams.radius = radius; }
     void SetThreshold(const float threshold) { this->midvalueFilterParams.threshold = threshold; }

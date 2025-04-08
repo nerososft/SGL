@@ -3,27 +3,26 @@
 #include "effect_engine/config.h"
 
 VkResult MidValueFilter::Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
-    const VkDeviceSize bufferSize,
-    const uint32_t width,
-    const uint32_t height,
-    const VkBuffer inputBuffer,
-    const VkBuffer outputBuffer) {
+    std::vector<FilterImageInfo> inputImageInfo,
+    std::vector<FilterImageInfo> outputImageInfo) {
     BasicFilterParams params;
-    this->midvalueFilterParams.imageSize.width = width;
-    this->midvalueFilterParams.imageSize.height = height;
+    this->midvalueFilterParams.imageSize.width = inputImageInfo[0].width;;
+    this->midvalueFilterParams.imageSize.height = inputImageInfo[0].height;;
     this->midvalueFilterParams.imageSize.channels = 4;
     this->midvalueFilterParams.imageSize.bytesPerLine = this->midvalueFilterParams.imageSize.width * 4;
     params.paramsSize = sizeof(MidValueFilterParams);
     params.paramsData = &this->midvalueFilterParams;
     params.shaderPath = SHADER(midvalue.comp.glsl.spv);
-    return DoApply(gpuCtx,
+
+
+    return BasicFilter::Apply(gpuCtx,
         "MidValue",
-        bufferSize,
-        inputBuffer,
-        outputBuffer,
+        inputImageInfo[0].bufferSize,
+        inputImageInfo[0].storageBuffer,
+        outputImageInfo[0].storageBuffer,
         params,
-        (width + 31) / 32,
-        (height + 31) / 32,
+        (outputImageInfo[0].width + 31) / 32,
+        (outputImageInfo[0].height + 31) / 32,
         1);
 }
 
