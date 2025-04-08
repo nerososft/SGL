@@ -9,41 +9,41 @@
 #include "effect_engine/filters/BasicFilter.h"
 #include "effect_engine/gpu/VkGPUContext.h"
 #include <effect_engine/gpu/VkGPUBuffer.h>
+
 struct customKernelFilterParams {
     BasicFilterParam imageSize;
-    int  radius;
-    int  scale;
+    int radius;
+    int scale;
     int offset;
 };
 
-class customKernelFilter final : public BasicFilter {
+class CustomKernelFilter final : public IFilter {
     customKernelFilterParams kFilterParams{};
     std::shared_ptr<ComputeGraph> computeGraph = nullptr;
     std::shared_ptr<SubComputeGraph> computeSubGraph = nullptr;
     std::shared_ptr<VkGPUBuffer> kBuffer = nullptr;
-    int* k = nullptr;
+    int *k = nullptr;
     int k_size = 0;
 
 public:
-    customKernelFilter() = default;
+    CustomKernelFilter() = default;
 
-    ~customKernelFilter() override = default;
+    ~CustomKernelFilter() override = default;
 
-    VkResult Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
-        std::vector<FilterImageInfo> inputImageInfo,
-        std::vector<FilterImageInfo> outputImageInfo) override;
+    VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                   std::vector<FilterImageInfo> inputImageInfo,
+                   std::vector<FilterImageInfo> outputImageInfo) override;
 
-    void SetK(int *_k , int size) {
-        k = _k;
-        k_size = size;
+    void SetK(int *k, const int size) {
+        this->k = k;
+        this->k_size = size;
     }
+
     void SetRadius(const int radius) { this->kFilterParams.radius = radius; }
     void SetScale(const int scale) { this->kFilterParams.scale = scale; }
     void SetOffset(const int offset) { this->kFilterParams.offset = offset; }
-   // void SetK(const int * k) { this->kFilterParams.k = k; }
 
     void Destroy() override;
 };
-
 
 #endif //GRAYFILTER_H

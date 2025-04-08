@@ -32,5 +32,4 @@ public:
     void SetBlueOffsetX(const float offsetX) { this->colorSeparationFilterParams.blueOffsetX = offsetX; }
 };
 
-
 #endif //COLORSEPARATIONFILTER_H

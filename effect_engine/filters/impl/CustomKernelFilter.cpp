@@ -2,10 +2,9 @@
 // Created by 1234 on 2025/3/6.
 //
 
-#include "customKernelFilter.h"
+#include "CustomKernelFilter.h"
 
 #include "effect_engine/config.h"
-
 
 
 #include <iostream>
@@ -21,20 +20,14 @@
 #include "effect_engine/gpu/compute_graph/ComputePipelineNode.h"
 #include "effect_engine/log/Log.h"
 
-
-
-VkResult customKernelFilter::Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
-    std::vector<FilterImageInfo> inputImageInfo,
-    std::vector<FilterImageInfo> outputImageInfo) 
- {
+VkResult CustomKernelFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                                   const std::vector<FilterImageInfo> inputImageInfo,
+                                   const std::vector<FilterImageInfo> outputImageInfo) {
     BasicFilterParams params;
     this->kFilterParams.imageSize.width = inputImageInfo[0].width;
     this->kFilterParams.imageSize.height = inputImageInfo[0].height;
     this->kFilterParams.imageSize.channels = 4;
     this->kFilterParams.imageSize.bytesPerLine = this->kFilterParams.imageSize.width * 4;
-    //params.paramsSize = sizeof(customKernelFilterParams);
-    //params.paramsData = &this->kFilterParams;
-    //params.shaderPath = SHADER(customKernel.comp.glsl.spv);
 
     this->computeGraph = std::make_shared<ComputeGraph>(gpuCtx);
     this->computeSubGraph = std::make_shared<SubComputeGraph>(gpuCtx);
@@ -50,17 +43,15 @@ VkResult customKernelFilter::Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
     pushConstantInfo.data = &this->kFilterParams;
 
 
-	//int k[25] = { 0 , 0 ,0 ,0 ,0,
-	//		0 , 0 ,-1 ,0 ,0,
-	//		0 , -1 ,5 ,-1 ,0,
-	//		0 , 0 ,-1 ,0 ,0,
-	//	   0 , 0 ,0 ,0 ,0 };
+    //int k[25] = { 0 , 0 ,0 ,0 ,0,
+    //		0 , 0 ,-1 ,0 ,0,
+    //		0 , -1 ,5 ,-1 ,0,
+    //		0 , 0 ,-1 ,0 ,0,
+    //	   0 , 0 ,0 ,0 ,0 };
 
- //   int k_size = 25 * sizeof(int);
     kBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
-    kBuffer->AllocateAndBind(GPU_BUFFER_TYPE_UNIFORM, k_size * sizeof(int) );
-    //kBuffer->GetBuffer();
-    kBuffer->UploadData(k , k_size * sizeof(int) );
+    kBuffer->AllocateAndBind(GPU_BUFFER_TYPE_UNIFORM, k_size * sizeof(int));
+    kBuffer->UploadData(k, k_size * sizeof(int));
 
     PipelineNodeBuffer pipelineNodeInput;
     pipelineNodeInput.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
@@ -83,16 +74,16 @@ VkResult customKernelFilter::Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
     vPipelineBuffers.push_back(pipelineNodeOutput);
 
     const auto kCalculateNode = std::make_shared<ComputePipelineNode>(gpuCtx,
-        "kCalculate",
-        SHADER(custom_kernel.comp.glsl.spv),
-        (inputImageInfo[0].width + 31) / 32,
-        (inputImageInfo[0].height + 31) / 32,
-        1);
+                                                                      "kCalculate",
+                                                                      SHADER(custom_kernel.comp.glsl.spv),
+                                                                      (inputImageInfo[0].width + 31) / 32,
+                                                                      (inputImageInfo[0].height + 31) / 32,
+                                                                      1);
 
     kCalculateNode->AddComputeElement({
-.pushConstantInfo = pushConstantInfo,
-.buffers = vPipelineBuffers
-        });
+        .pushConstantInfo = pushConstantInfo,
+        .buffers = vPipelineBuffers
+    });
 
     ret = kCalculateNode->CreateComputeGraphNode();
     if (ret != VK_SUCCESS) {
@@ -100,17 +91,13 @@ VkResult customKernelFilter::Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
         return ret;
     }
 
-
     computeSubGraph->AddComputeGraphNode(kCalculateNode);
     computeGraph->AddSubGraph(computeSubGraph);
 
     return computeGraph->Compute();
 }
 
-void customKernelFilter::Destroy() {
-    Logger() << "customKernelFilter begin" << std::endl;
+void CustomKernelFilter::Destroy() {
+    computeGraph->Destroy();
     kBuffer->Destroy();
-    BasicFilter::Destroy();
-
-
 }

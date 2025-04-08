@@ -2,10 +2,9 @@
 // Created by 1234 on 2025/3/6.
 //
 
-#include "colorBalanceFilter.h"
+#include "ColorBalanceFilter.h"
 
 #include "effect_engine/config.h"
-
 
 
 #include <iostream>
@@ -21,16 +20,14 @@
 #include "effect_engine/gpu/compute_graph/ComputePipelineNode.h"
 #include "effect_engine/log/Log.h"
 
-
-VkResult colorBalanceFilter::Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
-    std::vector<FilterImageInfo> inputImageInfo,
-    std::vector<FilterImageInfo> outputImageInfo){
+VkResult ColorBalanceFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                                   const std::vector<FilterImageInfo> inputImageInfo,
+                                   const std::vector<FilterImageInfo> outputImageInfo) {
     BasicFilterParams params;
     this->bFilterParams.imageSize.width = inputImageInfo[0].width;
     this->bFilterParams.imageSize.height = inputImageInfo[0].height;
     this->bFilterParams.imageSize.channels = 4;
     this->bFilterParams.imageSize.bytesPerLine = this->bFilterParams.imageSize.width * 4;
-
 
     this->computeGraph = std::make_shared<ComputeGraph>(gpuCtx);
     this->computeSubGraph = std::make_shared<SubComputeGraph>(gpuCtx);
@@ -45,17 +42,13 @@ VkResult colorBalanceFilter::Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
     pushConstantInfo.size = sizeof(colorBalanceFilterParams);
     pushConstantInfo.data = &this->bFilterParams;
 
-
-
     PBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
-    PBuffer->AllocateAndBind(GPU_BUFFER_TYPE_UNIFORM, pSize * sizeof(int) );
-
+    PBuffer->AllocateAndBind(GPU_BUFFER_TYPE_UNIFORM, pSize * sizeof(int));
 
     adjustPBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
     adjustPBuffer->AllocateAndBind(GPU_BUFFER_TYPE_UNIFORM, adjustPSize * sizeof(float));
-    //kBuffer->GetBuffer();
     PBuffer->UploadData(P, pSize * sizeof(int));
-    adjustPBuffer->UploadData(adjustP , adjustPSize * sizeof(float) );
+    adjustPBuffer->UploadData(adjustP, adjustPSize * sizeof(float));
 
     PipelineNodeBuffer pipelineNodeInput;
     pipelineNodeInput.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
@@ -84,17 +77,16 @@ VkResult colorBalanceFilter::Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
     vPipelineBuffers.push_back(pipelineNodeOutput);
 
     const auto kCalculateNode = std::make_shared<ComputePipelineNode>(gpuCtx,
-        "colorBalance",
-        SHADER(color_balance.comp.glsl.spv),
-        (inputImageInfo[0].width + 31) / 32,
-        (inputImageInfo[0].height + 31) / 32,
-        1);
-
+                                                                      "colorBalance",
+                                                                      SHADER(color_balance.comp.glsl.spv),
+                                                                      (inputImageInfo[0].width + 31) / 32,
+                                                                      (inputImageInfo[0].height + 31) / 32,
+                                                                      1);
 
     kCalculateNode->AddComputeElement({
-.pushConstantInfo = pushConstantInfo,
-.buffers = vPipelineBuffers
-        });
+        .pushConstantInfo = pushConstantInfo,
+        .buffers = vPipelineBuffers
+    });
 
     ret = kCalculateNode->CreateComputeGraphNode();
     if (ret != VK_SUCCESS) {
@@ -102,17 +94,14 @@ VkResult colorBalanceFilter::Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
         return ret;
     }
 
-
     computeSubGraph->AddComputeGraphNode(kCalculateNode);
     computeGraph->AddSubGraph(computeSubGraph);
 
     return computeGraph->Compute();
 }
 
-void colorBalanceFilter::Destroy() {
-    Logger() << "customKernelFilter begin" << std::endl;
-  this->computeGraph->Destroy();
-  PBuffer->Destroy();
-  adjustPBuffer->Destroy();
-  //  BasicFilter::Destroy();
+void ColorBalanceFilter::Destroy() {
+    computeGraph->Destroy();
+    PBuffer->Destroy();
+    adjustPBuffer->Destroy();
 }

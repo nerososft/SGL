@@ -6,16 +6,18 @@
 #include "effect_engine/filters/BasicFilter.h"
 #include "effect_engine/gpu/VkGPUContext.h"
 #include <effect_engine/gpu/VkGPUBuffer.h>
+
 struct pathBlurFilterParams {
     BasicFilterParam imageSize;
-    int  amount;
+    int amount;
 };
-class pathBlurFilter final : public BasicFilter {
+
+class pathBlurFilter final : public IFilter {
     pathBlurFilterParams pathblurFilterParams{};
     std::shared_ptr<ComputeGraph> computeGraph = nullptr;
     std::shared_ptr<SubComputeGraph> computeSubGraph = nullptr;
     std::shared_ptr<VkGPUBuffer> vecBuffer = nullptr;
-    float* vec = nullptr;
+    float *vec = nullptr;
     int k_size = 0;
 
 public:
@@ -23,16 +25,16 @@ public:
 
     ~pathBlurFilter() override = default;
 
-    VkResult Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
-        std::vector<FilterImageInfo> inputImageInfo,
-        std::vector<FilterImageInfo> outputImageInfo) override;
+    VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                   std::vector<FilterImageInfo> inputImageInfo,
+                   std::vector<FilterImageInfo> outputImageInfo) override;
 
-    void SetK(float* _vec, int size) {
-        vec = _vec;
-        k_size = size;
+    void SetK(float *vec, int size) {
+        this->vec = vec;
+        this->k_size = size;
     }
+
     void SetAmount(const int amount) { this->pathblurFilterParams.amount = amount; }
-    // void SetK(const int * k) { this->kFilterParams.k = k; }
 
     void Destroy() override;
 };

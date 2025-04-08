@@ -71,8 +71,6 @@ add_library(gpu_effect_engine SHARED
         filters/impl/SurfaceBlurFilter.h
         filters/impl/ThresholdSplitFilter.h
         filters/impl/ThresholdSplitFilter.cpp
-        filters/impl/HueEqualFilter.h
-        filters/impl/HueEqualFilter.cpp
         filters/impl/customKernelFilter.h
         filters/impl/customKernelFilter.cpp
         filters/impl/colorBalanceFilter.h
