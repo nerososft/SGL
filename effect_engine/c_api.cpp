@@ -18,6 +18,11 @@
 #include "effect_engine/filters/impl/BlurEdgeFilter.h"
 #include "effect_engine/filters/impl/DistortGlassFilter.h"
 #include "effect_engine/filters/impl/MedianFilter.h"
+
+#include "effect_engine/filters/impl/MidValueFilter.h" 
+#include"effect_engine/filters/impl/PathBlurFilter.h" 
+#include"effect_engine/filters/impl/CrystallizeFilter.h"
+#include"effect_engine/filters/impl/RotationBlurFilter.h"
 #include "effect_engine/filters/impl/OldGaussianBlurFloatFilter.h"
 
 #include "log/Log.h"
@@ -377,5 +382,71 @@ bool destroy_gpu_engine() {
 }
 
 bool set_debug_cb(void *dbg) {
+    return true;
+}
+
+
+bool midvalue_filter_gpu(void* in, void* out, const float radius, const float threshold) {
+    const auto filter = std::make_shared<MidValueFilter>();
+    filter->SetRadius(radius);
+    filter->SetThreshold(threshold);
+
+    const auto* input = static_cast<ImageInfo*>(in);
+    const auto* output = static_cast<ImageInfo*>(out);
+
+    g_effect_engine.Process(*input, *output, filter);
+    return true;
+}
+
+
+bool pathblur_filter_gpu(void* in, void* out, float* vec, int amount,int width,int height)
+{
+
+
+    const auto filter = std::make_shared<pathBlurFilter>();
+    const auto* input = static_cast<ImageInfo*>(in);
+    const auto* output = static_cast<ImageInfo*>(out);
+
+    int k_size = width*height*2;
+    filter->SetK(vec, k_size);
+    filter->SetAmount(amount);
+
+    g_effect_engine.Process(*input, *output, filter);
+
+    return true;
+}
+
+bool crystallize_filter_gpu(void* in, void* out, float* posx, float* posy, int n)
+{
+    const auto filter = std::make_shared<CrystallizeFilter>();
+    const auto* input = static_cast<ImageInfo*>(in);
+    const auto* output = static_cast<ImageInfo*>(out);
+
+    int k_size = n;
+    filter->SetPos(posx,posy, k_size);
+    filter->SetN(n);
+
+    g_effect_engine.Process(*input, *output, filter);
+
+    return true;
+}
+bool rotationblur_filter_gpu(void* in, void* out, float x, float y, float a, float b, float ina, float inb, int strength,float angle)
+{
+    
+    const auto filter = std::make_shared<RotationBlurFilter>();
+    const auto* input = static_cast<ImageInfo*>(in);
+    const auto* output = static_cast<ImageInfo*>(out);
+
+    filter->SetCenterX(x);
+    filter->SetCenterY(y);
+    filter->SetA(a);
+    filter->SetB(b);
+    filter->SetinA(ina);
+    filter->SetinB(inb);
+    filter->SetStrength(strength);
+    filter->SetAngle(angle);
+
+    g_effect_engine.Process(*input, *output, filter);
+
     return true;
 }

@@ -22,8 +22,7 @@ add_library(gpu_effect_engine SHARED
         filters/impl/GrayFilter.h
         filters/impl/PaletteKnifeFilter.h
         filters/impl/PaletteKnifeFilter.cpp
-        filters/impl/BlurEdgeFilter.h
-        filters/impl/BlurEdgeFilter.cpp
+
         filters/impl/DistortGlassFilter.h
         filters/impl/DistortGlassFilter.cpp
         gpu/VkGPUHelper.cpp
@@ -120,6 +119,17 @@ add_library(gpu_effect_engine SHARED
         filters/impl/MedianFilter.h
         gpu/compute_graph/SubComputeGraph.cpp
         gpu/compute_graph/SubComputeGraph.h
+
+        filters/impl/MidValueFilter.h
+        filters/impl/MidValueFilter.cpp
+        filters/impl/PathBlurFilter.h
+        filters/impl/PathBlurFilter.cpp
+
+        filters/impl/CrystallizeFilter.h
+        filters/impl/CrystallizeFilter.cpp
+
+        filters/impl/RotationBlurFilter.h
+        filters/impl/RotationBlurFilter.cpp
 )
 target_link_libraries(gpu_effect_engine vulkan)
 if (CMAKE_SYSTEM_NAME MATCHES "OHOS")
