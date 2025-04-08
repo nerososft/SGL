@@ -16,7 +16,7 @@
 #include "effect_engine/gpu/compute_graph/ComputePipelineNode.h"
 #include "effect_engine/log/Log.h"
 
-VkResult BasicFilter::DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
+VkResult BasicFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                               const std::string &name,
                               const VkDeviceSize bufferSize,
                               const VkBuffer inputBuffer,
@@ -72,31 +72,9 @@ VkResult BasicFilter::DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     return computeGraph->Compute();
 }
 
-VkResult BasicFilter::DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                              const std::string &name,
-                              const VkDeviceSize bufferSize,
-                              const uint32_t width,
-                              const uint32_t height,
-                              const VkBuffer inputBuffer,
-                              const VkBuffer outputBuffer,
-                              const BasicFilterParams &filterParams) {
-    return DoApply(gpuCtx,
-                   name,
-                   bufferSize,
-                   inputBuffer,
-                   outputBuffer,
-                   filterParams,
-                   (width + 15) / 16,
-                   (height + 15) / 16,
-                   1);
-}
-
 VkResult BasicFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                            VkDeviceSize bufferSize,
-                            uint32_t width,
-                            uint32_t height,
-                            VkBuffer inputBuffer,
-                            VkBuffer outputBuffer) {
+                            std::vector<FilterImageInfo> inputImageInfo,
+                            std::vector<FilterImageInfo> outputImageInfo) {
     return VK_SUCCESS;
 }
 

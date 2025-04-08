@@ -67,9 +67,32 @@ VkResult EffectEngine::Process(const std::shared_ptr<VkGPUBuffer> &inputBuffer,
         return ret;
     }
 
+    std::vector<FilterImageInfo> filterInputImages;
+    FilterImageInfo inputImageInfo{};
+    inputImageInfo.width = inputWidth;
+    inputImageInfo.height = inputHeight;
+    inputImageInfo.channels = channels;
+    inputImageInfo.bufferSize = inputBufferSize;
+    inputImageInfo.posX = 0;
+    inputImageInfo.posY = 0;
+    inputImageInfo.storageBuffer = inputBuffer->GetBuffer();
+    filterInputImages.push_back(inputImageInfo);
+
+    std::vector<FilterImageInfo> filterOutputImages;
+    FilterImageInfo outputImageInfo{};
+    outputImageInfo.width = outputWidth;
+    outputImageInfo.height = outputHeight;
+    outputImageInfo.channels = channels;
+    outputImageInfo.bufferSize = outputBufferSize;
+    outputImageInfo.posX = 0;
+    outputImageInfo.posY = 0;
+    outputImageInfo.storageBuffer = outputBuffer->GetBuffer();
+    filterOutputImages.push_back(outputImageInfo);
+
     const uint64_t gpuProcessTimeStart = TimeUtils::GetCurrentMonoMs();
-    ret = filter->Apply(gpuCtx, inputBufferSize, inputWidth, inputHeight, inputBuffer->GetBuffer(),
-                        outputBuffer->GetBuffer());
+    ret = filter->Apply(gpuCtx,
+                        filterInputImages,
+                        filterOutputImages);
     if (ret != VK_SUCCESS) {
         Logger() << "Failed to apply filter!" << std::endl;
         return ret;

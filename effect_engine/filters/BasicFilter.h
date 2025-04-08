@@ -32,37 +32,19 @@ public:
 
     ~BasicFilter() override = default;
 
-    VkResult DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                     const std::string &name,
-                     VkDeviceSize bufferSize,
-                     VkBuffer inputBuffer,
-                     VkBuffer outputBuffer,
-                     const BasicFilterParams &filterParams,
-                     uint32_t workGroupX,
-                     uint32_t workGroupY,
-                     uint32_t workGroupZ);
-
-    VkResult DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                     const std::string &name,
-                     VkDeviceSize bufferSize,
-                     uint32_t width,
-                     uint32_t height,
-                     VkBuffer inputBuffer,
-                     VkBuffer outputBuffer,
-                     const BasicFilterParams &filterParams);
-
     VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                   const std::string &name,
                    VkDeviceSize bufferSize,
-                   uint32_t width,
-                   uint32_t height,
                    VkBuffer inputBuffer,
-                   VkBuffer outputBuffer) override;
+                   VkBuffer outputBuffer,
+                   const BasicFilterParams &filterParams,
+                   uint32_t workGroupX,
+                   uint32_t workGroupY,
+                   uint32_t workGroupZ);
 
     VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                    std::vector<FilterImageInfo> inputImageInfo,
-                   std::vector<FilterImageInfo> outputImageInfo) override {
-        return VK_SUCCESS;
-    }
+                   std::vector<FilterImageInfo> outputImageInfo) override;
 
     void Destroy() override;
 };
