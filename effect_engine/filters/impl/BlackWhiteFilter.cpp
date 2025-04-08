@@ -104,5 +104,5 @@ void BlackWhiteFilter::Destroy() {
     Logger() << "customKernelFilter begin" << std::endl;
     weightBuffer->Destroy();
 
-    BasicFilter::Destroy();
+  
 }

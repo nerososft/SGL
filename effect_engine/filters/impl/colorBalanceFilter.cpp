@@ -110,13 +110,12 @@ VkResult colorBalanceFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     computeGraph->AddSubGraph(computeSubGraph);
 
     return computeGraph->Compute();
-
-    return computeGraph->Compute();
 }
 
 void colorBalanceFilter::Destroy() {
     Logger() << "customKernelFilter begin" << std::endl;
-    PBuffer->Destroy();
-    adjustPBuffer->Destroy();
-    BasicFilter::Destroy();
+  this->computeGraph->Destroy();
+  PBuffer->Destroy();
+  adjustPBuffer->Destroy();
+  //  BasicFilter::Destroy();
 }

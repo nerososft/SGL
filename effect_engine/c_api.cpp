@@ -90,7 +90,7 @@ bool adjust_saturation_gpu(void *in, void *out, const int v, const int s) {
 
 
 
-    if (1) {
+    if (0) {
         const auto filter = std::make_shared<VibranceFilter>();
 
         filter->SetVibrance(v);
@@ -132,7 +132,7 @@ bool adjust_saturation_gpu(void *in, void *out, const int v, const int s) {
         g_effect_engine.Process(*input, *output, filter);
     }
 
-    if (0) {
+    if (1) {
     
         const auto filter = std::make_shared<MedianFilter>();
 
