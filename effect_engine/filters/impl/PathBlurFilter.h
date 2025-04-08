@@ -13,6 +13,7 @@ struct pathBlurFilterParams {
 class pathBlurFilter final : public BasicFilter {
     pathBlurFilterParams pathblurFilterParams{};
     std::shared_ptr<ComputeGraph> computeGraph = nullptr;
+    std::shared_ptr<SubComputeGraph> computeSubGraph = nullptr;
     std::shared_ptr<VkGPUBuffer> vecBuffer = nullptr;
     float* vec = nullptr;
     int k_size = 0;

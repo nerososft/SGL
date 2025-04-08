@@ -32,7 +32,8 @@ VkResult pathBlurFilter::Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
     //params.shaderPath = SHADER(customKernel.comp.glsl.spv);
 
     this->computeGraph = std::make_shared<ComputeGraph>(gpuCtx);
-    VkResult ret = this->computeGraph->Init();
+    this->computeSubGraph = std::make_shared<SubComputeGraph>(gpuCtx);
+    VkResult ret = this->computeSubGraph->Init();
     if (ret != VK_SUCCESS) {
         Logger() << "Failed to create compute graph, err =" << string_VkResult(ret) << std::endl;
         return ret;
@@ -74,6 +75,7 @@ VkResult pathBlurFilter::Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
         (height + 31) / 32,
         1);
 
+
     kCalculateNode->AddComputeElement({
     .pushConstantInfo = pushConstantInfo,
     .buffers = vPipelineBuffers
@@ -85,7 +87,10 @@ VkResult pathBlurFilter::Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
         return ret;
     }
 
-    computeGraph->AddComputeGraphNode(kCalculateNode);
+
+
+    computeSubGraph->AddComputeGraphNode(kCalculateNode);
+    computeGraph->AddSubGraph(computeSubGraph);
 
     return computeGraph->Compute();
 

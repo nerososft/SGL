@@ -16,6 +16,7 @@ class CrystallizeFilter final : public BasicFilter {
     std::shared_ptr<ComputeGraph> computeGraph = nullptr;
     std::shared_ptr<VkGPUBuffer> posxBuffer = nullptr;
     std::shared_ptr<VkGPUBuffer> posyBuffer = nullptr;
+    std::shared_ptr<SubComputeGraph> computeSubGraph = nullptr;
     float* posx = nullptr;
     float* posy = nullptr;
     int k_size = 0;
