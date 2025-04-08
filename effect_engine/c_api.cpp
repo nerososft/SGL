@@ -18,7 +18,7 @@
 #include "effect_engine/filters/impl/BlurEdgeFilter.h"
 #include "effect_engine/filters/impl/DistortGlassFilter.h"
 #include "effect_engine/filters/impl/MedianFilter.h"
-
+#include "effect_engine/filters/impl/OldGaussianBlurFloatFilter.h"
 
 #include "log/Log.h"
 
@@ -50,6 +50,19 @@ bool gaussian_blur_filter_gpu(void *in, void *out, const int r) {
         filter->SetRadius(r);
         g_effect_engine.Process(*input, *output, filter);
     }
+    return true;
+}
+
+
+bool gaussian_blur_filter_float_gpu(void* in, void* out, const int r) {
+    const ImageInfo* input = static_cast<ImageInfo*>(in);
+    const ImageInfo* output = static_cast<ImageInfo*>(out);
+
+
+    const auto filter = std::make_shared<OldGaussianBlurFloatFilter>();
+    filter->SetRadius(r);
+    g_effect_engine.Process(*input, *output, filter);
+
     return true;
 }
 
@@ -90,7 +103,7 @@ bool adjust_saturation_gpu(void *in, void *out, const int v, const int s) {
 
 
 
-    if (0) {
+    if (1) {
         const auto filter = std::make_shared<VibranceFilter>();
 
         filter->SetVibrance(v);
@@ -132,7 +145,7 @@ bool adjust_saturation_gpu(void *in, void *out, const int v, const int s) {
         g_effect_engine.Process(*input, *output, filter);
     }
 
-    if (1) {
+    if (0) {
     
         const auto filter = std::make_shared<MedianFilter>();
 

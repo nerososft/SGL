@@ -50,6 +50,8 @@ add_library(gpu_effect_engine SHARED
         filters/impl/GaussianBlurFilter.h
         filters/impl/OldGaussianBlurFilter.cpp
         filters/impl/OldGaussianBlurFilter.h
+        filters/impl/OldGaussianBlurFloatFilter.cpp
+        filters/impl/OldGaussianBlurFloatFilter.h
         gpu/compute_graph/BufferCopyNode.h
         gpu/compute_graph/BufferCopyNode.cpp
         filters/impl/ChinesePaintFilter.h
