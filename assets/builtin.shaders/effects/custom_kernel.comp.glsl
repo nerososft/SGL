@@ -52,47 +52,47 @@ void main() {
     }
 
     uint index = coord.y * (params.bytesPerLine / 4) + coord.x;
-    
-	//vec4 color = unpackColor(inputImage.pixels[index]);
-	
-	//outputImage.pixels[index] = packColor(color);
-	//return ;
-	
-	
+
+    //vec4 color = unpackColor(inputImage.pixels[index]);
+
+    //outputImage.pixels[index] = packColor(color);
+    //return ;
+
+
     int kernelSize = 2 * params.radius + 1;
     int r_sum = 0;
     int g_sum = 0;
     int b_sum = 0;
-    
+
     int kernelIndex = 0;
     for (int m = -params.radius; m <= params.radius; m++) {
         for (int n = -params.radius; n <= params.radius; n++) {
             int row = clamp(int(coord.y) + m, 0, int(params.height) - 1);
             int col = clamp(int(coord.x) + n, 0, int(params.width) - 1);
-            
+
             uint neighborIndex = row * (params.bytesPerLine / 4) + col;
             vec4 neighborColor = unpackColor(inputImage.pixels[neighborIndex]);
-            
+
             int kernelValue = kernelData.kernel[kernelIndex++];
-            
+
             b_sum += int(neighborColor.b * 255.0) * kernelValue;
             g_sum += int(neighborColor.g * 255.0) * kernelValue;
             r_sum += int(neighborColor.r * 255.0) * kernelValue;
         }
     }
-    
+
     // Apply scale and offset
     b_sum = max(b_sum, 0) / params.scale + params.offset;
     g_sum = max(g_sum, 0) / params.scale + params.offset;
     r_sum = max(r_sum, 0) / params.scale + params.offset;
-    
+
     // Clamp to [0, 255]
     vec4 resultColor = vec4(
-        float(clamp(r_sum, 0, 255)) / 255.0,
-        float(clamp(g_sum, 0, 255)) / 255.0,
-        float(clamp(b_sum, 0, 255)) / 255.0,
-        1.0
+    float(clamp(r_sum, 0, 255)) / 255.0,
+    float(clamp(g_sum, 0, 255)) / 255.0,
+    float(clamp(b_sum, 0, 255)) / 255.0,
+    1.0
     );
-    
+
     outputImage.pixels[index] = packColor(resultColor);
 }
