@@ -75,7 +75,7 @@ VkResult MedianFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                              const std::vector<FilterImageInfo> inputImageInfo,
                              const std::vector<FilterImageInfo> outputImageInfo) {
     uint32_t parallelSize;
-    std::vector<DeviceQueue> parallelQueues = gpuCtx->GetAllParallelQueue(
+    const std::vector<DeviceQueue> parallelQueues = gpuCtx->GetAllParallelQueue(
         VK_QUEUE_COMPUTE_BIT | VK_QUEUE_TRANSFER_BIT | VK_QUEUE_GRAPHICS_BIT);
     if (parallelQueues.empty()) {
         Logger() << "No parallel queues found!\n";
