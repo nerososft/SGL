@@ -382,8 +382,8 @@ VkBufferMemoryBarrier VkGPUHelper::BuildBufferMemoryBarrier(const VkAccessFlagBi
     bufferMemoryBarrier.buffer = buffer;
     bufferMemoryBarrier.offset = 0;
     bufferMemoryBarrier.size = size;
-    bufferMemoryBarrier.dstQueueFamilyIndex = 0;
-    bufferMemoryBarrier.srcQueueFamilyIndex = 0;
+    bufferMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    bufferMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     return bufferMemoryBarrier;
 }
 
@@ -758,7 +758,7 @@ VkResult VkGPUHelper::CreateUniformBufferAndBindMem(const VkDevice device,
     VkResult ret = CreateBuffer(device,
                                 size,
                                 VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-                                VK_SHARING_MODE_EXCLUSIVE,
+                                VK_SHARING_MODE_CONCURRENT,
                                 queueFamilyIndices,
                                 storageBuffer);
     if (ret != VK_SUCCESS) {

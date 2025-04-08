@@ -101,11 +101,13 @@ public:
         return this->physicalDevicesProperties[selectedGPUIndex];
     }
 
-    [[nodiscard]] std::vector<DeviceQueue> GetAllParallelQueue() const {
+    [[nodiscard]] std::vector<DeviceQueue> GetAllParallelQueue(const VkQueueFlags flag) const {
         std::vector<DeviceQueue> parallelQueues;
         for (const auto &queueFamily: queueFamilies) {
-            for (const auto &queue: queueFamily.queues) {
-                parallelQueues.push_back(queue);
+            if ((queueFamily.queueFamilyProp.queueFlags & flag) && (queueFamily.queueFamilyProp.queueCount > 1)) {
+                for (const auto &queue: queueFamily.queues) {
+                    parallelQueues.push_back(queue);
+                }
             }
         }
         return parallelQueues;
