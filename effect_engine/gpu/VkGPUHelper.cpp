@@ -704,7 +704,7 @@ VkResult VkGPUHelper::CreateStorageBufferAndBindMem(const VkDevice device,
     VkResult ret = CreateBuffer(device,
                                 size,
                                 VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
-                                VK_SHARING_MODE_EXCLUSIVE,
+                                VK_SHARING_MODE_CONCURRENT,
                                 queueFamilyIndices,
                                 storageBuffer);
     if (ret != VK_SUCCESS) {

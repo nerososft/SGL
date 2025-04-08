@@ -33,6 +33,8 @@ class VkGPUContext {
     std::vector<VkPhysicalDeviceFeatures> physicalDeviceFeatures;
     std::vector<VkPhysicalDeviceMemoryProperties> physicalDevicesMemoryProperties;
     std::vector<PhysicalDeviceQueueFamilyProps> queuesFamilyProps;
+
+    size_t dispatchQueueIndex = 0;
     std::vector<DeviceQueueFamily> queueFamilies;
 
     uint32_t instanceVersion = 0;
@@ -69,6 +71,8 @@ public:
     VkResult CreateDevice(const std::vector<const char *> &deviceEnableLayers,
                           std::vector<const char *> deviceEnableExtensions);
 
+    std::vector<DeviceQueue> FindQueuesByQueueFlag(VkQueueFlags flag);
+
     DeviceQueue DispatchQueue(VkQueueFlags flag);
 
     VkResult Init();
@@ -96,6 +100,16 @@ public:
     [[nodiscard]] VkPhysicalDeviceProperties GetPhysicalDeviceProperties() const {
         return this->physicalDevicesProperties[selectedGPUIndex];
     }
+
+    [[nodiscard]] std::vector<DeviceQueue> GetAllParallelQueue() const {
+        std::vector<DeviceQueue> parallelQueues;
+        for (const auto &queueFamily: queueFamilies) {
+            for (const auto &queue: queueFamily.queues) {
+                parallelQueues.push_back(queue);
+            }
+        }
+        return parallelQueues;
+    };
 };
 
 

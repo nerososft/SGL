@@ -25,9 +25,13 @@ void ComputeGraph::AddSubGraph(const std::shared_ptr<SubComputeGraph> &subGraph)
 
 VkResult ComputeGraph::Compute() const {
     VkResult ret = VK_SUCCESS;
+    std::vector<VkFence> waitFences;
     if (!this->subGraphs.empty()) {
+        Logger() << "Subgraph Count: " << this->subGraphs.size() << std::endl;
         for (const auto &subGraph: this->subGraphs) {
+            Logger() << "Execute Subgraph" << std::endl;
             ret = subGraph->Compute();
+            waitFences.push_back(subGraph->GetComputeFence());
             if (ret != VK_SUCCESS) {
                 Logger() << "SubComputeGraph::Compute failed!\n";
                 return ret;
@@ -35,11 +39,16 @@ VkResult ComputeGraph::Compute() const {
         }
     }
 
-    ret = vkQueueWaitIdle(gpuCtx->DispatchQueue(VK_QUEUE_COMPUTE_BIT | VK_QUEUE_TRANSFER_BIT | VK_QUEUE_GRAPHICS_BIT).queue);
+    ret = vkWaitForFences(gpuCtx->GetCurrentDevice(),
+                          waitFences.size(),
+                          waitFences.data(),
+                          VK_TRUE,
+                          UINT64_MAX);
     if (ret != VK_SUCCESS) {
-        Logger() << "Failed to wait idle, err=" << string_VkResult(ret) << std::endl;
+        Logger() << "Failed to wait fence, err=" << string_VkResult(ret) << std::endl;
         return ret;
     }
+
     return ret;
 }
 

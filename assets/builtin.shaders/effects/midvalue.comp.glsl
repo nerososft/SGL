@@ -15,6 +15,8 @@ layout (push_constant) uniform FilterParams {
     uint height;
     uint channels;
     uint bytesPerLine;
+    uint piece;
+    uint pieceCount;
     float radius;
 } filterParams;
 
@@ -43,10 +45,10 @@ uvec4 unpackColor3u(uint color) {
 
 void main() {
     ivec2 imgCoord = ivec2(gl_GlobalInvocationID.xy);
-
-    if (any(greaterThanEqual(imgCoord, ivec2(filterParams.width, filterParams.height)))) {
+    if (any(greaterThanEqual(imgCoord, ivec2(filterParams.width / filterParams.pieceCount, filterParams.height)))) {
         return;
     }
+    imgCoord.x += int((filterParams.width / filterParams.pieceCount) * filterParams.piece);
 
     // 计算有效半径
     int radius = int(ceil(filterParams.radius));
