@@ -14,7 +14,7 @@
 #endif
 
 #define LOG_TO_FILE 1
-#define LOG_FILE_PATH "d://temp//output.txt"
+#define LOG_FILE_PATH "c://temp//output.txt"
 
 #define SHADER(path) (SHADER_PATH # path)
 
