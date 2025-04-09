@@ -18,8 +18,8 @@
 #include "effect_engine/log/Log.h"
 
 VkResult OldGaussianBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                                      const std::vector<FilterImageInfo> inputImageInfo,
-                                      const std::vector<FilterImageInfo> outputImageInfo) {
+                                      const std::vector<FilterImageInfo> &inputImageInfo,
+                                      const std::vector<FilterImageInfo> &outputImageInfo) {
     this->blurFilterParams.imageSize.width = inputImageInfo[0].width;
     this->blurFilterParams.imageSize.height = inputImageInfo[0].height;
     this->blurFilterParams.imageSize.channels = 4;

@@ -7,8 +7,8 @@
 #include "effect_engine/config.h"
 
 VkResult VoronoiFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                              const std::vector<FilterImageInfo> inputImageInfo,
-                              const std::vector<FilterImageInfo> outputImageInfo) {
+                              const std::vector<FilterImageInfo> &inputImageInfo,
+                              const std::vector<FilterImageInfo> &outputImageInfo) {
     BasicFilterParams params;
     this->voronoiFilterParams.imageSize.width = inputImageInfo[0].width;
     this->voronoiFilterParams.imageSize.height = inputImageInfo[0].height;

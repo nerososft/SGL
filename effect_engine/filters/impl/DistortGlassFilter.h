@@ -4,7 +4,6 @@
 
 #ifndef DISTORTGLASS_H
 #define DISTORTGLASS_H
-#include <effect_engine/gpu/VkGPUBuffer.h>
 
 #include "effect_engine/filters/BasicFilter.h"
 
@@ -24,8 +23,8 @@ public:
     ~DistortGlassFilter() override = default;
 
     VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                   std::vector<FilterImageInfo> inputImageInfo,
-                   std::vector<FilterImageInfo> outputImageInfo) override;
+                   const std::vector<FilterImageInfo> &inputImageInfo,
+                   const std::vector<FilterImageInfo> &outputImageInfo) override;
 
     void SetScale(const float scale) { this->glassFilterParams.scale = scale; }
     void SetIntensity(const float intensity) { this->glassFilterParams.intensity = intensity; }

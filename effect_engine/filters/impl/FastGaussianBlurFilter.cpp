@@ -195,8 +195,8 @@ std::shared_ptr<IComputeGraphNode> FastGaussianBlurFilter::CreateScaleUpNode(
 }
 
 VkResult FastGaussianBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                                       const std::vector<FilterImageInfo> inputImageInfo,
-                                       const std::vector<FilterImageInfo> outputImageInfo) {
+                                       const std::vector<FilterImageInfo> &inputImageInfo,
+                                       const std::vector<FilterImageInfo> &outputImageInfo) {
     this->computeGraph = std::make_shared<ComputeGraph>(gpuCtx);
     this->computeSubGraph = std::make_shared<SubComputeGraph>(gpuCtx);
     VkResult ret = this->computeSubGraph->Init();

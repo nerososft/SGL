@@ -22,8 +22,8 @@
 
 
 VkResult BlackWhiteFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                                 const std::vector<FilterImageInfo> inputImageInfo,
-                                 const std::vector<FilterImageInfo> outputImageInfo) {
+                                 const std::vector<FilterImageInfo> &inputImageInfo,
+                                 const std::vector<FilterImageInfo> &outputImageInfo) {
     BasicFilterParams params;
     this->wFilterParams.imageSize.width = inputImageInfo[0].width;
     this->wFilterParams.imageSize.height = inputImageInfo[0].height;

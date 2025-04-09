@@ -8,8 +8,8 @@
 #include "effect_engine/config.h"
 
 VkResult SurfaceBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                                  const std::vector<FilterImageInfo> inputImageInfo,
-                                  const std::vector<FilterImageInfo> outputImageInfo) {
+                                  const std::vector<FilterImageInfo> &inputImageInfo,
+                                  const std::vector<FilterImageInfo> &outputImageInfo) {
     BasicFilterParams params;
     this->blurParams.imageSize.width = inputImageInfo[0].width;
     this->blurParams.imageSize.height = inputImageInfo[0].height;

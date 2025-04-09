@@ -31,8 +31,8 @@ public:
     ~CustomKernelFilter() override = default;
 
     VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                   std::vector<FilterImageInfo> inputImageInfo,
-                   std::vector<FilterImageInfo> outputImageInfo) override;
+                   const std::vector<FilterImageInfo> &inputImageInfo,
+                   const std::vector<FilterImageInfo> &outputImageInfo) override;
 
     void SetK(int *k, const int size) {
         this->k = k;

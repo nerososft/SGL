@@ -17,14 +17,14 @@
 #include "effect_engine/log/Log.h"
 
 VkResult BasicFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                              const std::string &name,
-                              const VkDeviceSize bufferSize,
-                              const VkBuffer inputBuffer,
-                              const VkBuffer outputBuffer,
-                              const BasicFilterParams &filterParams,
-                              uint32_t workGroupX,
-                              uint32_t workGroupY,
-                              uint32_t workGroupZ) {
+                            const std::string &name,
+                            const VkDeviceSize bufferSize,
+                            const VkBuffer inputBuffer,
+                            const VkBuffer outputBuffer,
+                            const BasicFilterParams &filterParams,
+                            uint32_t workGroupX,
+                            uint32_t workGroupY,
+                            uint32_t workGroupZ) {
     this->computeGraph = std::make_shared<ComputeGraph>(gpuCtx);
     this->computeSubGraph = std::make_shared<SubComputeGraph>(gpuCtx);
     VkResult ret = this->computeSubGraph->Init();
@@ -73,8 +73,8 @@ VkResult BasicFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
 }
 
 VkResult BasicFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                            std::vector<FilterImageInfo> inputImageInfo,
-                            std::vector<FilterImageInfo> outputImageInfo) {
+                            const std::vector<FilterImageInfo> &inputImageInfo,
+                            const std::vector<FilterImageInfo> &outputImageInfo) {
     return VK_SUCCESS;
 }
 

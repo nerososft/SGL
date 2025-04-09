@@ -21,8 +21,8 @@
 #include "effect_engine/log/Log.h"
 
 VkResult CustomKernelFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                                   const std::vector<FilterImageInfo> inputImageInfo,
-                                   const std::vector<FilterImageInfo> outputImageInfo) {
+                                   const std::vector<FilterImageInfo> &inputImageInfo,
+                                   const std::vector<FilterImageInfo> &outputImageInfo) {
     BasicFilterParams params;
     this->kFilterParams.imageSize.width = inputImageInfo[0].width;
     this->kFilterParams.imageSize.height = inputImageInfo[0].height;

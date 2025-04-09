@@ -7,8 +7,8 @@
 #include "effect_engine/config.h"
 
 VkResult NES8BitMosaicFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                                    const std::vector<FilterImageInfo> inputImageInfo,
-                                    const std::vector<FilterImageInfo> outputImageInfo) {
+                                    const std::vector<FilterImageInfo> &inputImageInfo,
+                                    const std::vector<FilterImageInfo> &outputImageInfo) {
     BasicFilterParams params;
     this->nes8BitMosaicFilterParams.imageSize.width = inputImageInfo[0].width;
     this->nes8BitMosaicFilterParams.imageSize.height = inputImageInfo[0].height;

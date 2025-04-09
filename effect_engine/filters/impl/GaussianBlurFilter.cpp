@@ -33,8 +33,8 @@ std::vector<float> GaussianBlurFilter::CalculateWeights() {
 }
 
 VkResult GaussianBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                                   const std::vector<FilterImageInfo> inputImageInfo,
-                                   const std::vector<FilterImageInfo> outputImageInfo) {
+                                   const std::vector<FilterImageInfo> &inputImageInfo,
+                                   const std::vector<FilterImageInfo> &outputImageInfo) {
     this->gpuCtx = gpuCtx;
     this->blurFilterParams.imageSize.width = inputImageInfo[0].width;
     this->blurFilterParams.imageSize.height = inputImageInfo[0].height;

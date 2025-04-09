@@ -7,8 +7,8 @@
 #include "effect_engine/config.h"
 
 VkResult ThresholdSplitFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                                     const std::vector<FilterImageInfo> inputImageInfo,
-                                     const std::vector<FilterImageInfo> outputImageInfo) {
+                                     const std::vector<FilterImageInfo> &inputImageInfo,
+                                     const std::vector<FilterImageInfo> &outputImageInfo) {
     BasicFilterParams params;
     this->thresholdSplitFilterParams.imageSize.width = inputImageInfo[0].width;
     this->thresholdSplitFilterParams.imageSize.height = inputImageInfo[0].height;

@@ -7,8 +7,8 @@
 #include "effect_engine/config.h"
 
 VkResult GrayFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                           const std::vector<FilterImageInfo> inputImageInfo,
-                           const std::vector<FilterImageInfo> outputImageInfo) {
+                           const std::vector<FilterImageInfo> &inputImageInfo,
+                           const std::vector<FilterImageInfo> &outputImageInfo) {
     BasicFilterParams params;
     this->grayFilterParams.imageSize.width = inputImageInfo[0].width;
     this->grayFilterParams.imageSize.height = inputImageInfo[0].height;

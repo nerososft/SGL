@@ -4,7 +4,6 @@
 
 #include "DistortGlassFilter.h"
 
-#include <iostream>
 #ifdef OS_OPEN_HARMONY
 #include <effect_engine/gpu/utils/vk_enum_string_helper.h>
 #else
@@ -14,13 +13,12 @@
 #include "effect_engine/filters/BasicFilter.h"
 #include "effect_engine/gpu/VkGPUHelper.h"
 #include "effect_engine/gpu/compute_graph/BufferCopyNode.h"
-#include "effect_engine/gpu/compute_graph/ComputePipelineNode.h"
 #include "effect_engine/log/Log.h"
 
 
 VkResult DistortGlassFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                                   const std::vector<FilterImageInfo> inputImageInfo,
-                                   const std::vector<FilterImageInfo> outputImageInfo) {
+                                   const std::vector<FilterImageInfo> &inputImageInfo,
+                                   const std::vector<FilterImageInfo> &outputImageInfo) {
     BasicFilterParams params;
     this->glassFilterParams.imageSize.width = inputImageInfo[0].width;
     this->glassFilterParams.imageSize.height = inputImageInfo[0].height;

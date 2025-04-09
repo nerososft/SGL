@@ -11,7 +11,6 @@
 #include "effect_engine/gpu/VkGPUContext.h"
 
 
-
 struct GrayFilterParams {
     BasicFilterParam imageSize;
     float redFactor;
@@ -28,8 +27,8 @@ public:
     ~GrayFilter() override = default;
 
     VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                   std::vector<FilterImageInfo> inputImageInfo,
-                   std::vector<FilterImageInfo> outputImageInfo) override;
+                   const std::vector<FilterImageInfo> &inputImageInfo,
+                   const std::vector<FilterImageInfo> &outputImageInfo) override;
 
     void SetRedFactor(const float redFactor) { this->grayFilterParams.redFactor = redFactor; }
     void SetGreenFactor(const float greenFactor) { this->grayFilterParams.greenFactor = greenFactor; }

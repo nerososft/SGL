@@ -17,9 +17,9 @@
 #include "effect_engine/gpu/compute_graph/ComputePipelineNode.h"
 #include "effect_engine/log/Log.h"
 
-VkResult OldGaussianBlurFloatFilter::Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
-    std::vector<FilterImageInfo> inputImageInfo,
-    std::vector<FilterImageInfo> outputImageInfo) {
+VkResult OldGaussianBlurFloatFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                                           const std::vector<FilterImageInfo> &inputImageInfo,
+                                           const std::vector<FilterImageInfo> &outputImageInfo) {
     this->blurFilterParams.imageSize.width = inputImageInfo[0].width;
     this->blurFilterParams.imageSize.height = inputImageInfo[0].height;
     this->blurFilterParams.imageSize.channels = 4;
@@ -53,9 +53,10 @@ VkResult OldGaussianBlurFloatFilter::Apply(const std::shared_ptr<VkGPUContext>& 
 
     const auto gaussianVerticalNode = std::make_shared<ComputePipelineNode>(gpuCtx,
                                                                             "OldGaussianVerticalBlurFloat",
-                                                                            SHADER(vertical_blur_old_float.comp.glsl.spv),
+                                                                            SHADER(
+                                                                                vertical_blur_old_float.comp.glsl.spv),
                                                                             (inputImageInfo[0].width + 31) / 32,
-                                        (inputImageInfo[0].height + 31) / 32,
+                                                                            (inputImageInfo[0].height + 31) / 32,
                                                                             1);
     gaussianVerticalNode->AddComputeElement({
         .pushConstantInfo = pushConstantInfo,
@@ -117,8 +118,6 @@ VkResult OldGaussianBlurFloatFilter::Apply(const std::shared_ptr<VkGPUContext>& 
     //computeGraph->AddSubGraph(computeSubGraph);
 
     return computeGraph->Compute();
-
-  
 }
 
 void OldGaussianBlurFloatFilter::Destroy() {

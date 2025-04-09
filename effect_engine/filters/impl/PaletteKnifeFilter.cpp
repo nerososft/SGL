@@ -18,8 +18,8 @@
 #include "effect_engine/log/Log.h"
 
 VkResult PaletteKnifeFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                                   const std::vector<FilterImageInfo> inputImageInfo,
-                                   const std::vector<FilterImageInfo> outputImageInfo) {
+                                   const std::vector<FilterImageInfo> &inputImageInfo,
+                                   const std::vector<FilterImageInfo> &outputImageInfo) {
     this->paletteKnifeFilterParams.imageSize.width = inputImageInfo[0].width;
     this->paletteKnifeFilterParams.imageSize.height = inputImageInfo[0].height;
     this->paletteKnifeFilterParams.imageSize.channels = 4;
@@ -33,7 +33,7 @@ VkResult PaletteKnifeFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
         return ret;
     }
 
-    Logger() << "PaletteKnifeFilter  radius " << this->paletteKnifeFilterParams.radius   << std::endl;
+    Logger() << "PaletteKnifeFilter  radius " << this->paletteKnifeFilterParams.radius << std::endl;
 
     PushConstantInfo pushConstantInfo;
     pushConstantInfo.size = sizeof(PaletteKnifeFilterParams);
