@@ -116,7 +116,7 @@ VkResult OldGaussianBlurFloatFilter::Apply(const std::shared_ptr<VkGPUContext> &
     copyBufferNode->AddDependenceNode(gaussianHorizontalNode);
     computeSubGraph->AddComputeGraphNode(copyBufferNode);
     computeGraph->AddSubGraph(computeSubGraph);
-    
+
     return computeGraph->Compute();
 }
 

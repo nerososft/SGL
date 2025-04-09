@@ -40,5 +40,4 @@ public:
     void Destroy() override;
 };
 
-
 #endif //GRAYFILTER_H
