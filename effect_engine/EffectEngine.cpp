@@ -236,6 +236,8 @@ void EffectEngine::Process(const std::vector<ImageInfo> &inputs,
         for (const std::shared_ptr<VkGPUBuffer> &buffer: outputBuffers) {
             buffer->Destroy();
         }
+        filter->Destroy();
+        return;
     }
     const uint64_t gpuProcessTimeEnd = TimeUtils::GetCurrentMonoMs();
     Logger() << "GPU Process Time: " << gpuProcessTimeEnd - gpuProcessTimeStart << "ms" << std::endl;
@@ -263,6 +265,7 @@ void EffectEngine::Process(const std::vector<ImageInfo> &inputs,
     for (const std::shared_ptr<VkGPUBuffer> &buffer: outputBuffers) {
         buffer->Destroy();
     }
+    filter->Destroy();
     inputBuffers.clear();
     inputBuffers.resize(0);
     outputBuffers.clear();
