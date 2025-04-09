@@ -40,5 +40,5 @@ VkResult BlurEdgeFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
 
 
 void BlurEdgeFilter::Destroy() {
-    BasicFilter::Destroy();
+ //   BasicFilter::Destroy();
 }

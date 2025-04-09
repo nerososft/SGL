@@ -17,7 +17,14 @@
 #endif /* __APPLE__ */
 #endif
 
+
+#ifdef __APPLE__
 #define LOG_TO_FILE 0
+#else
+#define LOG_TO_FILE 1
+#endif
+
+
 #define LOG_FILE_PATH "d://temp//output.txt"
 
 #define SHADER(path) (SHADER_PATH # path)

@@ -69,54 +69,54 @@ VkResult OldGaussianBlurFloatFilter::Apply(const std::shared_ptr<VkGPUContext> &
         return ret;
     }
 
-    //PipelineNodeBuffer hPipelineNodeInput;
-    //hPipelineNodeInput.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
-    //hPipelineNodeInput.buffer = outputBuffer;
-    //hPipelineNodeInput.bufferSize = bufferSize;
+    PipelineNodeBuffer hPipelineNodeInput;
+    hPipelineNodeInput.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
+    hPipelineNodeInput.buffer = inputImageInfo[0].storageBuffer;
+    hPipelineNodeInput.bufferSize = inputImageInfo[0].bufferSize;
 
-    //PipelineNodeBuffer hPipelineNodeOutput;
-    //hPipelineNodeOutput.type = PIPELINE_NODE_BUFFER_STORAGE_WRITE;
-    //hPipelineNodeOutput.buffer = inputBuffer;
-    //hPipelineNodeOutput.bufferSize = bufferSize;
+    PipelineNodeBuffer hPipelineNodeOutput;
+    hPipelineNodeOutput.type = PIPELINE_NODE_BUFFER_STORAGE_WRITE;
+    hPipelineNodeOutput.buffer = outputImageInfo[0].storageBuffer;;
+    hPipelineNodeOutput.bufferSize = outputImageInfo[0].bufferSize;
 
-    //std::vector<PipelineNodeBuffer> hPipelineBuffers;
-    //hPipelineBuffers.push_back(hPipelineNodeInput);
-    //hPipelineBuffers.push_back(hPipelineNodeOutput);
+    std::vector<PipelineNodeBuffer> hPipelineBuffers;
+    hPipelineBuffers.push_back(hPipelineNodeInput);
+    hPipelineBuffers.push_back(hPipelineNodeOutput);
 
-    //const auto gaussianHorizontalNode = std::make_shared<ComputePipelineNode>(gpuCtx,
-    //                                                                          "OldGaussianHorizontalBlurFloat",
-    //                                                                          SHADER(horizontal_blur_old_float.comp.glsl.spv),
-    //                                                                          (width + 31) / 32,
-    //                                                                          (height + 31) / 32,
-    //                                                                          1);
-    //gaussianHorizontalNode->AddComputeElement({
-    //    .pushConstantInfo = pushConstantInfo,
-    //    .buffers = hPipelineBuffers
-    //});
+    const auto gaussianHorizontalNode = std::make_shared<ComputePipelineNode>(gpuCtx,
+                                                                              "OldGaussianHorizontalBlurFloat",
+                                                                              SHADER(horizontal_blur_old_float.comp.glsl.spv),
+                                                                              (inputImageInfo[0].width + 31) / 32,
+                                                                              (inputImageInfo[0].height + 31) / 32,
+                                                                              1);
+    gaussianHorizontalNode->AddComputeElement({
+        .pushConstantInfo = pushConstantInfo,
+        .buffers = hPipelineBuffers
+    });
 
-    //ret = gaussianHorizontalNode->CreateComputeGraphNode();
-    //if (ret != VK_SUCCESS) {
-    //    Logger() << "Failed to create compute graph, err =" << string_VkResult(ret) << std::endl;
-    //    return ret;
-    //}
+    ret = gaussianHorizontalNode->CreateComputeGraphNode();
+    if (ret != VK_SUCCESS) {
+        Logger() << "Failed to create compute graph, err =" << string_VkResult(ret) << std::endl;
+        return ret;
+    }
 
-    //BufferCopyNodeBufferInfo srcBufferInfo;
-    //srcBufferInfo.buffer = inputBuffer;
-    //srcBufferInfo.bufferSize = bufferSize;
-    //BufferCopyNodeBufferInfo dstBufferInfo;
-    //dstBufferInfo.buffer = outputBuffer;
-    //dstBufferInfo.bufferSize = bufferSize;
-    //const auto copyBufferNode = std::make_shared<BufferCopyNode>(gpuCtx,
-    //                                                             "CopyBufferToOutputBuffer",
-    //                                                             srcBufferInfo,
-    //                                                             dstBufferInfo);
-    //copyBufferNode->CreateComputeGraphNode();
+    BufferCopyNodeBufferInfo srcBufferInfo;
+    srcBufferInfo.buffer = inputImageInfo[0].storageBuffer;
+    srcBufferInfo.bufferSize = inputImageInfo[0].bufferSize;
+    BufferCopyNodeBufferInfo dstBufferInfo;
+    dstBufferInfo.buffer = outputImageInfo[0].storageBuffer;
+    dstBufferInfo.bufferSize = outputImageInfo[0].bufferSize;
+    const auto copyBufferNode = std::make_shared<BufferCopyNode>(gpuCtx,
+                                                                 "CopyBufferToOutputBuffer",
+                                                                 srcBufferInfo,
+                                                                 dstBufferInfo);
+    copyBufferNode->CreateComputeGraphNode();
 
-    //copyBufferNode->AddDependenceNode(gaussianVerticalNode);
-    //copyBufferNode->AddDependenceNode(gaussianHorizontalNode);
-    //computeSubGraph->AddComputeGraphNode(copyBufferNode);
-    //computeGraph->AddSubGraph(computeSubGraph);
-
+    copyBufferNode->AddDependenceNode(gaussianVerticalNode);
+    copyBufferNode->AddDependenceNode(gaussianHorizontalNode);
+    computeSubGraph->AddComputeGraphNode(copyBufferNode);
+    computeGraph->AddSubGraph(computeSubGraph);
+    
     return computeGraph->Compute();
 }
 

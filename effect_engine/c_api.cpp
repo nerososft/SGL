@@ -106,7 +106,7 @@ bool distort_glass_filter_gpu(void *in, void *out, float scale, float intensity,
 
 bool adjust_saturation_gpu(void *in, void *out, const int v, const int s) {
     if (in == nullptr || out == nullptr) return false;
-    if (0) {
+    if (1) {
         const auto filter = std::make_shared<VibranceFilter>();
 
         filter->SetVibrance(v);
@@ -146,7 +146,7 @@ bool adjust_saturation_gpu(void *in, void *out, const int v, const int s) {
         g_effect_engine.Process(*input, *output, filter);
     }
 
-    if (1) {
+    if (0) {
         const auto filter = std::make_shared<MedianFilter>();
 
         const ImageInfo *input = static_cast<ImageInfo *>(in);
@@ -407,12 +407,19 @@ bool crystallize_filter_gpu(void *in, void *out, float *posx, float *posy, const
     return true;
 }
 
-bool rotationblur_filter_gpu(void *in, void *out, const float x, const float y, const float a, const float b,
+bool rotationblur_filter_gpu(void *in, void* in2, void *out, const float x, const float y, const float a, const float b,
                              const float ina, const float inb, const int strength, const float angle) {
     if (in == nullptr || out == nullptr) return false;
     const auto filter = std::make_shared<RotationBlurFilter>();
-    const auto *input = static_cast<ImageInfo *>(in);
-    const auto *output = static_cast<ImageInfo *>(out);
+    const auto* input = static_cast<ImageInfo*>(in);
+    const auto* output = static_cast<ImageInfo*>(out);
+    const auto* input2 = static_cast<ImageInfo*>(in2);
+    
+    std::vector<ImageInfo> inputs;
+    inputs.push_back(*input);
+    inputs.push_back(*input2);
+    std::vector<ImageInfo> outputs;
+    outputs.push_back(*output);
 
     filter->SetCenterX(x);
     filter->SetCenterY(y);
@@ -423,7 +430,8 @@ bool rotationblur_filter_gpu(void *in, void *out, const float x, const float y, 
     filter->SetStrength(strength);
     filter->SetAngle(angle);
 
-    g_effect_engine.Process(*input, *output, filter);
+    g_effect_engine.Process(inputs, outputs, filter);
 
     return true;
 }
+
