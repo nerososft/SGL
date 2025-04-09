@@ -100,10 +100,10 @@ VkResult CustomKernelFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
 void CustomKernelFilter::Destroy() {
     if (computeGraph != nullptr) {
         computeGraph->Destroy();
-        computeGraph == nullptr;
+        computeGraph = nullptr;
     }
     if (kBuffer != nullptr) {
         kBuffer->Destroy();
-        kBuffer == nullptr;
+        kBuffer = nullptr;
     }
 }
