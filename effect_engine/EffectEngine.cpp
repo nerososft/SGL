@@ -230,7 +230,12 @@ void EffectEngine::Process(const std::vector<ImageInfo> &inputs,
     ret = filter->Apply(gpuCtx, filterInputImages, filterOutputImages);
     if (ret != VK_SUCCESS) {
         Logger() << "Failed to apply blender!" << std::endl;
-        return;
+        for (const std::shared_ptr<VkGPUBuffer> &buffer: inputBuffers) {
+            buffer->Destroy();
+        }
+        for (const std::shared_ptr<VkGPUBuffer> &buffer: outputBuffers) {
+            buffer->Destroy();
+        }
     }
     const uint64_t gpuProcessTimeEnd = TimeUtils::GetCurrentMonoMs();
     Logger() << "GPU Process Time: " << gpuProcessTimeEnd - gpuProcessTimeStart << "ms" << std::endl;
@@ -252,7 +257,7 @@ void EffectEngine::Process(const std::vector<ImageInfo> &inputs,
         }
     }
 
-    for (const std::shared_ptr<VkGPUBuffer> &buffer: outputBuffers) {
+    for (const std::shared_ptr<VkGPUBuffer> &buffer: inputBuffers) {
         buffer->Destroy();
     }
     for (const std::shared_ptr<VkGPUBuffer> &buffer: outputBuffers) {
