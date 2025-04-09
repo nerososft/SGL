@@ -151,6 +151,12 @@ VkResult GaussianBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
 }
 
 void GaussianBlurFilter::Destroy() {
-    computeGraph->Destroy();
-    weightBuffer->Destroy();
+    if (computeGraph != nullptr) {
+        computeGraph->Destroy();
+        computeGraph == nullptr;
+    }
+    if (weightBuffer != nullptr) {
+        weightBuffer->Destroy();
+        weightBuffer == nullptr;
+    }
 }

@@ -101,7 +101,16 @@ VkResult ColorBalanceFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
 }
 
 void ColorBalanceFilter::Destroy() {
-    computeGraph->Destroy();
-    PBuffer->Destroy();
-    adjustPBuffer->Destroy();
+    if (computeGraph != nullptr) {
+        computeGraph->Destroy();
+        computeGraph = nullptr;
+    }
+    if (PBuffer != nullptr) {
+        PBuffer->Destroy();
+        PBuffer = nullptr;
+    }
+    if (adjustPBuffer != nullptr) {
+        adjustPBuffer->Destroy();
+        adjustPBuffer = nullptr;
+    }
 }

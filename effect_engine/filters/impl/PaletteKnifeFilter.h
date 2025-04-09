@@ -36,5 +36,4 @@ public:
     void Destroy() override;
 };
 
-
 #endif //PALETTEKNIFEFILTER_H

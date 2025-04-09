@@ -96,7 +96,16 @@ VkResult CrystallizeFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
 }
 
 void CrystallizeFilter::Destroy() {
-    computeSubGraph->Destroy();
-    posxBuffer->Destroy();
-    posyBuffer->Destroy();
+    if (computeGraph != nullptr) {
+        computeSubGraph->Destroy();
+        computeGraph = nullptr;
+    }
+    if (posxBuffer != nullptr) {
+        posxBuffer->Destroy();
+        posxBuffer == nullptr;
+    }
+    if (posyBuffer != nullptr) {
+        posyBuffer->Destroy();
+        posyBuffer == nullptr;
+    }
 }
