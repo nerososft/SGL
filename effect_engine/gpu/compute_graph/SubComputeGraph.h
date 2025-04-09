@@ -37,7 +37,7 @@ public:
 
     [[nodiscard]] VkResult Compute() const;
 
-    void Destroy() const;
+    void Destroy();
 };
 
 
