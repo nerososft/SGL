@@ -101,26 +101,32 @@ VkResult SubComputeGraph::Compute() const {
     return ret;
 }
 
-void SubComputeGraph::Destroy() const {
-
+void SubComputeGraph::Destroy() {
     if (computeFence != VK_NULL_HANDLE) {
         vkDestroyFence(gpuCtx->GetCurrentDevice(), computeFence, nullptr);
+        computeFence = VK_NULL_HANDLE;
     }
 
     if (computeDoneSemaphore != VK_NULL_HANDLE) {
         vkDestroySemaphore(gpuCtx->GetCurrentDevice(), computeDoneSemaphore, nullptr);
+        computeDoneSemaphore = VK_NULL_HANDLE;
     }
-    std::vector<VkCommandBuffer> freeCommandBuffers;
-    freeCommandBuffers.push_back(commandBuffer);
-    vkFreeCommandBuffers(gpuCtx->GetCurrentDevice(),
-                         gpuCtx->GetCommandPool(queue.queueFamilyIndex),
-                         freeCommandBuffers.size(),
-                         freeCommandBuffers.data());
+    if (commandBuffer != VK_NULL_HANDLE) {
+        std::vector<VkCommandBuffer> freeCommandBuffers;
+        freeCommandBuffers.push_back(commandBuffer);
+        vkFreeCommandBuffers(gpuCtx->GetCurrentDevice(),
+                             gpuCtx->GetCommandPool(queue.queueFamilyIndex),
+                             freeCommandBuffers.size(),
+                             freeCommandBuffers.data());
+        commandBuffer = VK_NULL_HANDLE;
+    }
     for (const auto &computeGraphNode: this->computeGraphNodes) {
         computeGraphNode->Destroy();
     }
+    computeGraphNodes.clear();
 
     for (const auto &dep: this->dependence) {
         dep->Destroy();
     }
+    dependence.clear();
 }
