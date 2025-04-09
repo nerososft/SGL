@@ -50,8 +50,6 @@ VkResult EffectEngine::Process(const std::shared_ptr<VkGPUBuffer> &inputBuffer,
     VkResult ret = inputBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED, inputBufferSize);
 
 
-
-
     if (ret != VK_SUCCESS) {
         Logger() << Logger::ERROR << "Failed to allocate input GPU buffer!" << std::endl;
         return ret;
@@ -104,12 +102,8 @@ VkResult EffectEngine::Process(const std::shared_ptr<VkGPUBuffer> &inputBuffer,
     const uint64_t gpuProcessTimeEnd = TimeUtils::GetCurrentMonoMs();
     Logger() << "GPU Process Time: " << gpuProcessTimeEnd - gpuProcessTimeStart << "ms" << std::endl;
 
-
-    Logger() << "filter begin destory: " << std::endl;
-
     filter->Destroy();
     this->gpuCtx->Reset();
-    Logger() << "filter end destory: " << std::endl;
 
     return ret;
 }
@@ -151,17 +145,8 @@ void EffectEngine::Process(const ImageInfo &input,
     const uint64_t imageDownloadEnd = TimeUtils::GetCurrentMonoMs();
     Logger() << "Image Download Time: " << imageDownloadEnd - imageDownloadStart << "ms" << std::endl;
 
-
-
-    Logger() << "inputStorageBuffer destory begin " << std::endl;
     inputStorageBuffer->Destroy();
-    Logger() << "inputStorageBuffer destory end " << std::endl;
-
-
-    Logger() << "outputStorageBuffer destory begin " << std::endl;
     outputStorageBuffer->Destroy();
-    Logger() << "outputStorageBuffer destory end " << std::endl;
-
 }
 
 void EffectEngine::Process(const std::vector<ImageInfo> &inputs,

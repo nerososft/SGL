@@ -8,19 +8,17 @@
 #include "effect_engine/filters/impl/VibranceFilter.h"
 #include "effect_engine/filters/impl/ThresholdSplitFilter.h"
 #include "effect_engine/filters/impl/PaletteKnifeFilter.h"
-#include "filters/impl/FastGaussianBlurFilter.h"
-#include "effect_engine/filters/impl/HueEqualFilter.h"
-#include "effect_engine/filters/impl/customKernelFilter.h"
-#include "effect_engine/filters/impl/colorBalanceFilter.h"
-#include "effect_engine/filters/impl/BlackWhiteFilter.h" 
+#include "effect_engine/filters/impl/CustomKernelFilter.h"
+#include "effect_engine/filters/impl/ColorBalanceFilter.h"
+#include "effect_engine/filters/impl/BlackWhiteFilter.h"
 #include "effect_engine/filters/impl/ScaleFilter.h"
 #include "effect_engine/filters/impl/FastGaussianBlurFilter.h"
 #include "effect_engine/filters/impl/BlurEdgeFilter.h"
 #include "effect_engine/filters/impl/DistortGlassFilter.h"
 #include "effect_engine/filters/impl/MedianFilter.h"
 
-#include "effect_engine/filters/impl/MidValueFilter.h" 
-#include"effect_engine/filters/impl/PathBlurFilter.h" 
+#include "effect_engine/filters/impl/MidValueFilter.h"
+#include"effect_engine/filters/impl/PathBlurFilter.h"
 #include"effect_engine/filters/impl/CrystallizeFilter.h"
 #include"effect_engine/filters/impl/RotationBlurFilter.h"
 #include "effect_engine/filters/impl/OldGaussianBlurFloatFilter.h"
@@ -59,9 +57,9 @@ bool gaussian_blur_filter_gpu(void *in, void *out, const int r) {
 }
 
 
-bool gaussian_blur_filter_float_gpu(void* in, void* out, const int r) {
-    const ImageInfo* input = static_cast<ImageInfo*>(in);
-    const ImageInfo* output = static_cast<ImageInfo*>(out);
+bool gaussian_blur_filter_float_gpu(void *in, void *out, const int r) {
+    const ImageInfo *input = static_cast<ImageInfo *>(in);
+    const ImageInfo *output = static_cast<ImageInfo *>(out);
 
 
     const auto filter = std::make_shared<OldGaussianBlurFloatFilter>();
@@ -83,8 +81,7 @@ bool surface_blur_filter_gpu(void *in, void *out, const int r, const int th) {
     return true;
 }
 
-bool distort_glass_filter_gpu(void* in, void* out, float scale, float intensity, float zoom) {
-
+bool distort_glass_filter_gpu(void *in, void *out, float scale, float intensity, float zoom) {
     const auto filter = std::make_shared<DistortGlassFilter>();
 
     scale = scale / 50;
@@ -95,27 +92,23 @@ bool distort_glass_filter_gpu(void* in, void* out, float scale, float intensity,
     filter->SetZoom(1);
 
 
-    const ImageInfo* input = static_cast<ImageInfo*>(in);
-    const ImageInfo* output = static_cast<ImageInfo*>(out);
+    const ImageInfo *input = static_cast<ImageInfo *>(in);
+    const ImageInfo *output = static_cast<ImageInfo *>(out);
 
     g_effect_engine.Process(*input, *output, filter);
 
     return true;
-
 }
 
 bool adjust_saturation_gpu(void *in, void *out, const int v, const int s) {
-
-
-
     if (0) {
         const auto filter = std::make_shared<VibranceFilter>();
 
         filter->SetVibrance(v);
         filter->SetSaturation(s);
 
-        const auto* input = static_cast<ImageInfo*>(in);
-        const auto* output = static_cast<ImageInfo*>(out);
+        const auto *input = static_cast<ImageInfo *>(in);
+        const auto *output = static_cast<ImageInfo *>(out);
         Logger() << "c_api adjust_saturation_gpu begin " << std::endl;
         g_effect_engine.Process(*input, *output, filter);
         Logger() << "c_api adjust_saturation_gpu end  " << std::endl;
@@ -125,8 +118,6 @@ bool adjust_saturation_gpu(void *in, void *out, const int v, const int s) {
 
         filter->Destroy();
         Logger() << "c_api filter destory end  " << std::endl;
-
-
     }
 
     if (0) {
@@ -144,23 +135,20 @@ bool adjust_saturation_gpu(void *in, void *out, const int v, const int s) {
         filter->SetZoom(1);
 
 
-        const ImageInfo* input = static_cast<ImageInfo*>(in);
-        const ImageInfo* output = static_cast<ImageInfo*>(out);
+        const ImageInfo *input = static_cast<ImageInfo *>(in);
+        const ImageInfo *output = static_cast<ImageInfo *>(out);
 
         g_effect_engine.Process(*input, *output, filter);
     }
 
     if (1) {
-    
         const auto filter = std::make_shared<MedianFilter>();
 
-        const ImageInfo* input = static_cast<ImageInfo*>(in);
-        const ImageInfo* output = static_cast<ImageInfo*>(out);
+        const ImageInfo *input = static_cast<ImageInfo *>(in);
+        const ImageInfo *output = static_cast<ImageInfo *>(out);
         filter->SetRadius(v);
         g_effect_engine.Process(*input, *output, filter);
-    
     }
-
 
 
     return true;
@@ -180,16 +168,12 @@ bool palette_knife_gpu(void *in, void *out, const int r, const int s) {
 }
 
 
-
-bool hue_equal_filter_gpu(void* in, void* out) {
-
+bool hue_equal_filter_gpu(void *in, void *out) {
     //const auto filter = std::make_shared<HueEqualFilter>();
     //const auto* input = static_cast<ImageInfo*>(in);
     //const auto* output = static_cast<ImageInfo*>(out);
 
     //g_effect_engine.Process(*input, *output, filter);
-
-
 
 
     //const auto filter = std::make_shared<customKernelFilter>();
@@ -204,7 +188,6 @@ bool hue_equal_filter_gpu(void* in, void* out) {
     //           0 , 0 ,0 ,0 ,0 };
 
 
-
     //filter->SetK(k, 25);
     //filter->SetOffset(0);
     //filter->SetScale(1);
@@ -213,22 +196,22 @@ bool hue_equal_filter_gpu(void* in, void* out) {
     //g_effect_engine.Process(*input, *output, filter);
 
 
-    const auto filter = std::make_shared<colorBalanceFilter>();
-    const auto* input = static_cast<ImageInfo*>(in);
-    const auto* output = static_cast<ImageInfo*>(out);
+    const auto filter = std::make_shared<ColorBalanceFilter>();
+    const auto *input = static_cast<ImageInfo *>(in);
+    const auto *output = static_cast<ImageInfo *>(out);
 
 
+    int p[9] = {
+        0, 100, 0,
+        0, 100, 0,
+        0, 100, 0
+    };
 
-
-
-    int p[9] = {0 , 100 ,0 ,
-                0 , 100 ,0 ,
-                0 , 100 ,0  };
-
-    int adjustP[9] = { 0 , 0 ,0 ,
-            0 , 0 ,0 ,
-            0 , 0 ,0 };
-
+    int adjustP[9] = {
+        0, 0, 0,
+        0, 0, 0,
+        0, 0, 0
+    };
 
 
     filter->SetP(p, 9);
@@ -242,16 +225,15 @@ bool hue_equal_filter_gpu(void* in, void* out) {
 }
 
 
-bool blur_edge_filter_gpu(void* in, void* out, int r, int s, int kernel_type) {
-
+bool blur_edge_filter_gpu(void *in, void *out, int r, int s, int kernel_type) {
     const auto filter = std::make_shared<BlurEdgeFilter>();
 
     filter->SetRadius(r);
     filter->SetSigma(s);
     filter->SetKernel(kernel_type);
 
-    const auto* input = static_cast<ImageInfo*>(in);
-    const auto* output = static_cast<ImageInfo*>(out);
+    const auto *input = static_cast<ImageInfo *>(in);
+    const auto *output = static_cast<ImageInfo *>(out);
     g_effect_engine.Process(*input, *output, filter);
 
 
@@ -259,13 +241,11 @@ bool blur_edge_filter_gpu(void* in, void* out, int r, int s, int kernel_type) {
 
     return true;
 }
-bool custom_kernel_filter_gpu(void* in, void* out, int * k , int radius, int offset, int scale)
-{
 
-
-    const auto filter = std::make_shared<customKernelFilter>();
-    const auto* input = static_cast<ImageInfo*>(in);
-    const auto* output = static_cast<ImageInfo*>(out);
+bool custom_kernel_filter_gpu(void *in, void *out, int *k, int radius, int offset, int scale) {
+    const auto filter = std::make_shared<CustomKernelFilter>();
+    const auto *input = static_cast<ImageInfo *>(in);
+    const auto *output = static_cast<ImageInfo *>(out);
 
 
     //int k[25] = { 0 , 0 ,0 ,0 ,0,
@@ -286,15 +266,10 @@ bool custom_kernel_filter_gpu(void* in, void* out, int * k , int radius, int off
     return true;
 }
 
-bool color_balance_filter_gpu(void* in, void* out,  float* adjustP, int *p, int l)
-{
-
-    const auto filter = std::make_shared<colorBalanceFilter>();
-    const auto* input = static_cast<ImageInfo*>(in);
-    const auto* output = static_cast<ImageInfo*>(out);
-
-
-
+bool color_balance_filter_gpu(void *in, void *out, float *adjustP, int *p, int l) {
+    const auto filter = std::make_shared<ColorBalanceFilter>();
+    const auto *input = static_cast<ImageInfo *>(in);
+    const auto *output = static_cast<ImageInfo *>(out);
 
 
     //int p[9] = { 0 , 50 ,0 ,
@@ -304,7 +279,6 @@ bool color_balance_filter_gpu(void* in, void* out,  float* adjustP, int *p, int 
     //int adjustP[9] = { 0 , 0 ,0 ,
     //                   0 , 0 ,0 ,
     //                   0 , 0 ,0 };
-
 
 
     filter->SetP(p, 9);
@@ -318,30 +292,28 @@ bool color_balance_filter_gpu(void* in, void* out,  float* adjustP, int *p, int 
 }
 
 
-
-
-bool black_white_filter_gpu(void* in, void* out, float* weight, int wSize) {
-
+bool black_white_filter_gpu(void *in, void *out, float *weight, int wSize) {
     const auto filter = std::make_shared<BlackWhiteFilter>();
-    const auto* input = static_cast<ImageInfo*>(in);
-    const auto* output = static_cast<ImageInfo*>(out);
+    const auto *input = static_cast<ImageInfo *>(in);
+    const auto *output = static_cast<ImageInfo *>(out);
 
-    filter->SetWeight(weight , wSize);
+    filter->SetWeight(weight, wSize);
     g_effect_engine.Process(*input, *output, filter);
     return true;
 }
-bool scale_filter_gpu(void* in, void* out, int  weight, int height)
-{
+
+bool scale_filter_gpu(void *in, void *out, int weight, int height) {
     const auto filter = std::make_shared<ScaleFilter>();
     filter->SetTargetWidth(weight);
     filter->SetTargetHeight(height);
 
-    const auto* input = static_cast<ImageInfo*>(in);
-    const auto* output = static_cast<ImageInfo*>(out);
+    const auto *input = static_cast<ImageInfo *>(in);
+    const auto *output = static_cast<ImageInfo *>(out);
 
     g_effect_engine.Process(*input, *output, filter);
     return true;
 }
+
 bool gray_filter_gpu(void *in, void *out, const float r, const float g, const float b) {
     const auto filter = std::make_shared<GrayFilter>();
     filter->SetRedFactor(r);
@@ -386,28 +358,25 @@ bool set_debug_cb(void *dbg) {
 }
 
 
-bool midvalue_filter_gpu(void* in, void* out, const float radius, const float threshold) {
+bool midvalue_filter_gpu(void *in, void *out, const float radius, const float threshold) {
     const auto filter = std::make_shared<MidValueFilter>();
     filter->SetRadius(radius);
     filter->SetThreshold(threshold);
 
-    const auto* input = static_cast<ImageInfo*>(in);
-    const auto* output = static_cast<ImageInfo*>(out);
+    const auto *input = static_cast<ImageInfo *>(in);
+    const auto *output = static_cast<ImageInfo *>(out);
 
     g_effect_engine.Process(*input, *output, filter);
     return true;
 }
 
 
-bool pathblur_filter_gpu(void* in, void* out, float* vec, int amount,int width,int height)
-{
-
-
+bool pathblur_filter_gpu(void *in, void *out, float *vec, int amount, int width, int height) {
     const auto filter = std::make_shared<pathBlurFilter>();
-    const auto* input = static_cast<ImageInfo*>(in);
-    const auto* output = static_cast<ImageInfo*>(out);
+    const auto *input = static_cast<ImageInfo *>(in);
+    const auto *output = static_cast<ImageInfo *>(out);
 
-    int k_size = width*height*2;
+    int k_size = width * height * 2;
     filter->SetK(vec, k_size);
     filter->SetAmount(amount);
 
@@ -416,20 +385,20 @@ bool pathblur_filter_gpu(void* in, void* out, float* vec, int amount,int width,i
     return true;
 }
 
-bool crystallize_filter_gpu(void* in, void* out, float* posx, float* posy, int n)
-{
+bool crystallize_filter_gpu(void *in, void *out, float *posx, float *posy, int n) {
     const auto filter = std::make_shared<CrystallizeFilter>();
-    const auto* input = static_cast<ImageInfo*>(in);
-    const auto* output = static_cast<ImageInfo*>(out);
+    const auto *input = static_cast<ImageInfo *>(in);
+    const auto *output = static_cast<ImageInfo *>(out);
 
     int k_size = n;
-    filter->SetPos(posx,posy, k_size);
+    filter->SetPos(posx, posy, k_size);
     filter->SetN(n);
 
     g_effect_engine.Process(*input, *output, filter);
 
     return true;
 }
+
 bool rotationblur_filter_gpu(void* in,void* in2, void* out, float x, float y, float a, float b, float ina, float inb, int strength,float angle)
 {
     
@@ -457,3 +426,4 @@ bool rotationblur_filter_gpu(void* in,void* in2, void* out, float x, float y, fl
 
     return true;
 }
+

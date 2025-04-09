@@ -55,20 +55,20 @@ void main() {
 
     // 当前像素坐标
     vec2 currentPos = vec2(coord);
-    float minDist = 3.4028235e38; // FLT_MAX
+    float minDist = 3.4028235e38;// FLT_MAX
     vec2 closestPoint = vec2(0);
 
     // 遍历所有控制点
     for (int i = 0; i < params.amount; ++i) {
         if (i >= params.amount) break;
-        
+
         // 读取控制点坐标
         vec2 samplePoint = vec2(posxData.px[i], posyData.py[i]);
-        
+
         // 计算欧氏距离平方
         vec2 diff = currentPos - samplePoint;
         float dist = dot(diff, diff);
-        
+
         // 更新最近点
         if (dist < minDist) {
             minDist = dist;
@@ -78,8 +78,8 @@ void main() {
 
     // 计算采样坐标
     ivec2 srcCoord = ivec2(
-        clamp(int(round(closestPoint.x)), 0, int(params.width)-1),
-        clamp(int(round(closestPoint.y)), 0, int(params.height)-1)
+    clamp(int(round(closestPoint.x)), 0, int(params.width)-1),
+    clamp(int(round(closestPoint.y)), 0, int(params.height)-1)
     );
 
     // 读取源像素颜色

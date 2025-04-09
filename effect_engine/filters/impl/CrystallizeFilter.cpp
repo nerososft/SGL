@@ -3,7 +3,6 @@
 #include "effect_engine/config.h"
 
 
-
 #include <iostream>
 #ifdef OS_OPEN_HARMONY
 #include <effect_engine/gpu/utils/vk_enum_string_helper.h>
@@ -16,17 +15,15 @@
 #include "effect_engine/gpu/compute_graph/BufferCopyNode.h"
 #include "effect_engine/gpu/compute_graph/ComputePipelineNode.h"
 #include "effect_engine/log/Log.h"
-VkResult CrystallizeFilter::Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
-    std::vector<FilterImageInfo> inputImageInfo,
-    std::vector<FilterImageInfo> outputImageInfo){
+
+VkResult CrystallizeFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                                  const std::vector<FilterImageInfo> inputImageInfo,
+                                  const std::vector<FilterImageInfo> outputImageInfo) {
     BasicFilterParams params;
     this->crystallizeFilterParams.imageSize.width = inputImageInfo[0].width;
     this->crystallizeFilterParams.imageSize.height = inputImageInfo[0].height;
     this->crystallizeFilterParams.imageSize.channels = 4;
     this->crystallizeFilterParams.imageSize.bytesPerLine = this->crystallizeFilterParams.imageSize.width * 4;
-    //params.paramsSize = sizeof(customKernelFilterParams);
-    //params.paramsData = &this->kFilterParams;
-    //params.shaderPath = SHADER(customKernel.comp.glsl.spv);
 
     this->computeGraph = std::make_shared<ComputeGraph>(gpuCtx);
     this->computeSubGraph = std::make_shared<SubComputeGraph>(gpuCtx);
@@ -75,16 +72,16 @@ VkResult CrystallizeFilter::Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
     vPipelineBuffers.push_back(pipelineNodeOutput);
 
     const auto kCalculateNode = std::make_shared<ComputePipelineNode>(gpuCtx,
-        "crystallize",
-        SHADER(crystallize.comp.glsl.spv),
-        (inputImageInfo[0].width + 31) / 32,
-        (inputImageInfo[0].height + 31) / 32,
-        1);
+                                                                      "crystallize",
+                                                                      SHADER(crystallize.comp.glsl.spv),
+                                                                      (inputImageInfo[0].width + 31) / 32,
+                                                                      (inputImageInfo[0].height + 31) / 32,
+                                                                      1);
 
     kCalculateNode->AddComputeElement({
-    .pushConstantInfo = pushConstantInfo,
-    .buffers = vPipelineBuffers
-        });
+        .pushConstantInfo = pushConstantInfo,
+        .buffers = vPipelineBuffers
+    });
 
     ret = kCalculateNode->CreateComputeGraphNode();
     if (ret != VK_SUCCESS) {
@@ -96,21 +93,10 @@ VkResult CrystallizeFilter::Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
     computeGraph->AddSubGraph(computeSubGraph);
 
     return computeGraph->Compute();
-
-    /* ret = kCalculateNode->CreateComputeGraphNode();
-     if (ret != VK_SUCCESS) {
-         Logger() << "Failed to create compute graph, err =" << string_VkResult(ret) << std::endl;
-         return ret;
-     }
-
-     computeGraph->AddComputeGraphNode(kCalculateNode);
-
-     return computeGraph->Compute();*/
 }
 
 void CrystallizeFilter::Destroy() {
-    Logger() << "CrystallizeFilter begin" << std::endl;
+    computeSubGraph->Destroy();
     posxBuffer->Destroy();
     posyBuffer->Destroy();
-    BasicFilter::Destroy();
 }

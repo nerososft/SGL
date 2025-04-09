@@ -9,41 +9,43 @@
 #include "effect_engine/filters/BasicFilter.h"
 #include "effect_engine/gpu/VkGPUContext.h"
 #include <effect_engine/gpu/VkGPUBuffer.h>
+
 struct colorBalanceFilterParams {
     BasicFilterParam imageSize;
     int preserve_luminosity;
 };
 
-class colorBalanceFilter final : public BasicFilter {
+class ColorBalanceFilter final : public IFilter {
     colorBalanceFilterParams bFilterParams{};
     std::shared_ptr<ComputeGraph> computeGraph = nullptr;
     std::shared_ptr<SubComputeGraph> computeSubGraph = nullptr;
     std::shared_ptr<VkGPUBuffer> adjustPBuffer = nullptr;
     std::shared_ptr<VkGPUBuffer> PBuffer = nullptr;
-    int* P = nullptr;
-    float* adjustP = nullptr;
+    int *P = nullptr;
+    float *adjustP = nullptr;
     int pSize = 0;
     int adjustPSize = 0;
 
 public:
-    colorBalanceFilter() = default;
+    ColorBalanceFilter() = default;
 
-    ~colorBalanceFilter() override = default;
+    ~ColorBalanceFilter() override = default;
 
-    VkResult Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
-        std::vector<FilterImageInfo> inputImageInfo,
-        std::vector<FilterImageInfo> outputImageInfo) override;
+    VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                   std::vector<FilterImageInfo> inputImageInfo,
+                   std::vector<FilterImageInfo> outputImageInfo) override;
 
-    void SetP(int * _p , int _size) {
-        P = _p;
-        pSize = _size;
-    }
-    void SetAdjustP(float* _adjust_p, int _size) {
-        adjustP = _adjust_p;
-        adjustPSize = _size;
+    void SetP(int *p, const int size) {
+        this->P = p;
+        this->pSize = size;
     }
 
-    void SetL(int l) {
+    void SetAdjustP(float *adjustP, const int size) {
+        this->adjustP = adjustP;
+        this->adjustPSize = size;
+    }
+
+    void SetL(const int l) {
         bFilterParams.preserve_luminosity = l;
     }
 

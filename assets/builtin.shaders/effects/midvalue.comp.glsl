@@ -41,26 +41,27 @@ vec4 unpackColor(uint color) {
     );
 }
 uvec4 unpackColor3u(uint color) {
-    return uvec4((color) & 0xFF,(color >> 8) & 0xFF,(color >> 16) & 0xFF,(color >> 24) & 0xFF);
+    return uvec4((color) & 0xFF, (color >> 8) & 0xFF, (color >> 16) & 0xFF, (color >> 24) & 0xFF);
 }
-#define MAX_HISTOGRAM_SIZE 256  // 8-bit颜色通道
- // 计算中值函数
-    int findMedian(int histogram[MAX_HISTOGRAM_SIZE], int total) {
-        int medianPos = total / 2;
-        int sum = 0;
-        for(int i=0; i<MAX_HISTOGRAM_SIZE; ++i) {
-            sum += histogram[i];
-            if(sum > medianPos) return i;
-        }
-        return MAX_HISTOGRAM_SIZE-1;
+#define MAX_HISTOGRAM_SIZE 256 // 8-bit颜色通道
+// 计算中值函数
+int findMedian(int histogram[MAX_HISTOGRAM_SIZE], int total) {
+    int medianPos = total / 2;
+    int sum = 0;
+    for (int i=0; i<MAX_HISTOGRAM_SIZE; ++i) {
+        sum += histogram[i];
+        if (sum > medianPos) return i;
     }
+    return MAX_HISTOGRAM_SIZE-1;
+}
+
 void main() {
-	 uvec2 coord = gl_GlobalInvocationID.xy;
+    uvec2 coord = gl_GlobalInvocationID.xy;
     if (coord.x >= filterParams.width || coord.y >= filterParams.height) return;
 
     // 初始化直方图
     int histR[MAX_HISTOGRAM_SIZE], histG[MAX_HISTOGRAM_SIZE], histB[MAX_HISTOGRAM_SIZE];
-    for(int i=0; i<MAX_HISTOGRAM_SIZE; ++i) {
+    for (int i=0; i<MAX_HISTOGRAM_SIZE; ++i) {
         histR[i] = histG[i] = histB[i] = 0;
     }
 
@@ -70,29 +71,28 @@ void main() {
     int count = 0;
 
     // 收集样本并构建直方图
-    for(int y = -radius; y <= radius; ++y) {
-        for(int x = -radius; x <= radius; ++x) {
+    for (int y = -radius; y <= radius; ++y) {
+        for (int x = -radius; x <= radius; ++x) {
             ivec2 samplePos = ivec2(
-                clamp(center.x + x, 0, int(filterParams.width-1)),
-                clamp(center.y + y, 0, int(filterParams.height-1))
+            clamp(center.x + x, 0, int(filterParams.width-1)),
+            clamp(center.y + y, 0, int(filterParams.height-1))
             );
-            
+
             uint idx = samplePos.y * (filterParams.bytesPerLine/4) + samplePos.x;
             vec4 color = unpackColor(inputImage.pixels[idx]);
-            
+
             // 转换为8-bit整数并统计
             int r = int(round(color.r * 255.0));
             int g = int(round(color.g * 255.0));
             int b = int(round(color.b * 255.0));
-            
+
             histR[r]++;
             histG[g]++;
             histB[b]++;
-            count++;   
+            count++;
         }
     }
 
-   
 
     // 获取各通道中值
     float medianR = float(findMedian(histR, count)) / 255.0;
@@ -109,6 +109,6 @@ void main() {
     uint outIdx = coord.y * (filterParams.bytesPerLine/4) + coord.x;
     outputImage.pixels[outIdx] = packColor(result);
 
-    
+
 }
 

@@ -30,7 +30,5 @@ VkResult VibranceFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
 }
 
 void VibranceFilter::Destroy() {
-    //BasicFilter::Destroy();
-   // computeGraph->Destroy();
-   // qBuffer->Destroy();
+    BasicFilter::Destroy();
 }

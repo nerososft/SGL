@@ -10,11 +10,11 @@
 #ifdef OS_OPEN_HARMONY
 #define SHADER_PATH "/data/storage/el1/bundle/entry/resources/resfile/shader_compiled/"
 #else
-#define SHADER_PATH "../../pseffect/shader_compiled/"
+
 #endif
 
-#define LOG_TO_FILE 1
-#define LOG_FILE_PATH "c://temp//output.txt"
+
+
 
 #define SHADER(path) (SHADER_PATH # path)
 

@@ -9,9 +9,9 @@
 #include "effect_engine/filters/BasicFilter.h"
 #include "effect_engine/gpu/VkGPUContext.h"
 #include <effect_engine/gpu/VkGPUBuffer.h>
+
 struct BlackWhiteFilterParams {
     BasicFilterParam imageSize;
-
 };
 
 class BlackWhiteFilter final : public BasicFilter {
@@ -20,21 +20,21 @@ class BlackWhiteFilter final : public BasicFilter {
     std::shared_ptr<ComputeGraph> computeGraph = nullptr;
     std::shared_ptr<VkGPUBuffer> weightBuffer = nullptr;
 
-    float* weight = nullptr;
-    int wSize;
+    float *weight = nullptr;
+    int wSize = 0;
 
 public:
     BlackWhiteFilter() = default;
 
     ~BlackWhiteFilter() override = default;
 
-    VkResult Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
-        std::vector<FilterImageInfo> inputImageInfo,
-        std::vector<FilterImageInfo> outputImageInfo) override;
+    VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                   std::vector<FilterImageInfo> inputImageInfo,
+                   std::vector<FilterImageInfo> outputImageInfo) override;
 
-    void SetWeight(float * _weight , int _wSize) {
-        weight = _weight;
-        wSize = _wSize;
+    void SetWeight(float *weight, const int size) {
+        this->weight = weight;
+        this->wSize = size;
     }
 
     void Destroy() override;

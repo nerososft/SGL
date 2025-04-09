@@ -7,6 +7,9 @@
 #include "VkGPUContext.h"
 #include <memory>
 
+#define KB (1024)
+#define MB (KB * KB)
+
 typedef enum {
     GPU_BUFFER_TYPE_UNIFORM,
     GPU_BUFFER_TYPE_STORAGE_LOCAL,
@@ -38,7 +41,7 @@ public:
 
     VkResult DownloadData(void *downloadAddr, VkDeviceSize size);
 
-    void Destroy() const;
+    void Destroy();
 
     [[nodiscard]] VkBuffer GetBuffer() const { return buffer; }
 

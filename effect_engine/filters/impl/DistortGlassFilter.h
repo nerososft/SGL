@@ -10,27 +10,26 @@
 
 struct DistortGlassFilterParams {
     BasicFilterParam imageSize;
-    float scale;       // 噪声缩放
-    float intensity;   // 扭曲强度
-    float zoom = 0;        // 缩放因子
+    float scale;
+    float intensity;
+    float zoom = 0;
 };
 
 class DistortGlassFilter final : public BasicFilter {
     DistortGlassFilterParams glassFilterParams{};
-    std::shared_ptr<ComputeGraph> computeGraph = nullptr;
+
 public:
     DistortGlassFilter() = default;
 
     ~DistortGlassFilter() override = default;
 
+    VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                   std::vector<FilterImageInfo> inputImageInfo,
+                   std::vector<FilterImageInfo> outputImageInfo) override;
 
-    VkResult Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
-        std::vector<FilterImageInfo> inputImageInfo,
-        std::vector<FilterImageInfo> outputImageInfo) override;
-
-    void SetScale(const float _scale) { this->glassFilterParams.scale = _scale; }
-    void SetIntensity(const float _intensity) { this->glassFilterParams.intensity = _intensity; }
-    void SetZoom(const float _zoom) { this->glassFilterParams.zoom = _zoom; }
+    void SetScale(const float scale) { this->glassFilterParams.scale = scale; }
+    void SetIntensity(const float intensity) { this->glassFilterParams.intensity = intensity; }
+    void SetZoom(const float zoom) { this->glassFilterParams.zoom = zoom; }
 
     void Destroy() override;
 };
