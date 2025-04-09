@@ -8,6 +8,7 @@
 #include <string>
 #include <vulkan/vulkan_core.h>
 #include <memory>
+
 typedef struct {
     VkDeviceSize size;
     void *data;
@@ -55,7 +56,10 @@ public:
 
     [[nodiscard]] bool IsGraphics() const { return type == COMPUTE_GRAPH_NODE_GRAPHICS; }
 
-    virtual void Destroy() = 0;
+    virtual void Destroy() {
+        this->dependencies.clear();
+        this->dependencies.resize(0);
+    };
 };
 
 

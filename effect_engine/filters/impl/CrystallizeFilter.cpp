@@ -17,8 +17,8 @@
 #include "effect_engine/log/Log.h"
 
 VkResult CrystallizeFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                                  const std::vector<FilterImageInfo> inputImageInfo,
-                                  const std::vector<FilterImageInfo> outputImageInfo) {
+                                  const std::vector<FilterImageInfo> &inputImageInfo,
+                                  const std::vector<FilterImageInfo> &outputImageInfo) {
     BasicFilterParams params;
     this->crystallizeFilterParams.imageSize.width = inputImageInfo[0].width;
     this->crystallizeFilterParams.imageSize.height = inputImageInfo[0].height;

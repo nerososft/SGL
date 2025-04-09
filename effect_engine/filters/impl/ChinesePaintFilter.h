@@ -22,8 +22,8 @@ public:
     ~ChinesePaintFilter() override = default;
 
     VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                   std::vector<FilterImageInfo> inputImageInfo,
-                   std::vector<FilterImageInfo> outputImageInfo) override;
+                   const std::vector<FilterImageInfo> &inputImageInfo,
+                   const std::vector<FilterImageInfo> &outputImageInfo) override;
 
     void Destroy() override;
 };

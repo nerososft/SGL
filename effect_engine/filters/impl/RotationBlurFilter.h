@@ -7,7 +7,6 @@
 #include "effect_engine/gpu/VkGPUContext.h"
 
 
-
 struct RotationBlurFilterParams {
     BasicFilterParam imageSize;
     float x;
@@ -19,6 +18,7 @@ struct RotationBlurFilterParams {
     int strength;
     float angle;
 };
+
 class RotationBlurFilter final : public BasicFilter {
     RotationBlurFilterParams rotationblurFilterParams{};
 
@@ -27,9 +27,9 @@ public:
 
     ~RotationBlurFilter() override = default;
 
-    VkResult Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
-        std::vector<FilterImageInfo> inputImageInfo,
-        std::vector<FilterImageInfo> outputImageInfo) override;
+    VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                   const std::vector<FilterImageInfo> &inputImageInfo,
+                   const std::vector<FilterImageInfo> &outputImageInfo) override;
 
     void SetCenterX(const float _x) { this->rotationblurFilterParams.x = _x; }
     void SetCenterY(const float _y) { this->rotationblurFilterParams.y = _y; }
@@ -39,6 +39,7 @@ public:
     void SetinB(const float _inb) { this->rotationblurFilterParams.ina = _inb; }
     void SetStrength(const int _strength) { this->rotationblurFilterParams.strength = _strength; }
     void SetAngle(const float _angle) { this->rotationblurFilterParams.angle = _angle; }
+
     void Destroy() override;
 };
 #endif

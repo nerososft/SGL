@@ -28,8 +28,8 @@ public:
     virtual ~IFilter() = default;
 
     virtual VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                           std::vector<FilterImageInfo> inputImageInfo,
-                           std::vector<FilterImageInfo> outputImageInfo) = 0;
+                           const std::vector<FilterImageInfo> &inputImageInfo,
+                           const std::vector<FilterImageInfo> &outputImageInfo) = 0;
 
     virtual void Destroy() = 0;
 };

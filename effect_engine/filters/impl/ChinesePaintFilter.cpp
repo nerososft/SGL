@@ -7,8 +7,8 @@
 #include "effect_engine/config.h"
 
 VkResult ChinesePaintFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                                   const std::vector<FilterImageInfo> inputImageInfo,
-                                   const std::vector<FilterImageInfo> outputImageInfo) {
+                                   const std::vector<FilterImageInfo> &inputImageInfo,
+                                   const std::vector<FilterImageInfo> &outputImageInfo) {
     BasicFilterParams params;
     this->chinesePaintFilterParams.imageSize.width = inputImageInfo[0].width;
     this->chinesePaintFilterParams.imageSize.height = inputImageInfo[0].height;

@@ -16,8 +16,8 @@
 #include "effect_engine/log/Log.h"
 
 VkResult BlurEdgeFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                               const std::vector<FilterImageInfo> inputImageInfo,
-                               const std::vector<FilterImageInfo> outputImageInfo) {
+                               const std::vector<FilterImageInfo> &inputImageInfo,
+                               const std::vector<FilterImageInfo> &outputImageInfo) {
     BasicFilterParams params;
     this->blurEdgeFilterParams.imageSize.width = inputImageInfo[0].width;
     this->blurEdgeFilterParams.imageSize.height = inputImageInfo[0].height;
