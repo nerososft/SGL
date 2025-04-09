@@ -283,6 +283,6 @@ VkResult FastGaussianBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuC
 void FastGaussianBlurFilter::Destroy() {
     if (computeGraph != nullptr) {
         computeGraph->Destroy();
-        computeGraph == nullptr;
+        computeGraph = nullptr;
     }
 }

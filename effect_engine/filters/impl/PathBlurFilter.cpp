@@ -90,10 +90,10 @@ VkResult pathBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
 void pathBlurFilter::Destroy() {
     if (computeGraph != nullptr) {
         computeGraph->Destroy();
-        computeGraph == nullptr;
+        computeGraph = nullptr;
     }
     if (vecBuffer != nullptr) {
         vecBuffer->Destroy();
-        vecBuffer == nullptr;
+        vecBuffer = nullptr;
     }
 }

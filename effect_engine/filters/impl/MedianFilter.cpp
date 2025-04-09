@@ -117,6 +117,6 @@ VkResult MedianFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
 void MedianFilter::Destroy() {
     if (computeGraph != nullptr) {
         this->computeGraph->Destroy();
-        computeGraph == nullptr;
+        computeGraph = nullptr;
     }
 }
