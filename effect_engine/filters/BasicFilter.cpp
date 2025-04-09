@@ -79,7 +79,8 @@ VkResult BasicFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
 }
 
 void BasicFilter::Destroy() {
-    if (computeGraph) {
+    if (computeGraph != nullptr) {
         computeGraph->Destroy();
+        computeGraph == nullptr;
     }
 }

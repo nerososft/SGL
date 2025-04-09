@@ -118,6 +118,12 @@ VkResult PaletteKnifeFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
 }
 
 void PaletteKnifeFilter::Destroy() {
-    computeGraph->Destroy();
-    qBuffer->Destroy();
+    if (computeGraph != nullptr) {
+        computeGraph->Destroy();
+        computeGraph == nullptr;
+    }
+    if (qBuffer != nullptr) {
+        qBuffer->Destroy();
+        qBuffer == nullptr;
+    }
 }

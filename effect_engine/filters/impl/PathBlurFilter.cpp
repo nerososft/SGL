@@ -88,6 +88,12 @@ VkResult pathBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
 }
 
 void pathBlurFilter::Destroy() {
-    computeGraph->Destroy();
-    vecBuffer->Destroy();
+    if (computeGraph != nullptr) {
+        computeGraph->Destroy();
+        computeGraph == nullptr;
+    }
+    if (vecBuffer != nullptr) {
+        vecBuffer->Destroy();
+        vecBuffer == nullptr;
+    }
 }

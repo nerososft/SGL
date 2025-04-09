@@ -92,6 +92,12 @@ VkResult BlackWhiteFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
 }
 
 void BlackWhiteFilter::Destroy() {
-    computeGraph->Destroy();
-    weightBuffer->Destroy();
+    if (computeGraph != nullptr) {
+        computeGraph->Destroy();
+        computeGraph = nullptr;
+    }
+    if (weightBuffer != nullptr) {
+        weightBuffer->Destroy();
+        weightBuffer = nullptr;
+    }
 }

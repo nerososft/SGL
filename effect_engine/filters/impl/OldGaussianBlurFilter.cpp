@@ -120,5 +120,8 @@ VkResult OldGaussianBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCt
 }
 
 void OldGaussianBlurFilter::Destroy() {
-    computeGraph->Destroy();
+    if (computeGraph != nullptr) {
+        computeGraph->Destroy();
+        computeGraph == nullptr;
+    }
 }

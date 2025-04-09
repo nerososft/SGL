@@ -263,6 +263,10 @@ void EffectEngine::Process(const std::vector<ImageInfo> &inputs,
     for (const std::shared_ptr<VkGPUBuffer> &buffer: outputBuffers) {
         buffer->Destroy();
     }
+    inputBuffers.clear();
+    inputBuffers.resize(0);
+    outputBuffers.clear();
+    outputBuffers.resize(0);
 }
 
 void EffectEngine::Process(const char *inputFilePath,
