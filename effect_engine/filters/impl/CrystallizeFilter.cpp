@@ -102,10 +102,10 @@ void CrystallizeFilter::Destroy() {
     }
     if (posxBuffer != nullptr) {
         posxBuffer->Destroy();
-        posxBuffer == nullptr;
+        posxBuffer = nullptr;
     }
     if (posyBuffer != nullptr) {
         posyBuffer->Destroy();
-        posyBuffer == nullptr;
+        posyBuffer = nullptr;
     }
 }
