@@ -70,13 +70,13 @@ VkResult OldGaussianBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCt
 
     PipelineNodeBuffer hPipelineNodeInput;
     hPipelineNodeInput.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
-    hPipelineNodeInput.buffer = outputImageInfo[0].storageBuffer;
-    hPipelineNodeInput.bufferSize = outputImageInfo[0].bufferSize;
+    hPipelineNodeInput.buffer = inputImageInfo[0].storageBuffer;
+    hPipelineNodeInput.bufferSize = inputImageInfo[0].bufferSize;
 
     PipelineNodeBuffer hPipelineNodeOutput;
     hPipelineNodeOutput.type = PIPELINE_NODE_BUFFER_STORAGE_WRITE;
-    hPipelineNodeOutput.buffer = inputImageInfo[0].storageBuffer;
-    hPipelineNodeOutput.bufferSize = inputImageInfo[0].bufferSize;
+    hPipelineNodeOutput.buffer = outputImageInfo[0].storageBuffer;
+    hPipelineNodeOutput.bufferSize = outputImageInfo[0].bufferSize;
 
     std::vector<PipelineNodeBuffer> hPipelineBuffers;
     hPipelineBuffers.push_back(hPipelineNodeInput);
