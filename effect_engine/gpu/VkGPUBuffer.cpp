@@ -92,6 +92,7 @@ VkGPUBuffer::VkGPUBuffer(const std::shared_ptr<VkGPUContext> &gpuCtx): type(GPU_
 }
 
 VkGPUBuffer::~VkGPUBuffer() {
+    this->Destroy();
 }
 
 VkResult VkGPUBuffer::UploadData(const void *uploadData, const VkDeviceSize size) {
@@ -105,36 +106,28 @@ VkResult VkGPUBuffer::UploadData(const void *uploadData, const VkDeviceSize size
     return VK_SUCCESS;
 }
 
-
-
-
-void parallel_copy(void* dst, const void* src, size_t size, int num_threads) {
-    size_t block_size = size / num_threads;
+void parallel_copy(void *dst, const void *src, const size_t size, const int numThreads) {
+    const size_t block_size = size / numThreads;
     std::vector<std::thread> threads;
-    for (int i = 0; i < num_threads; i++) {
-        size_t offset = i * block_size;
-        size_t remain = (i == num_threads - 1) ? size - offset : block_size;
+    for (int i = 0; i < numThreads; i++) {
+        const size_t offset = i * block_size;
+        const size_t remain = (i == numThreads - 1) ? size - offset : block_size;
         threads.emplace_back([=] {
-            memcpy((char*)dst + offset, (const char*)src + offset, remain);
-            });
+            memcpy(static_cast<char *>(dst) + offset, static_cast<const char *>(src) + offset, remain);
+        });
     }
-    for (auto& t : threads) t.join();
+    for (auto &t: threads) t.join();
 }
-
-
 
 VkResult VkGPUBuffer::DownloadData(void *downloadAddr, const VkDeviceSize size) {
     const VkResult result = MapBuffer(size);
-
-    int buffer_size = 9000000;
     if (result != VK_SUCCESS) {
         Logger() << "Failed to map buffer, err =" << string_VkResult(result) << std::endl;
         return result;
     }
-    if (size < buffer_size) {
+    if (size < (1 * MB)) {
         memcpy(downloadAddr, data, size);
-    }
-    else {
+    } else {
         parallel_copy(downloadAddr, data, size, 8);
     }
 
@@ -142,11 +135,13 @@ VkResult VkGPUBuffer::DownloadData(void *downloadAddr, const VkDeviceSize size) 
     return VK_SUCCESS;
 }
 
-void VkGPUBuffer::Destroy() const {
+void VkGPUBuffer::Destroy() {
     if (bufferMemory != VK_NULL_HANDLE) {
         vkFreeMemory(gpuCtx->GetCurrentDevice(), bufferMemory, nullptr);
+        bufferMemory = VK_NULL_HANDLE;
     }
     if (buffer != VK_NULL_HANDLE) {
         vkDestroyBuffer(gpuCtx->GetCurrentDevice(), buffer, nullptr);
+        buffer = VK_NULL_HANDLE;
     }
 }

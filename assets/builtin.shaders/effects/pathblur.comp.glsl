@@ -52,7 +52,7 @@ void main() {
     }
     uint X = gl_GlobalInvocationID.x;
     uint Y = gl_GlobalInvocationID.y;
-    
+
     if (X >= params.width || Y >= params.height) {
         return;
     }
@@ -114,5 +114,4 @@ void main() {
     );
 
     outputImage.pixels[Y * params.width + X] = packColor(filteredColor);
-    
 }
