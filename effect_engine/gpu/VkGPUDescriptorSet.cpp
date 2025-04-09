@@ -67,9 +67,13 @@ void VkGPUDescriptorSet::GPUCmdBindDescriptorSets(const VkCommandBuffer commandB
                             nullptr);
 }
 
-void VkGPUDescriptorSet::Destroy() const {
+void VkGPUDescriptorSet::Destroy() {
     if (descriptorPool == VK_NULL_HANDLE) {
-        return;
+        for (VkDescriptorSet descriptorSet: this->descriptorSets) {
+            if (descriptorSet != VK_NULL_HANDLE) {
+                vkFreeDescriptorSets(this->device, descriptorPool, 1, &descriptorSet);
+            }
+        }
+        this->descriptorSets.clear();
     }
-
 }

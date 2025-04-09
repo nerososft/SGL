@@ -122,9 +122,13 @@ void GraphicsPipelineNode::Compute(VkCommandBuffer commandBuffer) {
 }
 
 void GraphicsPipelineNode::Destroy() {
-    graphicsPipeline->Destroy();
+    if (graphicsPipeline != nullptr) {
+        graphicsPipeline->Destroy();
+        graphicsPipeline = nullptr;
+    }
     for (const auto &pipelineDescriptorSet: pipelineDescriptorSets) {
         pipelineDescriptorSet->Destroy();
     }
+    pipelineDescriptorSets.clear();
     IComputeGraphNode::Destroy();
 }
