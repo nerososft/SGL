@@ -77,4 +77,5 @@ void BufferCopyNode::Compute(const VkCommandBuffer commandBuffer) {
 }
 
 void BufferCopyNode::Destroy() {
+    IComputeGraphNode::Destroy();
 }

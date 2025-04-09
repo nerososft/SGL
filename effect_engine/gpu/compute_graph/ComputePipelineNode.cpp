@@ -186,12 +186,12 @@ void ComputePipelineNode::Compute(const VkCommandBuffer commandBuffer) {
                                                     writeBufferMemoryBarriers);
         std::vector<VkMemoryBarrier> memoryBarriers;
         memoryBarriers.push_back(VkGPUHelper::BuildMemoryBarrier(VK_ACCESS_MEMORY_WRITE_BIT,
-            VK_ACCESS_MEMORY_READ_BIT));
+                                                                 VK_ACCESS_MEMORY_READ_BIT));
         VkGPUHelper::GPUCmdPipelineMemBarrier(commandBuffer,
-                                                   VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
-                                                   VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
-                                                   0,
-                                                   memoryBarriers);
+                                              VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+                                              VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+                                              0,
+                                              memoryBarriers);
 
         if (computeElements[i].customDrawFunc != nullptr) {
             computeElements[i].customDrawFunc(commandBuffer);
@@ -204,4 +204,5 @@ void ComputePipelineNode::Destroy() {
     for (const auto &pipelineDescriptorSet: pipelineDescriptorSets) {
         pipelineDescriptorSet->Destroy();
     }
+    IComputeGraphNode::Destroy();
 }
