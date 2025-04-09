@@ -24,4 +24,4 @@ extern "C"  GPU_API	 bool midvalue_filter_gpu(void* in, void* out, float radius,
 extern "C"  GPU_API  bool pathblur_filter_gpu(void* in, void* out, float* vec, int amount,int width,int height);
 extern "C"  GPU_API  bool crystallize_filter_gpu(void* in, void* out, float* posx, float* posy, int n);
 extern "C"  GPU_API  bool rotationblur_filter_gpu(void* in, void* out, float x, float y, float a, float b, float ina, float inb, int strength,float angle);
-extern "C"  GPU_API	 bool gaussian_blur_filter_float_gpu(void* in, void* out, const int r);
+extern "C"  GPU_API	 bool gaussian_blur_filter_float_gpu(void* in, void* out, int r);
