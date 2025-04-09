@@ -399,11 +399,19 @@ bool crystallize_filter_gpu(void *in, void *out, float *posx, float *posy, int n
     return true;
 }
 
-bool rotationblur_filter_gpu(void *in, void *out, float x, float y, float a, float b, float ina, float inb,
-                             int strength, float angle) {
+bool rotationblur_filter_gpu(void* in,void* in2, void* out, float x, float y, float a, float b, float ina, float inb, int strength,float angle)
+{
+    
     const auto filter = std::make_shared<RotationBlurFilter>();
-    const auto *input = static_cast<ImageInfo *>(in);
-    const auto *output = static_cast<ImageInfo *>(out);
+    const auto* input = static_cast<ImageInfo*>(in);
+    const auto* output = static_cast<ImageInfo*>(out);
+    const auto* input2 = static_cast<ImageInfo*>(in2);
+    
+    std::vector<ImageInfo> inputs;
+    inputs.push_back(*input);
+    inputs.push_back(*input2);
+    std::vector<ImageInfo> outputs;
+    outputs.push_back(*output);
 
     filter->SetCenterX(x);
     filter->SetCenterY(y);
@@ -414,7 +422,8 @@ bool rotationblur_filter_gpu(void *in, void *out, float x, float y, float a, flo
     filter->SetStrength(strength);
     filter->SetAngle(angle);
 
-    g_effect_engine.Process(*input, *output, filter);
+    g_effect_engine.Process(inputs, outputs, filter);
 
     return true;
 }
+
