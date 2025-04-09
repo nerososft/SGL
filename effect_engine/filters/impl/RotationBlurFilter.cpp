@@ -79,5 +79,8 @@ VkResult RotationBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
 }
 
 void RotationBlurFilter::Destroy() {
-    computeGraph->Destroy();
+    if (computeGraph != nullptr) {
+        computeGraph->Destroy();
+        computeGraph = nullptr;
+    }
 }
