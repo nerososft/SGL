@@ -407,7 +407,7 @@ bool crystallize_filter_gpu(void *in, void *out, float *posx, float *posy, const
     return true;
 }
 
-bool rotationblur_filter_gpu(void *in, void *out, const float x, const float y, const float a, const float b,
+bool rotationblur_filter_gpu(void *in, void* in2, void *out, const float x, const float y, const float a, const float b,
                              const float ina, const float inb, const int strength, const float angle) {
     if (in == nullptr || out == nullptr) return false;
     const auto filter = std::make_shared<RotationBlurFilter>();

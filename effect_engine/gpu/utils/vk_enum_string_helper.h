@@ -712,3 +712,44 @@ static inline std::string string_VkMemoryPropertyFlags(VkMemoryPropertyFlags inp
     return ret;
 }
 #endif // __cplusplus
+
+
+static inline const char* string_VkQueueFlagBits(VkQueueFlagBits input_value) {
+    switch (input_value) {
+    case VK_QUEUE_GRAPHICS_BIT:
+        return "VK_QUEUE_GRAPHICS_BIT";
+    case VK_QUEUE_COMPUTE_BIT:
+        return "VK_QUEUE_COMPUTE_BIT";
+    case VK_QUEUE_TRANSFER_BIT:
+        return "VK_QUEUE_TRANSFER_BIT";
+    case VK_QUEUE_SPARSE_BINDING_BIT:
+        return "VK_QUEUE_SPARSE_BINDING_BIT";
+    case VK_QUEUE_PROTECTED_BIT:
+        return "VK_QUEUE_PROTECTED_BIT";
+    case VK_QUEUE_VIDEO_DECODE_BIT_KHR:
+        return "VK_QUEUE_VIDEO_DECODE_BIT_KHR";
+    case VK_QUEUE_VIDEO_ENCODE_BIT_KHR:
+        return "VK_QUEUE_VIDEO_ENCODE_BIT_KHR";
+    case VK_QUEUE_OPTICAL_FLOW_BIT_NV:
+        return "VK_QUEUE_OPTICAL_FLOW_BIT_NV";
+    default:
+        return "Unhandled VkQueueFlagBits";
+    }
+}
+
+#ifdef __cplusplus
+static inline std::string string_VkQueueFlags(VkQueueFlags input_value) {
+    std::string ret;
+    int index = 0;
+    while (input_value) {
+        if (input_value & 1) {
+            if (!ret.empty()) ret.append("|");
+            ret.append(string_VkQueueFlagBits(static_cast<VkQueueFlagBits>(1U << index)));
+        }
+        ++index;
+        input_value >>= 1;
+    }
+    if (ret.empty()) ret.append("VkQueueFlags(0)");
+    return ret;
+}
+#endif
