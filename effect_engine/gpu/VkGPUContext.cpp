@@ -126,7 +126,7 @@ DeviceQueue VkGPUContext::DispatchQueue(const VkQueueFlags flag) {
                          queueIndex,
                          &queueFamilies[queueFamilyIndex].queues[queueIndex].queue);
     }
-    this->dispatchQueueIndex++;
+    // this->dispatchQueueIndex++; // TODO: fix me, may crash on some gpu
     return queueFamilies[queueFamilyIndex].queues[queueIndex];
 }
 
@@ -305,19 +305,19 @@ VkResult VkGPUContext::Init() {
     std::vector<VkDescriptorPoolSize> descriptorPoolSizes;
     VkDescriptorPoolSize storageBufferDescriptorPoolSize;
     storageBufferDescriptorPoolSize.type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-    storageBufferDescriptorPoolSize.descriptorCount = 10;
+    storageBufferDescriptorPoolSize.descriptorCount = 50;
     descriptorPoolSizes.push_back(storageBufferDescriptorPoolSize);
 
     VkDescriptorPoolSize uniformBufferDescriptorPoolSize;
     uniformBufferDescriptorPoolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    uniformBufferDescriptorPoolSize.descriptorCount = 10;
+    uniformBufferDescriptorPoolSize.descriptorCount = 50;
     descriptorPoolSizes.push_back(uniformBufferDescriptorPoolSize);
 
     VkDescriptorPoolCreateInfo descriptorPoolCreateInfo;
     descriptorPoolCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
     descriptorPoolCreateInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
     descriptorPoolCreateInfo.pNext = nullptr;
-    descriptorPoolCreateInfo.maxSets = 10;
+    descriptorPoolCreateInfo.maxSets = 50;
     descriptorPoolCreateInfo.poolSizeCount = descriptorPoolSizes.size();
     descriptorPoolCreateInfo.pPoolSizes = descriptorPoolSizes.data();
     result = vkCreateDescriptorPool(this->device, &descriptorPoolCreateInfo, nullptr, &this->descriptorPool);

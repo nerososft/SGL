@@ -237,6 +237,7 @@ void EffectEngine::Process(const std::vector<ImageInfo> &inputs,
             buffer->Destroy();
         }
         filter->Destroy();
+        this->gpuCtx->Reset();
         return;
     }
     const uint64_t gpuProcessTimeEnd = TimeUtils::GetCurrentMonoMs();
@@ -266,6 +267,8 @@ void EffectEngine::Process(const std::vector<ImageInfo> &inputs,
         buffer->Destroy();
     }
     filter->Destroy();
+    this->gpuCtx->Reset();
+
     inputBuffers.clear();
     inputBuffers.resize(0);
     outputBuffers.clear();
