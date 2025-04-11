@@ -13,12 +13,38 @@ bool Renderer::Init() {
     // this->gpuCtx->AddInstanceEnableLayer("VK_LAYER_LUNARG_api_dump");
     // this->gpuCtx->AddInstanceEnableLayer("VK_LAYER_KHRONOS_synchronization2");
     // this->gpuCtx->AddDeviceEnabledExtension("VK_KHR_synchronization2");
-    const VkResult result = this->gpuCtx->Init();
+    VkResult result = this->gpuCtx->Init();
     if (result != VK_SUCCESS) {
         Logger() << Logger::ERROR << "Failed to initialize Vulkan GPU context!" << std::endl;
         return false;
     }
     Logger() << Logger::INFO << "Initialized Renderer, version: " << VERSION << std::endl;
+
+    this->computeGraph = std::make_shared<ComputeGraph>(this->gpuCtx);
+    if (!this->computeGraph) {
+        Logger() << Logger::ERROR << "Failed to create compute graph!" << std::endl;
+        return false;
+    }
+    this->subComputeGraph = std::make_shared<SubComputeGraph>(this->gpuCtx);
+    if (!this->subComputeGraph) {
+        Logger() << Logger::ERROR << "Failed to create sub compute graph!" << std::endl;
+        return false;
+    }
+    result = this->subComputeGraph->Init();
+    if (result != VK_SUCCESS) {
+        Logger() << Logger::ERROR << "Failed to initialize sub compute graph!" << std::endl;
+        return false;
+    }
+    mainRenderPassNode = std::make_shared<GraphicsRenderPassNode>(this->gpuCtx, "main", this->width, this->height);
+    if (mainRenderPassNode == nullptr) {
+        Logger() << Logger::ERROR << "Failed to create graphics render pass node!" << std::endl;
+        return false;
+    }
+    result = mainRenderPassNode->CreateComputeGraphNode();
+    if (result != VK_SUCCESS) {
+        Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
+        return false;
+    }
     return true;
 }
 
