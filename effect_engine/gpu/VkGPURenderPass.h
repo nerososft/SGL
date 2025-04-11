@@ -18,7 +18,7 @@ class VkGPURenderPass {
     std::vector<VkSubpassDependency> dependencies;
     std::vector<VkSubpassDescription> subPasses;
 
-    VkRect2D renderArea;
+    VkRect2D renderArea{};
     std::vector<VkClearValue> clearValues;
 
 public:

@@ -35,16 +35,20 @@ bool Renderer::Init() {
         Logger() << Logger::ERROR << "Failed to initialize sub compute graph!" << std::endl;
         return false;
     }
-    mainRenderPassNode = std::make_shared<GraphicsRenderPassNode>(this->gpuCtx, "main", this->width, this->height);
+    mainRenderPassNode = std::make_shared<GraphicsRenderPassNode>(this->gpuCtx,
+                                                                  "main",
+                                                                  this->width,
+                                                                  this->height);
     if (mainRenderPassNode == nullptr) {
         Logger() << Logger::ERROR << "Failed to create graphics render pass node!" << std::endl;
         return false;
     }
     result = mainRenderPassNode->CreateComputeGraphNode();
     if (result != VK_SUCCESS) {
-        Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
+        Logger() << Logger::ERROR << "Failed to create render pass compute graph node!" << std::endl;
         return false;
     }
+    Logger() << Logger::INFO << "Renderer Initialied!" << std::endl;
     return true;
 }
 

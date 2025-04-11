@@ -17,6 +17,10 @@ GraphicsRenderPassNode::GraphicsRenderPassNode(const std::shared_ptr<VkGPUContex
                                                const std::string &name,
                                                float width,
                                                float height) {
+    this->gpuCtx = gpuCtx;
+    this->name = name;
+    this->width = width;
+    this->height = height;
 }
 
 VkResult GraphicsRenderPassNode::CreateComputeGraphNode() {

@@ -22,7 +22,7 @@ VkGPURenderPass::VkGPURenderPass(const std::shared_ptr<VkGPUContext> &gpuCtx,
 }
 
 VkResult VkGPURenderPass::CreateRenderPass() {
-    if (gpuCtx == nullptr) {
+    if (this->gpuCtx == nullptr) {
         return VK_ERROR_INITIALIZATION_FAILED;
     }
 
