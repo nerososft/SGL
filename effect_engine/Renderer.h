@@ -22,7 +22,7 @@ public:
 
     bool Init();
 
-    void RenderFrame();
+    void RenderFrame() const;
 
     ~Renderer() = default;
 };

@@ -48,11 +48,13 @@ bool Renderer::Init() {
         Logger() << Logger::ERROR << "Failed to create render pass compute graph node!" << std::endl;
         return false;
     }
-    Logger() << Logger::INFO << "Renderer Initialied!" << std::endl;
+    Logger() << Logger::INFO << "Renderer Initialized!" << std::endl;
     return true;
 }
 
-void Renderer::RenderFrame() {
-    // TODO:
-    return;
+void Renderer::RenderFrame() const {
+    VkResult ret = this->computeGraph->Compute();
+    if (ret != VK_SUCCESS) {
+        Logger() << Logger::ERROR << "Failed to render compute graph!" << std::endl;
+    }
 }
