@@ -6,6 +6,14 @@
 
 #include "log/Log.h"
 
+void Renderer::ConstructMainGraphicsPipeline() const {
+    // TODO:
+    GraphicsElement element;
+    element.pushConstantInfo = {};
+    element.customDrawFunc = nullptr;
+    this->graphicsPipelineNode->AddGraphicsElement(element);
+}
+
 bool Renderer::Init() {
     std::vector<const char *> requiredExtensions;
     this->gpuCtx = std::make_shared<VkGPUContext>(requiredExtensions);
@@ -49,6 +57,30 @@ bool Renderer::Init() {
         return false;
     }
     Logger() << Logger::INFO << "Renderer Initialized!" << std::endl;
+
+    this->graphicsPipelineNode = std::make_shared<GraphicsPipelineNode>(this->gpuCtx,
+                                                                        "mainPipeline",
+                                                                        this->mainRenderPassNode->GetRenderPass(),
+                                                                        SHADER(rect.vert.glsl.spv),
+                                                                        SHADER(rect.frag.glsl.spv),
+                                                                        this->width,
+                                                                        this->height);
+    if (this->graphicsPipelineNode == nullptr) {
+        Logger() << Logger::ERROR << "Failed to create graphics pipeline node!" << std::endl;
+        return false;
+    }
+
+    ConstructMainGraphicsPipeline();
+
+    result = this->graphicsPipelineNode->CreateComputeGraphNode();
+    if (result != VK_SUCCESS) {
+        Logger() << Logger::ERROR << "Failed to create graphics pipeline node!" << std::endl;
+        return false;
+    }
+
+    this->mainRenderPassNode->AddDependenceNode(this->graphicsPipelineNode);
+    this->subComputeGraph->AddComputeGraphNode(mainRenderPassNode);
+    this->computeGraph->AddSubGraph(this->subComputeGraph);
     return true;
 }
 
