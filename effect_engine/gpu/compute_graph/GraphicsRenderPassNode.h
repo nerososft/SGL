@@ -17,7 +17,7 @@ class GraphicsRenderPassNode final : public IComputeGraphNode {
 
     std::shared_ptr<VkGPUContext> gpuCtx = nullptr;
     std::shared_ptr<VkGPURenderPass> renderPass = nullptr;
-    VkFramebuffer framebuffer = nullptr;
+    VkFramebuffer framebuffer = VK_NULL_HANDLE;
 
 public:
     GraphicsRenderPassNode(const std::shared_ptr<VkGPUContext> &gpuCtx,

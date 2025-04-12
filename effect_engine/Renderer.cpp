@@ -79,7 +79,7 @@ bool Renderer::ConstructMainGraphicsPipeline() {
         {
             .binding = 0,
             .location = 0,
-            .format = VK_FORMAT_R32G32B32A32_SFLOAT,
+            .format = VK_FORMAT_R32G32B32_SFLOAT,
             .offset = 0,
         }
     };
@@ -143,6 +143,19 @@ bool Renderer::Init() {
     std::vector<VkAttachmentDescription> attachments;
     std::vector<VkSubpassDependency> dependencies;
     std::vector<VkSubpassDescription> subPasses;
+    VkAttachmentDescription attachment;
+    attachment.flags = 0;
+    attachment.format = VK_FORMAT_R8G8B8A8_SRGB;
+    attachment.samples = VK_SAMPLE_COUNT_1_BIT;
+    attachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+    attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    attachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+    attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    attachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    attachments.push_back(attachment);
+
+    VkSubpassDescription subpass;
     mainRenderPassNode = std::make_shared<GraphicsRenderPassNode>(this->gpuCtx,
                                                                   "main",
                                                                   attachments,
