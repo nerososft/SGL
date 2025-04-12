@@ -18,6 +18,10 @@ GraphicsPipelineNode::GraphicsPipelineNode(const std::shared_ptr<VkGPUContext> &
                                            const std::shared_ptr<VkGPURenderPass> &renderPass,
                                            const std::string &vertexShaderPath,
                                            const std::string &fragmentShaderPath,
+                                           const std::vector<VkVertexInputBindingDescription> &
+                                           vertexInputBindingDescriptions,
+                                           const std::vector<VkVertexInputAttributeDescription> &
+                                           vertexInputAttributeDescriptions,
                                            const float width,
                                            const float height) {
     this->gpuCtx = gpuCtx;
@@ -26,6 +30,8 @@ GraphicsPipelineNode::GraphicsPipelineNode(const std::shared_ptr<VkGPUContext> &
     this->renderPass = renderPass;
     this->vertexShaderPath = vertexShaderPath;
     this->fragmentShaderPath = fragmentShaderPath;
+    this->vertexInputBindingDescriptions = vertexInputBindingDescriptions;
+    this->vertexInputAttributeDescriptions = vertexInputAttributeDescriptions;
     this->width = width;
     this->height = height;
 }
@@ -52,8 +58,10 @@ VkResult GraphicsPipelineNode::CreateComputeGraphNode() {
         bufferBinding.binding = i;
         if (buffers[i].type == PIPELINE_NODE_BUFFER_UNIFORM) {
             bufferBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        } else if (buffers[i].type == PIPELINE_NODE_BUFFER_STORAGE_READ |
-                   buffers[i].type == PIPELINE_NODE_BUFFER_STORAGE_WRITE) {
+        } else if (buffers[i].type == PIPELINE_NODE_BUFFER_STORAGE_READ ||
+                   buffers[i].type == PIPELINE_NODE_BUFFER_STORAGE_WRITE ||
+                   buffers[i].type == PIPELINE_NODE_BUFFER_VERTEX ||
+                   buffers[i].type == PIPELINE_NODE_BUFFER_INDEX) {
             bufferBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
         }
         bufferBinding.descriptorCount = 1;
@@ -68,10 +76,6 @@ VkResult GraphicsPipelineNode::CreateComputeGraphNode() {
     pushConstantRange.size = pushConstantInfo.size;
     pushConstantRange.stageFlags = VK_SHADER_STAGE_ALL_GRAPHICS;
     pushConstantRanges.push_back(pushConstantRange);
-
-    // TODO:
-    std::vector<VkVertexInputBindingDescription> vertexInputBindingDescriptions;
-    std::vector<VkVertexInputAttributeDescription> vertexInputAttributeDescriptions;
 
     graphicsPipeline = std::make_shared<VkGPUGraphicsPipeline>(vertexShaderPath,
                                                                fragmentShaderPath,

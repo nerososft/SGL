@@ -22,7 +22,7 @@ class Renderer {
 public:
     Renderer() = default;
 
-    bool ConstructMainGraphicsPipeline() const;
+    [[nodiscard]] bool ConstructMainGraphicsPipeline();
 
     bool Init();
 

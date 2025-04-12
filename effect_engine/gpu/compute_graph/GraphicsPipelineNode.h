@@ -22,6 +22,8 @@ struct GraphicsElement {
 class GraphicsPipelineNode final : public IComputeGraphNode {
     std::string vertexShaderPath;
     std::string fragmentShaderPath;
+    std::vector<VkVertexInputBindingDescription> vertexInputBindingDescriptions;
+    std::vector<VkVertexInputAttributeDescription> vertexInputAttributeDescriptions;
 
     float width = 1.0f;
     float height = 1.0f;
@@ -40,6 +42,8 @@ public:
                          const std::shared_ptr<VkGPURenderPass> &renderPass,
                          const std::string &vertexShaderPath,
                          const std::string &fragmentShaderPath,
+                         const std::vector<VkVertexInputBindingDescription> &vertexInputBindingDescriptions,
+                         const std::vector<VkVertexInputAttributeDescription> &vertexInputAttributeDescriptions,
                          float width,
                          float height);
 

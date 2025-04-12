@@ -7,7 +7,7 @@
 #include "gpu/VkGPUBuffer.h"
 #include "log/Log.h"
 
-bool Renderer::ConstructMainGraphicsPipeline() const {
+bool Renderer::ConstructMainGraphicsPipeline() {
     std::vector<PipelineNodeBuffer> buffers;
 
     const auto vertexBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
@@ -67,6 +67,24 @@ bool Renderer::ConstructMainGraphicsPipeline() const {
     element.buffers = buffers;
     element.pushConstantInfo = {};
     element.customDrawFunc = nullptr;
+
+    std::vector<VkVertexInputBindingDescription> vertexInputBindingDescriptions;
+    std::vector<VkVertexInputAttributeDescription> vertexInputAttributeDescriptions;
+
+    this->graphicsPipelineNode = std::make_shared<GraphicsPipelineNode>(this->gpuCtx,
+                                                                        "mainPipeline",
+                                                                        this->mainRenderPassNode->GetRenderPass(),
+                                                                        SHADER(rect.vert.glsl.spv),
+                                                                        SHADER(rect.frag.glsl.spv),
+                                                                        vertexInputBindingDescriptions,
+                                                                        vertexInputAttributeDescriptions,
+                                                                        this->width,
+                                                                        this->height);
+    if (this->graphicsPipelineNode == nullptr) {
+        Logger() << Logger::ERROR << "Failed to create graphics pipeline node!" << std::endl;
+        return false;
+    }
+
     this->graphicsPipelineNode->AddGraphicsElement(element);
     return true;
 }
@@ -115,20 +133,10 @@ bool Renderer::Init() {
     }
     Logger() << Logger::INFO << "Renderer Initialized!" << std::endl;
 
-    this->graphicsPipelineNode = std::make_shared<GraphicsPipelineNode>(this->gpuCtx,
-                                                                        "mainPipeline",
-                                                                        this->mainRenderPassNode->GetRenderPass(),
-                                                                        SHADER(rect.vert.glsl.spv),
-                                                                        SHADER(rect.frag.glsl.spv),
-                                                                        this->width,
-                                                                        this->height);
-    if (this->graphicsPipelineNode == nullptr) {
-        Logger() << Logger::ERROR << "Failed to create graphics pipeline node!" << std::endl;
+    if (!ConstructMainGraphicsPipeline()) {
+        Logger() << Logger::ERROR << "Failed to create main graphics pipeline!" << std::endl;
         return false;
     }
-
-    if (!ConstructMainGraphicsPipeline()) {
-    };
 
     result = this->graphicsPipelineNode->CreateComputeGraphNode();
     if (result != VK_SUCCESS) {

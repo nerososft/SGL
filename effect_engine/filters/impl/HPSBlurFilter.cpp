@@ -33,11 +33,16 @@ VkResult HPSBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
         return ret;
     }
 
+    std::vector<VkVertexInputBindingDescription> vertexInputBindingDescriptions;
+    std::vector<VkVertexInputAttributeDescription> vertexInputAttributeDescriptions;
+
     const auto graphicsNode = std::make_shared<GraphicsPipelineNode>(gpuCtx,
                                                                      "HPSBlurPipeline",
                                                                      renderPassNode->GetRenderPass(),
                                                                      SHADER(rect.vert.glsl.spv),
                                                                      SHADER(rect.frag.glsl.spv),
+                                                                     vertexInputBindingDescriptions,
+                                                                     vertexInputAttributeDescriptions,
                                                                      inputImageInfo[0].width, inputImageInfo[0].height);
 
     // TODO:
