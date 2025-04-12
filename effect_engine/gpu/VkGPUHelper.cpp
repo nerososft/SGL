@@ -788,3 +788,83 @@ VkResult VkGPUHelper::CreateUniformBufferAndBindMem(const VkDevice device,
     }
     return ret;
 }
+
+VkResult VkGPUHelper::CreateVertexBufferAndBindMem(const VkDevice device,
+                                                   const VkDeviceSize size,
+                                                   const std::vector<uint32_t> &queueFamilyIndices,
+                                                   const VkPhysicalDeviceMemoryProperties *memProps,
+                                                   VkBuffer *storageBuffer,
+                                                   VkDeviceMemory *storageBufferMemory) {
+    VkResult ret = CreateBuffer(device,
+                                size,
+                                VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+                                VK_SHARING_MODE_CONCURRENT,
+                                queueFamilyIndices,
+                                storageBuffer);
+    if (ret != VK_SUCCESS) {
+        Logger() << "vkCreateBuffer failed, err=" << string_VkResult(ret) << std::endl;
+    }
+
+    VkMemoryRequirements memRequirements;
+    vkGetBufferMemoryRequirements(device, *storageBuffer, &memRequirements);
+
+    VkMemoryAllocateInfo allocInfo = {};
+    allocInfo.pNext = nullptr;
+    allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    allocInfo.allocationSize = memRequirements.size;
+    allocInfo.memoryTypeIndex = GetRequiredMemTypeIndex(memProps,
+                                                        memRequirements,
+                                                        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                                                        VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+    ret = vkAllocateMemory(device, &allocInfo, nullptr, storageBufferMemory);
+    if (ret != VK_SUCCESS) {
+        Logger() << "vkAllocateMemory failed, err=" << string_VkResult(ret) << std::endl;
+        return ret;
+    }
+    ret = vkBindBufferMemory(device, *storageBuffer, *storageBufferMemory, 0);
+    if (ret != VK_SUCCESS) {
+        Logger() << "vkBindBufferMemory failed, err=" << string_VkResult(ret) << std::endl;
+        return ret;
+    }
+    return ret;
+}
+
+VkResult VkGPUHelper::CreateIndexBufferAndBindMem(const VkDevice device,
+                                                  const VkDeviceSize size,
+                                                  const std::vector<uint32_t> &queueFamilyIndices,
+                                                  const VkPhysicalDeviceMemoryProperties *memProps,
+                                                  VkBuffer *storageBuffer,
+                                                  VkDeviceMemory *storageBufferMemory) {
+    VkResult ret = CreateBuffer(device,
+                                size,
+                                VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+                                VK_SHARING_MODE_CONCURRENT,
+                                queueFamilyIndices,
+                                storageBuffer);
+    if (ret != VK_SUCCESS) {
+        Logger() << "vkCreateBuffer failed, err=" << string_VkResult(ret) << std::endl;
+    }
+
+    VkMemoryRequirements memRequirements;
+    vkGetBufferMemoryRequirements(device, *storageBuffer, &memRequirements);
+
+    VkMemoryAllocateInfo allocInfo = {};
+    allocInfo.pNext = nullptr;
+    allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    allocInfo.allocationSize = memRequirements.size;
+    allocInfo.memoryTypeIndex = GetRequiredMemTypeIndex(memProps,
+                                                        memRequirements,
+                                                        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                                                        VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+    ret = vkAllocateMemory(device, &allocInfo, nullptr, storageBufferMemory);
+    if (ret != VK_SUCCESS) {
+        Logger() << "vkAllocateMemory failed, err=" << string_VkResult(ret) << std::endl;
+        return ret;
+    }
+    ret = vkBindBufferMemory(device, *storageBuffer, *storageBufferMemory, 0);
+    if (ret != VK_SUCCESS) {
+        Logger() << "vkBindBufferMemory failed, err=" << string_VkResult(ret) << std::endl;
+        return ret;
+    }
+    return ret;
+}

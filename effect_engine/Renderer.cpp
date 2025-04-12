@@ -4,14 +4,71 @@
 
 #include "Renderer.h"
 
+#include "gpu/VkGPUBuffer.h"
 #include "log/Log.h"
 
-void Renderer::ConstructMainGraphicsPipeline() const {
-    // TODO:
+bool Renderer::ConstructMainGraphicsPipeline() const {
+    std::vector<PipelineNodeBuffer> buffers;
+
+    const auto vertexBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
+    if (vertexBuffer == nullptr) {
+        Logger() << "vertexBuffer is null" << std::endl;
+        return false;
+    }
+    const std::vector vertices = {
+        -0.5f, -0.5f, 0.0f,
+        0.5f, -0.5f, 0.0f,
+        -0.5f, 0.5f, 0.0f,
+        -0.5f, 0.5f, 0.0f,
+        0.5f, -0.5f, 0.0f,
+        0.5f, 0.5f, 0.0f
+    };
+    VkResult ret = vertexBuffer->AllocateAndBind(GPU_BUFFER_TYPE_VERTEX, vertices.size() * sizeof(float));
+    if (ret != VK_SUCCESS) {
+        Logger() << "Vertex buffer allocate and bind failed" << std::endl;
+        return false;
+    }
+    ret = vertexBuffer->UploadData(vertices.data(), sizeof(float) * vertices.size());
+    if (ret != VK_SUCCESS) {
+        Logger() << "Vertex buffer upload failed" << std::endl;
+        return false;
+    }
+
+    PipelineNodeBuffer vertexBufferNode = {};
+    vertexBufferNode.type = PIPELINE_NODE_BUFFER_VERTEX;
+    vertexBufferNode.bufferSize = sizeof(float) * vertices.size();
+    vertexBufferNode.buffer = vertexBuffer->GetBuffer();
+
+    const auto indicesBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
+    if (indicesBuffer == nullptr) {
+        Logger() << "indexBuffer is null" << std::endl;
+        return false;
+    }
+    const std::vector indices = {0, 1, 2, 3, 4, 5};
+    ret = indicesBuffer->AllocateAndBind(GPU_BUFFER_TYPE_INDEX, indices.size() * sizeof(uint32_t));
+    if (ret != VK_SUCCESS) {
+        Logger() << "Index buffer allocate and bind failed" << std::endl;
+        return false;
+    }
+    ret = indicesBuffer->UploadData(indices.data(), sizeof(uint32_t) * indices.size());
+    if (ret != VK_SUCCESS) {
+        Logger() << "Index buffer upload failed" << std::endl;
+        return false;
+    }
+
+    PipelineNodeBuffer indexBufferNode = {};
+    indexBufferNode.type = PIPELINE_NODE_BUFFER_INDEX;
+    indexBufferNode.buffer = indicesBuffer->GetBuffer();
+    indexBufferNode.bufferSize = sizeof(uint32_t) * indices.size();
+
+    buffers.push_back(vertexBufferNode);
+    buffers.push_back(indexBufferNode);
     GraphicsElement element;
+    element.buffers = buffers;
     element.pushConstantInfo = {};
     element.customDrawFunc = nullptr;
     this->graphicsPipelineNode->AddGraphicsElement(element);
+    return true;
 }
 
 bool Renderer::Init() {
@@ -70,7 +127,8 @@ bool Renderer::Init() {
         return false;
     }
 
-    ConstructMainGraphicsPipeline();
+    if (!ConstructMainGraphicsPipeline()) {
+    };
 
     result = this->graphicsPipelineNode->CreateComputeGraphNode();
     if (result != VK_SUCCESS) {

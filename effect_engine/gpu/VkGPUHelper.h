@@ -14,7 +14,7 @@ public:
 
     ~VkGPUHelper() = default;
 
-    static VkResult CreateSemaphore(VkDevice device, VkSemaphore* semaphore);
+    static VkResult CreateSemaphore(VkDevice device, VkSemaphore *semaphore);
 
     static PFN_vkCmdPipelineBarrier2KHR GetVkCmdPipelineBarrier2Fn(VkDevice device);
 
@@ -195,6 +195,20 @@ public:
                                                   const VkPhysicalDeviceMemoryProperties *memProps,
                                                   VkBuffer *storageBuffer,
                                                   VkDeviceMemory *storageBufferMemory);
+
+    static VkResult CreateVertexBufferAndBindMem(VkDevice device,
+                                                 VkDeviceSize size,
+                                                 const std::vector<uint32_t> &queueFamilyIndices,
+                                                 const VkPhysicalDeviceMemoryProperties *memProps,
+                                                 VkBuffer *storageBuffer,
+                                                 VkDeviceMemory *storageBufferMemory);
+
+    static VkResult CreateIndexBufferAndBindMem(VkDevice device,
+                                                VkDeviceSize size,
+                                                const std::vector<uint32_t> &queueFamilyIndices,
+                                                const VkPhysicalDeviceMemoryProperties *memProps,
+                                                VkBuffer *storageBuffer,
+                                                VkDeviceMemory *storageBufferMemory);
 };
 
 

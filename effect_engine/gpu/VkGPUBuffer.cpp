@@ -46,6 +46,20 @@ VkResult VkGPUBuffer::AllocateAndBind(const VkGPUBufferType type, const VkDevice
                                                                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
                                                                 &buffer,
                                                                 &bufferMemory);
+        } else if (type == GPU_BUFFER_TYPE_VERTEX) {
+            result = VkGPUHelper::CreateVertexBufferAndBindMem(gpuCtx->GetCurrentDevice(),
+                                                               size,
+                                                               queueFamilyIndices,
+                                                               &memoryProperties,
+                                                               &buffer,
+                                                               &bufferMemory);
+        } else if (type == GPU_BUFFER_TYPE_INDEX) {
+            result = VkGPUHelper::CreateIndexBufferAndBindMem(gpuCtx->GetCurrentDevice(),
+                                                              size,
+                                                              queueFamilyIndices,
+                                                              &memoryProperties,
+                                                              &buffer,
+                                                              &bufferMemory);
         }
     }
     if (result != VK_SUCCESS) {
@@ -62,7 +76,7 @@ VkResult VkGPUBuffer::MapBuffer(const VkDeviceSize size) {
     if (bufferMemory == VK_NULL_HANDLE) {
         return VK_ERROR_INITIALIZATION_FAILED;
     }
-    if (this->type != GPU_BUFFER_TYPE_UNIFORM && this->type != GPU_BUFFER_TYPE_STORAGE_SHARED) {
+    if (this->type == GPU_BUFFER_TYPE_STORAGE_LOCAL) {
         return VK_ERROR_MEMORY_MAP_FAILED;
     }
     const VkResult result = vkMapMemory(this->gpuCtx->GetCurrentDevice(), bufferMemory, 0, size, 0, &data);

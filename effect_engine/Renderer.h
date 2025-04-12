@@ -22,7 +22,7 @@ class Renderer {
 public:
     Renderer() = default;
 
-    void ConstructMainGraphicsPipeline() const;
+    bool ConstructMainGraphicsPipeline() const;
 
     bool Init();
 
