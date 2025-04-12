@@ -798,7 +798,7 @@ VkResult VkGPUHelper::CreateVertexBufferAndBindMem(const VkDevice device,
     VkResult ret = CreateBuffer(device,
                                 size,
                                 VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-                                VK_SHARING_MODE_CONCURRENT,
+                                VK_SHARING_MODE_EXCLUSIVE,
                                 queueFamilyIndices,
                                 storageBuffer);
     if (ret != VK_SUCCESS) {
@@ -838,7 +838,7 @@ VkResult VkGPUHelper::CreateIndexBufferAndBindMem(const VkDevice device,
     VkResult ret = CreateBuffer(device,
                                 size,
                                 VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
-                                VK_SHARING_MODE_CONCURRENT,
+                                VK_SHARING_MODE_EXCLUSIVE,
                                 queueFamilyIndices,
                                 storageBuffer);
     if (ret != VK_SUCCESS) {

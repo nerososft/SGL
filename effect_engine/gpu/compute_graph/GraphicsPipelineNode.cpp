@@ -11,6 +11,7 @@
 #endif
 
 #include "effect_engine/gpu/VkGPUGraphicsPipeline.h"
+#include "effect_engine/gpu/VkGPUHelper.h"
 #include "effect_engine/log/Log.h"
 
 GraphicsPipelineNode::GraphicsPipelineNode(const std::shared_ptr<VkGPUContext> &gpuCtx,
@@ -121,8 +122,96 @@ VkResult GraphicsPipelineNode::CreateComputeGraphNode() {
     return ret;
 }
 
-void GraphicsPipelineNode::Compute(VkCommandBuffer commandBuffer) {
-    // TODO:
+void GraphicsPipelineNode::Compute(const VkCommandBuffer commandBuffer) {
+    if (!this->dependencies.empty()) {
+        for (const auto &dependence: this->dependencies) {
+            Logger() << "Node: " << name << " Depend On:" << dependence->GetName() << std::endl;
+            dependence->Compute(commandBuffer);
+        }
+    }
+    Logger() << "Executing Compute Node: " << name << std::endl;
+    graphicsPipeline->GPUCmdBindPipeline(commandBuffer);
+    for (size_t i = 0; i < graphicsElements.size(); ++i) {
+        pipelineDescriptorSets[i]->GPUCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE);
+        VkGPUHelper::GPUCmdPushConstant(commandBuffer,
+                                        graphicsPipeline->GetPipelineLayout(),
+                                        VK_SHADER_STAGE_ALL_GRAPHICS,
+                                        0,
+                                        graphicsElements[i].pushConstantInfo.size,
+                                        graphicsElements[i].pushConstantInfo.data);
+
+        std::vector<VkBufferMemoryBarrier> readBufferMemoryBarriers;
+        for (const auto &[type, bufferSize, buffer]: graphicsElements[i].buffers) {
+            if (type == PIPELINE_NODE_BUFFER_STORAGE_READ) {
+                readBufferMemoryBarriers.push_back(VkGPUHelper::BuildBufferMemoryBarrier(
+                    VK_ACCESS_MEMORY_WRITE_BIT,
+                    VK_ACCESS_MEMORY_READ_BIT,
+                    buffer,
+                    bufferSize));
+            }
+        }
+
+        PFN_vkCmdPipelineBarrier2KHR vkCmdPipelineBarrier2Fn =
+                vkCmdPipelineBarrier2Fn = VkGPUHelper::GetVkCmdPipelineBarrier2Fn(this->gpuCtx->GetCurrentDevice());
+        if (vkCmdPipelineBarrier2Fn != nullptr) {
+            VkMemoryBarrier2KHR memoryBarrier;
+            memoryBarrier.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER_2_KHR;
+            memoryBarrier.pNext = nullptr;
+            memoryBarrier.srcStageMask = VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT_KHR;
+            memoryBarrier.srcAccessMask = VK_ACCESS_2_SHADER_STORAGE_WRITE_BIT_KHR;
+            memoryBarrier.dstStageMask = VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT_KHR;
+            memoryBarrier.dstAccessMask = VK_ACCESS_2_SHADER_STORAGE_READ_BIT;
+
+            VkDependencyInfoKHR dependencyInfo;
+            dependencyInfo.sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO_KHR;
+            dependencyInfo.pNext = nullptr;
+            dependencyInfo.dependencyFlags = 0;
+            dependencyInfo.memoryBarrierCount = 1;
+            dependencyInfo.pMemoryBarriers = &memoryBarrier;
+            dependencyInfo.bufferMemoryBarrierCount = 0;
+            dependencyInfo.pBufferMemoryBarriers = nullptr;
+            dependencyInfo.imageMemoryBarrierCount = 0;
+            dependencyInfo.pImageMemoryBarriers = nullptr;
+            vkCmdPipelineBarrier2Fn(commandBuffer, &dependencyInfo);
+        }
+
+        VkGPUHelper::GPUCmdPipelineBufferMemBarrier(commandBuffer,
+                                                    VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
+                                                    VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
+                                                    0,
+                                                    readBufferMemoryBarriers);
+
+        vkCmdDraw(commandBuffer, 3, 1, 0, 0);
+
+        std::vector<VkBufferMemoryBarrier> writeBufferMemoryBarriers;
+        for (const auto &[type, bufferSize, buffer]: graphicsElements[i].buffers) {
+            if (type == PIPELINE_NODE_BUFFER_STORAGE_WRITE) {
+                writeBufferMemoryBarriers.push_back(VkGPUHelper::BuildBufferMemoryBarrier(
+                    VK_ACCESS_MEMORY_WRITE_BIT,
+                    VK_ACCESS_MEMORY_READ_BIT,
+                    buffer,
+                    bufferSize));
+            }
+        }
+
+        VkGPUHelper::GPUCmdPipelineBufferMemBarrier(commandBuffer,
+                                                    VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+                                                    VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+                                                    0,
+                                                    writeBufferMemoryBarriers);
+        std::vector<VkMemoryBarrier> memoryBarriers;
+        memoryBarriers.push_back(VkGPUHelper::BuildMemoryBarrier(VK_ACCESS_MEMORY_WRITE_BIT,
+                                                                 VK_ACCESS_MEMORY_READ_BIT));
+        VkGPUHelper::GPUCmdPipelineMemBarrier(commandBuffer,
+                                              VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+                                              VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+                                              0,
+                                              memoryBarriers);
+
+        if (graphicsElements[i].customDrawFunc != nullptr) {
+            graphicsElements[i].customDrawFunc(commandBuffer);
+        }
+    }
 }
 
 void GraphicsPipelineNode::Destroy() {

@@ -30,7 +30,7 @@ VkResult VkGPURenderPass::CreateRenderPass() {
                                                           attachments,
                                                           dependencies,
                                                           subPasses,
-                                                          &renderPass);
+                                                          &this->renderPass);
     if (result != VK_SUCCESS) {
         Logger() << "Failed to create render pass!" << std::endl;
         return result;

@@ -23,8 +23,15 @@ VkResult HPSBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
         return ret;
     }
 
+    // TODO:
+    std::vector<VkAttachmentDescription> attachments;
+    std::vector<VkSubpassDependency> dependencies;
+    std::vector<VkSubpassDescription> subPasses;
     const auto renderPassNode = std::make_shared<GraphicsRenderPassNode>(gpuCtx,
                                                                          "HPSBlurRenderPass",
+                                                                         attachments,
+                                                                         dependencies,
+                                                                         subPasses,
                                                                          inputImageInfo[0].width,
                                                                          inputImageInfo[0].height);
     ret = renderPassNode->CreateComputeGraphNode();
@@ -33,9 +40,9 @@ VkResult HPSBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
         return ret;
     }
 
+    // TODO:
     std::vector<VkVertexInputBindingDescription> vertexInputBindingDescriptions;
     std::vector<VkVertexInputAttributeDescription> vertexInputAttributeDescriptions;
-
     const auto graphicsNode = std::make_shared<GraphicsPipelineNode>(gpuCtx,
                                                                      "HPSBlurPipeline",
                                                                      renderPassNode->GetRenderPass(),

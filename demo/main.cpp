@@ -186,6 +186,7 @@ void renderer_main() {
     if (!renderer.Init()) {
         Logger() << "Failed to initialize renderer" << std::endl;
     }
+    renderer.RenderFrame();
 }
 
 int main(int argc, char *argv[]) {

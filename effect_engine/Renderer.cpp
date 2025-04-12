@@ -68,8 +68,21 @@ bool Renderer::ConstructMainGraphicsPipeline() {
     element.pushConstantInfo = {};
     element.customDrawFunc = nullptr;
 
-    std::vector<VkVertexInputBindingDescription> vertexInputBindingDescriptions;
-    std::vector<VkVertexInputAttributeDescription> vertexInputAttributeDescriptions;
+    std::vector<VkVertexInputBindingDescription> vertexInputBindingDescriptions = {
+        {
+            .binding = 0,
+            .stride = sizeof(Vertex),
+            .inputRate = VK_VERTEX_INPUT_RATE_VERTEX
+        }
+    };
+    std::vector<VkVertexInputAttributeDescription> vertexInputAttributeDescriptions = {
+        {
+            .binding = 0,
+            .location = 0,
+            .format = VK_FORMAT_R32G32B32A32_SFLOAT,
+            .offset = 0,
+        }
+    };
 
     this->graphicsPipelineNode = std::make_shared<GraphicsPipelineNode>(this->gpuCtx,
                                                                         "mainPipeline",
@@ -86,13 +99,21 @@ bool Renderer::ConstructMainGraphicsPipeline() {
     }
 
     this->graphicsPipelineNode->AddGraphicsElement(element);
+
+    ret = this->graphicsPipelineNode->CreateComputeGraphNode();
+    if (ret != VK_SUCCESS) {
+        Logger() << Logger::ERROR << "Failed to create graphics pipeline node!" << std::endl;
+        return false;
+    }
+
+    this->mainRenderPassNode->AddDependenceNode(this->graphicsPipelineNode);
     return true;
 }
 
 bool Renderer::Init() {
     std::vector<const char *> requiredExtensions;
     this->gpuCtx = std::make_shared<VkGPUContext>(requiredExtensions);
-    // this->gpuCtx->AddInstanceEnableLayer("VK_LAYER_KHRONOS_validation");
+    this->gpuCtx->AddInstanceEnableLayer("VK_LAYER_KHRONOS_validation");
     // this->gpuCtx->AddInstanceEnableLayer("VK_LAYER_LUNARG_api_dump");
     // this->gpuCtx->AddInstanceEnableLayer("VK_LAYER_KHRONOS_synchronization2");
     // this->gpuCtx->AddDeviceEnabledExtension("VK_KHR_synchronization2");
@@ -118,8 +139,15 @@ bool Renderer::Init() {
         Logger() << Logger::ERROR << "Failed to initialize sub compute graph!" << std::endl;
         return false;
     }
+    // TODO:
+    std::vector<VkAttachmentDescription> attachments;
+    std::vector<VkSubpassDependency> dependencies;
+    std::vector<VkSubpassDescription> subPasses;
     mainRenderPassNode = std::make_shared<GraphicsRenderPassNode>(this->gpuCtx,
                                                                   "main",
+                                                                  attachments,
+                                                                  dependencies,
+                                                                  subPasses,
                                                                   this->width,
                                                                   this->height);
     if (mainRenderPassNode == nullptr) {
@@ -138,13 +166,6 @@ bool Renderer::Init() {
         return false;
     }
 
-    result = this->graphicsPipelineNode->CreateComputeGraphNode();
-    if (result != VK_SUCCESS) {
-        Logger() << Logger::ERROR << "Failed to create graphics pipeline node!" << std::endl;
-        return false;
-    }
-
-    this->mainRenderPassNode->AddDependenceNode(this->graphicsPipelineNode);
     this->subComputeGraph->AddComputeGraphNode(mainRenderPassNode);
     this->computeGraph->AddSubGraph(this->subComputeGraph);
     return true;

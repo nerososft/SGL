@@ -9,6 +9,10 @@
 #include "gpu/compute_graph/GraphicsPipelineNode.h"
 #include "gpu/compute_graph/GraphicsRenderPassNode.h"
 
+struct Vertex {
+    float pos[3];
+};
+
 class Renderer {
     std::shared_ptr<VkGPUContext> gpuCtx = nullptr;
     std::shared_ptr<ComputeGraph> computeGraph = nullptr;
