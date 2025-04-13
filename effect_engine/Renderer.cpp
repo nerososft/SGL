@@ -64,14 +64,14 @@ bool Renderer::ConstructMainGraphicsPipeline() {
 
     buffers.push_back(vertexBufferNode);
     buffers.push_back(indexBufferNode);
-    GraphicsElement element{
+    const GraphicsElement element{
         .buffers = buffers,
         .pushConstantInfo = {
             .size = sizeof(FrameInfo),
             .data = &this->frameInfo
-        }
+        },
+        .customDrawFunc = nullptr,
     };
-    element.customDrawFunc = nullptr;
 
     std::vector<VkVertexInputBindingDescription> vertexInputBindingDescriptions = {
         {
@@ -167,7 +167,7 @@ bool Renderer::Init() {
     depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
     depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
     depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
+    depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
     depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
     depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
     attachments.push_back(depthAttachment);
@@ -179,10 +179,10 @@ bool Renderer::Init() {
         }
     };
 
-    std::vector<VkAttachmentReference> depthAttachments = {
+    const std::vector<VkAttachmentReference> depthAttachments = {
         {
-            .attachment = 0,
-            .layout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL
+            .attachment = 1,
+            .layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
         }
     };
 

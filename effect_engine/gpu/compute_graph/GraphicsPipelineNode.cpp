@@ -107,14 +107,14 @@ VkResult GraphicsPipelineNode::CreateComputeGraphNode() {
             return ret;
         }
 
-        for (const auto &buffer: buffers) {
-            if (buffer.type == PIPELINE_NODE_BUFFER_VERTEX || buffer.type == PIPELINE_NODE_BUFFER_INDEX) {
+        for (const auto &[type, bufferSize, buffer]: buffers) {
+            if (type == PIPELINE_NODE_BUFFER_VERTEX || type == PIPELINE_NODE_BUFFER_INDEX) {
                 break;
             }
             VkDescriptorBufferInfo bufferInfo = {};
             bufferInfo.offset = 0;
-            bufferInfo.range = buffer.bufferSize;
-            bufferInfo.buffer = buffer.buffer;
+            bufferInfo.range = bufferSize;
+            bufferInfo.buffer = buffer;
             this->pipelineDescriptorBufferInfos.push_back(bufferInfo);
         }
         for (uint32_t i = 0; i < pipelineDescriptorBufferInfos.size(); ++i) {
@@ -144,56 +144,15 @@ void GraphicsPipelineNode::Compute(const VkCommandBuffer commandBuffer) {
                                         graphicsElements[i].pushConstantInfo.size,
                                         graphicsElements[i].pushConstantInfo.data);
 
-        std::vector<VkBufferMemoryBarrier> readBufferMemoryBarriers;
-        for (const auto &buffer: graphicsElements[i].buffers) {
-            if (type == PIPELINE_NODE_BUFFER_STORAGE_READ) {
-                readBufferMemoryBarriers.push_back(VkGPUHelper::BuildBufferMemoryBarrier(
-                    VK_ACCESS_MEMORY_WRITE_BIT,
-                    VK_ACCESS_MEMORY_READ_BIT,
-                    buffer.buffer,
-                    buffer.bufferSize));
-            }
-        }
-
-        PFN_vkCmdPipelineBarrier2KHR vkCmdPipelineBarrier2Fn =
-                vkCmdPipelineBarrier2Fn = VkGPUHelper::GetVkCmdPipelineBarrier2Fn(this->gpuCtx->GetCurrentDevice());
-        if (vkCmdPipelineBarrier2Fn != nullptr) {
-            VkMemoryBarrier2KHR memoryBarrier;
-            memoryBarrier.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER_2_KHR;
-            memoryBarrier.pNext = nullptr;
-            memoryBarrier.srcStageMask = VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT_KHR;
-            memoryBarrier.srcAccessMask = VK_ACCESS_2_SHADER_STORAGE_WRITE_BIT_KHR;
-            memoryBarrier.dstStageMask = VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT_KHR;
-            memoryBarrier.dstAccessMask = VK_ACCESS_2_SHADER_STORAGE_READ_BIT;
-
-            VkDependencyInfoKHR dependencyInfo;
-            dependencyInfo.sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO_KHR;
-            dependencyInfo.pNext = nullptr;
-            dependencyInfo.dependencyFlags = 0;
-            dependencyInfo.memoryBarrierCount = 1;
-            dependencyInfo.pMemoryBarriers = &memoryBarrier;
-            dependencyInfo.bufferMemoryBarrierCount = 0;
-            dependencyInfo.pBufferMemoryBarriers = nullptr;
-            dependencyInfo.imageMemoryBarrierCount = 0;
-            dependencyInfo.pImageMemoryBarriers = nullptr;
-            vkCmdPipelineBarrier2Fn(commandBuffer, &dependencyInfo);
-        }
-
-        VkGPUHelper::GPUCmdPipelineBufferMemBarrier(commandBuffer,
-                                                    VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
-                                                    VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
-                                                    0,
-                                                    readBufferMemoryBarriers);
-
         std::vector<VkBuffer> bindVertexBuffers;
         std::vector<VkDeviceSize> bindVertexOffsets;
         std::vector<VkBuffer> bindIndexBuffers;
         for (const auto &buffer: graphicsElements[i].buffers) {
-            if (type == PIPELINE_NODE_BUFFER_VERTEX) {
+            if (buffer.type == PIPELINE_NODE_BUFFER_VERTEX) {
                 bindVertexBuffers.push_back(buffer.buffer);
                 bindVertexOffsets.push_back(buffer.bufferSize);
             }
-            if (type == PIPELINE_NODE_BUFFER_INDEX) {
+            if (buffer.type == PIPELINE_NODE_BUFFER_INDEX) {
                 bindIndexBuffers.push_back(buffer.buffer);
             }
         }
@@ -208,31 +167,6 @@ void GraphicsPipelineNode::Compute(const VkCommandBuffer commandBuffer) {
             vkCmdBindIndexBuffer(commandBuffer, buffer, 0, VK_INDEX_TYPE_UINT32);
         }
         vkCmdDraw(commandBuffer, 3, 1, 0, 0);
-
-        std::vector<VkBufferMemoryBarrier> writeBufferMemoryBarriers;
-        for (const auto &buffer: graphicsElements[i].buffers) {
-            if (type == PIPELINE_NODE_BUFFER_STORAGE_WRITE) {
-                writeBufferMemoryBarriers.push_back(VkGPUHelper::BuildBufferMemoryBarrier(
-                    VK_ACCESS_MEMORY_WRITE_BIT,
-                    VK_ACCESS_MEMORY_READ_BIT,
-                    buffer.buffer,
-                    buffer.bufferSize));
-            }
-        }
-
-        VkGPUHelper::GPUCmdPipelineBufferMemBarrier(commandBuffer,
-                                                    VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
-                                                    VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
-                                                    0,
-                                                    writeBufferMemoryBarriers);
-        std::vector<VkMemoryBarrier> memoryBarriers;
-        memoryBarriers.push_back(VkGPUHelper::BuildMemoryBarrier(VK_ACCESS_MEMORY_WRITE_BIT,
-                                                                 VK_ACCESS_MEMORY_READ_BIT));
-        VkGPUHelper::GPUCmdPipelineMemBarrier(commandBuffer,
-                                              VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
-                                              VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
-                                              0,
-                                              memoryBarriers);
 
         if (graphicsElements[i].customDrawFunc != nullptr) {
             graphicsElements[i].customDrawFunc(commandBuffer);
