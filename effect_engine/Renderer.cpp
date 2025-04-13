@@ -144,7 +144,7 @@ bool Renderer::Init() {
         Logger() << Logger::ERROR << "Failed to initialize sub compute graph!" << std::endl;
         return false;
     }
-    // TODO:
+
     std::vector<VkAttachmentDescription> attachments;
     std::vector<VkSubpassDependency> dependencies;
     std::vector<VkSubpassDescription> subPasses;

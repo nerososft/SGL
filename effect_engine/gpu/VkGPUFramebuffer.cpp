@@ -99,5 +99,32 @@ VkResult VkGPUFramebuffer::CreateFramebuffer(std::vector<uint32_t> queueFamilies
 }
 
 void VkGPUFramebuffer::Destroy() {
-    // TODO:
+    if (this->framebuffer != VK_NULL_HANDLE) {
+        vkDestroyFramebuffer(this->gpuCtx->GetCurrentDevice(), this->framebuffer, nullptr);
+        this->framebuffer = VK_NULL_HANDLE;
+    }
+    if (this->depthImageMemory != VK_NULL_HANDLE) {
+        vkFreeMemory(this->gpuCtx->GetCurrentDevice(), this->depthImageMemory, nullptr);
+        this->depthImageMemory = VK_NULL_HANDLE;
+    }
+    if (this->colorImageMemory != VK_NULL_HANDLE) {
+        vkFreeMemory(this->gpuCtx->GetCurrentDevice(), this->colorImageMemory, nullptr);
+        this->colorImageMemory = VK_NULL_HANDLE;
+    }
+    if (this->depthImageView != VK_NULL_HANDLE) {
+        vkDestroyImageView(this->gpuCtx->GetCurrentDevice(), this->depthImageView, nullptr);
+        this->depthImageView = VK_NULL_HANDLE;
+    }
+    if (this->colorImageView != VK_NULL_HANDLE) {
+        vkDestroyImageView(this->gpuCtx->GetCurrentDevice(), this->colorImageView, nullptr);
+        this->colorImageView = VK_NULL_HANDLE;
+    }
+    if (this->colorImage != VK_NULL_HANDLE) {
+        vkDestroyImage(this->gpuCtx->GetCurrentDevice(), this->colorImage, nullptr);
+        this->colorImage = VK_NULL_HANDLE;
+    }
+    if (this->depthImage != VK_NULL_HANDLE) {
+        vkDestroyImage(this->gpuCtx->GetCurrentDevice(), this->depthImage, nullptr);
+        this->depthImage = VK_NULL_HANDLE;
+    }
 }
