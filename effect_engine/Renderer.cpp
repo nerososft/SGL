@@ -120,7 +120,7 @@ bool Renderer::ConstructMainGraphicsPipeline() {
 bool Renderer::Init() {
     std::vector<const char *> requiredExtensions;
     this->gpuCtx = std::make_shared<VkGPUContext>(requiredExtensions);
-    this->gpuCtx->AddInstanceEnableLayer("VK_LAYER_KHRONOS_validation");
+    // this->gpuCtx->AddInstanceEnableLayer("VK_LAYER_KHRONOS_validation");
     // this->gpuCtx->AddInstanceEnableLayer("VK_LAYER_LUNARG_api_dump");
     // this->gpuCtx->AddInstanceEnableLayer("VK_LAYER_KHRONOS_synchronization2");
     // this->gpuCtx->AddDeviceEnabledExtension("VK_KHR_synchronization2");
@@ -289,7 +289,7 @@ bool Renderer::Init() {
 }
 
 VkResult Renderer::RenderFrame() const {
-    VkResult ret = this->computeGraph->Compute();
+    const VkResult ret = this->computeGraph->Compute();
     if (ret != VK_SUCCESS) {
         Logger() << Logger::ERROR << "Failed to render compute graph!" << std::endl;
     }
