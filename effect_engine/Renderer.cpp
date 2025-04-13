@@ -90,7 +90,7 @@ bool Renderer::ConstructMainGraphicsPipeline() {
     };
 
     this->graphicsPipelineNode = std::make_shared<GraphicsPipelineNode>(this->gpuCtx,
-                                                                        "mainPipeline",
+                                                                        "mainGraphicsPipeline",
                                                                         this->mainRenderPassNode->GetRenderPass(),
                                                                         SHADER(rect.vert.glsl.spv),
                                                                         SHADER(rect.frag.glsl.spv),
@@ -209,7 +209,7 @@ bool Renderer::Init() {
         .depthStencil = {1.0f, 0}
     });
     mainRenderPassNode = std::make_shared<GraphicsRenderPassNode>(this->gpuCtx,
-                                                                  "main",
+                                                                  "mainRenderPass",
                                                                   attachments,
                                                                   dependencies,
                                                                   subPasses,
