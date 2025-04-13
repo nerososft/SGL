@@ -149,6 +149,10 @@ void GraphicsPipelineNode::Compute(const VkCommandBuffer commandBuffer) {
         std::vector<VkBuffer> bindIndexBuffers;
         for (const auto &buffer: graphicsElements[i].buffers) {
             if (buffer.type == PIPELINE_NODE_BUFFER_VERTEX) {
+                if (buffer.buffer == VK_NULL_HANDLE) {
+                    Logger() << " Buffer is null" << std::endl;
+                    return;
+                }
                 bindVertexBuffers.push_back(buffer.buffer);
                 bindVertexOffsets.push_back(buffer.bufferSize);
             }

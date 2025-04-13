@@ -187,19 +187,18 @@ bool Renderer::Init() {
     };
 
 
-    VkSubpassDescription subpassDescription;
-    subpassDescription.flags = 0;
-    subpassDescription.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-    subpassDescription.colorAttachmentCount = colorAttachments.size();
-    subpassDescription.pColorAttachments = colorAttachments.data();
-    subpassDescription.inputAttachmentCount = 0;
-    subpassDescription.pInputAttachments = nullptr;
-    subpassDescription.preserveAttachmentCount = 0;
-    subpassDescription.pPreserveAttachments = nullptr;
-    subpassDescription.pResolveAttachments = nullptr;
-    subpassDescription.pDepthStencilAttachment = depthAttachments.data();
-    subPasses.push_back(subpassDescription);
-
+    VkSubpassDescription subPassDescription;
+    subPassDescription.flags = 0;
+    subPassDescription.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+    subPassDescription.colorAttachmentCount = colorAttachments.size();
+    subPassDescription.pColorAttachments = colorAttachments.data();
+    subPassDescription.inputAttachmentCount = 0;
+    subPassDescription.pInputAttachments = nullptr;
+    subPassDescription.preserveAttachmentCount = 0;
+    subPassDescription.pPreserveAttachments = nullptr;
+    subPassDescription.pResolveAttachments = nullptr;
+    subPassDescription.pDepthStencilAttachment = depthAttachments.data();
+    subPasses.push_back(subPassDescription);
 
     std::vector<VkClearValue> clearValues;
     clearValues.push_back({
