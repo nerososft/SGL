@@ -475,13 +475,36 @@ VkBufferMemoryBarrier VkGPUHelper::BuildBufferMemoryBarrier(const VkAccessFlagBi
     return bufferMemoryBarrier;
 }
 
+VkImageMemoryBarrier VkGPUHelper::BuildImageMemoryBarrier(const VkAccessFlagBits srcAccessMask,
+                                                          const VkAccessFlagBits dstAccessMask,
+                                                          const VkImage image,
+                                                          const VkImageLayout oldLayout,
+                                                          const VkImageLayout newLayout) {
+    VkImageMemoryBarrier imageMemoryBarrier = {};
+    imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+    imageMemoryBarrier.pNext = nullptr;
+    imageMemoryBarrier.srcAccessMask = srcAccessMask;
+    imageMemoryBarrier.dstAccessMask = dstAccessMask;
+    imageMemoryBarrier.image = image;
+    imageMemoryBarrier.oldLayout = oldLayout;
+    imageMemoryBarrier.newLayout = newLayout;
+    imageMemoryBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    imageMemoryBarrier.subresourceRange.baseMipLevel = 0;
+    imageMemoryBarrier.subresourceRange.levelCount = 1;
+    imageMemoryBarrier.subresourceRange.baseArrayLayer = 0;
+    imageMemoryBarrier.subresourceRange.layerCount = 1;
+    imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    return imageMemoryBarrier;
+}
+
 void VkGPUHelper::GPUCmdPipelineBufferMemBarrier(const VkCommandBuffer commandBuffer,
                                                  const VkPipelineStageFlags srcStageMask,
                                                  const VkPipelineStageFlags dstStageMask,
                                                  const VkDependencyFlags dependencyFlags,
                                                  const std::vector<VkBufferMemoryBarrier> &bufferMemoryBarriers) {
-    std::vector<VkMemoryBarrier> memoryBarriers;
-    std::vector<VkImageMemoryBarrier> imageMemoryBarrier;
+    const std::vector<VkMemoryBarrier> memoryBarriers;
+    const std::vector<VkImageMemoryBarrier> imageMemoryBarrier;
     GPUCmdPipelineBarrier(commandBuffer,
                           srcStageMask,
                           dstStageMask,
@@ -489,6 +512,22 @@ void VkGPUHelper::GPUCmdPipelineBufferMemBarrier(const VkCommandBuffer commandBu
                           memoryBarriers,
                           bufferMemoryBarriers,
                           imageMemoryBarrier);
+}
+
+void VkGPUHelper::GPUCmdPipelineImageMemBarrier(const VkCommandBuffer commandBuffer,
+                                                const VkPipelineStageFlags srcStageMask,
+                                                const VkPipelineStageFlags dstStageMask,
+                                                const VkDependencyFlags dependencyFlags,
+                                                const std::vector<VkImageMemoryBarrier> &imageMemoryBarriers) {
+    const std::vector<VkMemoryBarrier> memoryBarriers;
+    const std::vector<VkBufferMemoryBarrier> bufferMemoryBarriers;
+    GPUCmdPipelineBarrier(commandBuffer,
+                          srcStageMask,
+                          dstStageMask,
+                          dependencyFlags,
+                          memoryBarriers,
+                          bufferMemoryBarriers,
+                          imageMemoryBarriers);
 }
 
 void VkGPUHelper::GPUCmdPipelineBarrier(const VkCommandBuffer commandBuffer,
@@ -792,7 +831,7 @@ VkResult VkGPUHelper::CreateStorageBufferAndBindMem(const VkDevice device,
     VkResult ret = CreateBuffer(device,
                                 size,
                                 VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
-                                VK_SHARING_MODE_CONCURRENT,
+                                VK_SHARING_MODE_EXCLUSIVE,
                                 queueFamilyIndices,
                                 storageBuffer);
     if (ret != VK_SUCCESS) {
@@ -900,7 +939,7 @@ VkResult VkGPUHelper::CreateUniformBufferAndBindMem(const VkDevice device,
     VkResult ret = CreateBuffer(device,
                                 size,
                                 VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-                                VK_SHARING_MODE_CONCURRENT,
+                                VK_SHARING_MODE_EXCLUSIVE,
                                 queueFamilyIndices,
                                 storageBuffer);
     if (ret != VK_SUCCESS) {

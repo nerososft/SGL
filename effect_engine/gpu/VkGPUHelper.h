@@ -111,11 +111,23 @@ public:
                                                           VkBuffer buffer,
                                                           VkDeviceSize size);
 
+    static VkImageMemoryBarrier BuildImageMemoryBarrier(VkAccessFlagBits srcAccessMask,
+                                                        VkAccessFlagBits dstAccessMask,
+                                                        VkImage image,
+                                                        VkImageLayout oldLayout,
+                                                        VkImageLayout newLayout);
+
     static void GPUCmdPipelineBufferMemBarrier(VkCommandBuffer commandBuffer,
                                                VkPipelineStageFlags srcStageMask,
                                                VkPipelineStageFlags dstStageMask,
                                                VkDependencyFlags dependencyFlags,
                                                const std::vector<VkBufferMemoryBarrier> &bufferMemoryBarriers);
+
+    static void GPUCmdPipelineImageMemBarrier(VkCommandBuffer commandBuffer,
+                                              VkPipelineStageFlags srcStageMask,
+                                              VkPipelineStageFlags dstStageMask,
+                                              VkDependencyFlags dependencyFlags,
+                                              const std::vector<VkImageMemoryBarrier> &imageMemoryBarriers);
 
     static void GPUCmdPipelineBarrier(VkCommandBuffer commandBuffer,
                                       VkPipelineStageFlags srcStageMask,

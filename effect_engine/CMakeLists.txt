@@ -131,6 +131,8 @@ add_library(gpu_effect_engine SHARED
         Renderer.h
         gpu/VkGPUFramebuffer.cpp
         gpu/VkGPUFramebuffer.h
+        gpu/compute_graph/ImageToBufferCopyNode.cpp
+        gpu/compute_graph/ImageToBufferCopyNode.h
 )
 target_link_libraries(gpu_effect_engine vulkan)
 if (CMAKE_SYSTEM_NAME MATCHES "OHOS")

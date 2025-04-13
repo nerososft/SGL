@@ -6,7 +6,9 @@
 
 #include "gpu/VkGPUBuffer.h"
 #include "gpu/VkGPUHelper.h"
+#include "gpu/compute_graph/ImageToBufferCopyNode.h"
 #include "log/Log.h"
+#include "utils/ImageUtils.h"
 
 bool Renderer::ConstructMainGraphicsPipeline() {
     std::vector<PipelineNodeBuffer> buffers;
@@ -249,14 +251,65 @@ bool Renderer::Init() {
         return false;
     }
 
-    this->subComputeGraph->AddComputeGraphNode(mainRenderPassNode);
+    offScreenBuffer = std::make_shared<VkGPUBuffer>(this->gpuCtx);
+    if (offScreenBuffer == nullptr) {
+        Logger() << Logger::ERROR << "Failed to create offscreen buffer!" << std::endl;
+        return false;
+    }
+    result = offScreenBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED, this->width * this->height * 4);
+    if (result != VK_SUCCESS) {
+        Logger() << Logger::ERROR << "Failed to allocate offscreen buffer!" << std::endl;
+        return false;
+    }
+
+    ImageToCopyNodeImageInfo srcCopyInfo;
+    srcCopyInfo.height = this->height;
+    srcCopyInfo.width = this->width;
+    srcCopyInfo.rowLength = this->width;
+    srcCopyInfo.image = this->framebuffer->GetColorImage();
+    srcCopyInfo.imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    ImageToCopyNodeBufferInfo dstCopyInfo;
+    dstCopyInfo.buffer = this->offScreenBuffer->GetBuffer();
+    dstCopyInfo.bufferSize = this->width * this->height * 4;
+
+    offScreenCopyNode = std::make_shared<ImageToBufferCopyNode>(this->gpuCtx,
+                                                                "offScreenCopy",
+                                                                srcCopyInfo,
+                                                                dstCopyInfo);
+    if (offScreenCopyNode == nullptr) {
+        Logger() << Logger::ERROR << "Failed to create offscreen copy node!" << std::endl;
+        return false;
+    }
+    offScreenCopyNode->CreateComputeGraphNode();
+    offScreenCopyNode->AddDependenceNode(this->mainRenderPassNode);
+
+    this->subComputeGraph->AddComputeGraphNode(offScreenCopyNode);
     this->computeGraph->AddSubGraph(this->subComputeGraph);
     return true;
 }
 
-void Renderer::RenderFrame() const {
-    const VkResult ret = this->computeGraph->Compute();
+VkResult Renderer::RenderFrame() const {
+    VkResult ret = this->computeGraph->Compute();
     if (ret != VK_SUCCESS) {
         Logger() << Logger::ERROR << "Failed to render compute graph!" << std::endl;
     }
+    return ret;
+}
+
+void Renderer::RenderFrameOffScreen(const std::string &path) const {
+    VkResult ret = this->RenderFrame();
+    if (ret != VK_SUCCESS) {
+        Logger() << Logger::ERROR << "Failed to render frame!" << std::endl;
+        return;
+    }
+    const VkDeviceSize offScreenBufferSize = this->width * this->height * 4;
+    ret = offScreenBuffer->MapBuffer(offScreenBufferSize);
+    if (ret != VK_SUCCESS) {
+        Logger() << "Failed to map output storage buffer!" << std::endl;
+        return;
+    }
+    ImageUtils::WritePngFile(path,
+                             this->width,
+                             this->height, 4,
+                             offScreenBuffer->GetMappedAddr());
 }

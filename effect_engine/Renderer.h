@@ -7,9 +7,11 @@
 #include "gpu/VkGPUBuffer.h"
 #include "gpu/VkGPUContext.h"
 #include "gpu/VkGPUFramebuffer.h"
+#include "gpu/compute_graph/BufferCopyNode.h"
 #include "gpu/compute_graph/ComputeGraph.h"
 #include "gpu/compute_graph/GraphicsPipelineNode.h"
 #include "gpu/compute_graph/GraphicsRenderPassNode.h"
+#include "gpu/compute_graph/ImageToBufferCopyNode.h"
 
 struct Vertex {
     float pos[3];
@@ -24,6 +26,10 @@ class Renderer {
     std::shared_ptr<VkGPUContext> gpuCtx = nullptr;
     std::shared_ptr<ComputeGraph> computeGraph = nullptr;
     std::shared_ptr<SubComputeGraph> subComputeGraph = nullptr;
+
+    std::shared_ptr<ImageToBufferCopyNode> offScreenCopyNode = nullptr;
+    std::shared_ptr<VkGPUBuffer> offScreenBuffer = nullptr;
+
     std::shared_ptr<GraphicsRenderPassNode> mainRenderPassNode = nullptr;
     std::shared_ptr<GraphicsPipelineNode> graphicsPipelineNode = nullptr;
     std::shared_ptr<VkGPUFramebuffer> framebuffer = nullptr;
@@ -43,9 +49,11 @@ public:
 
     bool Init();
 
-    void RenderFrame() const;
+    VkResult RenderFrame() const;
 
     ~Renderer() = default;
+
+    void RenderFrameOffScreen(const std::string &path) const;
 };
 
 #endif //RENDERER_H

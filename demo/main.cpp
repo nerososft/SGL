@@ -186,7 +186,7 @@ void renderer_main() {
     if (!renderer.Init()) {
         Logger() << "Failed to initialize renderer" << std::endl;
     }
-    renderer.RenderFrame();
+    renderer.RenderFrameOffScreen("../../demo/images/render_offscreen.png");
 }
 
 int main(int argc, char *argv[]) {
