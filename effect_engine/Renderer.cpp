@@ -11,7 +11,7 @@
 bool Renderer::ConstructMainGraphicsPipeline() {
     std::vector<PipelineNodeBuffer> buffers;
 
-    const auto vertexBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
+    vertexBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
     if (vertexBuffer == nullptr) {
         Logger() << "vertexBuffer is null" << std::endl;
         return false;
@@ -40,7 +40,7 @@ bool Renderer::ConstructMainGraphicsPipeline() {
     vertexBufferNode.bufferSize = sizeof(float) * vertices.size();
     vertexBufferNode.buffer = vertexBuffer->GetBuffer();
 
-    const auto indicesBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
+    indicesBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
     if (indicesBuffer == nullptr) {
         Logger() << "indexBuffer is null" << std::endl;
         return false;

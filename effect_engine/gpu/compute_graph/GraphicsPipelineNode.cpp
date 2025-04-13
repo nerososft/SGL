@@ -154,7 +154,7 @@ void GraphicsPipelineNode::Compute(const VkCommandBuffer commandBuffer) {
                     return;
                 }
                 bindVertexBuffers.push_back(buffer.buffer);
-                bindVertexOffsets.push_back(buffer.bufferSize);
+                bindVertexOffsets.push_back(0);
             }
             if (buffer.type == PIPELINE_NODE_BUFFER_INDEX) {
                 bindIndexBuffers.push_back(buffer.buffer);

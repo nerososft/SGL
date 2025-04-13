@@ -4,6 +4,7 @@
 
 #ifndef RENDERER_H
 #define RENDERER_H
+#include "gpu/VkGPUBuffer.h"
 #include "gpu/VkGPUContext.h"
 #include "gpu/VkGPUFramebuffer.h"
 #include "gpu/compute_graph/ComputeGraph.h"
@@ -31,6 +32,9 @@ class Renderer {
 
     uint32_t width = 1024;
     uint32_t height = 768;
+
+    std::shared_ptr<VkGPUBuffer> indicesBuffer = nullptr;
+    std::shared_ptr<VkGPUBuffer> vertexBuffer = nullptr;
 
 public:
     Renderer() = default;
