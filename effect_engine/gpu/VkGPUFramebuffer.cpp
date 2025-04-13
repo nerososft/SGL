@@ -64,7 +64,7 @@ VkResult VkGPUFramebuffer::CreateFramebuffer(std::vector<uint32_t> queueFamilies
                                       VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL,
                                       &this->depthImage);
     if (result != VK_SUCCESS) {
-        Logger() << Logger::ERROR << "failed to create color image!" << std::endl;
+        Logger() << Logger::ERROR << "failed to create depth image!" << std::endl;
         return result;
     }
 
@@ -75,7 +75,7 @@ VkResult VkGPUFramebuffer::CreateFramebuffer(std::vector<uint32_t> queueFamilies
                                           VK_IMAGE_ASPECT_DEPTH_BIT,
                                           &this->depthImageView);
     if (result != VK_SUCCESS) {
-        Logger() << Logger::ERROR << "failed to create color image view!" << std::endl;
+        Logger() << Logger::ERROR << "failed to create depth image view!" << std::endl;
         return result;
     }
     framebufferAttachments.push_back(this->depthImageView);

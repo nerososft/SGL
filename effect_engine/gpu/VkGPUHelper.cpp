@@ -67,7 +67,7 @@ auto VkGPUHelper::CreateImage(const VkDevice device,
     imageCreateInfo.mipLevels = 1;
     imageCreateInfo.arrayLayers = 1;
     imageCreateInfo.samples = VK_SAMPLE_COUNT_1_BIT;
-    imageCreateInfo.tiling = VK_IMAGE_TILING_LINEAR;
+    imageCreateInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
     imageCreateInfo.usage = usage;
     imageCreateInfo.sharingMode = sharingMode;
     imageCreateInfo.queueFamilyIndexCount = queueFamilies.size();
