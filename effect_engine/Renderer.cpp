@@ -151,12 +151,38 @@ bool Renderer::Init() {
     attachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
     attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
     attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    attachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+    attachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
     attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
     attachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
     attachments.push_back(attachment);
 
-    VkSubpassDescription subpass;
+    const std::vector<VkAttachmentReference> colorAttachments = {
+        {
+            .attachment = 0,
+            .layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+        }
+    };
+
+    std::vector<VkAttachmentReference> inputAttahcments = {
+        {
+            .attachment = 0,
+            .layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+        }
+    };
+
+
+    VkSubpassDescription subpassDescription;
+    subpassDescription.flags = 0;
+    subpassDescription.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+    subpassDescription.colorAttachmentCount = colorAttachments.size();
+    subpassDescription.pColorAttachments = colorAttachments.data();
+    subpassDescription.inputAttachmentCount = inputAttahcments.size();
+    subpassDescription.pInputAttachments = inputAttahcments.data();
+    subpassDescription.preserveAttachmentCount = 0;
+    subpassDescription.pPreserveAttachments = nullptr;
+    subpassDescription.pResolveAttachments = nullptr;
+    subpassDescription.pDepthStencilAttachment = nullptr;
+    subPasses.push_back(subpassDescription);
 
     mainRenderPassNode = std::make_shared<GraphicsRenderPassNode>(this->gpuCtx,
                                                                   "main",
@@ -175,14 +201,17 @@ bool Renderer::Init() {
         return false;
     }
 
-    VkFramebuffer framebuffer = VK_NULL_HANDLE;
-    const std::vector<VkImageView> framebufferAttachments;
-    result = VkGPUHelper::CreateFramebuffer(this->gpuCtx->GetCurrentDevice(),
-                                            width,
-                                            height,
-                                            framebufferAttachments,
-                                            mainRenderPassNode->GetRenderPass()->GetRenderPass(),
-                                            &framebuffer);
+    this->framebuffer = std::make_shared<VkGPUFramebuffer>(this->gpuCtx,
+                                                           this->width,
+                                                           this->height,
+                                                           this->mainRenderPassNode->GetRenderPass());
+    if (this->framebuffer == nullptr) {
+        Logger() << Logger::ERROR << "Failed to create framebuffer!" << std::endl;
+        return false;
+    }
+
+    const std::vector<uint32_t> queueFamilies = {0}; // FIXME: depends on multi queue or single queue
+    result = this->framebuffer->CreateFramebuffer(queueFamilies);
     if (result != VK_SUCCESS) {
         Logger() << Logger::ERROR << "Failed to create framebuffer!" << std::endl;
         return false;

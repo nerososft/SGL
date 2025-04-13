@@ -8,11 +8,24 @@
 #include <vulkan/vulkan_core.h>
 #include <string>
 
+#include "VkGPUFramebuffer.h"
+
 class VkGPUHelper {
 public:
     VkGPUHelper() = default;
 
     ~VkGPUHelper() = default;
+
+    static VkResult CreateImage(VkDevice device,
+                                float width,
+                                float height,
+                                VkImageType imageType,
+                                VkFormat format,
+                                VkImageUsageFlags usage,
+                                VkSharingMode sharingMode,
+                                const std::vector<uint32_t> &queueFamilies,
+                                VkImageLayout initialLayout,
+                                VkImage *image);
 
     static VkResult CreateFramebuffer(VkDevice device,
                                       uint32_t width,

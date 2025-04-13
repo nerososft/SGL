@@ -6,6 +6,7 @@
 #define GRAPHICSRENDERPASSNODE_H
 #include "IComputeGraphNode.h"
 #include "effect_engine/gpu/VkGPUContext.h"
+#include "effect_engine/gpu/VkGPUFramebuffer.h"
 #include "effect_engine/gpu/VkGPURenderPass.h"
 
 class GraphicsRenderPassNode final : public IComputeGraphNode {
@@ -17,7 +18,7 @@ class GraphicsRenderPassNode final : public IComputeGraphNode {
 
     std::shared_ptr<VkGPUContext> gpuCtx = nullptr;
     std::shared_ptr<VkGPURenderPass> renderPass = nullptr;
-    VkFramebuffer framebuffer = VK_NULL_HANDLE;
+    std::shared_ptr<VkGPUFramebuffer> framebuffer = nullptr;
 
 public:
     GraphicsRenderPassNode(const std::shared_ptr<VkGPUContext> &gpuCtx,
@@ -36,7 +37,7 @@ public:
 
     void Destroy() override;
 
-    void SetFramebuffer(const VkFramebuffer framebuffer) { this->framebuffer = framebuffer; }
+    void SetFramebuffer(const std::shared_ptr<VkGPUFramebuffer> &framebuffer) { this->framebuffer = framebuffer; }
 
     std::shared_ptr<VkGPURenderPass> GetRenderPass() { return this->renderPass; }
 };

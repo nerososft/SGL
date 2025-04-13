@@ -56,11 +56,11 @@ VkResult GraphicsRenderPassNode::CreateComputeGraphNode() {
 }
 
 void GraphicsRenderPassNode::Compute(const VkCommandBuffer commandBuffer) {
-    if (framebuffer == VK_NULL_HANDLE) {
+    if (framebuffer == nullptr) {
         Logger() << Logger::ERROR << "framebuffer not created!" << std::endl;
         return;
     }
-    this->renderPass->GPUCmdBeginRenderPass(commandBuffer, framebuffer);
+    this->renderPass->GPUCmdBeginRenderPass(commandBuffer, framebuffer->GetFramebuffer());
     if (!this->dependencies.empty()) {
         for (const auto &dependence: this->dependencies) {
             Logger() << "Node: " << name << " Depend On:" << dependence->GetName() << std::endl;

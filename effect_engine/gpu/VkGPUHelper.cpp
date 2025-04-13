@@ -15,6 +15,40 @@
 #include "effect_engine/log/Log.h"
 #include "effect_engine/utils/IOUtils.h"
 
+auto VkGPUHelper::CreateImage(const VkDevice device,
+                              const float width,
+                              const float height,
+                              const VkImageType imageType,
+                              const VkFormat format,
+                              const VkImageUsageFlags usage,
+                              const VkSharingMode sharingMode,
+                              const std::vector<uint32_t> &queueFamilies,
+                              const VkImageLayout initialLayout,
+                              VkImage *image) -> VkResult {
+    VkImageCreateInfo imageCreateInfo{};
+    imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+    imageCreateInfo.flags = 0;
+    imageCreateInfo.pNext = nullptr;
+    imageCreateInfo.imageType = imageType;
+    imageCreateInfo.format = format;
+    imageCreateInfo.extent.width = width;
+    imageCreateInfo.extent.height = height;
+    imageCreateInfo.mipLevels = 1;
+    imageCreateInfo.arrayLayers = 1;
+    imageCreateInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+    imageCreateInfo.tiling = VK_IMAGE_TILING_LINEAR;
+    imageCreateInfo.usage = usage;
+    imageCreateInfo.sharingMode = sharingMode;
+    imageCreateInfo.queueFamilyIndexCount = queueFamilies.size();
+    imageCreateInfo.pQueueFamilyIndices = queueFamilies.data();
+    imageCreateInfo.initialLayout = initialLayout;
+    const VkResult result = vkCreateImage(device, &imageCreateInfo, nullptr, image);
+    if (result != VK_SUCCESS) {
+        Logger() << "Failed to create image, err=" << string_VkResult(result) << std::endl;
+    }
+    return result;
+}
+
 VkResult VkGPUHelper::CreateFramebuffer(const VkDevice device,
                                         const uint32_t width,
                                         const uint32_t height,

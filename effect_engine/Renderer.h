@@ -5,6 +5,7 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 #include "gpu/VkGPUContext.h"
+#include "gpu/VkGPUFramebuffer.h"
 #include "gpu/compute_graph/ComputeGraph.h"
 #include "gpu/compute_graph/GraphicsPipelineNode.h"
 #include "gpu/compute_graph/GraphicsRenderPassNode.h"
@@ -19,6 +20,7 @@ class Renderer {
     std::shared_ptr<SubComputeGraph> subComputeGraph = nullptr;
     std::shared_ptr<GraphicsRenderPassNode> mainRenderPassNode = nullptr;
     std::shared_ptr<GraphicsPipelineNode> graphicsPipelineNode = nullptr;
+    std::shared_ptr<VkGPUFramebuffer> framebuffer = nullptr;
 
     uint32_t width = 1024;
     uint32_t height = 768;

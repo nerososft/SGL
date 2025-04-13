@@ -129,6 +129,8 @@ add_library(gpu_effect_engine SHARED
         filters/impl/RotationBlurFilter.cpp
         Renderer.cpp
         Renderer.h
+        gpu/VkGPUFramebuffer.cpp
+        gpu/VkGPUFramebuffer.h
 )
 target_link_libraries(gpu_effect_engine vulkan)
 if (CMAKE_SYSTEM_NAME MATCHES "OHOS")
