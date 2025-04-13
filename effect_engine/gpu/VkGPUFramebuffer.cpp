@@ -34,7 +34,7 @@ VkResult VkGPUFramebuffer::CreateFramebuffer(std::vector<uint32_t> queueFamilies
                                                 VK_FORMAT_R8G8B8A8_SRGB,
                                                 VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
                                                 VK_SHARING_MODE_EXCLUSIVE,
-                                                VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                                                VK_IMAGE_LAYOUT_UNDEFINED,
                                                 &memoryProperties,
                                                 queueFamilies,
                                                 &colorImage,
@@ -63,7 +63,7 @@ VkResult VkGPUFramebuffer::CreateFramebuffer(std::vector<uint32_t> queueFamilies
                                                 VK_FORMAT_D32_SFLOAT,
                                                 VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
                                                 VK_SHARING_MODE_EXCLUSIVE,
-                                                VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL,
+                                                VK_IMAGE_LAYOUT_UNDEFINED,
                                                 &memoryProperties,
                                                 queueFamilies,
                                                 &depthImage,
@@ -74,7 +74,7 @@ VkResult VkGPUFramebuffer::CreateFramebuffer(std::vector<uint32_t> queueFamilies
     }
 
     result = VkGPUHelper::CreateImageView(this->gpuCtx->GetCurrentDevice(),
-                                          this->colorImage,
+                                          this->depthImage,
                                           VK_IMAGE_VIEW_TYPE_2D,
                                           VK_FORMAT_D32_SFLOAT,
                                           VK_IMAGE_ASPECT_DEPTH_BIT,

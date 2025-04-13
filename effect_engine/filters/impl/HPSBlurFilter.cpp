@@ -28,13 +28,15 @@ VkResult HPSBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     std::vector<VkSubpassDependency> dependencies;
     std::vector<VkSubpassDescription> subPasses;
     VkFramebuffer framebuffer = VK_NULL_HANDLE;
+    std::vector<VkClearValue> clearValues;
     const auto renderPassNode = std::make_shared<GraphicsRenderPassNode>(gpuCtx,
                                                                          "HPSBlurRenderPass",
                                                                          attachments,
                                                                          dependencies,
                                                                          subPasses,
                                                                          inputImageInfo[0].width,
-                                                                         inputImageInfo[0].height);
+                                                                         inputImageInfo[0].height,
+                                                                         clearValues);
     ret = renderPassNode->CreateComputeGraphNode();
     if (ret != VK_SUCCESS) {
         Logger() << "Failed to create graphics renderpass node, err =" << string_VkResult(ret) << std::endl;

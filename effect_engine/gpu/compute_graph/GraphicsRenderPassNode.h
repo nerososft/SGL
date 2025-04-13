@@ -15,6 +15,7 @@ class GraphicsRenderPassNode final : public IComputeGraphNode {
     std::vector<VkAttachmentDescription> attachments;
     std::vector<VkSubpassDependency> subPassDependencies;
     std::vector<VkSubpassDescription> subPasses;
+    std::vector<VkClearValue> clearValues;
 
     std::shared_ptr<VkGPUContext> gpuCtx = nullptr;
     std::shared_ptr<VkGPURenderPass> renderPass = nullptr;
@@ -27,7 +28,8 @@ public:
                            const std::vector<VkSubpassDependency> &dependencies,
                            const std::vector<VkSubpassDescription> &subPasses,
                            float width,
-                           float height);
+                           float height,
+                           const std::vector<VkClearValue> &clearValues);
 
     ~GraphicsRenderPassNode() override = default;
 

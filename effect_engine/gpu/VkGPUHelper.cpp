@@ -530,13 +530,13 @@ void VkGPUHelper::GPUCmdDispatch(const VkCommandBuffer commandBuffer,
 
 void VkGPUHelper::GPUCmdPushConstant(const VkCommandBuffer commandBuffer,
                                      const VkPipelineLayout pipelineLayout,
-                                     VkShaderStageFlagBits shaderStageFlag,
+                                     const VkShaderStageFlagBits shaderStageFlag,
                                      const uint32_t offset,
                                      const size_t pushConstantSize,
                                      const void *pushConstantData) {
     vkCmdPushConstants(commandBuffer,
                        pipelineLayout,
-                       VK_SHADER_STAGE_COMPUTE_BIT,
+                       shaderStageFlag,
                        offset,
                        pushConstantSize,
                        pushConstantData);

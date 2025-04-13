@@ -64,9 +64,13 @@ bool Renderer::ConstructMainGraphicsPipeline() {
 
     buffers.push_back(vertexBufferNode);
     buffers.push_back(indexBufferNode);
-    GraphicsElement element;
-    element.buffers = buffers;
-    element.pushConstantInfo = {};
+    GraphicsElement element{
+        .buffers = buffers,
+        .pushConstantInfo = {
+            .size = sizeof(FrameInfo),
+            .data = &this->frameInfo
+        }
+    };
     element.customDrawFunc = nullptr;
 
     std::vector<VkVertexInputBindingDescription> vertexInputBindingDescriptions = {
@@ -144,17 +148,29 @@ bool Renderer::Init() {
     std::vector<VkAttachmentDescription> attachments;
     std::vector<VkSubpassDependency> dependencies;
     std::vector<VkSubpassDescription> subPasses;
-    VkAttachmentDescription attachment;
-    attachment.flags = 0;
-    attachment.format = VK_FORMAT_R8G8B8A8_SRGB;
-    attachment.samples = VK_SAMPLE_COUNT_1_BIT;
-    attachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-    attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-    attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    attachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-    attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-    attachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-    attachments.push_back(attachment);
+    VkAttachmentDescription colorAttachment;
+    colorAttachment.flags = 0;
+    colorAttachment.format = VK_FORMAT_R8G8B8A8_SRGB;
+    colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+    colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+    colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    colorAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    attachments.push_back(colorAttachment);
+
+    VkAttachmentDescription depthAttachment;
+    depthAttachment.flags = 0;
+    depthAttachment.format = VK_FORMAT_D32_SFLOAT;
+    depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+    depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+    depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
+    depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    attachments.push_back(depthAttachment);
 
     const std::vector<VkAttachmentReference> colorAttachments = {
         {
@@ -163,10 +179,10 @@ bool Renderer::Init() {
         }
     };
 
-    std::vector<VkAttachmentReference> inputAttahcments = {
+    std::vector<VkAttachmentReference> depthAttachments = {
         {
             .attachment = 0,
-            .layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+            .layout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL
         }
     };
 
@@ -176,21 +192,30 @@ bool Renderer::Init() {
     subpassDescription.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
     subpassDescription.colorAttachmentCount = colorAttachments.size();
     subpassDescription.pColorAttachments = colorAttachments.data();
-    subpassDescription.inputAttachmentCount = inputAttahcments.size();
-    subpassDescription.pInputAttachments = inputAttahcments.data();
+    subpassDescription.inputAttachmentCount = 0;
+    subpassDescription.pInputAttachments = nullptr;
     subpassDescription.preserveAttachmentCount = 0;
     subpassDescription.pPreserveAttachments = nullptr;
     subpassDescription.pResolveAttachments = nullptr;
-    subpassDescription.pDepthStencilAttachment = nullptr;
+    subpassDescription.pDepthStencilAttachment = depthAttachments.data();
     subPasses.push_back(subpassDescription);
 
+
+    std::vector<VkClearValue> clearValues;
+    clearValues.push_back({
+        .color = {0.0f, 0.0f, 0.0f, 1.0f}
+    });
+    clearValues.push_back({
+        .depthStencil = {1.0f, 0}
+    });
     mainRenderPassNode = std::make_shared<GraphicsRenderPassNode>(this->gpuCtx,
                                                                   "main",
                                                                   attachments,
                                                                   dependencies,
                                                                   subPasses,
                                                                   this->width,
-                                                                  this->height);
+                                                                  this->height,
+                                                                  clearValues);
     if (mainRenderPassNode == nullptr) {
         Logger() << Logger::ERROR << "Failed to create graphics render pass node!" << std::endl;
         return false;

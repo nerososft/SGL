@@ -14,6 +14,11 @@ struct Vertex {
     float pos[3];
 };
 
+struct FrameInfo {
+    uint32_t frameIndex;
+    uint64_t timestamp;
+};
+
 class Renderer {
     std::shared_ptr<VkGPUContext> gpuCtx = nullptr;
     std::shared_ptr<ComputeGraph> computeGraph = nullptr;
@@ -21,6 +26,8 @@ class Renderer {
     std::shared_ptr<GraphicsRenderPassNode> mainRenderPassNode = nullptr;
     std::shared_ptr<GraphicsPipelineNode> graphicsPipelineNode = nullptr;
     std::shared_ptr<VkGPUFramebuffer> framebuffer = nullptr;
+
+    FrameInfo frameInfo{};
 
     uint32_t width = 1024;
     uint32_t height = 768;

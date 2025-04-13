@@ -19,7 +19,8 @@ GraphicsRenderPassNode::GraphicsRenderPassNode(const std::shared_ptr<VkGPUContex
                                                const std::vector<VkSubpassDependency> &dependencies,
                                                const std::vector<VkSubpassDescription> &subPasses,
                                                const float width,
-                                               const float height) {
+                                               const float height,
+                                               const std::vector<VkClearValue> &clearValues) {
     this->gpuCtx = gpuCtx;
     this->name = name;
     this->width = width;
@@ -27,6 +28,7 @@ GraphicsRenderPassNode::GraphicsRenderPassNode(const std::shared_ptr<VkGPUContex
     this->attachments = attachments;
     this->subPassDependencies = dependencies;
     this->subPasses = subPasses;
+    this->clearValues = clearValues;
 }
 
 VkResult GraphicsRenderPassNode::CreateComputeGraphNode() {
@@ -35,8 +37,6 @@ VkResult GraphicsRenderPassNode::CreateComputeGraphNode() {
     renderArea.extent.height = this->height;
     renderArea.offset.x = 0;
     renderArea.offset.y = 0;
-    // TODO: fix me
-    std::vector<VkClearValue> clearValues;
     this->renderPass = std::make_shared<VkGPURenderPass>(gpuCtx,
                                                          attachments,
                                                          subPassDependencies,

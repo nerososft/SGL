@@ -55,14 +55,15 @@ VkResult GraphicsPipelineNode::CreateComputeGraphNode() {
     std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
     const auto [pushConstantInfo, buffers, customDrawFunc] = graphicsElements[0];
     for (uint32_t i = 0; i < buffers.size(); ++i) {
+        if (buffers[i].type == PIPELINE_NODE_BUFFER_VERTEX || buffers[i].type == PIPELINE_NODE_BUFFER_INDEX) {
+            break;
+        }
         VkDescriptorSetLayoutBinding bufferBinding;
         bufferBinding.binding = i;
         if (buffers[i].type == PIPELINE_NODE_BUFFER_UNIFORM) {
             bufferBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
         } else if (buffers[i].type == PIPELINE_NODE_BUFFER_STORAGE_READ ||
-                   buffers[i].type == PIPELINE_NODE_BUFFER_STORAGE_WRITE ||
-                   buffers[i].type == PIPELINE_NODE_BUFFER_VERTEX ||
-                   buffers[i].type == PIPELINE_NODE_BUFFER_INDEX) {
+                   buffers[i].type == PIPELINE_NODE_BUFFER_STORAGE_WRITE) {
             bufferBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
         }
         bufferBinding.descriptorCount = 1;
@@ -107,6 +108,9 @@ VkResult GraphicsPipelineNode::CreateComputeGraphNode() {
         }
 
         for (const auto &buffer: buffers) {
+            if (buffer.type == PIPELINE_NODE_BUFFER_VERTEX || buffer.type == PIPELINE_NODE_BUFFER_INDEX) {
+                break;
+            }
             VkDescriptorBufferInfo bufferInfo = {};
             bufferInfo.offset = 0;
             bufferInfo.range = buffer.bufferSize;
@@ -141,13 +145,13 @@ void GraphicsPipelineNode::Compute(const VkCommandBuffer commandBuffer) {
                                         graphicsElements[i].pushConstantInfo.data);
 
         std::vector<VkBufferMemoryBarrier> readBufferMemoryBarriers;
-        for (const auto &[type, bufferSize, buffer]: graphicsElements[i].buffers) {
+        for (const auto &buffer: graphicsElements[i].buffers) {
             if (type == PIPELINE_NODE_BUFFER_STORAGE_READ) {
                 readBufferMemoryBarriers.push_back(VkGPUHelper::BuildBufferMemoryBarrier(
                     VK_ACCESS_MEMORY_WRITE_BIT,
                     VK_ACCESS_MEMORY_READ_BIT,
-                    buffer,
-                    bufferSize));
+                    buffer.buffer,
+                    buffer.bufferSize));
             }
         }
 
@@ -181,16 +185,38 @@ void GraphicsPipelineNode::Compute(const VkCommandBuffer commandBuffer) {
                                                     0,
                                                     readBufferMemoryBarriers);
 
+        std::vector<VkBuffer> bindVertexBuffers;
+        std::vector<VkDeviceSize> bindVertexOffsets;
+        std::vector<VkBuffer> bindIndexBuffers;
+        for (const auto &buffer: graphicsElements[i].buffers) {
+            if (type == PIPELINE_NODE_BUFFER_VERTEX) {
+                bindVertexBuffers.push_back(buffer.buffer);
+                bindVertexOffsets.push_back(buffer.bufferSize);
+            }
+            if (type == PIPELINE_NODE_BUFFER_INDEX) {
+                bindIndexBuffers.push_back(buffer.buffer);
+            }
+        }
+        if (!bindVertexBuffers.empty()) {
+            vkCmdBindVertexBuffers(commandBuffer,
+                                   0,
+                                   bindVertexBuffers.size(),
+                                   bindVertexBuffers.data(),
+                                   bindVertexOffsets.data());
+        }
+        for (const auto &buffer: bindIndexBuffers) {
+            vkCmdBindIndexBuffer(commandBuffer, buffer, 0, VK_INDEX_TYPE_UINT32);
+        }
         vkCmdDraw(commandBuffer, 3, 1, 0, 0);
 
         std::vector<VkBufferMemoryBarrier> writeBufferMemoryBarriers;
-        for (const auto &[type, bufferSize, buffer]: graphicsElements[i].buffers) {
+        for (const auto &buffer: graphicsElements[i].buffers) {
             if (type == PIPELINE_NODE_BUFFER_STORAGE_WRITE) {
                 writeBufferMemoryBarriers.push_back(VkGPUHelper::BuildBufferMemoryBarrier(
                     VK_ACCESS_MEMORY_WRITE_BIT,
                     VK_ACCESS_MEMORY_READ_BIT,
-                    buffer,
-                    bufferSize));
+                    buffer.buffer,
+                    buffer.bufferSize));
             }
         }
 
