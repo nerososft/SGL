@@ -209,6 +209,19 @@ public:
                                                   VkBuffer *storageBuffer,
                                                   VkDeviceMemory *storageBufferMemory);
 
+    static VkResult CreateImageAndBindMem(VkDevice device,
+                                          float width,
+                                          float height,
+                                          VkImageType imageType,
+                                          VkFormat format,
+                                          VkImageUsageFlags usage,
+                                          VkSharingMode sharingMode,
+                                          VkImageLayout initialLayout,
+                                          const VkPhysicalDeviceMemoryProperties *memProps,
+                                          const std::vector<uint32_t> &queueFamilies,
+                                          VkImage *image,
+                                          VkDeviceMemory *imageMemory);
+
     static VkResult CreateStorageBufferAndBindMem(VkDevice device,
                                                   VkDeviceSize size,
                                                   const std::vector<uint32_t> &queueFamilyIndices,

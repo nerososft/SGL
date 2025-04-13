@@ -26,16 +26,19 @@ VkResult VkGPUFramebuffer::CreateFramebuffer(std::vector<uint32_t> queueFamilies
     }
     VkResult result = VK_SUCCESS;
 
-    result = VkGPUHelper::CreateImage(this->gpuCtx->GetCurrentDevice(),
-                                      this->width,
-                                      this->height,
-                                      VK_IMAGE_TYPE_2D,
-                                      VK_FORMAT_R8G8B8A8_SRGB,
-                                      VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
-                                      VK_SHARING_MODE_EXCLUSIVE,
-                                      queueFamilies,
-                                      VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-                                      &this->colorImage);
+    const VkPhysicalDeviceMemoryProperties memoryProperties = this->gpuCtx->GetMemoryProperties();
+    result = VkGPUHelper::CreateImageAndBindMem(this->gpuCtx->GetCurrentDevice(),
+                                                width,
+                                                height,
+                                                VK_IMAGE_TYPE_2D,
+                                                VK_FORMAT_R8G8B8A8_SRGB,
+                                                VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+                                                VK_SHARING_MODE_EXCLUSIVE,
+                                                VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                                                &memoryProperties,
+                                                queueFamilies,
+                                                &colorImage,
+                                                &colorImageMemory);
     if (result != VK_SUCCESS) {
         Logger() << Logger::ERROR << "failed to create color image!" << std::endl;
         return result;
@@ -53,16 +56,18 @@ VkResult VkGPUFramebuffer::CreateFramebuffer(std::vector<uint32_t> queueFamilies
     }
     framebufferAttachments.push_back(this->colorImageView);
 
-    result = VkGPUHelper::CreateImage(this->gpuCtx->GetCurrentDevice(),
-                                      this->width,
-                                      this->height,
-                                      VK_IMAGE_TYPE_2D,
-                                      VK_FORMAT_D32_SFLOAT,
-                                      VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
-                                      VK_SHARING_MODE_EXCLUSIVE,
-                                      queueFamilies,
-                                      VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL,
-                                      &this->depthImage);
+    result = VkGPUHelper::CreateImageAndBindMem(this->gpuCtx->GetCurrentDevice(),
+                                                width,
+                                                height,
+                                                VK_IMAGE_TYPE_2D,
+                                                VK_FORMAT_D32_SFLOAT,
+                                                VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
+                                                VK_SHARING_MODE_EXCLUSIVE,
+                                                VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL,
+                                                &memoryProperties,
+                                                queueFamilies,
+                                                &depthImage,
+                                                &depthImageMemory);
     if (result != VK_SUCCESS) {
         Logger() << Logger::ERROR << "failed to create depth image!" << std::endl;
         return result;

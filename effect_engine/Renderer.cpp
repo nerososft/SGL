@@ -231,7 +231,7 @@ bool Renderer::Init() {
 }
 
 void Renderer::RenderFrame() const {
-    VkResult ret = this->computeGraph->Compute();
+    const VkResult ret = this->computeGraph->Compute();
     if (ret != VK_SUCCESS) {
         Logger() << Logger::ERROR << "Failed to render compute graph!" << std::endl;
     }

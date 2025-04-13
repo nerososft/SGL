@@ -17,9 +17,11 @@ class VkGPUFramebuffer {
     VkFramebuffer framebuffer = VK_NULL_HANDLE;
 
     VkImage colorImage = VK_NULL_HANDLE;
+    VkDeviceMemory colorImageMemory = VK_NULL_HANDLE;
     VkImageView colorImageView = VK_NULL_HANDLE;
 
     VkImage depthImage = VK_NULL_HANDLE;
+    VkDeviceMemory depthImageMemory = VK_NULL_HANDLE;
     VkImageView depthImageView = VK_NULL_HANDLE;
 
     std::vector<VkImageView> framebufferAttachments;

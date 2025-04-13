@@ -824,6 +824,59 @@ VkResult VkGPUHelper::CreateStorageBufferAndBindMem(const VkDevice device,
     return ret;
 }
 
+VkResult VkGPUHelper::CreateImageAndBindMem(const VkDevice device,
+                                            const float width,
+                                            const float height,
+                                            const VkImageType imageType,
+                                            const VkFormat format,
+                                            const VkImageUsageFlags usage,
+                                            const VkSharingMode sharingMode,
+                                            const VkImageLayout initialLayout,
+                                            const VkPhysicalDeviceMemoryProperties *memProps,
+                                            const std::vector<uint32_t> &queueFamilies,
+                                            VkImage *image,
+                                            VkDeviceMemory *imageMemory) {
+    VkResult ret = CreateImage(device,
+                               width,
+                               height,
+                               imageType,
+                               format,
+                               usage,
+                               sharingMode,
+                               queueFamilies,
+                               initialLayout,
+                               image);
+    if (ret != VK_SUCCESS) {
+        Logger() << Logger::ERROR << "failed to create color image!" << std::endl;
+        return ret;
+    }
+    VkMemoryRequirements memRequirements;
+    vkGetImageMemoryRequirements(device, *image, &memRequirements);
+
+    VkMemoryAllocateInfo allocInfo = {};
+    allocInfo.pNext = nullptr;
+    allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    allocInfo.allocationSize = memRequirements.size;
+    allocInfo.memoryTypeIndex = GetRequiredMemTypeIndex(memProps,
+                                                        memRequirements,
+                                                        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                                                        VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+    ret = vkAllocateMemory(device, &allocInfo, nullptr, imageMemory);
+    if (ret != VK_SUCCESS) {
+        Logger() << "vkAllocateMemory failed, err=" << string_VkResult(ret) << std::endl;
+        return ret;
+    }
+    Logger() << "VkMemory Allocate " << allocInfo.allocationSize
+            << " bytes, need: " << static_cast<uint32_t>(width) * static_cast<uint32_t>(height) * 4
+            << " bytes, align " << memRequirements.alignment << std::endl;
+    ret = vkBindImageMemory(device, *image, *imageMemory, 0);
+    if (ret != VK_SUCCESS) {
+        Logger() << "vkBindBufferMemory failed, err=" << string_VkResult(ret) << std::endl;
+        return ret;
+    }
+    return ret;
+}
+
 VkResult VkGPUHelper::CreateStorageBufferAndBindMem(const VkDevice device,
                                                     const VkDeviceSize size,
                                                     const std::vector<uint32_t> &queueFamilyIndices,
