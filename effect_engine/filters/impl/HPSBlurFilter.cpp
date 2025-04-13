@@ -27,6 +27,7 @@ VkResult HPSBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     std::vector<VkAttachmentDescription> attachments;
     std::vector<VkSubpassDependency> dependencies;
     std::vector<VkSubpassDescription> subPasses;
+    VkFramebuffer framebuffer = VK_NULL_HANDLE;
     const auto renderPassNode = std::make_shared<GraphicsRenderPassNode>(gpuCtx,
                                                                          "HPSBlurRenderPass",
                                                                          attachments,

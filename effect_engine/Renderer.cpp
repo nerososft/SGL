@@ -5,6 +5,7 @@
 #include "Renderer.h"
 
 #include "gpu/VkGPUBuffer.h"
+#include "gpu/VkGPUHelper.h"
 #include "log/Log.h"
 
 bool Renderer::ConstructMainGraphicsPipeline() {
@@ -156,6 +157,7 @@ bool Renderer::Init() {
     attachments.push_back(attachment);
 
     VkSubpassDescription subpass;
+
     mainRenderPassNode = std::make_shared<GraphicsRenderPassNode>(this->gpuCtx,
                                                                   "main",
                                                                   attachments,
@@ -172,6 +174,21 @@ bool Renderer::Init() {
         Logger() << Logger::ERROR << "Failed to create render pass compute graph node!" << std::endl;
         return false;
     }
+
+    VkFramebuffer framebuffer = VK_NULL_HANDLE;
+    const std::vector<VkImageView> framebufferAttachments;
+    result = VkGPUHelper::CreateFramebuffer(this->gpuCtx->GetCurrentDevice(),
+                                            width,
+                                            height,
+                                            framebufferAttachments,
+                                            mainRenderPassNode->GetRenderPass()->GetRenderPass(),
+                                            &framebuffer);
+    if (result != VK_SUCCESS) {
+        Logger() << Logger::ERROR << "Failed to create framebuffer!" << std::endl;
+        return false;
+    }
+
+    mainRenderPassNode->SetFramebuffer(framebuffer);
     Logger() << Logger::INFO << "Renderer Initialized!" << std::endl;
 
     if (!ConstructMainGraphicsPipeline()) {

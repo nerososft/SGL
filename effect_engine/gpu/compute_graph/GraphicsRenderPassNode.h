@@ -36,6 +36,8 @@ public:
 
     void Destroy() override;
 
+    void SetFramebuffer(const VkFramebuffer framebuffer) { this->framebuffer = framebuffer; }
+
     std::shared_ptr<VkGPURenderPass> GetRenderPass() { return this->renderPass; }
 };
 

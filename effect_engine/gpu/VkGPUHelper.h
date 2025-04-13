@@ -14,6 +14,13 @@ public:
 
     ~VkGPUHelper() = default;
 
+    static VkResult CreateFramebuffer(VkDevice device,
+                                      uint32_t width,
+                                      uint32_t height,
+                                      const std::vector<VkImageView> &attachments,
+                                      VkRenderPass renderPass, VkFramebuffer
+                                      *framebuffer);
+
     static VkResult CreateSemaphore(VkDevice device, VkSemaphore *semaphore);
 
     static PFN_vkCmdPipelineBarrier2KHR GetVkCmdPipelineBarrier2Fn(VkDevice device);

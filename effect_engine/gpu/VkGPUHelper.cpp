@@ -15,6 +15,29 @@
 #include "effect_engine/log/Log.h"
 #include "effect_engine/utils/IOUtils.h"
 
+VkResult VkGPUHelper::CreateFramebuffer(const VkDevice device,
+                                        const uint32_t width,
+                                        const uint32_t height,
+                                        const std::vector<VkImageView> &attachments,
+                                        const VkRenderPass renderPass,
+                                        VkFramebuffer *framebuffer) {
+    VkFramebufferCreateInfo framebufferInfo = {};
+    framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+    framebufferInfo.flags = 0;
+    framebufferInfo.pNext = nullptr;
+    framebufferInfo.width = width;
+    framebufferInfo.height = height;
+    framebufferInfo.layers = 1;
+    framebufferInfo.attachmentCount = attachments.size();
+    framebufferInfo.pAttachments = attachments.data();
+    framebufferInfo.renderPass = renderPass;
+    const VkResult ret = vkCreateFramebuffer(device, &framebufferInfo, nullptr, framebuffer);
+    if (ret != VK_SUCCESS) {
+        Logger() << "Failed to create framebuffer, err=" << string_VkResult(ret) << std::endl;
+    }
+    return ret;
+}
+
 VkResult VkGPUHelper::CreateSemaphore(const VkDevice device,
                                       VkSemaphore *semaphore) {
     VkSemaphoreCreateInfo semaphoreInfo = {};
