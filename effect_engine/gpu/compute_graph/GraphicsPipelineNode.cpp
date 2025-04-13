@@ -107,14 +107,14 @@ VkResult GraphicsPipelineNode::CreateComputeGraphNode() {
             return ret;
         }
 
-        for (const auto &[type, bufferSize, buffer]: buffers) {
-            if (type == PIPELINE_NODE_BUFFER_VERTEX || type == PIPELINE_NODE_BUFFER_INDEX) {
+        for (const auto &buffer: buffers) {
+            if (buffer.type == PIPELINE_NODE_BUFFER_VERTEX || buffer.type == PIPELINE_NODE_BUFFER_INDEX) {
                 break;
             }
             VkDescriptorBufferInfo bufferInfo = {};
             bufferInfo.offset = 0;
-            bufferInfo.range = bufferSize;
-            bufferInfo.buffer = buffer;
+            bufferInfo.range = buffer.bufferSize;
+            bufferInfo.buffer = buffer.buffer;
             this->pipelineDescriptorBufferInfos.push_back(bufferInfo);
         }
         for (uint32_t i = 0; i < pipelineDescriptorBufferInfos.size(); ++i) {
