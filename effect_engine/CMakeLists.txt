@@ -11,18 +11,8 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     include_directories("/opt/homebrew/Cellar/libpng/1.6.47/include")
 endif ()
 
-set(ENGINE_SOURCE EffectEngine.cpp
-        EffectEngine.h
-        c_api.cpp
-        c_api.h
-        gpu/VkGPUHelper.cpp
+set(ENGINE_GPU_SOURCE gpu/VkGPUHelper.cpp
         gpu/VkGPUHelper.h
-        utils/IOUtils.cpp
-        utils/IOUtils.h
-        utils/TimeUtils.cpp
-        utils/TimeUtils.h
-        utils/ImageUtils.cpp
-        utils/ImageUtils.h
         gpu/VKGPUContext.cpp
         gpu/VKGPUContext.h
         gpu/VkGPUComputePipeline.cpp
@@ -51,7 +41,18 @@ set(ENGINE_SOURCE EffectEngine.cpp
         gpu/VkGPUFramebuffer.cpp
         gpu/VkGPUFramebuffer.h
         gpu/compute_graph/ImageToBufferCopyNode.cpp
-        gpu/compute_graph/ImageToBufferCopyNode.h
+        gpu/compute_graph/ImageToBufferCopyNode.h)
+
+set(ENGINE_SOURCE ${ENGINE_GPU_SOURCE} EffectEngine.cpp
+        EffectEngine.h
+        c_api.cpp
+        c_api.h
+        utils/IOUtils.cpp
+        utils/IOUtils.h
+        utils/TimeUtils.cpp
+        utils/TimeUtils.h
+        utils/ImageUtils.cpp
+        utils/ImageUtils.h
         filters/IFilter.h
         filters/BasicFilter.cpp
         filters/BasicFilter.h
