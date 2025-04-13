@@ -41,10 +41,45 @@ VkResult VkGPUFramebuffer::CreateFramebuffer(std::vector<uint32_t> queueFamilies
         return result;
     }
 
-    // TODO:
-
+    result = VkGPUHelper::CreateImageView(this->gpuCtx->GetCurrentDevice(),
+                                          this->colorImage,
+                                          VK_IMAGE_VIEW_TYPE_2D,
+                                          VK_FORMAT_R8G8B8A8_SRGB,
+                                          VK_IMAGE_ASPECT_COLOR_BIT,
+                                          &this->colorImageView);
+    if (result != VK_SUCCESS) {
+        Logger() << Logger::ERROR << "failed to create color image view!" << std::endl;
+        return result;
+    }
     framebufferAttachments.push_back(this->colorImageView);
+
+    result = VkGPUHelper::CreateImage(this->gpuCtx->GetCurrentDevice(),
+                                      this->width,
+                                      this->height,
+                                      VK_IMAGE_TYPE_2D,
+                                      VK_FORMAT_D32_SFLOAT,
+                                      VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
+                                      VK_SHARING_MODE_EXCLUSIVE,
+                                      queueFamilies,
+                                      VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL,
+                                      &this->depthImage);
+    if (result != VK_SUCCESS) {
+        Logger() << Logger::ERROR << "failed to create color image!" << std::endl;
+        return result;
+    }
+
+    result = VkGPUHelper::CreateImageView(this->gpuCtx->GetCurrentDevice(),
+                                          this->colorImage,
+                                          VK_IMAGE_VIEW_TYPE_2D,
+                                          VK_FORMAT_D32_SFLOAT,
+                                          VK_IMAGE_ASPECT_DEPTH_BIT,
+                                          &this->depthImageView);
+    if (result != VK_SUCCESS) {
+        Logger() << Logger::ERROR << "failed to create color image view!" << std::endl;
+        return result;
+    }
     framebufferAttachments.push_back(this->depthImageView);
+
     result = VkGPUHelper::CreateFramebuffer(this->gpuCtx->GetCurrentDevice(),
                                             width,
                                             height,

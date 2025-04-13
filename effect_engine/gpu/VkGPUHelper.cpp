@@ -15,6 +15,36 @@
 #include "effect_engine/log/Log.h"
 #include "effect_engine/utils/IOUtils.h"
 
+VkResult VkGPUHelper::CreateImageView(const VkDevice device,
+                                      const VkImage image,
+                                      const VkImageViewType viewType,
+                                      const VkFormat format,
+                                      const VkImageAspectFlags aspectFlags,
+                                      VkImageView *imageView) {
+    VkResult result = VK_SUCCESS;
+    VkImageViewCreateInfo viewInfo = {};
+    viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+    viewInfo.flags = 0;
+    viewInfo.pNext = nullptr;
+    viewInfo.image = image;
+    viewInfo.viewType = viewType;
+    viewInfo.format = format;
+    viewInfo.components.r = VK_COMPONENT_SWIZZLE_R;
+    viewInfo.components.g = VK_COMPONENT_SWIZZLE_G;
+    viewInfo.components.b = VK_COMPONENT_SWIZZLE_B;
+    viewInfo.components.a = VK_COMPONENT_SWIZZLE_A;
+    viewInfo.subresourceRange.aspectMask = aspectFlags;
+    viewInfo.subresourceRange.baseMipLevel = 0;
+    viewInfo.subresourceRange.levelCount = 1;
+    viewInfo.subresourceRange.baseArrayLayer = 0;
+    viewInfo.subresourceRange.layerCount = 1;
+    result = vkCreateImageView(device, &viewInfo, nullptr, imageView);
+    if (result != VK_SUCCESS) {
+        Logger() << "Failed to create image view, err=" << string_VkResult(result) << std::endl;
+    }
+    return result;
+}
+
 auto VkGPUHelper::CreateImage(const VkDevice device,
                               const float width,
                               const float height,
@@ -33,6 +63,7 @@ auto VkGPUHelper::CreateImage(const VkDevice device,
     imageCreateInfo.format = format;
     imageCreateInfo.extent.width = width;
     imageCreateInfo.extent.height = height;
+    imageCreateInfo.extent.depth = 1;
     imageCreateInfo.mipLevels = 1;
     imageCreateInfo.arrayLayers = 1;
     imageCreateInfo.samples = VK_SAMPLE_COUNT_1_BIT;

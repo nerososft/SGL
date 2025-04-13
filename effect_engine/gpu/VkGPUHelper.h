@@ -16,6 +16,13 @@ public:
 
     ~VkGPUHelper() = default;
 
+    static VkResult CreateImageView(VkDevice device,
+                                    VkImage image,
+                                    VkImageViewType viewType,
+                                    VkFormat format,
+                                    VkImageAspectFlags aspectFlags,
+                                    VkImageView *imageView);
+
     static VkResult CreateImage(VkDevice device,
                                 float width,
                                 float height,
