@@ -797,6 +797,7 @@ VkResult VkGPUHelper::CreateStorageBufferAndBindMem(const VkDevice device,
                                 storageBuffer);
     if (ret != VK_SUCCESS) {
         Logger() << "vkCreateBuffer failed, err=" << string_VkResult(ret) << std::endl;
+        return ret;
     }
 
     VkMemoryRequirements memRequirements;
@@ -904,6 +905,7 @@ VkResult VkGPUHelper::CreateUniformBufferAndBindMem(const VkDevice device,
                                 storageBuffer);
     if (ret != VK_SUCCESS) {
         Logger() << "vkCreateBuffer failed, err=" << string_VkResult(ret) << std::endl;
+        return ret;
     }
 
     VkMemoryRequirements memRequirements;
@@ -944,6 +946,7 @@ VkResult VkGPUHelper::CreateVertexBufferAndBindMem(const VkDevice device,
                                 storageBuffer);
     if (ret != VK_SUCCESS) {
         Logger() << "vkCreateBuffer failed, err=" << string_VkResult(ret) << std::endl;
+        return ret;
     }
 
     VkMemoryRequirements memRequirements;
@@ -984,6 +987,7 @@ VkResult VkGPUHelper::CreateIndexBufferAndBindMem(const VkDevice device,
                                 storageBuffer);
     if (ret != VK_SUCCESS) {
         Logger() << "vkCreateBuffer failed, err=" << string_VkResult(ret) << std::endl;
+        return ret;
     }
 
     VkMemoryRequirements memRequirements;
