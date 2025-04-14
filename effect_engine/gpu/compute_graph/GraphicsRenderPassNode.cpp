@@ -33,8 +33,8 @@ GraphicsRenderPassNode::GraphicsRenderPassNode(const std::shared_ptr<VkGPUContex
 
 VkResult GraphicsRenderPassNode::CreateComputeGraphNode() {
     VkRect2D renderArea;
-    renderArea.extent.width = this->width;
-    renderArea.extent.height = this->height;
+    renderArea.extent.width = static_cast<uint32_t>(this->width);
+    renderArea.extent.height = static_cast<uint32_t>(this->height);
     renderArea.offset.x = 0;
     renderArea.offset.y = 0;
     this->renderPass = std::make_shared<VkGPURenderPass>(gpuCtx,
@@ -86,7 +86,7 @@ void GraphicsRenderPassNode::Compute(const VkCommandBuffer commandBuffer) {
             dependence->Compute(commandBuffer);
         }
     }
-    this->renderPass->GPUCmdEndRenderPass(commandBuffer);
+    VkGPURenderPass::GPUCmdEndRenderPass(commandBuffer);
 }
 
 void GraphicsRenderPassNode::Destroy() {
