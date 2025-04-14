@@ -317,7 +317,27 @@ bool scale_filter_gpu(void *in, void *out, const int weight, const int height) {
     const auto *input = static_cast<ImageInfo *>(in);
     const auto *output = static_cast<ImageInfo *>(out);
 
+
+    
     g_effect_engine.Process(*input, *output, filter);
+
+    unsigned char* data0 = (unsigned char*)output->data ;
+
+    int p0 = data0[0];
+    int p1 = data0[1];
+    int p2 = data0[2];
+    int p3 = data0[3];
+
+
+    unsigned char* data1 = (unsigned char* )output->data + weight * height / 2 * 4;
+
+    int p4 = data1[0];
+    int p5 = data1[1];
+    int p6 = data1[2];
+    int p7= data1[3];
+
+
+
     return true;
 }
 
