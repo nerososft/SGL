@@ -50,19 +50,18 @@ void ImageToBufferCopyNode::Compute(const VkCommandBuffer commandBuffer) {
                                                                           VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
                                                                           VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL));
 
-    std::vector<VkBufferMemoryBarrier> dtsBufferReadyToWriteMemoryBarriers;
-    dtsBufferReadyToWriteMemoryBarriers.push_back(
-        VkGPUHelper::BuildBufferMemoryBarrier(VK_ACCESS_NONE,
-                                              VK_ACCESS_TRANSFER_WRITE_BIT,
-                                              dstBuffer.buffer,
-                                              dstBuffer.bufferSize));
+    std::vector<VkBufferMemoryBarrier> bufferMemoryBarriers;
+    bufferMemoryBarriers.push_back(VkGPUHelper::BuildBufferMemoryBarrier(VK_ACCESS_NONE,
+                                                                         VK_ACCESS_TRANSFER_WRITE_BIT,
+                                                                         dstBuffer.buffer,
+                                                                         dstBuffer.bufferSize));
     const std::vector<VkMemoryBarrier> memBarrier;
     VkGPUHelper::GPUCmdPipelineBarrier(commandBuffer,
                                        VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
                                        VK_PIPELINE_STAGE_TRANSFER_BIT,
                                        0,
                                        memBarrier,
-                                       dtsBufferReadyToWriteMemoryBarriers,
+                                       bufferMemoryBarriers,
                                        srcImageMemoryBarriers);
     std::vector<VkBufferImageCopy> copyRegions;
     VkBufferImageCopy copyRegion;

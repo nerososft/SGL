@@ -170,7 +170,7 @@ void GraphicsPipelineNode::Compute(const VkCommandBuffer commandBuffer) {
         for (const auto &buffer: bindIndexBuffers) {
             vkCmdBindIndexBuffer(commandBuffer, buffer, 0, VK_INDEX_TYPE_UINT32);
         }
-        vkCmdDraw(commandBuffer, 3, 1, 0, 0);
+        vkCmdDrawIndexed(commandBuffer, 6, 1, 0, 0, 0);
 
         if (graphicsElements[i].customDrawFunc != nullptr) {
             graphicsElements[i].customDrawFunc(commandBuffer);

@@ -33,6 +33,7 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     include_directories("/usr/local/include")
     link_directories("${VULKAN_SDK_PATH}/macOS/lib/")
     link_directories("/opt/homebrew/lib/")
+    include_directories("/opt/homebrew/Cellar/glm/1.0.1/include")
     add_compile_options(-fdeclspec)
 endif ()
 

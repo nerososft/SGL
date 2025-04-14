@@ -18,13 +18,25 @@ bool Renderer::ConstructMainGraphicsPipeline() {
         Logger() << "vertexBuffer is null" << std::endl;
         return false;
     }
-    const std::vector vertices = {
-        -0.5f, -0.5f, 0.0f,
-        0.5f, -0.5f, 0.0f,
-        -0.5f, 0.5f, 0.0f,
-        -0.5f, 0.5f, 0.0f,
-        0.5f, -0.5f, 0.0f,
-        0.5f, 0.5f, 0.0f
+    const std::vector<Vertex> vertices = {
+        {
+            .position = {-0.5f, -0.5f, 0.0f},
+        },
+        {
+            .position = {0.5f, -0.5f, 0.0f},
+        },
+        {
+            .position = {-0.5f, 0.5f, 0.0f},
+        },
+        {
+            .position = {-0.5f, 0.5f, 0.0f},
+        },
+        {
+            .position = {0.5f, -0.5f, 0.0f},
+        },
+        {
+            .position = {0.5f, 0.5f, 0.0f},
+        },
     };
     VkResult ret = vertexBuffer->AllocateAndBind(GPU_BUFFER_TYPE_VERTEX, vertices.size() * sizeof(float));
     if (ret != VK_SUCCESS) {
@@ -203,7 +215,7 @@ bool Renderer::Init() {
 
     std::vector<VkClearValue> clearValues;
     clearValues.push_back({
-        .color = {0.0f, 0.0f, 0.0f, 1.0f}
+        .color = {1.0f, 1.0f, 0.0f, 0.0f}
     });
     clearValues.push_back({
         .depthStencil = {1.0f, 0}
@@ -301,6 +313,7 @@ void Renderer::RenderFrameOffScreen(const std::string &path) const {
         Logger() << Logger::ERROR << "Failed to render frame!" << std::endl;
         return;
     }
+
     const VkDeviceSize offScreenBufferSize = this->width * this->height * 4;
     ret = offScreenBuffer->MapBuffer(offScreenBufferSize);
     if (ret != VK_SUCCESS) {
@@ -310,6 +323,7 @@ void Renderer::RenderFrameOffScreen(const std::string &path) const {
 
     ImageUtils::WritePngFile(path,
                              this->width,
-                             this->height, 4,
+                             this->height,
+                             4,
                              offScreenBuffer->GetMappedAddr());
 }

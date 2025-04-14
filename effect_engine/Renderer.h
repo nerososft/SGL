@@ -7,14 +7,16 @@
 #include "gpu/VkGPUBuffer.h"
 #include "gpu/VkGPUContext.h"
 #include "gpu/VkGPUFramebuffer.h"
-#include "gpu/compute_graph/BufferCopyNode.h"
 #include "gpu/compute_graph/ComputeGraph.h"
 #include "gpu/compute_graph/GraphicsPipelineNode.h"
 #include "gpu/compute_graph/GraphicsRenderPassNode.h"
 #include "gpu/compute_graph/ImageToBufferCopyNode.h"
+#include <glm/glm.hpp>
 
 struct Vertex {
-    float pos[3];
+    glm::vec3 position;
+    glm::vec3 color;
+    glm::vec2 texCoords;
 };
 
 struct FrameInfo {
