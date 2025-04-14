@@ -19,6 +19,16 @@ set(ENGINE_GPU_SOURCE gpu/VkGPUHelper.cpp
         gpu/VkGPUComputePipeline.h
         gpu/VkGPUDescriptorSet.cpp
         gpu/VkGPUDescriptorSet.h
+        gpu/VkGPUBuffer.cpp
+        gpu/VkGPUBuffer.h
+        gpu/VkGPUGraphicsPipeline.cpp
+        gpu/VkGPUGraphicsPipeline.h
+        gpu/VkGPURenderPass.cpp
+        gpu/VkGPURenderPass.h
+        gpu/VkGPUFramebuffer.cpp
+        gpu/VkGPUFramebuffer.h
+        gpu/VkGPUSwapChain.cpp
+        gpu/VkGPUSwapChain.h
         gpu/compute_graph/ComputeGraph.cpp
         gpu/compute_graph/ComputeGraph.h
         gpu/compute_graph/IComputeGraphNode.h
@@ -26,20 +36,12 @@ set(ENGINE_GPU_SOURCE gpu/VkGPUHelper.cpp
         gpu/compute_graph/ComputePipelineNode.h
         gpu/compute_graph/BufferCopyNode.h
         gpu/compute_graph/BufferCopyNode.cpp
-        gpu/VkGPUBuffer.cpp
-        gpu/VkGPUBuffer.h
-        gpu/VkGPUGraphicsPipeline.cpp
-        gpu/VkGPUGraphicsPipeline.h
         gpu/compute_graph/GraphicsPipelineNode.cpp
         gpu/compute_graph/GraphicsPipelineNode.h
-        gpu/VkGPURenderPass.cpp
-        gpu/VkGPURenderPass.h
         gpu/compute_graph/GraphicsRenderPassNode.cpp
         gpu/compute_graph/GraphicsRenderPassNode.h
         gpu/compute_graph/SubComputeGraph.cpp
         gpu/compute_graph/SubComputeGraph.h
-        gpu/VkGPUFramebuffer.cpp
-        gpu/VkGPUFramebuffer.h
         gpu/compute_graph/ImageToBufferCopyNode.cpp
         gpu/compute_graph/ImageToBufferCopyNode.h)
 
