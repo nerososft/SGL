@@ -66,14 +66,19 @@ bool Renderer::ConstructMainGraphicsPipeline() {
 
     buffers.push_back(vertexBufferNode);
     buffers.push_back(indexBufferNode);
-    const GraphicsElement element{
-        .buffers = buffers,
-        .pushConstantInfo = {
-            .size = sizeof(FrameInfo),
-            .data = &this->frameInfo
-        },
-        .customDrawFunc = nullptr,
-    };
+    
+    GraphicsElement element;
+    element.buffers = buffers;
+
+    PushConstantInfo constInfos;
+    constInfos.size = sizeof(FrameInfo);
+    constInfos.data = &this->frameInfo;
+    element.pushConstantInfo = constInfos;
+
+    element.customDrawFunc = nullptr;
+
+
+
 
     std::vector<VkVertexInputBindingDescription> vertexInputBindingDescriptions = {
         {
@@ -82,14 +87,10 @@ bool Renderer::ConstructMainGraphicsPipeline() {
             .inputRate = VK_VERTEX_INPUT_RATE_VERTEX
         }
     };
-    std::vector<VkVertexInputAttributeDescription> vertexInputAttributeDescriptions = {
-        {
-            .binding = 0,
-            .location = 0,
-            .format = VK_FORMAT_R32G32B32_SFLOAT,
-            .offset = 0,
-        }
-    };
+
+
+    std::vector<VkVertexInputAttributeDescription> vertexInputAttributeDescriptions;
+    vertexInputAttributeDescriptions.push_back(VkVertexInputAttributeDescription({ 0 , 0 ,  VK_FORMAT_R32G32B32_SFLOAT  , 0 }));
 
     this->graphicsPipelineNode = std::make_shared<GraphicsPipelineNode>(this->gpuCtx,
                                                                         "mainGraphicsPipeline",
