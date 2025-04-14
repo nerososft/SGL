@@ -49,7 +49,7 @@ public:
 
     bool Init();
 
-    VkResult RenderFrame() const;
+    [[nodiscard]] VkResult RenderFrame() const;
 
     ~Renderer() = default;
 

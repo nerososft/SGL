@@ -120,7 +120,7 @@ bool Renderer::ConstructMainGraphicsPipeline() {
 bool Renderer::Init() {
     std::vector<const char *> requiredExtensions;
     this->gpuCtx = std::make_shared<VkGPUContext>(requiredExtensions);
-    // this->gpuCtx->AddInstanceEnableLayer("VK_LAYER_KHRONOS_validation");
+    this->gpuCtx->AddInstanceEnableLayer("VK_LAYER_KHRONOS_validation");
     // this->gpuCtx->AddInstanceEnableLayer("VK_LAYER_LUNARG_api_dump");
     // this->gpuCtx->AddInstanceEnableLayer("VK_LAYER_KHRONOS_synchronization2");
     // this->gpuCtx->AddDeviceEnabledExtension("VK_KHR_synchronization2");
@@ -187,7 +187,6 @@ bool Renderer::Init() {
             .layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
         }
     };
-
 
     VkSubpassDescription subPassDescription;
     subPassDescription.flags = 0;
@@ -308,6 +307,7 @@ void Renderer::RenderFrameOffScreen(const std::string &path) const {
         Logger() << "Failed to map output storage buffer!" << std::endl;
         return;
     }
+
     ImageUtils::WritePngFile(path,
                              this->width,
                              this->height, 4,

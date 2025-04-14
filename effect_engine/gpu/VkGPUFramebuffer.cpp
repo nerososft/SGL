@@ -32,7 +32,7 @@ VkResult VkGPUFramebuffer::CreateFramebuffer(std::vector<uint32_t> queueFamilies
                                                 height,
                                                 VK_IMAGE_TYPE_2D,
                                                 VK_FORMAT_R8G8B8A8_SRGB,
-                                                VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+                                                VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
                                                 VK_SHARING_MODE_EXCLUSIVE,
                                                 VK_IMAGE_LAYOUT_UNDEFINED,
                                                 &memoryProperties,

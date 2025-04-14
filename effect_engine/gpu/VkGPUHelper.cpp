@@ -788,7 +788,7 @@ VkResult VkGPUHelper::CreateDescriptorSetLayout(const VkDevice device,
 
 VkResult VkGPUHelper::CreateBuffer(const VkDevice device,
                                    const VkDeviceSize size,
-                                   const VkBufferUsageFlagBits usage,
+                                   const VkBufferUsageFlags usage,
                                    const VkSharingMode sharingMode,
                                    const std::vector<uint32_t> &queueFamilyIndices,
                                    VkBuffer *buffer) {
@@ -828,9 +828,10 @@ VkResult VkGPUHelper::CreateStorageBufferAndBindMem(const VkDevice device,
                                                     const uint32_t memoryPropertyFlagsBits,
                                                     VkBuffer *storageBuffer,
                                                     VkDeviceMemory *storageBufferMemory) {
+    const VkBufferUsageFlags flag = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
     VkResult ret = CreateBuffer(device,
                                 size,
-                                VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
+                                flag,
                                 VK_SHARING_MODE_EXCLUSIVE,
                                 queueFamilyIndices,
                                 storageBuffer);

@@ -204,7 +204,7 @@ public:
                                               VkDescriptorSetLayout *descriptorSetLayout);
 
     static VkResult CreateBuffer(VkDevice device, VkDeviceSize size,
-                                 VkBufferUsageFlagBits usage,
+                                 VkBufferUsageFlags usage,
                                  VkSharingMode sharingMode,
                                  const std::vector<uint32_t> &queueFamilyIndices,
                                  VkBuffer *buffer);
