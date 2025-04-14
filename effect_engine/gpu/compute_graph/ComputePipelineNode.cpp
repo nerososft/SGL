@@ -200,9 +200,13 @@ void ComputePipelineNode::Compute(const VkCommandBuffer commandBuffer) {
 }
 
 void ComputePipelineNode::Destroy() {
-    computePipeline->Destroy();
+    if (computePipeline != nullptr) {
+        computePipeline->Destroy();
+        computePipeline = nullptr;
+    }
     for (const auto &pipelineDescriptorSet: pipelineDescriptorSets) {
         pipelineDescriptorSet->Destroy();
     }
+    pipelineDescriptorSets.clear();
     IComputeGraphNode::Destroy();
 }

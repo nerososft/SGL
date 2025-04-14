@@ -60,6 +60,7 @@ void SubComputeGraph::AddComputeGraphNode(const std::shared_ptr<IComputeGraphNod
 
 VkResult SubComputeGraph::Compute() const {
     vkResetCommandBuffer(commandBuffer, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+    vkResetFences(this->gpuCtx->GetCurrentDevice(), 1, &computeFence);
 
     VkGPUHelper::GPUBeginCommandBuffer(commandBuffer);
 

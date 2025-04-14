@@ -10,6 +10,7 @@
 
 #include "effect_engine/blenders/impl/LighterColorBlender.h"
 #include "effect_engine/EffectEngine.h"
+#include "effect_engine/Renderer.h"
 #include "effect_engine/blenders/impl/DissolveBlender.h"
 #include "effect_engine/blenders/impl/MultiplyBlender.h"
 #include "effect_engine/blenders/impl/OverlayBlender.h"
@@ -29,13 +30,11 @@
 #include "effect_engine/filters/impl/VoronoiFilter.h"
 #include "effect_engine/log/Log.h"
 
-int main(int argc, char *argv[]) {
-    Logger() << "Hello World!\n";
-
+void effect_engine_main() {
     EffectEngine effectEngine;
     if (!effectEngine.Init()) {
         Logger() << "Failed to initialize effect_engine" << std::endl;
-        return 0;
+        return;
     }
 
     // const auto filter = std::make_shared<GrayFilter>();
@@ -180,6 +179,20 @@ int main(int argc, char *argv[]) {
     // const auto filter = std::make_shared<MedianFilter>();
     // filter->SetRadius(50);
     // effectEngine.Process("../../demo/images/test.png", "../../demo/images/test_median.png", filter);
+}
+
+void renderer_main() {
+    Renderer renderer;
+    if (!renderer.Init()) {
+        Logger() << "Failed to initialize renderer" << std::endl;
+    }
+    renderer.RenderFrameOffScreen("../../demo/images/render_offscreen.png");
+}
+
+int main(int argc, char *argv[]) {
+    Logger() << "Hello World!\n";
+    // effect_engine_main();
+    renderer_main();
 
     // getchar();
     return 0;

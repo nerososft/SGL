@@ -8,13 +8,40 @@
 #include <vulkan/vulkan_core.h>
 #include <string>
 
+#include "VkGPUFramebuffer.h"
+
 class VkGPUHelper {
 public:
     VkGPUHelper() = default;
 
     ~VkGPUHelper() = default;
 
-    static VkResult CreateSemaphore(VkDevice device, VkSemaphore* semaphore);
+    static VkResult CreateImageView(VkDevice device,
+                                    VkImage image,
+                                    VkImageViewType viewType,
+                                    VkFormat format,
+                                    VkImageAspectFlags aspectFlags,
+                                    VkImageView *imageView);
+
+    static VkResult CreateImage(VkDevice device,
+                                float width,
+                                float height,
+                                VkImageType imageType,
+                                VkFormat format,
+                                VkImageUsageFlags usage,
+                                VkSharingMode sharingMode,
+                                const std::vector<uint32_t> &queueFamilies,
+                                VkImageLayout initialLayout,
+                                VkImage *image);
+
+    static VkResult CreateFramebuffer(VkDevice device,
+                                      uint32_t width,
+                                      uint32_t height,
+                                      const std::vector<VkImageView> &attachments,
+                                      VkRenderPass renderPass, VkFramebuffer
+                                      *framebuffer);
+
+    static VkResult CreateSemaphore(VkDevice device, VkSemaphore *semaphore);
 
     static PFN_vkCmdPipelineBarrier2KHR GetVkCmdPipelineBarrier2Fn(VkDevice device);
 
@@ -84,11 +111,23 @@ public:
                                                           VkBuffer buffer,
                                                           VkDeviceSize size);
 
+    static VkImageMemoryBarrier BuildImageMemoryBarrier(VkAccessFlagBits srcAccessMask,
+                                                        VkAccessFlagBits dstAccessMask,
+                                                        VkImage image,
+                                                        VkImageLayout oldLayout,
+                                                        VkImageLayout newLayout);
+
     static void GPUCmdPipelineBufferMemBarrier(VkCommandBuffer commandBuffer,
                                                VkPipelineStageFlags srcStageMask,
                                                VkPipelineStageFlags dstStageMask,
                                                VkDependencyFlags dependencyFlags,
                                                const std::vector<VkBufferMemoryBarrier> &bufferMemoryBarriers);
+
+    static void GPUCmdPipelineImageMemBarrier(VkCommandBuffer commandBuffer,
+                                              VkPipelineStageFlags srcStageMask,
+                                              VkPipelineStageFlags dstStageMask,
+                                              VkDependencyFlags dependencyFlags,
+                                              const std::vector<VkImageMemoryBarrier> &imageMemoryBarriers);
 
     static void GPUCmdPipelineBarrier(VkCommandBuffer commandBuffer,
                                       VkPipelineStageFlags srcStageMask,
@@ -182,6 +221,19 @@ public:
                                                   VkBuffer *storageBuffer,
                                                   VkDeviceMemory *storageBufferMemory);
 
+    static VkResult CreateImageAndBindMem(VkDevice device,
+                                          float width,
+                                          float height,
+                                          VkImageType imageType,
+                                          VkFormat format,
+                                          VkImageUsageFlags usage,
+                                          VkSharingMode sharingMode,
+                                          VkImageLayout initialLayout,
+                                          const VkPhysicalDeviceMemoryProperties *memProps,
+                                          const std::vector<uint32_t> &queueFamilies,
+                                          VkImage *image,
+                                          VkDeviceMemory *imageMemory);
+
     static VkResult CreateStorageBufferAndBindMem(VkDevice device,
                                                   VkDeviceSize size,
                                                   const std::vector<uint32_t> &queueFamilyIndices,
@@ -195,6 +247,20 @@ public:
                                                   const VkPhysicalDeviceMemoryProperties *memProps,
                                                   VkBuffer *storageBuffer,
                                                   VkDeviceMemory *storageBufferMemory);
+
+    static VkResult CreateVertexBufferAndBindMem(VkDevice device,
+                                                 VkDeviceSize size,
+                                                 const std::vector<uint32_t> &queueFamilyIndices,
+                                                 const VkPhysicalDeviceMemoryProperties *memProps,
+                                                 VkBuffer *storageBuffer,
+                                                 VkDeviceMemory *storageBufferMemory);
+
+    static VkResult CreateIndexBufferAndBindMem(VkDevice device,
+                                                VkDeviceSize size,
+                                                const std::vector<uint32_t> &queueFamilyIndices,
+                                                const VkPhysicalDeviceMemoryProperties *memProps,
+                                                VkBuffer *storageBuffer,
+                                                VkDeviceMemory *storageBufferMemory);
 };
 
 

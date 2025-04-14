@@ -26,27 +26,42 @@ VkResult VkGPUBuffer::AllocateAndBind(const VkGPUBufferType type, const VkDevice
                                                             size,
                                                             queueFamilyIndices,
                                                             &memoryProperties,
-                                                            &buffer,
-                                                            &bufferMemory);
+                                                            &this->buffer,
+                                                            &this->bufferMemory);
+    } else if (type == GPU_BUFFER_TYPE_STORAGE_SHARED) {
+        result = VkGPUHelper::CreateStorageBufferAndBindMem(gpuCtx->GetCurrentDevice(),
+                                                            size,
+                                                            queueFamilyIndices,
+                                                            &memoryProperties,
+                                                            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                                                            VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                                                            &this->buffer,
+                                                            &this->bufferMemory);
+    } else if (type == GPU_BUFFER_TYPE_STORAGE_LOCAL) {
+        result = VkGPUHelper::CreateStorageBufferAndBindMem(gpuCtx->GetCurrentDevice(),
+                                                            size,
+                                                            queueFamilyIndices,
+                                                            &memoryProperties,
+                                                            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+                                                            &this->buffer,
+                                                            &this->bufferMemory);
+    } else if (type == GPU_BUFFER_TYPE_VERTEX) {
+        result = VkGPUHelper::CreateVertexBufferAndBindMem(gpuCtx->GetCurrentDevice(),
+                                                           size,
+                                                           queueFamilyIndices,
+                                                           &memoryProperties,
+                                                           &this->buffer,
+                                                           &this->bufferMemory);
+    } else if (type == GPU_BUFFER_TYPE_INDEX) {
+        result = VkGPUHelper::CreateIndexBufferAndBindMem(gpuCtx->GetCurrentDevice(),
+                                                          size,
+                                                          queueFamilyIndices,
+                                                          &memoryProperties,
+                                                          &this->buffer,
+                                                          &this->bufferMemory);
     } else {
-        if (type == GPU_BUFFER_TYPE_STORAGE_SHARED) {
-            result = VkGPUHelper::CreateStorageBufferAndBindMem(gpuCtx->GetCurrentDevice(),
-                                                                size,
-                                                                queueFamilyIndices,
-                                                                &memoryProperties,
-                                                                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-                                                                VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                                                                &buffer,
-                                                                &bufferMemory);
-        } else if (type == GPU_BUFFER_TYPE_STORAGE_LOCAL) {
-            result = VkGPUHelper::CreateStorageBufferAndBindMem(gpuCtx->GetCurrentDevice(),
-                                                                size,
-                                                                queueFamilyIndices,
-                                                                &memoryProperties,
-                                                                VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                                                                &buffer,
-                                                                &bufferMemory);
-        }
+        Logger() << "Unknown buffer type!" << std::endl;
+        result = VK_ERROR_UNKNOWN;
     }
     if (result != VK_SUCCESS) {
         Logger() << "Failed to allocate buffer and bind, err ="
@@ -62,7 +77,7 @@ VkResult VkGPUBuffer::MapBuffer(const VkDeviceSize size) {
     if (bufferMemory == VK_NULL_HANDLE) {
         return VK_ERROR_INITIALIZATION_FAILED;
     }
-    if (this->type != GPU_BUFFER_TYPE_UNIFORM && this->type != GPU_BUFFER_TYPE_STORAGE_SHARED) {
+    if (this->type == GPU_BUFFER_TYPE_STORAGE_LOCAL) {
         return VK_ERROR_MEMORY_MAP_FAILED;
     }
     const VkResult result = vkMapMemory(this->gpuCtx->GetCurrentDevice(), bufferMemory, 0, size, 0, &data);

@@ -33,7 +33,7 @@ public:
 
     void GPUCmdBindDescriptorSets(VkCommandBuffer commandBuffer, VkPipelineBindPoint pipelineBindPoint) const;
 
-    void Destroy() const;
+    void Destroy();
 };
 
 

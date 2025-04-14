@@ -90,7 +90,19 @@ VkResult VkGPUGraphicsPipeline::CreateGraphicsPipeline(const VkDevice device,
     scissor.extent.height = static_cast<uint32_t>(viewHeight);
     viewportScissors.push_back(scissor);
 
-    const std::vector<VkPipelineColorBlendAttachmentState> colorBlendStateCreateInfos;
+    std::vector<VkPipelineColorBlendAttachmentState> colorBlendStateCreateInfos;
+    const VkPipelineColorBlendAttachmentState colorBlendAttachment = { // FIXME: should be dynamic from attahcments
+        .blendEnable = VK_FALSE,
+        .srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA,
+        .dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA,
+        .colorBlendOp = VK_BLEND_OP_ADD,
+        .srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE,
+        .dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO,
+        .alphaBlendOp = VK_BLEND_OP_ADD,
+        .colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT |
+                          VK_COLOR_COMPONENT_A_BIT,
+    };
+    colorBlendStateCreateInfos.push_back(colorBlendAttachment);
     const std::vector<VkDynamicState> dynamicStates;
 
     result = VkGPUHelper::CreateGraphicsPipeline(device,
@@ -102,7 +114,7 @@ VkResult VkGPUGraphicsPipeline::CreateGraphicsPipeline(const VkDevice device,
                                                  vertexInputBindingDescriptions,
                                                  vertexInputAttributeDescriptions,
                                                  VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
-                                                 VK_TRUE,
+                                                 VK_FALSE,
                                                  viewports,
                                                  viewportScissors,
                                                  VK_POLYGON_MODE_FILL,

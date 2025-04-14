@@ -11,33 +11,10 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     include_directories("/opt/homebrew/Cellar/libpng/1.6.47/include")
 endif ()
 
-add_library(gpu_effect_engine SHARED
-        EffectEngine.cpp
-        EffectEngine.h
-        c_api.cpp
-        c_api.h
-        filters/BasicFilter.cpp
-        filters/BasicFilter.h
-        filters/impl/GrayFilter.cpp
-        filters/impl/GrayFilter.h
-        filters/impl/PaletteKnifeFilter.h
-        filters/impl/PaletteKnifeFilter.cpp
-        filters/impl/BlurEdgeFilter.h
-        filters/impl/BlurEdgeFilter.cpp
-
-        filters/impl/DistortGlassFilter.h
-        filters/impl/DistortGlassFilter.cpp
-        gpu/VkGPUHelper.cpp
+set(ENGINE_GPU_SOURCE gpu/VkGPUHelper.cpp
         gpu/VkGPUHelper.h
-        utils/IOUtils.cpp
-        utils/IOUtils.h
-        utils/TimeUtils.cpp
-        utils/TimeUtils.h
-        utils/ImageUtils.cpp
-        utils/ImageUtils.h
         gpu/VKGPUContext.cpp
         gpu/VKGPUContext.h
-        filters/IFilter.h
         gpu/VkGPUComputePipeline.cpp
         gpu/VkGPUComputePipeline.h
         gpu/VkGPUDescriptorSet.cpp
@@ -47,14 +24,52 @@ add_library(gpu_effect_engine SHARED
         gpu/compute_graph/IComputeGraphNode.h
         gpu/compute_graph/ComputePipelineNode.cpp
         gpu/compute_graph/ComputePipelineNode.h
+        gpu/compute_graph/BufferCopyNode.h
+        gpu/compute_graph/BufferCopyNode.cpp
+        gpu/VkGPUBuffer.cpp
+        gpu/VkGPUBuffer.h
+        gpu/VkGPUGraphicsPipeline.cpp
+        gpu/VkGPUGraphicsPipeline.h
+        gpu/compute_graph/GraphicsPipelineNode.cpp
+        gpu/compute_graph/GraphicsPipelineNode.h
+        gpu/VkGPURenderPass.cpp
+        gpu/VkGPURenderPass.h
+        gpu/compute_graph/GraphicsRenderPassNode.cpp
+        gpu/compute_graph/GraphicsRenderPassNode.h
+        gpu/compute_graph/SubComputeGraph.cpp
+        gpu/compute_graph/SubComputeGraph.h
+        gpu/VkGPUFramebuffer.cpp
+        gpu/VkGPUFramebuffer.h
+        gpu/compute_graph/ImageToBufferCopyNode.cpp
+        gpu/compute_graph/ImageToBufferCopyNode.h)
+
+set(ENGINE_SOURCE ${ENGINE_GPU_SOURCE} EffectEngine.cpp
+        EffectEngine.h
+        c_api.cpp
+        c_api.h
+        utils/IOUtils.cpp
+        utils/IOUtils.h
+        utils/TimeUtils.cpp
+        utils/TimeUtils.h
+        utils/ImageUtils.cpp
+        utils/ImageUtils.h
+        filters/IFilter.h
+        filters/BasicFilter.cpp
+        filters/BasicFilter.h
+        filters/impl/GrayFilter.cpp
+        filters/impl/GrayFilter.h
+        filters/impl/PaletteKnifeFilter.h
+        filters/impl/PaletteKnifeFilter.cpp
+        filters/impl/BlurEdgeFilter.h
+        filters/impl/BlurEdgeFilter.cpp
+        filters/impl/DistortGlassFilter.h
+        filters/impl/DistortGlassFilter.cpp
         filters/impl/GaussianBlurFilter.cpp
         filters/impl/GaussianBlurFilter.h
         filters/impl/OldGaussianBlurFilter.cpp
         filters/impl/OldGaussianBlurFilter.h
         filters/impl/OldGaussianBlurFloatFilter.cpp
         filters/impl/OldGaussianBlurFloatFilter.h
-        gpu/compute_graph/BufferCopyNode.h
-        gpu/compute_graph/BufferCopyNode.cpp
         filters/impl/ChinesePaintFilter.h
         filters/impl/ChinesePaintFilter.cpp
         filters/impl/ColorPencilSketchFilter.cpp
@@ -77,6 +92,24 @@ add_library(gpu_effect_engine SHARED
         filters/impl/colorBalanceFilter.cpp
         filters/impl/BlackWhiteFilter.h
         filters/impl/BlackWhiteFilter.cpp
+        filters/impl/VibranceFilter.cpp
+        filters/impl/VibranceFilter.h
+        filters/impl/NES8BitMosaicFilter.cpp
+        filters/impl/NES8BitMosaicFilter.h
+        filters/impl/VoronoiFilter.cpp
+        filters/impl/VoronoiFilter.h
+        filters/impl/FastGaussianBlurFilter.cpp
+        filters/impl/FastGaussianBlurFilter.h
+        filters/impl/MedianFilter.cpp
+        filters/impl/MedianFilter.h
+        filters/impl/MidValueFilter.h
+        filters/impl/MidValueFilter.cpp
+        filters/impl/PathBlurFilter.h
+        filters/impl/PathBlurFilter.cpp
+        filters/impl/CrystallizeFilter.h
+        filters/impl/CrystallizeFilter.cpp
+        filters/impl/RotationBlurFilter.h
+        filters/impl/RotationBlurFilter.cpp
         blenders/IBlender.h
         blenders/BaseBlender.cpp
         blenders/BaseBlender.h
@@ -90,46 +123,20 @@ add_library(gpu_effect_engine SHARED
         blenders/impl/LighterColorBlender.h
         log/Log.h
         config.h
-        filters/impl/VibranceFilter.cpp
-        filters/impl/VibranceFilter.h
-        filters/impl/NES8BitMosaicFilter.cpp
-        filters/impl/NES8BitMosaicFilter.h
-        filters/impl/VoronoiFilter.cpp
-        filters/impl/VoronoiFilter.h
-        gpu/VkGPUBuffer.cpp
-        gpu/VkGPUBuffer.h
-        gpu/VkGPUGraphicsPipeline.cpp
-        gpu/VkGPUGraphicsPipeline.h
-        gpu/compute_graph/GraphicsPipelineNode.cpp
-        gpu/compute_graph/GraphicsPipelineNode.h
-        gpu/VkGPURenderPass.cpp
-        gpu/VkGPURenderPass.h
-        gpu/compute_graph/GraphicsRenderPassNode.cpp
-        gpu/compute_graph/GraphicsRenderPassNode.h
-        filters/impl/FastGaussianBlurFilter.cpp
-        filters/impl/FastGaussianBlurFilter.h
         operators/IOperator.h
         operators/UnaryOperator.cpp
         operators/UnaryOperator.h
         operators/BinaryOperator.cpp
         operators/BinaryOperator.h
-        filters/impl/HPSBlurFilter.cpp
-        filters/impl/HPSBlurFilter.h
-        filters/impl/MedianFilter.cpp
-        filters/impl/MedianFilter.h
-        gpu/compute_graph/SubComputeGraph.cpp
-        gpu/compute_graph/SubComputeGraph.h
+        Renderer.cpp
+        Renderer.h)
 
-        filters/impl/MidValueFilter.h
-        filters/impl/MidValueFilter.cpp
-        filters/impl/PathBlurFilter.h
-        filters/impl/PathBlurFilter.cpp
+if (CMAKE_SYSTEM_NAME MATCHES "OHOS")
+    set(ENGINE_SOURCE ${ENGINE_SOURCE} filters/impl/HPSBlurFilter.cpp filters/impl/HPSBlurFilter.h)
+endif ()
 
-        filters/impl/CrystallizeFilter.h
-        filters/impl/CrystallizeFilter.cpp
-
-        filters/impl/RotationBlurFilter.h
-        filters/impl/RotationBlurFilter.cpp
+add_library(gpu_effect_engine SHARED
+        ${ENGINE_SOURCE}
 )
 target_link_libraries(gpu_effect_engine vulkan)
 if (CMAKE_SYSTEM_NAME MATCHES "OHOS")

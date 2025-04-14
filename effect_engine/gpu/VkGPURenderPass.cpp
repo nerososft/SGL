@@ -22,7 +22,7 @@ VkGPURenderPass::VkGPURenderPass(const std::shared_ptr<VkGPUContext> &gpuCtx,
 }
 
 VkResult VkGPURenderPass::CreateRenderPass() {
-    if (gpuCtx == nullptr) {
+    if (this->gpuCtx == nullptr) {
         return VK_ERROR_INITIALIZATION_FAILED;
     }
 
@@ -30,7 +30,7 @@ VkResult VkGPURenderPass::CreateRenderPass() {
                                                           attachments,
                                                           dependencies,
                                                           subPasses,
-                                                          &renderPass);
+                                                          &this->renderPass);
     if (result != VK_SUCCESS) {
         Logger() << "Failed to create render pass!" << std::endl;
         return result;

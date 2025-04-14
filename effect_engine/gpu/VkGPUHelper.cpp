@@ -15,6 +15,94 @@
 #include "effect_engine/log/Log.h"
 #include "effect_engine/utils/IOUtils.h"
 
+VkResult VkGPUHelper::CreateImageView(const VkDevice device,
+                                      const VkImage image,
+                                      const VkImageViewType viewType,
+                                      const VkFormat format,
+                                      const VkImageAspectFlags aspectFlags,
+                                      VkImageView *imageView) {
+    VkResult result = VK_SUCCESS;
+    VkImageViewCreateInfo viewInfo = {};
+    viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+    viewInfo.flags = 0;
+    viewInfo.pNext = nullptr;
+    viewInfo.image = image;
+    viewInfo.viewType = viewType;
+    viewInfo.format = format;
+    viewInfo.components.r = VK_COMPONENT_SWIZZLE_R;
+    viewInfo.components.g = VK_COMPONENT_SWIZZLE_G;
+    viewInfo.components.b = VK_COMPONENT_SWIZZLE_B;
+    viewInfo.components.a = VK_COMPONENT_SWIZZLE_A;
+    viewInfo.subresourceRange.aspectMask = aspectFlags;
+    viewInfo.subresourceRange.baseMipLevel = 0;
+    viewInfo.subresourceRange.levelCount = 1;
+    viewInfo.subresourceRange.baseArrayLayer = 0;
+    viewInfo.subresourceRange.layerCount = 1;
+    result = vkCreateImageView(device, &viewInfo, nullptr, imageView);
+    if (result != VK_SUCCESS) {
+        Logger() << "Failed to create image view, err=" << string_VkResult(result) << std::endl;
+    }
+    return result;
+}
+
+auto VkGPUHelper::CreateImage(const VkDevice device,
+                              const float width,
+                              const float height,
+                              const VkImageType imageType,
+                              const VkFormat format,
+                              const VkImageUsageFlags usage,
+                              const VkSharingMode sharingMode,
+                              const std::vector<uint32_t> &queueFamilies,
+                              const VkImageLayout initialLayout,
+                              VkImage *image) -> VkResult {
+    VkImageCreateInfo imageCreateInfo{};
+    imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+    imageCreateInfo.flags = 0;
+    imageCreateInfo.pNext = nullptr;
+    imageCreateInfo.imageType = imageType;
+    imageCreateInfo.format = format;
+    imageCreateInfo.extent.width = width;
+    imageCreateInfo.extent.height = height;
+    imageCreateInfo.extent.depth = 1;
+    imageCreateInfo.mipLevels = 1;
+    imageCreateInfo.arrayLayers = 1;
+    imageCreateInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+    imageCreateInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+    imageCreateInfo.usage = usage;
+    imageCreateInfo.sharingMode = sharingMode;
+    imageCreateInfo.queueFamilyIndexCount = queueFamilies.size();
+    imageCreateInfo.pQueueFamilyIndices = queueFamilies.data();
+    imageCreateInfo.initialLayout = initialLayout;
+    const VkResult result = vkCreateImage(device, &imageCreateInfo, nullptr, image);
+    if (result != VK_SUCCESS) {
+        Logger() << "Failed to create image, err=" << string_VkResult(result) << std::endl;
+    }
+    return result;
+}
+
+VkResult VkGPUHelper::CreateFramebuffer(const VkDevice device,
+                                        const uint32_t width,
+                                        const uint32_t height,
+                                        const std::vector<VkImageView> &attachments,
+                                        const VkRenderPass renderPass,
+                                        VkFramebuffer *framebuffer) {
+    VkFramebufferCreateInfo framebufferInfo = {};
+    framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+    framebufferInfo.flags = 0;
+    framebufferInfo.pNext = nullptr;
+    framebufferInfo.width = width;
+    framebufferInfo.height = height;
+    framebufferInfo.layers = 1;
+    framebufferInfo.attachmentCount = attachments.size();
+    framebufferInfo.pAttachments = attachments.data();
+    framebufferInfo.renderPass = renderPass;
+    const VkResult ret = vkCreateFramebuffer(device, &framebufferInfo, nullptr, framebuffer);
+    if (ret != VK_SUCCESS) {
+        Logger() << "Failed to create framebuffer, err=" << string_VkResult(ret) << std::endl;
+    }
+    return ret;
+}
+
 VkResult VkGPUHelper::CreateSemaphore(const VkDevice device,
                                       VkSemaphore *semaphore) {
     VkSemaphoreCreateInfo semaphoreInfo = {};
@@ -387,13 +475,36 @@ VkBufferMemoryBarrier VkGPUHelper::BuildBufferMemoryBarrier(const VkAccessFlagBi
     return bufferMemoryBarrier;
 }
 
+VkImageMemoryBarrier VkGPUHelper::BuildImageMemoryBarrier(const VkAccessFlagBits srcAccessMask,
+                                                          const VkAccessFlagBits dstAccessMask,
+                                                          const VkImage image,
+                                                          const VkImageLayout oldLayout,
+                                                          const VkImageLayout newLayout) {
+    VkImageMemoryBarrier imageMemoryBarrier = {};
+    imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+    imageMemoryBarrier.pNext = nullptr;
+    imageMemoryBarrier.srcAccessMask = srcAccessMask;
+    imageMemoryBarrier.dstAccessMask = dstAccessMask;
+    imageMemoryBarrier.image = image;
+    imageMemoryBarrier.oldLayout = oldLayout;
+    imageMemoryBarrier.newLayout = newLayout;
+    imageMemoryBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    imageMemoryBarrier.subresourceRange.baseMipLevel = 0;
+    imageMemoryBarrier.subresourceRange.levelCount = 1;
+    imageMemoryBarrier.subresourceRange.baseArrayLayer = 0;
+    imageMemoryBarrier.subresourceRange.layerCount = 1;
+    imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    return imageMemoryBarrier;
+}
+
 void VkGPUHelper::GPUCmdPipelineBufferMemBarrier(const VkCommandBuffer commandBuffer,
                                                  const VkPipelineStageFlags srcStageMask,
                                                  const VkPipelineStageFlags dstStageMask,
                                                  const VkDependencyFlags dependencyFlags,
                                                  const std::vector<VkBufferMemoryBarrier> &bufferMemoryBarriers) {
-    std::vector<VkMemoryBarrier> memoryBarriers;
-    std::vector<VkImageMemoryBarrier> imageMemoryBarrier;
+    const std::vector<VkMemoryBarrier> memoryBarriers;
+    const std::vector<VkImageMemoryBarrier> imageMemoryBarrier;
     GPUCmdPipelineBarrier(commandBuffer,
                           srcStageMask,
                           dstStageMask,
@@ -401,6 +512,22 @@ void VkGPUHelper::GPUCmdPipelineBufferMemBarrier(const VkCommandBuffer commandBu
                           memoryBarriers,
                           bufferMemoryBarriers,
                           imageMemoryBarrier);
+}
+
+void VkGPUHelper::GPUCmdPipelineImageMemBarrier(const VkCommandBuffer commandBuffer,
+                                                const VkPipelineStageFlags srcStageMask,
+                                                const VkPipelineStageFlags dstStageMask,
+                                                const VkDependencyFlags dependencyFlags,
+                                                const std::vector<VkImageMemoryBarrier> &imageMemoryBarriers) {
+    const std::vector<VkMemoryBarrier> memoryBarriers;
+    const std::vector<VkBufferMemoryBarrier> bufferMemoryBarriers;
+    GPUCmdPipelineBarrier(commandBuffer,
+                          srcStageMask,
+                          dstStageMask,
+                          dependencyFlags,
+                          memoryBarriers,
+                          bufferMemoryBarriers,
+                          imageMemoryBarriers);
 }
 
 void VkGPUHelper::GPUCmdPipelineBarrier(const VkCommandBuffer commandBuffer,
@@ -442,13 +569,13 @@ void VkGPUHelper::GPUCmdDispatch(const VkCommandBuffer commandBuffer,
 
 void VkGPUHelper::GPUCmdPushConstant(const VkCommandBuffer commandBuffer,
                                      const VkPipelineLayout pipelineLayout,
-                                     VkShaderStageFlagBits shaderStageFlag,
+                                     const VkShaderStageFlagBits shaderStageFlag,
                                      const uint32_t offset,
                                      const size_t pushConstantSize,
                                      const void *pushConstantData) {
     vkCmdPushConstants(commandBuffer,
                        pipelineLayout,
-                       VK_SHADER_STAGE_COMPUTE_BIT,
+                       shaderStageFlag,
                        offset,
                        pushConstantSize,
                        pushConstantData);
@@ -704,11 +831,12 @@ VkResult VkGPUHelper::CreateStorageBufferAndBindMem(const VkDevice device,
     VkResult ret = CreateBuffer(device,
                                 size,
                                 VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
-                                VK_SHARING_MODE_CONCURRENT,
+                                VK_SHARING_MODE_EXCLUSIVE,
                                 queueFamilyIndices,
                                 storageBuffer);
     if (ret != VK_SUCCESS) {
         Logger() << "vkCreateBuffer failed, err=" << string_VkResult(ret) << std::endl;
+        return ret;
     }
 
     VkMemoryRequirements memRequirements;
@@ -729,6 +857,59 @@ VkResult VkGPUHelper::CreateStorageBufferAndBindMem(const VkDevice device,
     Logger() << "VkMemory Allocate " << allocInfo.allocationSize << " bytes, need: " << size << " bytes, align " <<
             memRequirements.alignment << std::endl;
     ret = vkBindBufferMemory(device, *storageBuffer, *storageBufferMemory, 0);
+    if (ret != VK_SUCCESS) {
+        Logger() << "vkBindBufferMemory failed, err=" << string_VkResult(ret) << std::endl;
+        return ret;
+    }
+    return ret;
+}
+
+VkResult VkGPUHelper::CreateImageAndBindMem(const VkDevice device,
+                                            const float width,
+                                            const float height,
+                                            const VkImageType imageType,
+                                            const VkFormat format,
+                                            const VkImageUsageFlags usage,
+                                            const VkSharingMode sharingMode,
+                                            const VkImageLayout initialLayout,
+                                            const VkPhysicalDeviceMemoryProperties *memProps,
+                                            const std::vector<uint32_t> &queueFamilies,
+                                            VkImage *image,
+                                            VkDeviceMemory *imageMemory) {
+    VkResult ret = CreateImage(device,
+                               width,
+                               height,
+                               imageType,
+                               format,
+                               usage,
+                               sharingMode,
+                               queueFamilies,
+                               initialLayout,
+                               image);
+    if (ret != VK_SUCCESS) {
+        Logger() << Logger::ERROR << "failed to create color image!" << std::endl;
+        return ret;
+    }
+    VkMemoryRequirements memRequirements;
+    vkGetImageMemoryRequirements(device, *image, &memRequirements);
+
+    VkMemoryAllocateInfo allocInfo = {};
+    allocInfo.pNext = nullptr;
+    allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    allocInfo.allocationSize = memRequirements.size;
+    allocInfo.memoryTypeIndex = GetRequiredMemTypeIndex(memProps,
+                                                        memRequirements,
+                                                        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                                                        VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+    ret = vkAllocateMemory(device, &allocInfo, nullptr, imageMemory);
+    if (ret != VK_SUCCESS) {
+        Logger() << "vkAllocateMemory failed, err=" << string_VkResult(ret) << std::endl;
+        return ret;
+    }
+    Logger() << "VkMemory Allocate " << allocInfo.allocationSize
+            << " bytes, need: " << static_cast<uint32_t>(width) * static_cast<uint32_t>(height) * 4
+            << " bytes, align " << memRequirements.alignment << std::endl;
+    ret = vkBindImageMemory(device, *image, *imageMemory, 0);
     if (ret != VK_SUCCESS) {
         Logger() << "vkBindBufferMemory failed, err=" << string_VkResult(ret) << std::endl;
         return ret;
@@ -758,11 +939,94 @@ VkResult VkGPUHelper::CreateUniformBufferAndBindMem(const VkDevice device,
     VkResult ret = CreateBuffer(device,
                                 size,
                                 VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-                                VK_SHARING_MODE_CONCURRENT,
+                                VK_SHARING_MODE_EXCLUSIVE,
                                 queueFamilyIndices,
                                 storageBuffer);
     if (ret != VK_SUCCESS) {
         Logger() << "vkCreateBuffer failed, err=" << string_VkResult(ret) << std::endl;
+        return ret;
+    }
+
+    VkMemoryRequirements memRequirements;
+    vkGetBufferMemoryRequirements(device, *storageBuffer, &memRequirements);
+
+    VkMemoryAllocateInfo allocInfo = {};
+    allocInfo.pNext = nullptr;
+    allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    allocInfo.allocationSize = memRequirements.size;
+    allocInfo.memoryTypeIndex = GetRequiredMemTypeIndex(memProps,
+                                                        memRequirements,
+                                                        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                                                        VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+    ret = vkAllocateMemory(device, &allocInfo, nullptr, storageBufferMemory);
+    if (ret != VK_SUCCESS) {
+        Logger() << "vkAllocateMemory failed, err=" << string_VkResult(ret) << std::endl;
+        return ret;
+    }
+    ret = vkBindBufferMemory(device, *storageBuffer, *storageBufferMemory, 0);
+    if (ret != VK_SUCCESS) {
+        Logger() << "vkBindBufferMemory failed, err=" << string_VkResult(ret) << std::endl;
+        return ret;
+    }
+    return ret;
+}
+
+VkResult VkGPUHelper::CreateVertexBufferAndBindMem(const VkDevice device,
+                                                   const VkDeviceSize size,
+                                                   const std::vector<uint32_t> &queueFamilyIndices,
+                                                   const VkPhysicalDeviceMemoryProperties *memProps,
+                                                   VkBuffer *storageBuffer,
+                                                   VkDeviceMemory *storageBufferMemory) {
+    VkResult ret = CreateBuffer(device,
+                                size,
+                                VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+                                VK_SHARING_MODE_EXCLUSIVE,
+                                queueFamilyIndices,
+                                storageBuffer);
+    if (ret != VK_SUCCESS) {
+        Logger() << "vkCreateBuffer failed, err=" << string_VkResult(ret) << std::endl;
+        return ret;
+    }
+
+    VkMemoryRequirements memRequirements;
+    vkGetBufferMemoryRequirements(device, *storageBuffer, &memRequirements);
+
+    VkMemoryAllocateInfo allocInfo = {};
+    allocInfo.pNext = nullptr;
+    allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    allocInfo.allocationSize = memRequirements.size;
+    allocInfo.memoryTypeIndex = GetRequiredMemTypeIndex(memProps,
+                                                        memRequirements,
+                                                        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                                                        VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+    ret = vkAllocateMemory(device, &allocInfo, nullptr, storageBufferMemory);
+    if (ret != VK_SUCCESS) {
+        Logger() << "vkAllocateMemory failed, err=" << string_VkResult(ret) << std::endl;
+        return ret;
+    }
+    ret = vkBindBufferMemory(device, *storageBuffer, *storageBufferMemory, 0);
+    if (ret != VK_SUCCESS) {
+        Logger() << "vkBindBufferMemory failed, err=" << string_VkResult(ret) << std::endl;
+        return ret;
+    }
+    return ret;
+}
+
+VkResult VkGPUHelper::CreateIndexBufferAndBindMem(const VkDevice device,
+                                                  const VkDeviceSize size,
+                                                  const std::vector<uint32_t> &queueFamilyIndices,
+                                                  const VkPhysicalDeviceMemoryProperties *memProps,
+                                                  VkBuffer *storageBuffer,
+                                                  VkDeviceMemory *storageBufferMemory) {
+    VkResult ret = CreateBuffer(device,
+                                size,
+                                VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+                                VK_SHARING_MODE_EXCLUSIVE,
+                                queueFamilyIndices,
+                                storageBuffer);
+    if (ret != VK_SUCCESS) {
+        Logger() << "vkCreateBuffer failed, err=" << string_VkResult(ret) << std::endl;
+        return ret;
     }
 
     VkMemoryRequirements memRequirements;

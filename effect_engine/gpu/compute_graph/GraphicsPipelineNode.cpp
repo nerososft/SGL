@@ -11,6 +11,7 @@
 #endif
 
 #include "effect_engine/gpu/VkGPUGraphicsPipeline.h"
+#include "effect_engine/gpu/VkGPUHelper.h"
 #include "effect_engine/log/Log.h"
 
 GraphicsPipelineNode::GraphicsPipelineNode(const std::shared_ptr<VkGPUContext> &gpuCtx,
@@ -18,6 +19,10 @@ GraphicsPipelineNode::GraphicsPipelineNode(const std::shared_ptr<VkGPUContext> &
                                            const std::shared_ptr<VkGPURenderPass> &renderPass,
                                            const std::string &vertexShaderPath,
                                            const std::string &fragmentShaderPath,
+                                           const std::vector<VkVertexInputBindingDescription> &
+                                           vertexInputBindingDescriptions,
+                                           const std::vector<VkVertexInputAttributeDescription> &
+                                           vertexInputAttributeDescriptions,
                                            const float width,
                                            const float height) {
     this->gpuCtx = gpuCtx;
@@ -26,6 +31,8 @@ GraphicsPipelineNode::GraphicsPipelineNode(const std::shared_ptr<VkGPUContext> &
     this->renderPass = renderPass;
     this->vertexShaderPath = vertexShaderPath;
     this->fragmentShaderPath = fragmentShaderPath;
+    this->vertexInputBindingDescriptions = vertexInputBindingDescriptions;
+    this->vertexInputAttributeDescriptions = vertexInputAttributeDescriptions;
     this->width = width;
     this->height = height;
 }
@@ -48,11 +55,14 @@ VkResult GraphicsPipelineNode::CreateComputeGraphNode() {
     std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
     const auto [pushConstantInfo, buffers, customDrawFunc] = graphicsElements[0];
     for (uint32_t i = 0; i < buffers.size(); ++i) {
+        if (buffers[i].type == PIPELINE_NODE_BUFFER_VERTEX || buffers[i].type == PIPELINE_NODE_BUFFER_INDEX) {
+            break;
+        }
         VkDescriptorSetLayoutBinding bufferBinding;
         bufferBinding.binding = i;
         if (buffers[i].type == PIPELINE_NODE_BUFFER_UNIFORM) {
             bufferBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        } else if (buffers[i].type == PIPELINE_NODE_BUFFER_STORAGE_READ |
+        } else if (buffers[i].type == PIPELINE_NODE_BUFFER_STORAGE_READ ||
                    buffers[i].type == PIPELINE_NODE_BUFFER_STORAGE_WRITE) {
             bufferBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
         }
@@ -68,10 +78,6 @@ VkResult GraphicsPipelineNode::CreateComputeGraphNode() {
     pushConstantRange.size = pushConstantInfo.size;
     pushConstantRange.stageFlags = VK_SHADER_STAGE_ALL_GRAPHICS;
     pushConstantRanges.push_back(pushConstantRange);
-
-    // TODO:
-    std::vector<VkVertexInputBindingDescription> vertexInputBindingDescriptions;
-    std::vector<VkVertexInputAttributeDescription> vertexInputAttributeDescriptions;
 
     graphicsPipeline = std::make_shared<VkGPUGraphicsPipeline>(vertexShaderPath,
                                                                fragmentShaderPath,
@@ -102,6 +108,9 @@ VkResult GraphicsPipelineNode::CreateComputeGraphNode() {
         }
 
         for (const auto &buffer: buffers) {
+            if (buffer.type == PIPELINE_NODE_BUFFER_VERTEX || buffer.type == PIPELINE_NODE_BUFFER_INDEX) {
+                break;
+            }
             VkDescriptorBufferInfo bufferInfo = {};
             bufferInfo.offset = 0;
             bufferInfo.range = buffer.bufferSize;
@@ -117,14 +126,66 @@ VkResult GraphicsPipelineNode::CreateComputeGraphNode() {
     return ret;
 }
 
-void GraphicsPipelineNode::Compute(VkCommandBuffer commandBuffer) {
-    // TODO:
+void GraphicsPipelineNode::Compute(const VkCommandBuffer commandBuffer) {
+    if (!this->dependencies.empty()) {
+        for (const auto &dependence: this->dependencies) {
+            Logger() << "Node: " << name << " Depend On:" << dependence->GetName() << std::endl;
+            dependence->Compute(commandBuffer);
+        }
+    }
+    Logger() << "Executing Compute Node: " << name << std::endl;
+    graphicsPipeline->GPUCmdBindPipeline(commandBuffer);
+    for (size_t i = 0; i < graphicsElements.size(); ++i) {
+        pipelineDescriptorSets[i]->GPUCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE);
+        VkGPUHelper::GPUCmdPushConstant(commandBuffer,
+                                        graphicsPipeline->GetPipelineLayout(),
+                                        VK_SHADER_STAGE_ALL_GRAPHICS,
+                                        0,
+                                        graphicsElements[i].pushConstantInfo.size,
+                                        graphicsElements[i].pushConstantInfo.data);
+
+        std::vector<VkBuffer> bindVertexBuffers;
+        std::vector<VkDeviceSize> bindVertexOffsets;
+        std::vector<VkBuffer> bindIndexBuffers;
+        for (const auto &buffer: graphicsElements[i].buffers) {
+            if (buffer.type == PIPELINE_NODE_BUFFER_VERTEX) {
+                if (buffer.buffer == VK_NULL_HANDLE) {
+                    Logger() << " Buffer is null" << std::endl;
+                    return;
+                }
+                bindVertexBuffers.push_back(buffer.buffer);
+                bindVertexOffsets.push_back(0);
+            }
+            if (buffer.type == PIPELINE_NODE_BUFFER_INDEX) {
+                bindIndexBuffers.push_back(buffer.buffer);
+            }
+        }
+        if (!bindVertexBuffers.empty()) {
+            vkCmdBindVertexBuffers(commandBuffer,
+                                   0,
+                                   bindVertexBuffers.size(),
+                                   bindVertexBuffers.data(),
+                                   bindVertexOffsets.data());
+        }
+        for (const auto &buffer: bindIndexBuffers) {
+            vkCmdBindIndexBuffer(commandBuffer, buffer, 0, VK_INDEX_TYPE_UINT32);
+        }
+        vkCmdDraw(commandBuffer, 3, 1, 0, 0);
+
+        if (graphicsElements[i].customDrawFunc != nullptr) {
+            graphicsElements[i].customDrawFunc(commandBuffer);
+        }
+    }
 }
 
 void GraphicsPipelineNode::Destroy() {
-    graphicsPipeline->Destroy();
+    if (graphicsPipeline != nullptr) {
+        graphicsPipeline->Destroy();
+        graphicsPipeline = nullptr;
+    }
     for (const auto &pipelineDescriptorSet: pipelineDescriptorSets) {
         pipelineDescriptorSet->Destroy();
     }
+    pipelineDescriptorSets.clear();
     IComputeGraphNode::Destroy();
 }

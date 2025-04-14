@@ -15,23 +15,38 @@
 
 GraphicsRenderPassNode::GraphicsRenderPassNode(const std::shared_ptr<VkGPUContext> &gpuCtx,
                                                const std::string &name,
-                                               float width,
-                                               float height) {
+                                               const std::vector<VkAttachmentDescription> &attachments,
+                                               const std::vector<VkSubpassDependency> &dependencies,
+                                               const std::vector<VkSubpassDescription> &subPasses,
+                                               const float width,
+                                               const float height,
+                                               const std::vector<VkClearValue> &clearValues) {
+    this->gpuCtx = gpuCtx;
+    this->name = name;
+    this->width = width;
+    this->height = height;
+    this->attachments = attachments;
+    this->subPassDependencies = dependencies;
+    this->subPasses = subPasses;
+    this->clearValues = clearValues;
 }
 
 VkResult GraphicsRenderPassNode::CreateComputeGraphNode() {
-    // TODO:
-    const std::vector<VkAttachmentDescription> attachments;
-    const std::vector<VkSubpassDependency> dependencies;
-    const std::vector<VkSubpassDescription> subPasses;
     VkRect2D renderArea;
-    const std::vector<VkClearValue> clearValues;
-    renderPass = std::make_shared<VkGPURenderPass>(gpuCtx,
-                                                   attachments,
-                                                   dependencies,
-                                                   subPasses,
-                                                   renderArea,
-                                                   clearValues);
+    renderArea.extent.width = this->width;
+    renderArea.extent.height = this->height;
+    renderArea.offset.x = 0;
+    renderArea.offset.y = 0;
+    this->renderPass = std::make_shared<VkGPURenderPass>(gpuCtx,
+                                                         attachments,
+                                                         subPassDependencies,
+                                                         subPasses,
+                                                         renderArea,
+                                                         clearValues);
+    if (this->renderPass == nullptr) {
+        Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
+        return VK_ERROR_UNKNOWN;
+    }
     const VkResult ret = renderPass->CreateRenderPass();
     if (ret != VK_SUCCESS) {
         Logger() << "Failed to create render pass, err = " << string_VkResult(ret) << std::endl;
@@ -41,7 +56,11 @@ VkResult GraphicsRenderPassNode::CreateComputeGraphNode() {
 }
 
 void GraphicsRenderPassNode::Compute(const VkCommandBuffer commandBuffer) {
-    this->renderPass->GPUCmdBeginRenderPass(commandBuffer, framebuffer);
+    if (framebuffer == nullptr) {
+        Logger() << Logger::ERROR << "framebuffer not created!" << std::endl;
+        return;
+    }
+    this->renderPass->GPUCmdBeginRenderPass(commandBuffer, framebuffer->GetFramebuffer());
     if (!this->dependencies.empty()) {
         for (const auto &dependence: this->dependencies) {
             Logger() << "Node: " << name << " Depend On:" << dependence->GetName() << std::endl;

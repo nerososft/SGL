@@ -1,5 +1,9 @@
 #version 450
 
-void main() {
+layout(location = 0) in vec3 color;
 
+layout(location = 0) out vec3 FragColor;
+
+void main() {
+    FragColor = color;
 }
