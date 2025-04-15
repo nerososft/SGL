@@ -88,12 +88,12 @@ bool distort_glass_filter_gpu(void *in, void *out, float scale, float intensity,
     if (in == nullptr || out == nullptr) return false;
     const auto filter = std::make_shared<DistortGlassFilter>();
 
-    scale = scale / 50;
-    intensity = 45 - intensity * 3;
+ //   scale = scale / 50;
+//    intensity = 45 - intensity * 3;
 
     filter->SetScale(scale);
     filter->SetIntensity(intensity);
-    filter->SetZoom(1);
+    filter->SetZoom(zoom);
 
 
     const ImageInfo *input = static_cast<ImageInfo *>(in);
