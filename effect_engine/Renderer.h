@@ -48,14 +48,21 @@ class Renderer {
     std::shared_ptr<VkGPUBuffer> indicesBuffer = nullptr;
     std::shared_ptr<VkGPUBuffer> vertexBuffer = nullptr;
 
+    VkCommandBuffer presentCmdBuffer = VK_NULL_HANDLE;
+    VkSemaphore imageAvailableSemaphore = VK_NULL_HANDLE;
+    VkSemaphore renderFinishedSemaphore = VK_NULL_HANDLE;
+    VkFence renderFinishedFence = VK_NULL_HANDLE;
+
 public:
     Renderer() = default;
 
     [[nodiscard]] bool ConstructMainGraphicsPipeline();
 
-    bool Init();
+    bool Init(const std::vector<const char *> &requiredExtensions, VkSurfaceKHR (*GetSurface)(VkInstance instance));
 
     [[nodiscard]] VkResult RenderFrame() const;
+
+    void Present() const;
 
     ~Renderer() = default;
 

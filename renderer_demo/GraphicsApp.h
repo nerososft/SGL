@@ -10,8 +10,9 @@
 #include "event/IEventHandler.h"
 #include "window/IWindow.h"
 
+static std::shared_ptr<IWindow> window = nullptr;
+
 class GraphicsApp final : public IEventHandler {
-    std::shared_ptr<IWindow> window = nullptr;
     std::shared_ptr<Renderer> renderer = nullptr;
 
     bool running = true;
