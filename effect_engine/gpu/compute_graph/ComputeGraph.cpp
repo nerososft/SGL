@@ -21,6 +21,7 @@ ComputeGraph::ComputeGraph(const std::shared_ptr<VkGPUContext> &gpuCtx) {
 
 void ComputeGraph::AddSubGraph(const std::shared_ptr<SubComputeGraph> &subGraph) {
     this->subGraphs.push_back(subGraph);
+    computeDoneSemaphores.push_back(subGraph->GetComputeDoneSemaphore());
 }
 
 VkResult ComputeGraph::Compute() const {

@@ -16,6 +16,7 @@ class VkGPUContext;
 class ComputeGraph {
     std::shared_ptr<VkGPUContext> gpuCtx = nullptr;
     std::vector<std::shared_ptr<SubComputeGraph> > subGraphs;
+    std::vector<VkSemaphore> computeDoneSemaphores;
 
 public:
     explicit ComputeGraph(const std::shared_ptr<VkGPUContext> &gpuCtx);
@@ -25,6 +26,8 @@ public:
     void AddSubGraph(const std::shared_ptr<SubComputeGraph> &subGraph);
 
     [[nodiscard]] VkResult Compute() const;
+
+    [[nodiscard]] std::vector<VkSemaphore> GetComputeDoneSemaphores() const { return computeDoneSemaphores; }
 
     void Destroy() const;
 };

@@ -33,8 +33,8 @@ GraphicsRenderPassNode::GraphicsRenderPassNode(const std::shared_ptr<VkGPUContex
 
 VkResult GraphicsRenderPassNode::CreateComputeGraphNode() {
     VkRect2D renderArea;
-    renderArea.extent.width = this->width;
-    renderArea.extent.height = this->height;
+    renderArea.extent.width = static_cast<uint32_t>(this->width);
+    renderArea.extent.height = static_cast<uint32_t>(this->height);
     renderArea.offset.x = 0;
     renderArea.offset.y = 0;
     this->renderPass = std::make_shared<VkGPURenderPass>(gpuCtx,
@@ -60,6 +60,25 @@ void GraphicsRenderPassNode::Compute(const VkCommandBuffer commandBuffer) {
         Logger() << Logger::ERROR << "framebuffer not created!" << std::endl;
         return;
     }
+    const std::vector<VkViewport> viewports = {
+        {
+            .x = 0,
+            .y = 0,
+            .width = this->width,
+            .height = this->height,
+            .minDepth = 0.0f,
+            .maxDepth = 1.0f,
+        }
+    };
+
+    const std::vector<VkRect2D> scissors = {
+        {
+            .offset = {0, 0},
+            .extent = {static_cast<uint32_t>(this->width), static_cast<uint32_t>(this->height)},
+        }
+    };
+    vkCmdSetViewport(commandBuffer, 0, viewports.size(), viewports.data());
+    vkCmdSetScissor(commandBuffer, 0, scissors.size(), scissors.data());
     this->renderPass->GPUCmdBeginRenderPass(commandBuffer, framebuffer->GetFramebuffer());
     if (!this->dependencies.empty()) {
         for (const auto &dependence: this->dependencies) {
@@ -67,7 +86,7 @@ void GraphicsRenderPassNode::Compute(const VkCommandBuffer commandBuffer) {
             dependence->Compute(commandBuffer);
         }
     }
-    this->renderPass->GPUCmdEndRenderPass(commandBuffer);
+    VkGPURenderPass::GPUCmdEndRenderPass(commandBuffer);
 }
 
 void GraphicsRenderPassNode::Destroy() {

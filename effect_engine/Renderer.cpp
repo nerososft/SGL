@@ -4,6 +4,8 @@
 
 #include "Renderer.h"
 
+#include <queue>
+
 #include "gpu/VkGPUBuffer.h"
 #include "gpu/VkGPUHelper.h"
 #include "gpu/compute_graph/ImageToBufferCopyNode.h"
@@ -18,13 +20,25 @@ bool Renderer::ConstructMainGraphicsPipeline() {
         Logger() << "vertexBuffer is null" << std::endl;
         return false;
     }
-    const std::vector vertices = {
-        -0.5f, -0.5f, 0.0f,
-        0.5f, -0.5f, 0.0f,
-        -0.5f, 0.5f, 0.0f,
-        -0.5f, 0.5f, 0.0f,
-        0.5f, -0.5f, 0.0f,
-        0.5f, 0.5f, 0.0f
+    const std::vector<Vertex> vertices = {
+        {
+            .position = {-0.5f, -0.5f, 0.0f},
+        },
+        {
+            .position = {0.5f, -0.5f, 0.0f},
+        },
+        {
+            .position = {-0.5f, 0.5f, 0.0f},
+        },
+        {
+            .position = {-0.5f, 0.5f, 0.0f},
+        },
+        {
+            .position = {0.5f, -0.5f, 0.0f},
+        },
+        {
+            .position = {0.5f, 0.5f, 0.0f},
+        },
     };
     VkResult ret = vertexBuffer->AllocateAndBind(GPU_BUFFER_TYPE_VERTEX, vertices.size() * sizeof(float));
     if (ret != VK_SUCCESS) {
@@ -115,22 +129,45 @@ bool Renderer::ConstructMainGraphicsPipeline() {
     }
 
     this->mainRenderPassNode->AddDependenceNode(this->graphicsPipelineNode);
+
     return true;
 }
 
-bool Renderer::Init() {
-    std::vector<const char *> requiredExtensions;
-    this->gpuCtx = std::make_shared<VkGPUContext>(requiredExtensions);
-    // this->gpuCtx->AddInstanceEnableLayer("VK_LAYER_KHRONOS_validation");
+bool Renderer::Init(const std::vector<const char *> &requiredExtensions,
+                    VkSurfaceKHR (*GetSurface)(VkInstance instance)) {
+    std::vector<const char *> extensions;
+    for (auto extension: requiredExtensions) {
+        Logger() << "Require extension: " << extension << std::endl;
+        extensions.push_back(extension);
+    }
+    this->gpuCtx = std::make_shared<VkGPUContext>(extensions);
+    this->gpuCtx->AddInstanceEnableLayer("VK_LAYER_KHRONOS_validation");
     // this->gpuCtx->AddInstanceEnableLayer("VK_LAYER_LUNARG_api_dump");
     // this->gpuCtx->AddInstanceEnableLayer("VK_LAYER_KHRONOS_synchronization2");
     // this->gpuCtx->AddDeviceEnabledExtension("VK_KHR_synchronization2");
+    this->gpuCtx->AddDeviceEnabledExtension("VK_KHR_swapchain");
     VkResult result = this->gpuCtx->Init();
     if (result != VK_SUCCESS) {
         Logger() << Logger::ERROR << "Failed to initialize Vulkan GPU context!" << std::endl;
         return false;
     }
     Logger() << Logger::INFO << "Initialized Renderer, version: " << VERSION << std::endl;
+
+    this->swapChain = std::make_shared<VkGPUSwapChain>(this->gpuCtx);
+    if (this->swapChain == nullptr) {
+        Logger() << Logger::ERROR << "Failed to create swap chain!" << std::endl;
+        return false;
+    }
+
+    std::vector<uint32_t> queueFamilies = {0};
+    result = this->swapChain->CreateSwapChain(GetSurface(this->gpuCtx->GetInstance()),
+                                              this->width,
+                                              this->height,
+                                              queueFamilies);
+    if (result != VK_SUCCESS) {
+        Logger() << Logger::ERROR << "Failed to create swap chain!" << std::endl;
+        return false;
+    }
 
     this->computeGraph = std::make_shared<ComputeGraph>(this->gpuCtx);
     if (!this->computeGraph) {
@@ -160,7 +197,7 @@ bool Renderer::Init() {
     colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     colorAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
     colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-    colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
     attachments.push_back(colorAttachment);
 
     VkAttachmentDescription depthAttachment;
@@ -172,7 +209,7 @@ bool Renderer::Init() {
     depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
     depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-    depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
     attachments.push_back(depthAttachment);
 
     const std::vector<VkAttachmentReference> colorAttachments = {
@@ -189,7 +226,6 @@ bool Renderer::Init() {
         }
     };
 
-
     VkSubpassDescription subPassDescription;
     subPassDescription.flags = 0;
     subPassDescription.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
@@ -205,7 +241,7 @@ bool Renderer::Init() {
 
     std::vector<VkClearValue> clearValues;
     clearValues.push_back({
-        .color = {0.0f, 0.0f, 0.0f, 1.0f}
+        .color = {0.0f, 1.0f, 0.0f, 0.0f}
     });
     clearValues.push_back({
         .depthStencil = {1.0f, 0}
@@ -237,7 +273,6 @@ bool Renderer::Init() {
         return false;
     }
 
-    const std::vector<uint32_t> queueFamilies = {0}; // FIXME: depends on multi queue or single queue
     result = this->framebuffer->CreateFramebuffer(queueFamilies);
     if (result != VK_SUCCESS) {
         Logger() << Logger::ERROR << "Failed to create framebuffer!" << std::endl;
@@ -286,6 +321,19 @@ bool Renderer::Init() {
 
     this->subComputeGraph->AddComputeGraphNode(offScreenCopyNode);
     this->computeGraph->AddSubGraph(this->subComputeGraph);
+
+
+    VkGPUHelper::CreateFence(this->gpuCtx->GetCurrentDevice(), &this->renderFinishedFence);
+    VkGPUHelper::CreateSemaphore(this->gpuCtx->GetCurrentDevice(), &this->imageAvailableSemaphore);
+    VkGPUHelper::CreateSemaphore(this->gpuCtx->GetCurrentDevice(), &this->renderFinishedSemaphore);
+    result = VkGPUHelper::AllocateCommandBuffers(this->gpuCtx->GetCurrentDevice(),
+                                                 this->gpuCtx->GetCommandPool(0),
+                                                 1,
+                                                 &presentCmdBuffer);
+    if (result != VK_SUCCESS) {
+        Logger() << Logger::ERROR << "Failed to allocate command buffers!" << std::endl;
+        return false;
+    }
     return true;
 }
 
@@ -297,20 +345,95 @@ VkResult Renderer::RenderFrame() const {
     return ret;
 }
 
+void Renderer::Present() const {
+    uint32_t imageIndex = 0;
+    const std::vector fences = {renderFinishedFence};
+    vkResetFences(this->gpuCtx->GetCurrentDevice(), fences.size(), fences.data());
+    const VkResult result = vkAcquireNextImageKHR(this->gpuCtx->GetCurrentDevice(),
+                                                  this->swapChain->GetSwapChain(),
+                                                  UINT64_MAX,
+                                                  this->imageAvailableSemaphore,
+                                                  this->renderFinishedFence, &imageIndex);
+    if (result != VK_SUCCESS) {
+        Logger() << Logger::ERROR << "Failed to acquire swap chain image!" << std::endl;
+        return;
+    }
+
+    VkGPUHelper::GPUBeginCommandBuffer(this->presentCmdBuffer);
+
+    const VkImageCopy region{
+        .srcSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1},
+        .dstSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1},
+        .extent = {width, height, 1}
+    };
+    vkCmdCopyImage(this->presentCmdBuffer,
+                   this->framebuffer->GetColorImage(),
+                   VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                   this->swapChain->GetSwapChainImg(imageIndex),
+                   VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                   1, &region);
+
+    vkEndCommandBuffer(this->presentCmdBuffer);
+
+    std::vector submitWaitSemaphores = {imageAvailableSemaphore};
+    for (VkSemaphore waitSemaphore: this->computeGraph->GetComputeDoneSemaphores()) {
+        submitWaitSemaphores.push_back(waitSemaphore);
+    }
+    const std::vector submitSignalSemaphores = {renderFinishedSemaphore};
+    const std::vector submitCommandBuffers = {this->presentCmdBuffer};
+    const std::vector<VkPipelineStageFlags> waitDstStageMasks = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+    VkSubmitInfo submitInfo{};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo.pNext = nullptr;
+    submitInfo.waitSemaphoreCount = submitWaitSemaphores.size();
+    submitInfo.pWaitSemaphores = submitWaitSemaphores.data();
+    submitInfo.signalSemaphoreCount = submitSignalSemaphores.size();
+    submitInfo.pSignalSemaphores = submitSignalSemaphores.data();
+    submitInfo.commandBufferCount = submitCommandBuffers.size();
+    submitInfo.pCommandBuffers = submitCommandBuffers.data();
+    submitInfo.pWaitDstStageMask = waitDstStageMasks.data();
+    const std::vector submitInfos = {submitInfo};
+    VkGPUHelper::GPUQueueSubmit(
+        this->gpuCtx->DispatchQueue(VK_QUEUE_TRANSFER_BIT | VK_QUEUE_COMPUTE_BIT | VK_QUEUE_GRAPHICS_BIT).queue,
+        submitInfos,
+        renderFinishedFence);
+
+    vkWaitForFences(this->gpuCtx->GetCurrentDevice(), 1
+                    , &this->renderFinishedFence,
+                    VK_TRUE,
+                    UINT64_MAX);
+
+    const std::vector presentSwapChains = {this->swapChain->GetSwapChain()};
+    VkPresentInfoKHR presentInfo{};
+    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+    presentInfo.pNext = nullptr;
+    presentInfo.waitSemaphoreCount = 0;
+    presentInfo.pWaitSemaphores = nullptr;
+    presentInfo.swapchainCount = presentSwapChains.size();
+    presentInfo.pSwapchains = presentSwapChains.data();
+    presentInfo.pResults = nullptr;
+    presentInfo.pImageIndices = &imageIndex;
+
+    vkQueuePresentKHR(this->gpuCtx->DispatchQueue(VK_QUEUE_GRAPHICS_BIT).queue, &presentInfo);
+}
+
 void Renderer::RenderFrameOffScreen(const std::string &path) const {
     VkResult ret = this->RenderFrame();
     if (ret != VK_SUCCESS) {
         Logger() << Logger::ERROR << "Failed to render frame!" << std::endl;
         return;
     }
+
     const VkDeviceSize offScreenBufferSize = this->width * this->height * 4;
     ret = offScreenBuffer->MapBuffer(offScreenBufferSize);
     if (ret != VK_SUCCESS) {
         Logger() << "Failed to map output storage buffer!" << std::endl;
         return;
     }
+
     ImageUtils::WritePngFile(path,
                              this->width,
-                             this->height, 4,
+                             this->height,
+                             4,
                              offScreenBuffer->GetMappedAddr());
 }

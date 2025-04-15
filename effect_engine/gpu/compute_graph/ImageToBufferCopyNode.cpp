@@ -44,16 +44,25 @@ void ImageToBufferCopyNode::Compute(const VkCommandBuffer commandBuffer) {
     }
 
     std::vector<VkImageMemoryBarrier> srcImageMemoryBarriers;
-    srcImageMemoryBarriers.push_back(VkGPUHelper::BuildImageMemoryBarrier(VK_ACCESS_SHADER_WRITE_BIT,
+    srcImageMemoryBarriers.push_back(VkGPUHelper::BuildImageMemoryBarrier(VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
                                                                           VK_ACCESS_TRANSFER_READ_BIT,
                                                                           srcImage.image,
-                                                                          VK_IMAGE_LAYOUT_UNDEFINED,
-                                                                          VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL));
-    VkGPUHelper::GPUCmdPipelineImageMemBarrier(commandBuffer,
-                                               VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
-                                               VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                               0,
-                                               srcImageMemoryBarriers);
+                                                                          VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                                                                          VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL));
+
+    std::vector<VkBufferMemoryBarrier> bufferMemoryBarriers;
+    bufferMemoryBarriers.push_back(VkGPUHelper::BuildBufferMemoryBarrier(VK_ACCESS_NONE,
+                                                                         VK_ACCESS_TRANSFER_WRITE_BIT,
+                                                                         dstBuffer.buffer,
+                                                                         dstBuffer.bufferSize));
+    const std::vector<VkMemoryBarrier> memBarrier;
+    VkGPUHelper::GPUCmdPipelineBarrier(commandBuffer,
+                                       VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                                       VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                       0,
+                                       memBarrier,
+                                       bufferMemoryBarriers,
+                                       srcImageMemoryBarriers);
     std::vector<VkBufferImageCopy> copyRegions;
     VkBufferImageCopy copyRegion;
     copyRegion.bufferOffset = 0;
