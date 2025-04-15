@@ -96,6 +96,7 @@ VkResult VkGPUSwapChain::CreateSwapChain(const VkSurfaceKHR surface,
                             &this->swapChainImageCount,
                             nullptr);
     Logger() << "swap chain image count: " << this->swapChainImageCount << std::endl;
+    this->swapChainImages.resize(this->swapChainImageCount);
     result = vkGetSwapchainImagesKHR(this->gpuCtx->GetCurrentDevice(),
                                      this->swapChain,
                                      &this->swapChainImageCount,

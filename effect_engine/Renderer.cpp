@@ -322,9 +322,21 @@ bool Renderer::Init(const std::vector<const char *> &requiredExtensions,
     this->computeGraph->AddSubGraph(this->subComputeGraph);
 
 
-    VkGPUHelper::CreateFence(this->gpuCtx->GetCurrentDevice(), &this->renderFinishedFence);
-    VkGPUHelper::CreateSemaphore(this->gpuCtx->GetCurrentDevice(), &this->imageAvailableSemaphore);
-    VkGPUHelper::CreateSemaphore(this->gpuCtx->GetCurrentDevice(), &this->renderFinishedSemaphore);
+    result = VkGPUHelper::CreateFence(this->gpuCtx->GetCurrentDevice(), &this->renderFinishedFence);
+    if (result != VK_SUCCESS) {
+        Logger() << Logger::ERROR << "Failed to create fence!" << std::endl;
+        return false;
+    }
+    result = VkGPUHelper::CreateSemaphore(this->gpuCtx->GetCurrentDevice(), &this->imageAvailableSemaphore);
+    if (result != VK_SUCCESS) {
+        Logger() << Logger::ERROR << "Failed to create semaphore!" << std::endl;
+        return false;
+    }
+    result = VkGPUHelper::CreateSemaphore(this->gpuCtx->GetCurrentDevice(), &this->renderFinishedSemaphore);
+    if (result != VK_SUCCESS) {
+        Logger() << Logger::ERROR << "Failed to create semaphore!" << std::endl;
+        return false;
+    }
     result = VkGPUHelper::AllocateCommandBuffers(this->gpuCtx->GetCurrentDevice(),
                                                  this->gpuCtx->GetCommandPool(0),
                                                  1,
@@ -352,7 +364,8 @@ void Renderer::Present() const {
                                                   this->swapChain->GetSwapChain(),
                                                   UINT64_MAX,
                                                   this->imageAvailableSemaphore,
-                                                  this->renderFinishedFence, &imageIndex);
+                                                  this->renderFinishedFence,
+                                                  &imageIndex);
     if (result != VK_SUCCESS) {
         Logger() << Logger::ERROR << "Failed to acquire swap chain image!" << std::endl;
         return;
@@ -370,7 +383,8 @@ void Renderer::Present() const {
                    VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                    this->swapChain->GetSwapChainImg(imageIndex),
                    VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                   1, &region);
+                   1,
+                   &region);
 
     vkEndCommandBuffer(this->presentCmdBuffer);
 
@@ -397,8 +411,9 @@ void Renderer::Present() const {
         submitInfos,
         renderFinishedFence);
 
-    vkWaitForFences(this->gpuCtx->GetCurrentDevice(), 1
-                    , &this->renderFinishedFence,
+    vkWaitForFences(this->gpuCtx->GetCurrentDevice(),
+                    fences.size(),
+                    fences.data(),
                     VK_TRUE,
                     UINT64_MAX);
 
