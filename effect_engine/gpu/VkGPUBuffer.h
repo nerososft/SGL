@@ -9,7 +9,7 @@
 
 #define KB (1024)
 #define MB (KB * KB)
-#define MIN_BLOCK_SIZE (4 * KB)
+#define MIN_BLOCK_SIZE (64 * KB)
 #define MAX_THREADS (8)
 
 typedef enum {
