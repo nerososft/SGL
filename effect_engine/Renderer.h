@@ -13,6 +13,8 @@
 #include "gpu/compute_graph/ImageToBufferCopyNode.h"
 #include <glm/glm.hpp>
 
+#include "gpu/VkGPUSwapChain.h"
+
 struct Vertex {
     glm::vec3 position;
     glm::vec3 color;
@@ -35,6 +37,8 @@ class Renderer {
     std::shared_ptr<GraphicsRenderPassNode> mainRenderPassNode = nullptr;
     std::shared_ptr<GraphicsPipelineNode> graphicsPipelineNode = nullptr;
     std::shared_ptr<VkGPUFramebuffer> framebuffer = nullptr;
+
+    std::shared_ptr<VkGPUSwapChain> swapChain = nullptr;
 
     FrameInfo frameInfo{};
 

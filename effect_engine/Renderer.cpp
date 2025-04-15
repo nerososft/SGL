@@ -4,6 +4,8 @@
 
 #include "Renderer.h"
 
+#include <queue>
+
 #include "gpu/VkGPUBuffer.h"
 #include "gpu/VkGPUHelper.h"
 #include "gpu/compute_graph/ImageToBufferCopyNode.h"
@@ -126,6 +128,13 @@ bool Renderer::ConstructMainGraphicsPipeline() {
     }
 
     this->mainRenderPassNode->AddDependenceNode(this->graphicsPipelineNode);
+
+    this->swapChain = std::make_shared<VkGPUSwapChain>(this->gpuCtx);
+    if (this->swapChain == nullptr) {
+        Logger() << Logger::ERROR << "Failed to create swap chain!" << std::endl;
+        return false;
+    }
+
     return true;
 }
 
