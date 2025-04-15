@@ -34,7 +34,7 @@ void GraphicsApp::Run() const {
             return;
         }
         if (renderer->Present() != VK_SUCCESS) {
-            // return;
+            return;
         }
     }
 }
