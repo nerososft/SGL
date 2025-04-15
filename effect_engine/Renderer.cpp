@@ -84,11 +84,11 @@ bool Renderer::ConstructMainGraphicsPipeline() {
     buffers.push_back(vertexBufferNode);
     buffers.push_back(indexBufferNode);
     const GraphicsElement element{
-        .buffers = buffers,
         .pushConstantInfo = {
             .size = sizeof(FrameInfo),
             .data = &this->frameInfo
         },
+        .buffers = buffers,
         .customDrawFunc = nullptr,
     };
 
@@ -101,8 +101,8 @@ bool Renderer::ConstructMainGraphicsPipeline() {
     };
     std::vector<VkVertexInputAttributeDescription> vertexInputAttributeDescriptions = {
         {
-            .binding = 0,
             .location = 0,
+            .binding = 0,
             .format = VK_FORMAT_R32G32B32_SFLOAT,
             .offset = 0,
         }
