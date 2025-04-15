@@ -140,12 +140,12 @@ VkResult VkGPUBuffer::DownloadData(void *downloadAddr, const VkDeviceSize size) 
         Logger() << "Failed to map buffer, err =" << string_VkResult(result) << std::endl;
         return result;
     }
-    if (size <= (1 << 12)) {
+    if (size <= MIN_BLOCK_SIZE) {
         memcpy(downloadAddr, data, size);
     } else {
-        uint32_t numThreads = size >> 12;
-        numThreads = (numThreads & 0xFFF) ? (numThreads + 1) : numThreads;
-        numThreads = numThreads > 8 ? 8 : numThreads;
+        uint32_t numThreads = size / MIN_BLOCK_SIZE;
+        numThreads += (numThreads % MIN_BLOCK_SIZE) > 0 ? 1 : 0;
+        numThreads = numThreads > MAX_THREADS ? MAX_THREADS : numThreads;
         ParallelCopy(downloadAddr, data, size, numThreads);
     }
 
