@@ -12,7 +12,7 @@ int main(int argc, char *argv[]) {
     app.SetWindowPos(20, 20);
     app.SetWindowSize(1024, 768);
     app.Init();
-    app.Run();
+    app.CaptureFrame("../../renderer_demo/a.png");
 
     return 0;
 }

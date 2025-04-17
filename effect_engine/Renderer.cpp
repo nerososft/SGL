@@ -24,21 +24,27 @@ bool Renderer::ConstructMainGraphicsPipeline() {
     const std::vector<Vertex> vertices = {
         {
             .position = {-0.5f, -0.5f, 0.0f},
+            .color = {0.0f, 0.0f, 1.0f},
         },
         {
             .position = {0.5f, -0.5f, 0.0f},
+            .color = {1.0f, 0.0f, 0.0f},
         },
         {
             .position = {-0.5f, 0.5f, 0.0f},
+            .color = {0.0f, 1.0f, 0.0f},
         },
         {
             .position = {-0.5f, 0.5f, 0.0f},
+            .color = {1.0f, 1.0f, 0.0f},
         },
         {
             .position = {0.5f, -0.5f, 0.0f},
+            .color = {0.0f, 0.0f, 1.0f},
         },
         {
             .position = {0.5f, 0.5f, 0.0f},
+            .color = {1.0f, 0.0f, 0.0f},
         },
     };
     const VkDeviceSize vertexBufferSize = vertices.size() * sizeof(Vertex);
@@ -104,7 +110,13 @@ bool Renderer::ConstructMainGraphicsPipeline() {
             .location = 0,
             .binding = 0,
             .format = VK_FORMAT_R32G32B32_SFLOAT,
-            .offset = 0,
+            .offset = offsetof(Vertex, position),
+        },
+        {
+            .location = 1,
+            .binding = 0,
+            .format = VK_FORMAT_R32G32B32_SFLOAT,
+            .offset = offsetof(Vertex, color),
         }
     };
 
@@ -243,7 +255,7 @@ bool Renderer::Init(const std::vector<const char *> &requiredExtensions,
 
     std::vector<VkClearValue> clearValues;
     clearValues.push_back({
-        .color = {0.0f, 1.0f, 0.0f, 0.0f}
+        .color = {1.0f, 1.0f, 1.0f, 0.0f}
     });
     clearValues.push_back({
         .depthStencil = {1.0f, 0}

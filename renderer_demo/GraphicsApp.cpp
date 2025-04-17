@@ -39,6 +39,14 @@ void GraphicsApp::Run() const {
     }
 }
 
+void GraphicsApp::CaptureFrame(const std::string &path) const {
+    if (running && !window->ShouldClose()) {
+        window->PollEvent();
+        window->Render();
+        renderer->RenderFrameOffScreen(path);
+    }
+}
+
 void GraphicsApp::SetWindowSize(const uint32_t width, const uint32_t height) {
     this->windowWidth = width;
     this->windowHeight = height;
