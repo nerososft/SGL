@@ -62,7 +62,7 @@ public:
 
     [[nodiscard]] VkResult RenderFrame() const;
 
-    void Present() const;
+    [[nodiscard]] VkResult Present() const;
 
     ~Renderer() = default;
 

@@ -35,6 +35,13 @@ bool EffectEngine::Init() {
     return true;
 }
 
+std::string EffectEngine::GetGPUName() const {
+    if (this->gpuCtx == nullptr) {
+        return "";
+    }
+    return this->gpuCtx->GetPhysicalDeviceProperties().deviceName;
+}
+
 VkResult EffectEngine::Process(const std::shared_ptr<VkGPUBuffer> &inputBuffer,
                                const uint32_t inputWidth,
                                const uint32_t inputHeight,

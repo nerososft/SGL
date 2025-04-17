@@ -27,6 +27,8 @@ public:
 
     bool Init();
 
+    std::string GetGPUName() const;
+
     VkResult Process(const std::shared_ptr<VkGPUBuffer> &inputBuffer,
                      uint32_t inputWidth,
                      uint32_t inputHeight,

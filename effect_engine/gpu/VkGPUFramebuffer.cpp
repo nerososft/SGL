@@ -86,8 +86,8 @@ VkResult VkGPUFramebuffer::CreateFramebuffer(std::vector<uint32_t> queueFamilies
     framebufferAttachments.push_back(this->depthImageView);
 
     result = VkGPUHelper::CreateFramebuffer(this->gpuCtx->GetCurrentDevice(),
-                                            width,
-                                            height,
+                                            static_cast<uint32_t>(width),
+                                            static_cast<uint32_t>(height),
                                             framebufferAttachments,
                                             this->renderPass->GetRenderPass(),
                                             &this->framebuffer);

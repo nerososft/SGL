@@ -25,9 +25,26 @@
 
 #include "log/Log.h"
 
-FunctionPtr g_dbg = nullptr;
 EffectEngine g_effect_engine;
 bool g_effect_engine_inited = false;
+
+bool init_gpu_engine() {
+    if (!g_effect_engine_inited) {
+        g_effect_engine_inited = g_effect_engine.Init();
+    }
+    return g_effect_engine_inited;
+}
+
+const char *get_gpu_engine_name() {
+    if (!g_effect_engine_inited) {
+        return "Not initialized";
+    }
+    return g_effect_engine.GetGPUName().c_str();
+}
+
+bool destroy_gpu_engine() {
+    return true;
+}
 
 bool threshold_split_filter_gpu(void *in, void *out, const int bright) {
     if (in == nullptr || out == nullptr) return false;
@@ -365,21 +382,6 @@ bool color_separation_filter_gpu(void *in, void *out, const int roff, const int 
     const ImageInfo *output = static_cast<ImageInfo *>(out);
 
     g_effect_engine.Process(*input, *output, filter);
-    return true;
-}
-
-bool init_gpu_engine() {
-    if (!g_effect_engine_inited) {
-        g_effect_engine_inited = g_effect_engine.Init();
-    }
-    return g_effect_engine_inited;
-}
-
-bool destroy_gpu_engine() {
-    return true;
-}
-
-bool set_debug_cb(void *dbg) {
     return true;
 }
 

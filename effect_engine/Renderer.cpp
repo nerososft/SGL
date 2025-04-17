@@ -5,6 +5,7 @@
 #include "Renderer.h"
 
 #include <queue>
+#include <vulkan/vk_enum_string_helper.h>
 
 #include "gpu/VkGPUBuffer.h"
 #include "gpu/VkGPUHelper.h"
@@ -40,12 +41,13 @@ bool Renderer::ConstructMainGraphicsPipeline() {
             .position = {0.5f, 0.5f, 0.0f},
         },
     };
-    VkResult ret = vertexBuffer->AllocateAndBind(GPU_BUFFER_TYPE_VERTEX, vertices.size() * sizeof(float));
+    const VkDeviceSize vertexBufferSize = vertices.size() * sizeof(Vertex);
+    VkResult ret = vertexBuffer->AllocateAndBind(GPU_BUFFER_TYPE_VERTEX, vertexBufferSize);
     if (ret != VK_SUCCESS) {
         Logger() << "Vertex buffer allocate and bind failed" << std::endl;
         return false;
     }
-    ret = vertexBuffer->UploadData(vertices.data(), sizeof(float) * vertices.size());
+    ret = vertexBuffer->UploadData(vertices.data(), vertexBufferSize);
     if (ret != VK_SUCCESS) {
         Logger() << "Vertex buffer upload failed" << std::endl;
         return false;
@@ -53,7 +55,7 @@ bool Renderer::ConstructMainGraphicsPipeline() {
 
     PipelineNodeBuffer vertexBufferNode = {};
     vertexBufferNode.type = PIPELINE_NODE_BUFFER_VERTEX;
-    vertexBufferNode.bufferSize = sizeof(float) * vertices.size();
+    vertexBufferNode.bufferSize = vertexBufferSize;
     vertexBufferNode.buffer = vertexBuffer->GetBuffer();
 
     indicesBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
@@ -62,12 +64,13 @@ bool Renderer::ConstructMainGraphicsPipeline() {
         return false;
     }
     const std::vector indices = {0, 1, 2, 3, 4, 5};
-    ret = indicesBuffer->AllocateAndBind(GPU_BUFFER_TYPE_INDEX, indices.size() * sizeof(uint32_t));
+    const VkDeviceSize indicesBufferSize = indices.size() * sizeof(uint32_t);
+    ret = indicesBuffer->AllocateAndBind(GPU_BUFFER_TYPE_INDEX, indicesBufferSize);
     if (ret != VK_SUCCESS) {
         Logger() << "Index buffer allocate and bind failed" << std::endl;
         return false;
     }
-    ret = indicesBuffer->UploadData(indices.data(), sizeof(uint32_t) * indices.size());
+    ret = indicesBuffer->UploadData(indices.data(), indicesBufferSize);
     if (ret != VK_SUCCESS) {
         Logger() << "Index buffer upload failed" << std::endl;
         return false;
@@ -76,7 +79,7 @@ bool Renderer::ConstructMainGraphicsPipeline() {
     PipelineNodeBuffer indexBufferNode = {};
     indexBufferNode.type = PIPELINE_NODE_BUFFER_INDEX;
     indexBufferNode.buffer = indicesBuffer->GetBuffer();
-    indexBufferNode.bufferSize = sizeof(uint32_t) * indices.size();
+    indexBufferNode.bufferSize = indicesBufferSize;
 
     buffers.push_back(vertexBufferNode);
     buffers.push_back(indexBufferNode);
@@ -323,9 +326,21 @@ bool Renderer::Init(const std::vector<const char *> &requiredExtensions,
     this->computeGraph->AddSubGraph(this->subComputeGraph);
 
 
-    VkGPUHelper::CreateFence(this->gpuCtx->GetCurrentDevice(), &this->renderFinishedFence);
-    VkGPUHelper::CreateSemaphore(this->gpuCtx->GetCurrentDevice(), &this->imageAvailableSemaphore);
-    VkGPUHelper::CreateSemaphore(this->gpuCtx->GetCurrentDevice(), &this->renderFinishedSemaphore);
+    result = VkGPUHelper::CreateFence(this->gpuCtx->GetCurrentDevice(), &this->renderFinishedFence);
+    if (result != VK_SUCCESS) {
+        Logger() << Logger::ERROR << "Failed to create fence!" << std::endl;
+        return false;
+    }
+    result = VkGPUHelper::CreateSemaphore(this->gpuCtx->GetCurrentDevice(), &this->imageAvailableSemaphore);
+    if (result != VK_SUCCESS) {
+        Logger() << Logger::ERROR << "Failed to create semaphore!" << std::endl;
+        return false;
+    }
+    result = VkGPUHelper::CreateSemaphore(this->gpuCtx->GetCurrentDevice(), &this->renderFinishedSemaphore);
+    if (result != VK_SUCCESS) {
+        Logger() << Logger::ERROR << "Failed to create semaphore!" << std::endl;
+        return false;
+    }
     result = VkGPUHelper::AllocateCommandBuffers(this->gpuCtx->GetCurrentDevice(),
                                                  this->gpuCtx->GetCommandPool(0),
                                                  1,
@@ -345,7 +360,7 @@ VkResult Renderer::RenderFrame() const {
     return ret;
 }
 
-void Renderer::Present() const {
+VkResult Renderer::Present() const {
     uint32_t imageIndex = 0;
     const std::vector fences = {renderFinishedFence};
     vkResetFences(this->gpuCtx->GetCurrentDevice(), fences.size(), fences.data());
@@ -353,10 +368,11 @@ void Renderer::Present() const {
                                                   this->swapChain->GetSwapChain(),
                                                   UINT64_MAX,
                                                   this->imageAvailableSemaphore,
-                                                  this->renderFinishedFence, &imageIndex);
+                                                  this->renderFinishedFence,
+                                                  &imageIndex);
     if (result != VK_SUCCESS) {
-        Logger() << Logger::ERROR << "Failed to acquire swap chain image!" << std::endl;
-        return;
+        Logger() << Logger::ERROR << "Failed to acquire swap chain image, err=" << string_VkResult(result) << std::endl;
+        return result;
     }
 
     VkGPUHelper::GPUBeginCommandBuffer(this->presentCmdBuffer);
@@ -371,7 +387,8 @@ void Renderer::Present() const {
                    VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                    this->swapChain->GetSwapChainImg(imageIndex),
                    VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                   1, &region);
+                   1,
+                   &region);
 
     vkEndCommandBuffer(this->presentCmdBuffer);
 
@@ -398,8 +415,9 @@ void Renderer::Present() const {
         submitInfos,
         renderFinishedFence);
 
-    vkWaitForFences(this->gpuCtx->GetCurrentDevice(), 1
-                    , &this->renderFinishedFence,
+    vkWaitForFences(this->gpuCtx->GetCurrentDevice(),
+                    fences.size(),
+                    fences.data(),
                     VK_TRUE,
                     UINT64_MAX);
 
@@ -415,6 +433,7 @@ void Renderer::Present() const {
     presentInfo.pImageIndices = &imageIndex;
 
     vkQueuePresentKHR(this->gpuCtx->DispatchQueue(VK_QUEUE_GRAPHICS_BIT).queue, &presentInfo);
+    return VK_SUCCESS;
 }
 
 void Renderer::RenderFrameOffScreen(const std::string &path) const {
