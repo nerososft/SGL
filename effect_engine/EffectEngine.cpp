@@ -163,9 +163,9 @@ void EffectEngine::Process(const std::vector<ImageInfo> &inputs,
 
     std::vector<std::shared_ptr<VkGPUBuffer> > inputBuffers;
     std::vector<FilterImageInfo> filterInputImages;
+    const uint64_t inputBufferPrepareStart = TimeUtils::GetCurrentMonoMs();
     for (const ImageInfo &input: inputs) {
         const auto inputBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
-        const uint64_t inputBufferPrepareStart = TimeUtils::GetCurrentMonoMs();
         const VkDeviceSize inputBufferSize = input.width * input.height * input.channels;
         ret = inputBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED, inputBufferSize);
         if (ret != VK_SUCCESS) {
@@ -184,10 +184,6 @@ void EffectEngine::Process(const std::vector<ImageInfo> &inputs,
             }
             return;
         }
-        const uint64_t inputBufferPrepareEnd = TimeUtils::GetCurrentMonoMs();
-        Logger() << "Input Buffer Prepare And Upload Time: " << inputBufferPrepareEnd -
-                inputBufferPrepareStart << "ms" <<
-                std::endl;
         FilterImageInfo inputImageInfo{};
         inputImageInfo.width = input.width;
         inputImageInfo.height = input.height;
@@ -198,12 +194,16 @@ void EffectEngine::Process(const std::vector<ImageInfo> &inputs,
         inputImageInfo.storageBuffer = inputBuffer->GetBuffer();
         filterInputImages.push_back(inputImageInfo);
     }
+    const uint64_t inputBufferPrepareEnd = TimeUtils::GetCurrentMonoMs();
+    Logger() << "Input Buffer Prepare And Upload Time: " << inputBufferPrepareEnd -
+            inputBufferPrepareStart << "ms" <<
+            std::endl;
 
     std::vector<std::shared_ptr<VkGPUBuffer> > outputBuffers;
     std::vector<FilterImageInfo> filterOutputImages;
+    const uint64_t outputBufferPrepareStart = TimeUtils::GetCurrentMonoMs();
     for (const ImageInfo &output: outputs) {
         const auto outputBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
-        const uint64_t outputBufferPrepareStart = TimeUtils::GetCurrentMonoMs();
         const VkDeviceSize outputBufferSize = output.width * output.height * output.channels;
         ret = outputBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED, outputBufferSize);
         if (ret != VK_SUCCESS) {
@@ -217,10 +217,6 @@ void EffectEngine::Process(const std::vector<ImageInfo> &inputs,
             return;
         }
         outputBuffers.push_back(outputBuffer);
-        const uint64_t outputBufferPrepareEnd = TimeUtils::GetCurrentMonoMs();
-        Logger() << "Output Buffer Prepare And Upload Time: " << outputBufferPrepareEnd -
-                outputBufferPrepareStart << "ms" <<
-                std::endl;
 
         FilterImageInfo outputImageInfo{};
         outputImageInfo.width = output.width;
@@ -232,6 +228,10 @@ void EffectEngine::Process(const std::vector<ImageInfo> &inputs,
         outputImageInfo.storageBuffer = outputBuffer->GetBuffer();
         filterOutputImages.push_back(outputImageInfo);
     }
+    const uint64_t outputBufferPrepareEnd = TimeUtils::GetCurrentMonoMs();
+    Logger() << "Output Buffer Prepare And Upload Time: " << outputBufferPrepareEnd -
+            outputBufferPrepareStart << "ms" <<
+            std::endl;
 
     const uint64_t gpuProcessTimeStart = TimeUtils::GetCurrentMonoMs();
     ret = filter->Apply(gpuCtx, filterInputImages, filterOutputImages);
@@ -250,6 +250,7 @@ void EffectEngine::Process(const std::vector<ImageInfo> &inputs,
     const uint64_t gpuProcessTimeEnd = TimeUtils::GetCurrentMonoMs();
     Logger() << "GPU Process Time: " << gpuProcessTimeEnd - gpuProcessTimeStart << "ms" << std::endl;
 
+    const uint64_t imageDownloadStart = TimeUtils::GetCurrentMonoMs();
     for (size_t i = 0; i < filterOutputImages.size(); i++) {
         const auto &buffer = outputBuffers[i];
         if (buffer == nullptr) {
@@ -261,6 +262,8 @@ void EffectEngine::Process(const std::vector<ImageInfo> &inputs,
             break;
         }
     }
+    const uint64_t imageDownloadEnd = TimeUtils::GetCurrentMonoMs();
+    Logger() << "Image Download Time: " << imageDownloadEnd - imageDownloadStart << "ms" << std::endl;
 
     for (const std::shared_ptr<VkGPUBuffer> &buffer: inputBuffers) {
         buffer->Destroy();
