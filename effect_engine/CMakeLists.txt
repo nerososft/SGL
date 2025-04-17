@@ -137,6 +137,19 @@ if (CMAKE_SYSTEM_NAME MATCHES "OHOS")
     set(ENGINE_SOURCE ${ENGINE_SOURCE} filters/impl/HPSBlurFilter.cpp filters/impl/HPSBlurFilter.h)
 endif ()
 
+        filters/impl/CrystallizeFilter.h
+        filters/impl/CrystallizeFilter.cpp
+
+        filters/impl/RotationBlurFilter.h
+        filters/impl/RotationBlurFilter.cpp
+        filters/impl/FacetFilter.h
+        filters/impl/FacetFilter.cpp
+        filters/impl/AccentedEdgeFilter.h
+        filters/impl/AccentedEdgeFilter.cpp
+        filters/impl/IrisBlurFilter.h
+        filters/impl/IrisBlurFilter.cpp
+        filters/impl/TiltshiftBlurFilter.h
+        filters/impl/TiltshiftBlurFilter.cpp
 add_library(gpu_effect_engine SHARED
         ${ENGINE_SOURCE}
 )

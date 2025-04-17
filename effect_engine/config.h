@@ -21,11 +21,11 @@
 #ifdef __APPLE__
 #define LOG_TO_FILE 0
 #else
-#define LOG_TO_FILE 1
+#define LOG_TO_FILE 0
 #endif
 
 
-#define LOG_FILE_PATH "d://temp//output.txt"
+#define LOG_FILE_PATH "c://temp//output.txt"
 
 #define SHADER(path) (SHADER_PATH # path)
 

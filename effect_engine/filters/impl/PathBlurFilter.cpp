@@ -37,10 +37,87 @@ VkResult pathBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     pushConstantInfo.size = sizeof(pathBlurFilterParams);
     pushConstantInfo.data = &this->pathblurFilterParams;
 
-    vecBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
+    /*vecBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
     vecBuffer->AllocateAndBind(GPU_BUFFER_TYPE_UNIFORM, k_size * sizeof(float));
-    vecBuffer->UploadData(vec, k_size * sizeof(float));
+    vecBuffer->UploadData(vec, k_size * sizeof(float));*/
+//
+    PipelineNodeBuffer vecpipelineNodeInput;
+    vecpipelineNodeInput.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
+    vecpipelineNodeInput.buffer = inputImageInfo[0].storageBuffer;
+    vecpipelineNodeInput.bufferSize = inputImageInfo[0].bufferSize;
 
+    int vecsize = 2 * int(this->pathblurFilterParams.num + 1);
+
+    startposBuffer= std::make_shared<VkGPUBuffer>(gpuCtx);
+    startposBuffer->AllocateAndBind(GPU_BUFFER_TYPE_UNIFORM, vecsize * sizeof(float));
+    startposBuffer->UploadData(startpos, vecsize * sizeof(float));
+
+    PipelineNodeBuffer vecpipelineNodeSpInput;
+    vecpipelineNodeSpInput.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
+    vecpipelineNodeSpInput.buffer = startposBuffer->GetBuffer();
+    vecpipelineNodeSpInput.bufferSize = vecsize * sizeof(float);
+
+    endposBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
+    endposBuffer->AllocateAndBind(GPU_BUFFER_TYPE_UNIFORM, vecsize * sizeof(float));
+    endposBuffer->UploadData(endpos, vecsize * sizeof(float));
+
+    PipelineNodeBuffer vecpipelineNodeEpInput;
+    vecpipelineNodeEpInput.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
+    vecpipelineNodeEpInput.buffer = endposBuffer->GetBuffer();
+    vecpipelineNodeEpInput.bufferSize = vecsize * sizeof(float);
+
+    startvecBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
+    startvecBuffer->AllocateAndBind(GPU_BUFFER_TYPE_UNIFORM, vecsize * sizeof(float));
+    startvecBuffer->UploadData(startvec, vecsize * sizeof(float));
+
+    PipelineNodeBuffer vecpipelineNodeSvInput;
+    vecpipelineNodeSvInput.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
+    vecpipelineNodeSvInput.buffer = startvecBuffer->GetBuffer();
+    vecpipelineNodeSvInput.bufferSize = vecsize * sizeof(float);
+
+    endvecBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
+    endvecBuffer->AllocateAndBind(GPU_BUFFER_TYPE_UNIFORM, vecsize * sizeof(float));
+    endvecBuffer->UploadData(endvec, vecsize * sizeof(float));
+
+    PipelineNodeBuffer vecpipelineNodeEvInput;
+    vecpipelineNodeEvInput.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
+    vecpipelineNodeEvInput.buffer = endvecBuffer->GetBuffer();
+    vecpipelineNodeEvInput.bufferSize = vecsize * sizeof(float);
+
+    vecBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
+    vecBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_LOCAL, k_size * sizeof(float));
+
+    PipelineNodeBuffer vecpipelineNodeOutput;
+    vecpipelineNodeOutput.type = PIPELINE_NODE_BUFFER_STORAGE_WRITE;
+    vecpipelineNodeOutput.buffer = vecBuffer->GetBuffer();
+    vecpipelineNodeOutput.bufferSize = k_size * sizeof(float);
+
+    std::vector<PipelineNodeBuffer> vecPipelineBuffers;
+    vecPipelineBuffers.push_back(vecpipelineNodeInput);
+    vecPipelineBuffers.push_back(vecpipelineNodeSpInput);
+    vecPipelineBuffers.push_back(vecpipelineNodeEpInput);
+    vecPipelineBuffers.push_back(vecpipelineNodeSvInput);
+    vecPipelineBuffers.push_back(vecpipelineNodeEvInput);
+    vecPipelineBuffers.push_back(vecpipelineNodeOutput);
+
+    const auto vecCalculateNode = std::make_shared<ComputePipelineNode>(gpuCtx,
+        "vecpathblurCalculate",
+        SHADER(vecpathblur.comp.glsl.spv),
+        (inputImageInfo[0].width + 31) / 32,
+        (inputImageInfo[0].height + 31) / 32,
+        1);
+
+    vecCalculateNode->AddComputeElement({
+        .pushConstantInfo = pushConstantInfo,
+        .buffers = vecPipelineBuffers
+        });
+
+    ret = vecCalculateNode->CreateComputeGraphNode();
+    if (ret != VK_SUCCESS) {
+        Logger() << "Failed to create compute graph, err =" << string_VkResult(ret) << std::endl;
+        return ret;
+    }
+//
     PipelineNodeBuffer pipelineNodeInput;
     pipelineNodeInput.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
     pipelineNodeInput.buffer = inputImageInfo[0].storageBuffer;
@@ -80,7 +157,7 @@ VkResult pathBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
         return ret;
     }
 
-
+    kCalculateNode->AddDependenceNode(vecCalculateNode);
     computeSubGraph->AddComputeGraphNode(kCalculateNode);
     computeGraph->AddSubGraph(computeSubGraph);
 
@@ -95,5 +172,25 @@ void pathBlurFilter::Destroy() {
     if (vecBuffer != nullptr) {
         vecBuffer->Destroy();
         vecBuffer = nullptr;
+    }
+    if (startposBuffer != nullptr)
+    {
+        startposBuffer->Destroy();
+        startposBuffer = nullptr;
+    }
+    if (endposBuffer != nullptr)
+    {
+        endposBuffer->Destroy();
+        endposBuffer = nullptr;
+    }
+    if (startvecBuffer != nullptr)
+    {
+        startvecBuffer->Destroy();
+        startvecBuffer = nullptr;
+    }
+    if (endvecBuffer != nullptr)
+    {
+        endvecBuffer->Destroy();
+        endvecBuffer = nullptr;
     }
 }

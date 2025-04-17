@@ -10,6 +10,7 @@
 struct pathBlurFilterParams {
     BasicFilterParam imageSize;
     int amount;
+    int num;
 };
 
 class pathBlurFilter final : public IFilter {
@@ -17,8 +18,17 @@ class pathBlurFilter final : public IFilter {
     std::shared_ptr<ComputeGraph> computeGraph = nullptr;
     std::shared_ptr<SubComputeGraph> computeSubGraph = nullptr;
     std::shared_ptr<VkGPUBuffer> vecBuffer = nullptr;
-    float *vec = nullptr;
+    std::shared_ptr<VkGPUBuffer> startposBuffer = nullptr;
+    std::shared_ptr<VkGPUBuffer> endposBuffer = nullptr;
+    std::shared_ptr<VkGPUBuffer> startvecBuffer = nullptr;
+    std::shared_ptr<VkGPUBuffer> endvecBuffer = nullptr;
+    //float *vec = nullptr;
+    float* startpos = nullptr;
+    float* endpos = nullptr;
+    float* startvec = nullptr;
+    float* endvec = nullptr;
     int k_size = 0;
+    //int num = 0;
 
 public:
     pathBlurFilter() = default;
@@ -29,9 +39,35 @@ public:
                    const std::vector<FilterImageInfo> &inputImageInfo,
                    const std::vector<FilterImageInfo> &outputImageInfo) override;
 
-    void SetK(float *vec, int size) {
+    /*void SetK(float *vec, int size) {
         this->vec = vec;
         this->k_size = size;
+    }*/
+
+    void SetK(int size)
+    {
+        this->k_size = size;
+    }
+
+    void SetStartpos(float* _startpos, int num)
+    {
+        this->startpos = _startpos;
+        this->pathblurFilterParams.num = num;
+    }
+
+    void SetEndpos(float* _endpos, int num)
+    {
+        this->endpos = _endpos;
+    }
+
+    void SetStartvec(float* _startvec, int num)
+    {
+        this->startvec = _startvec;
+    }
+
+    void SetEndvec(float* _endvec, int num)
+    {
+        this->endvec = _endvec;
     }
 
     void SetAmount(const int amount) { this->pathblurFilterParams.amount = amount; }

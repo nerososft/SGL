@@ -22,6 +22,10 @@
 #include"effect_engine/filters/impl/CrystallizeFilter.h"
 #include"effect_engine/filters/impl/RotationBlurFilter.h"
 #include "effect_engine/filters/impl/OldGaussianBlurFloatFilter.h"
+#include"effect_engine/filters/impl/FacetFilter.h"
+#include"effect_engine/filters/impl/AccentedEdgeFilter.h"
+#include"effect_engine/filters/impl/IrisBlurFilter.h"
+#include"effect_engine/filters/impl/TiltshiftBlurFilter.h"
 
 #include "log/Log.h"
 
@@ -333,7 +337,6 @@ bool scale_filter_gpu(void *in, void *out, const int weight, const int height) {
 
     const auto *input = static_cast<ImageInfo *>(in);
     const auto *output = static_cast<ImageInfo *>(out);
-
     
     g_effect_engine.Process(*input, *output, filter);
 
@@ -398,16 +401,19 @@ bool midvalue_filter_gpu(void *in, void *out, const float radius, const float th
     return true;
 }
 
-bool pathblur_filter_gpu(void *in, void *out, float *vec, const int amount, const int width, const int height) {
+bool pathblur_filter_gpu(void *in, void *out, float *vec, const int amount, const int width, const int height, float* startpos, float* endpos, float* startvec, float* endvec, int num) {
     if (in == nullptr || out == nullptr || vec == nullptr) return false;
     const auto filter = std::make_shared<pathBlurFilter>();
     const auto *input = static_cast<ImageInfo *>(in);
     const auto *output = static_cast<ImageInfo *>(out);
 
     int k_size = width * height * 2;
-    filter->SetK(vec, k_size);
+    filter->SetK(k_size);
     filter->SetAmount(amount);
-
+    filter->SetStartpos(startpos, num);
+    filter->SetEndpos(endpos, num);
+    filter->SetStartvec(startvec, num);
+    filter->SetEndvec(endvec, num);
     g_effect_engine.Process(*input, *output, filter);
 
     return true;
@@ -428,9 +434,10 @@ bool crystallize_filter_gpu(void *in, void *out, float *posx, float *posy, const
     return true;
 }
 
-bool rotationblur_filter_gpu(void *in, void *in2, void *out, const float x, const float y, const float a, const float b,
-    const float ina, const float inb, const int strength, const float angle) {
-    if (in == nullptr || in2 == nullptr || out == nullptr) return false;
+bool rotationblur_filter_gpu(void *in, void* in2, void *out, const float x, const float y, const float a, const float b,
+                             const float ina, const float inb, const int strength, const float angle) {
+    //return true;
+    if (in == nullptr || out == nullptr) return false;
     const auto filter = std::make_shared<RotationBlurFilter>();
     const auto *input = static_cast<ImageInfo *>(in);
     const auto *output = static_cast<ImageInfo *>(out);
@@ -450,6 +457,86 @@ bool rotationblur_filter_gpu(void *in, void *in2, void *out, const float x, cons
     filter->SetinB(inb);
     filter->SetStrength(strength);
     filter->SetAngle(angle);
+
+    g_effect_engine.Process(inputs, outputs, filter);
+
+    return true;
+}
+
+bool facet_filter_gpu(void* in, void* out, int radius, int intensitylevel)
+{
+    const auto filter = std::make_shared<FacetFilter>();
+    const auto* input = static_cast<ImageInfo*>(in);
+    const auto* output = static_cast<ImageInfo*>(out);
+
+    filter->SetRadius(radius);
+    filter->SetLevel(intensitylevel);
+
+    g_effect_engine.Process(*input, *output, filter);
+
+    return true;
+}
+
+bool accented_edge_filter_gpu(void* in, void* out, int* sobelx, int* sobely,int size, int type)
+{
+    const auto filter = std::make_shared<AccentedEdgeFilter>();
+    const auto* input = static_cast<ImageInfo*>(in);
+    const auto* output = static_cast<ImageInfo*>(out);
+
+    filter->SetSobelx(sobelx,size);
+    filter->SetSobely(sobely, size);
+    filter->SetType(type);
+
+    g_effect_engine.Process(*input, *output, filter);
+
+    return true;
+}
+
+bool irisblur_filter_gpu(void* in, void* in2, void* out, float x, float y, float a, float b, float ina, float inb, float angle)
+{
+    if (in == nullptr || out == nullptr) return false;
+    const auto filter = std::make_shared<IrisBlurFilter>();
+    const auto* input = static_cast<ImageInfo*>(in);
+    const auto* output = static_cast<ImageInfo*>(out);
+    const auto* input2 = static_cast<ImageInfo*>(in2);
+
+    std::vector<ImageInfo> inputs;
+    inputs.push_back(*input);
+    inputs.push_back(*input2);
+    std::vector<ImageInfo> outputs;
+    outputs.push_back(*output);
+
+    filter->SetCenterX(x);
+    filter->SetCenterY(y);
+    filter->SetA(a);
+    filter->SetB(b);
+    filter->SetinA(ina);
+    filter->SetinB(inb);
+    filter->SetAngle(angle);
+
+    g_effect_engine.Process(inputs, outputs, filter);
+
+    return true;
+}
+
+bool tiltshiftblur_filter_gpu(void* in, void* in2, void* out, float* A, float* B, float* C, float xoffset, float yoffset, int size)
+{
+    if (in == nullptr || out == nullptr) return false;
+    const auto filter = std::make_shared<TiltshiftBlurFilter>();
+    const auto* input = static_cast<ImageInfo*>(in);
+    const auto* output = static_cast<ImageInfo*>(out);
+    const auto* input2 = static_cast<ImageInfo*>(in2);
+
+    std::vector<ImageInfo> inputs;
+    inputs.push_back(*input);
+    inputs.push_back(*input2);
+    std::vector<ImageInfo> outputs;
+    outputs.push_back(*output);
+
+    filter->SetA(A,size);
+    filter->SetB(B,size);
+    filter->SetC(C,size);
+    filter->SetOffset(xoffset,yoffset);
 
     g_effect_engine.Process(inputs, outputs, filter);
 
