@@ -118,14 +118,14 @@ void TiltshiftBlurFilter::Destroy() {
     }
     if (ABuffer != nullptr) {
         ABuffer->Destroy();
-        ABuffer == nullptr;
+        ABuffer = nullptr;
     }
     if (BBuffer != nullptr) {
         BBuffer->Destroy();
-        BBuffer == nullptr;
+        BBuffer = nullptr;
     }
     if (CBuffer != nullptr) {
         CBuffer->Destroy();
-        CBuffer == nullptr;
+        CBuffer = nullptr;
     }
 }
