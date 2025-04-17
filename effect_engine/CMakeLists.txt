@@ -130,6 +130,14 @@ add_library(gpu_effect_engine SHARED
 
         filters/impl/RotationBlurFilter.h
         filters/impl/RotationBlurFilter.cpp
+        filters/impl/FacetFilter.h
+        filters/impl/FacetFilter.cpp
+        filters/impl/AccentedEdgeFilter.h
+        filters/impl/AccentedEdgeFilter.cpp
+        filters/impl/IrisBlurFilter.h
+        filters/impl/IrisBlurFilter.cpp
+        filters/impl/TiltshiftBlurFilter.h
+        filters/impl/TiltshiftBlurFilter.cpp
 )
 target_link_libraries(gpu_effect_engine vulkan)
 if (CMAKE_SYSTEM_NAME MATCHES "OHOS")
