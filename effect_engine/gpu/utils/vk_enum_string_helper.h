@@ -737,6 +737,26 @@ static inline const char* string_VkQueueFlagBits(VkQueueFlagBits input_value) {
     }
 }
 
+
+static inline const char* string_VkPresentModeKHR(VkPresentModeKHR input_value) {
+    switch (input_value) {
+    case VK_PRESENT_MODE_IMMEDIATE_KHR:
+        return "VK_PRESENT_MODE_IMMEDIATE_KHR";
+    case VK_PRESENT_MODE_MAILBOX_KHR:
+        return "VK_PRESENT_MODE_MAILBOX_KHR";
+    case VK_PRESENT_MODE_FIFO_KHR:
+        return "VK_PRESENT_MODE_FIFO_KHR";
+    case VK_PRESENT_MODE_FIFO_RELAXED_KHR:
+        return "VK_PRESENT_MODE_FIFO_RELAXED_KHR";
+    case VK_PRESENT_MODE_SHARED_DEMAND_REFRESH_KHR:
+        return "VK_PRESENT_MODE_SHARED_DEMAND_REFRESH_KHR";
+    case VK_PRESENT_MODE_SHARED_CONTINUOUS_REFRESH_KHR:
+        return "VK_PRESENT_MODE_SHARED_CONTINUOUS_REFRESH_KHR";
+    default:
+        return "Unhandled VkPresentModeKHR";
+    }
+}
+
 #ifdef __cplusplus
 static inline std::string string_VkQueueFlags(VkQueueFlags input_value) {
     std::string ret;

@@ -29,4 +29,4 @@ extern "C"  GPU_API  bool facet_filter_gpu(void* in, void* out, int radius, int 
 extern "C"  GPU_API  bool accented_edge_filter_gpu(void* in, void* out, int* sobelx, int* sobely, int size,int type);
 extern "C"  GPU_API  bool irisblur_filter_gpu(void* in, void* in2, void* out, float x, float y, float a, float b, float ina, float inb, float angle);
 extern "C"  GPU_API  bool tiltshiftblur_filter_gpu(void* in, void* in2, void* out, float* A, float* B, float* C, float xoffset, float yoffset,int size);
-extern "C" GPU_API const char *get_gpu_engine_name();
+extern "C"  GPU_API const char *get_gpu_engine_name();
