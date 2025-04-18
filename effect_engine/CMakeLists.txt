@@ -9,6 +9,10 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     message(STATUS "Running on macOS")
     link_directories("/opt/homebrew/Cellar/libpng/1.6.47/lib")
     include_directories("/opt/homebrew/Cellar/libpng/1.6.47/include")
+	
+elseif (CMAKE_SYSTEM_NAME MATCHES "OHOS")
+	message(STATUS "Running on OHOS")
+	include_directories("../../")
 endif ()
 
 set(ENGINE_GPU_SOURCE gpu/VkGPUHelper.cpp

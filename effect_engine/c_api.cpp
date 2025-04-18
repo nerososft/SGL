@@ -1,4 +1,9 @@
-#include "c_api.h"
+//#include "c_api.h"
+
+#if  defined(OS_OPEN_HARMONY)  || defined(ENABLE_WIN64)
+#include "psutil/imageprocess/GpuFilterCAPI.h"
+#endif
+
 #include "effect_engine/EffectEngine.h"
 #include "effect_engine/filters/impl/ColorSeparationFilter.h"
 
