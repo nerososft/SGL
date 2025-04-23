@@ -31,6 +31,8 @@
 #include"effect_engine/filters/impl/AccentedEdgeFilter.h"
 #include"effect_engine/filters/impl/IrisBlurFilter.h"
 #include"effect_engine/filters/impl/TiltshiftBlurFilter.h"
+#include "effect_engine/filters/impl/RotationalBlurFilter.h"
+#include "effect_engine/filters/impl/RadialBlurNewFilter.h"
 
 #include "log/Log.h"
 
@@ -173,11 +175,12 @@ bool adjust_saturation_gpu(void *in, void *out, const int v, const int s) {
     }
 
     if (0) {
-        const auto filter = std::make_shared<MedianFilter>();
+        const auto filter = std::make_shared<RotationalBlurFilter>();
 
         const ImageInfo *input = static_cast<ImageInfo *>(in);
         const ImageInfo *output = static_cast<ImageInfo *>(out);
-        filter->SetRadius(v);
+        filter->SetAngle( (v + 4)/ 10.0);
+        filter->SetStrength(s *2 +4);
         g_effect_engine.Process(*input, *output, filter);
     }
 
@@ -544,6 +547,37 @@ bool tiltshiftblur_filter_gpu(void* in, void* in2, void* out, float* A, float* B
     filter->SetOffset(xoffset,yoffset);
 
     g_effect_engine.Process(inputs, outputs, filter);
+
+    return true;
+}
+
+
+bool radial_blur_filter_gpu(void* in, void* out, const float sharpness, const int strength) {
+    if (in == nullptr || out == nullptr) return false;
+    const auto filter = std::make_shared<RadialBlurNewFilter>();
+    
+    filter->SetSharpness(sharpness);
+    filter->SetStrength(strength);
+
+    const auto* input = static_cast<ImageInfo*>(in);
+    const auto* output = static_cast<ImageInfo*>(out);
+
+    g_effect_engine.Process(*input, *output, filter);
+
+    return true;
+}
+
+bool rotational_blur_filter_gpu(void* in, void* out, const float angle, const int strength) {
+    if (in == nullptr || out == nullptr) return false;
+    const auto filter = std::make_shared<RotationalBlurFilter>();
+
+    filter->SetAngle(angle);
+    filter->SetStrength(strength);
+
+    const auto* input = static_cast<ImageInfo*>(in);
+    const auto* output = static_cast<ImageInfo*>(out);
+
+    g_effect_engine.Process(*input, *output, filter);
 
     return true;
 }

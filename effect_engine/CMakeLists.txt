@@ -148,7 +148,10 @@ set(ENGINE_SOURCE ${ENGINE_GPU_SOURCE} EffectEngine.cpp
         filters/impl/IrisBlurFilter.cpp
         filters/impl/TiltshiftBlurFilter.h
         filters/impl/TiltshiftBlurFilter.cpp
-        
+        filters/impl/RotationalBlurFilter.h
+        filters/impl/RotationalBlurFilter.cpp
+        filters/impl/RadialBlurNewFilter.h
+		filters/impl/RadialBlurNewFilter.cpp
         
         )
 
