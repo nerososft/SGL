@@ -175,12 +175,32 @@ bool adjust_saturation_gpu(void *in, void *out, const int v, const int s) {
     }
 
     if (0) {
-        const auto filter = std::make_shared<RotationalBlurFilter>();
+        const auto filter = std::make_shared<RadialBlurNewFilter>();
 
         const ImageInfo *input = static_cast<ImageInfo *>(in);
         const ImageInfo *output = static_cast<ImageInfo *>(out);
-        filter->SetAngle( (v + 4)/ 10.0);
-        filter->SetStrength(s *2 +4);
+        //filter->SetAngle( (v + 4)/ 10.0);
+        //filter->SetStrength(s *2 +4);
+
+        filter->SetSharpness((v + 4) / 10.0);
+        filter->SetStrength(s * 2 + 4);
+        filter->SetCenter(0.5 , 0.5);
+
+        g_effect_engine.Process(*input, *output, filter);
+    }
+
+    if (0) {
+        const auto filter = std::make_shared<RotationalBlurFilter>();
+
+        const ImageInfo* input = static_cast<ImageInfo*>(in);
+        const ImageInfo* output = static_cast<ImageInfo*>(out);
+        //filter->SetAngle( (v + 4)/ 10.0);
+        //filter->SetStrength(s *2 +4);
+
+        filter->SetAngle((v + 4));
+        filter->SetStrength(s + 4);
+        filter->SetCenter(0.3, 0.3);
+
         g_effect_engine.Process(*input, *output, filter);
     }
 
@@ -552,12 +572,13 @@ bool tiltshiftblur_filter_gpu(void* in, void* in2, void* out, float* A, float* B
 }
 
 
-bool radial_blur_filter_gpu(void* in, void* out, const float sharpness, const int strength) {
+bool radial_blur_filter_gpu(void* in, void* out, int sharpness,  int strength, float xCenter, float yCenter) {
     if (in == nullptr || out == nullptr) return false;
     const auto filter = std::make_shared<RadialBlurNewFilter>();
     
     filter->SetSharpness(sharpness);
     filter->SetStrength(strength);
+    filter->SetCenter(xCenter , yCenter);
 
     const auto* input = static_cast<ImageInfo*>(in);
     const auto* output = static_cast<ImageInfo*>(out);
@@ -567,13 +588,13 @@ bool radial_blur_filter_gpu(void* in, void* out, const float sharpness, const in
     return true;
 }
 
-bool rotational_blur_filter_gpu(void* in, void* out, const float angle, const int strength) {
+bool rotational_blur_filter_gpu(void* in, void* out, const float angle, const int strength, float x, float y) {
     if (in == nullptr || out == nullptr) return false;
     const auto filter = std::make_shared<RotationalBlurFilter>();
 
     filter->SetAngle(angle);
     filter->SetStrength(strength);
-
+    filter->SetCenter(x , y );
     const auto* input = static_cast<ImageInfo*>(in);
     const auto* output = static_cast<ImageInfo*>(out);
 
