@@ -59,6 +59,7 @@ endforeach ()
 message("Need: ${COMPILED_SHADERS}")
 add_custom_target(compile_shaders ALL DEPENDS ${COMPILED_SHADERS})
 
+add_subdirectory(gpu_engine)
 add_subdirectory(effect_engine)
 add_subdirectory(effect_demo)
 add_subdirectory(renderer_demo)

@@ -10,7 +10,7 @@
 
 #include "effect_engine/blenders/impl/LighterColorBlender.h"
 #include "effect_engine/EffectEngine.h"
-#include "effect_engine/Renderer.h"
+#include "../gpu_engine/Renderer.h"
 #include "effect_engine/blenders/impl/DissolveBlender.h"
 #include "effect_engine/blenders/impl/MultiplyBlender.h"
 #include "effect_engine/blenders/impl/OverlayBlender.h"
@@ -28,7 +28,7 @@
 #include "effect_engine/filters/impl/ThresholdSplitFilter.h"
 #include "effect_engine/filters/impl/VibranceFilter.h"
 #include "effect_engine/filters/impl/VoronoiFilter.h"
-#include "effect_engine/log/Log.h"
+#include "gpu_engine/log/Log.h"
 
 void effect_engine_main() {
     EffectEngine effectEngine;

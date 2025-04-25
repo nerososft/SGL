@@ -23,7 +23,7 @@
 #include"effect_engine/filters/impl/RotationBlurFilter.h"
 #include "effect_engine/filters/impl/OldGaussianBlurFloatFilter.h"
 
-#include "log/Log.h"
+#include "gpu_engine/log/Log.h"
 
 EffectEngine g_effect_engine;
 bool g_effect_engine_inited = false;

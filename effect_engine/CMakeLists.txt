@@ -11,50 +11,10 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     include_directories("/opt/homebrew/Cellar/libpng/1.6.47/include")
 endif ()
 
-set(ENGINE_GPU_SOURCE gpu/VkGPUHelper.cpp
-        gpu/VkGPUHelper.h
-        gpu/VKGPUContext.cpp
-        gpu/VKGPUContext.h
-        gpu/VkGPUComputePipeline.cpp
-        gpu/VkGPUComputePipeline.h
-        gpu/VkGPUDescriptorSet.cpp
-        gpu/VkGPUDescriptorSet.h
-        gpu/VkGPUBuffer.cpp
-        gpu/VkGPUBuffer.h
-        gpu/VkGPUGraphicsPipeline.cpp
-        gpu/VkGPUGraphicsPipeline.h
-        gpu/VkGPURenderPass.cpp
-        gpu/VkGPURenderPass.h
-        gpu/VkGPUFramebuffer.cpp
-        gpu/VkGPUFramebuffer.h
-        gpu/VkGPUSwapChain.cpp
-        gpu/VkGPUSwapChain.h
-        gpu/compute_graph/ComputeGraph.cpp
-        gpu/compute_graph/ComputeGraph.h
-        gpu/compute_graph/IComputeGraphNode.h
-        gpu/compute_graph/ComputePipelineNode.cpp
-        gpu/compute_graph/ComputePipelineNode.h
-        gpu/compute_graph/BufferCopyNode.h
-        gpu/compute_graph/BufferCopyNode.cpp
-        gpu/compute_graph/GraphicsPipelineNode.cpp
-        gpu/compute_graph/GraphicsPipelineNode.h
-        gpu/compute_graph/GraphicsRenderPassNode.cpp
-        gpu/compute_graph/GraphicsRenderPassNode.h
-        gpu/compute_graph/SubComputeGraph.cpp
-        gpu/compute_graph/SubComputeGraph.h
-        gpu/compute_graph/ImageToBufferCopyNode.cpp
-        gpu/compute_graph/ImageToBufferCopyNode.h)
-
-set(ENGINE_SOURCE ${ENGINE_GPU_SOURCE} EffectEngine.cpp
+set(ENGINE_SOURCE EffectEngine.cpp
         EffectEngine.h
         c_api.cpp
         c_api.h
-        utils/IOUtils.cpp
-        utils/IOUtils.h
-        utils/TimeUtils.cpp
-        utils/TimeUtils.h
-        utils/ImageUtils.cpp
-        utils/ImageUtils.h
         filters/IFilter.h
         filters/BasicFilter.cpp
         filters/BasicFilter.h
@@ -122,16 +82,7 @@ set(ENGINE_SOURCE ${ENGINE_GPU_SOURCE} EffectEngine.cpp
         blenders/impl/OverlayBlender.cpp
         blenders/impl/OverlayBlender.h
         blenders/impl/LighterColorBlender.cpp
-        blenders/impl/LighterColorBlender.h
-        log/Log.h
-        config.h
-        operators/IOperator.h
-        operators/UnaryOperator.cpp
-        operators/UnaryOperator.h
-        operators/BinaryOperator.cpp
-        operators/BinaryOperator.h
-        Renderer.cpp
-        Renderer.h)
+        blenders/impl/LighterColorBlender.h)
 
 if (CMAKE_SYSTEM_NAME MATCHES "OHOS")
     set(ENGINE_SOURCE ${ENGINE_SOURCE} filters/impl/HPSBlurFilter.cpp filters/impl/HPSBlurFilter.h)
@@ -140,6 +91,7 @@ endif ()
 add_library(gpu_effect_engine SHARED
         ${ENGINE_SOURCE}
 )
+target_link_libraries(gpu_effect_engine gpu_engine)
 target_link_libraries(gpu_effect_engine vulkan)
 if (CMAKE_SYSTEM_NAME MATCHES "OHOS")
 elseif (CMAKE_SYSTEM_NAME MATCHES "Windows")

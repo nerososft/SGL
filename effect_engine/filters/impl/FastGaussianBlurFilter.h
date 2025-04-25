@@ -8,7 +8,7 @@
 #define MAX_RADIUS (256)
 #include "ScaleFilter.h"
 #include "effect_engine/filters/BasicFilter.h"
-#include "effect_engine/gpu/VkGPUBuffer.h"
+#include "gpu_engine/gpu/VkGPUBuffer.h"
 
 struct FastGaussianBlurFilterParams {
     BasicFilterParam imageSize;

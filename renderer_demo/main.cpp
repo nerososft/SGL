@@ -3,7 +3,7 @@
 //
 
 #include "GraphicsApp.h"
-#include "effect_engine/log/Log.h"
+#include "gpu_engine/log/Log.h"
 
 int main(int argc, char *argv[]) {
     Logger() << "Hello World!\n";
@@ -12,7 +12,7 @@ int main(int argc, char *argv[]) {
     app.SetWindowPos(20, 20);
     app.SetWindowSize(1024, 768);
     app.Init();
-    app.CaptureFrame("../../renderer_demo/a.png");
-
+    // app.CaptureFrame("../../renderer_demo/a.png");
+    app.Run();
     return 0;
 }

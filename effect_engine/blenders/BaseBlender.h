@@ -5,7 +5,7 @@
 #ifndef BASEBLEND_H
 #define BASEBLEND_H
 #include "IBlender.h"
-#include "effect_engine/gpu/compute_graph/ComputeGraph.h"
+#include "gpu_engine/gpu/compute_graph/ComputeGraph.h"
 
 struct BasicBlenderParam {
     uint32_t baseImageWidth;

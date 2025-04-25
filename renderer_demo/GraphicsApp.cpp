@@ -4,7 +4,7 @@
 
 #include "GraphicsApp.h"
 
-#include "effect_engine/log/Log.h"
+#include "gpu_engine/log/Log.h"
 #include "window/impl/GLFWWindowImpl.h"
 
 VkSurfaceKHR GetWindowSurface(const VkInstance instance) {
@@ -34,7 +34,7 @@ void GraphicsApp::Run() const {
             return;
         }
         if (renderer->Present() != VK_SUCCESS) {
-            return;
+            // return;
         }
     }
 }

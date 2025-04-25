@@ -4,7 +4,7 @@
 
 #include "MultiplyBlender.h"
 
-#include "effect_engine/config.h"
+#include "gpu_engine/config.h"
 
 VkResult MultiplyBlender::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                                 const BlendImageInfo baseImageInfo,

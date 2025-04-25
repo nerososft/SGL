@@ -7,17 +7,17 @@
 #include <iostream>
 #include <ostream>
 #ifdef OS_OPEN_HARMONY
-#include <effect_engine/gpu/utils/vk_enum_string_helper.h>
+#include <gpu_engine/gpu/utils/vk_enum_string_helper.h>
 #else
 #include <vulkan/vk_enum_string_helper.h>
 #endif
 
-#include "config.h"
-#include "gpu/VkGPUBuffer.h"
-#include "utils/ImageUtils.h"
-#include "gpu/VkGPUHelper.h"
-#include "log/Log.h"
-#include "utils/TimeUtils.h"
+#include "gpu_engine/config.h"
+#include "gpu_engine/gpu/VkGPUBuffer.h"
+#include "gpu_engine/utils/ImageUtils.h"
+#include "gpu_engine/gpu/VkGPUHelper.h"
+#include "gpu_engine/log/Log.h"
+#include "gpu_engine/utils/TimeUtils.h"
 
 bool EffectEngine::Init() {
     std::vector<const char *> requiredExtensions;

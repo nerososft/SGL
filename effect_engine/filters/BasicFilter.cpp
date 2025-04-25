@@ -12,9 +12,9 @@
 #include <vulkan/vk_enum_string_helper.h>
 #endif
 
-#include "effect_engine/gpu/VkGPUComputePipeline.h"
-#include "effect_engine/gpu/compute_graph/ComputePipelineNode.h"
-#include "effect_engine/log/Log.h"
+#include "gpu_engine/gpu/VkGPUComputePipeline.h"
+#include "gpu_engine/gpu/compute_graph/ComputePipelineNode.h"
+#include "gpu_engine/log/Log.h"
 
 VkResult BasicFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                             const std::string &name,
