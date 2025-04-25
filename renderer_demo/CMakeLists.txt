@@ -11,6 +11,8 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 endif ()
 
 add_executable(renderer_demo
+        Renderer.h
+        Renderer.cpp
         main.cpp
         event/IEventHandler.h
         window/IWindow.h
@@ -20,6 +22,6 @@ add_executable(renderer_demo
         GraphicsApp.h
         GraphicsApp.cpp
 )
-target_link_libraries(renderer_demo gpu_effect_engine)
+target_link_libraries(renderer_demo gpu_engine)
 target_link_libraries(renderer_demo glfw)
 target_link_libraries(renderer_demo png)

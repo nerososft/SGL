@@ -10,7 +10,7 @@
 
 #include "effect_engine/blenders/impl/LighterColorBlender.h"
 #include "effect_engine/EffectEngine.h"
-#include "../gpu_engine/Renderer.h"
+#include "../renderer_demo/Renderer.h"
 #include "effect_engine/blenders/impl/DissolveBlender.h"
 #include "effect_engine/blenders/impl/MultiplyBlender.h"
 #include "effect_engine/blenders/impl/OverlayBlender.h"

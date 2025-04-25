@@ -57,9 +57,7 @@ set(ENGINE_SOURCE ${ENGINE_GPU_SOURCE} utils/IOUtils.cpp
         operators/UnaryOperator.cpp
         operators/UnaryOperator.h
         operators/BinaryOperator.cpp
-        operators/BinaryOperator.h
-        Renderer.cpp
-        Renderer.h)
+        operators/BinaryOperator.h)
 
 include_directories("./")
 

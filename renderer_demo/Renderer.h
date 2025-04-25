@@ -4,16 +4,16 @@
 
 #ifndef RENDERER_H
 #define RENDERER_H
-#include "gpu/VkGPUBuffer.h"
-#include "gpu/VkGPUContext.h"
-#include "gpu/VkGPUFramebuffer.h"
-#include "gpu/compute_graph/ComputeGraph.h"
-#include "gpu/compute_graph/GraphicsPipelineNode.h"
-#include "gpu/compute_graph/GraphicsRenderPassNode.h"
-#include "gpu/compute_graph/ImageToBufferCopyNode.h"
+#include "../gpu_engine/gpu/VkGPUBuffer.h"
+#include "../gpu_engine/gpu/VkGPUContext.h"
+#include "../gpu_engine/gpu/VkGPUFramebuffer.h"
+#include "../gpu_engine/gpu/compute_graph/ComputeGraph.h"
+#include "../gpu_engine/gpu/compute_graph/GraphicsPipelineNode.h"
+#include "../gpu_engine/gpu/compute_graph/GraphicsRenderPassNode.h"
+#include "../gpu_engine/gpu/compute_graph/ImageToBufferCopyNode.h"
 #include <glm/glm.hpp>
 
-#include "gpu/VkGPUSwapChain.h"
+#include "../gpu_engine/gpu/VkGPUSwapChain.h"
 
 struct Vertex {
     glm::vec3 position;

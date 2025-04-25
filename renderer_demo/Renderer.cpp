@@ -7,11 +7,11 @@
 #include <queue>
 #include <vulkan/vk_enum_string_helper.h>
 
-#include "gpu/VkGPUBuffer.h"
-#include "gpu/VkGPUHelper.h"
-#include "gpu/compute_graph/ImageToBufferCopyNode.h"
-#include "log/Log.h"
-#include "utils/ImageUtils.h"
+#include "../gpu_engine/gpu/VkGPUBuffer.h"
+#include "../gpu_engine/gpu/VkGPUHelper.h"
+#include "../gpu_engine/gpu/compute_graph/ImageToBufferCopyNode.h"
+#include "../gpu_engine/log/Log.h"
+#include "../gpu_engine/utils/ImageUtils.h"
 
 bool Renderer::ConstructMainGraphicsPipeline() {
     std::vector<PipelineNodeBuffer> buffers;

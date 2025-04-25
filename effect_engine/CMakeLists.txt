@@ -88,16 +88,16 @@ if (CMAKE_SYSTEM_NAME MATCHES "OHOS")
     set(ENGINE_SOURCE ${ENGINE_SOURCE} filters/impl/HPSBlurFilter.cpp filters/impl/HPSBlurFilter.h)
 endif ()
 
-add_library(gpu_effect_engine SHARED
+add_library(effect_engine SHARED
         ${ENGINE_SOURCE}
 )
-target_link_libraries(gpu_effect_engine gpu_engine)
-target_link_libraries(gpu_effect_engine vulkan)
+target_link_libraries(effect_engine gpu_engine)
+target_link_libraries(effect_engine vulkan)
 if (CMAKE_SYSTEM_NAME MATCHES "OHOS")
 elseif (CMAKE_SYSTEM_NAME MATCHES "Windows")
 else ()
-    target_link_libraries(gpu_effect_engine png)
+    target_link_libraries(effect_engine png)
 endif ()
 if (CMAKE_SYSTEM_NAME MATCHES "OHOS")
-    target_link_libraries(gpu_effect_engine hilog_ndk.z)
+    target_link_libraries(effect_engine hilog_ndk.z)
 endif ()
