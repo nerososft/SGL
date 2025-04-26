@@ -2,7 +2,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     message(STATUS "Running on Linux")
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     message(STATUS "Running on Windows")
-    include_directories("../../")
+    include_directories(".")
     #include_directories("D:/vcpkg_install/vcpkg/installed/x64-windows/include/libpng16")
     #link_directories("$D:/vcpkg_install/vcpkg/installed/x64-windows/lib")
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
@@ -13,8 +13,8 @@ endif ()
 
 set(ENGINE_GPU_SOURCE gpu/VkGPUHelper.cpp
         gpu/VkGPUHelper.h
-        gpu/VKGPUContext.cpp
-        gpu/VKGPUContext.h
+        gpu/VkGPUContext.cpp
+        gpu/VkGPUContext.h
         gpu/VkGPUComputePipeline.cpp
         gpu/VkGPUComputePipeline.h
         gpu/VkGPUDescriptorSet.cpp

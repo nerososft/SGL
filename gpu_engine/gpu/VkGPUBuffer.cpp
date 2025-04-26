@@ -14,6 +14,7 @@
 #include "log/Log.h"
 #include <thread>
 #include <algorithm>
+#include <cstring>
 
 VkResult VkGPUBuffer::AllocateAndBind(const VkGPUBufferType type, const VkDeviceSize size) {
     std::vector<uint32_t> queueFamilyIndices;

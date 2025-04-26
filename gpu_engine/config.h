@@ -12,6 +12,8 @@
 #else
 #ifdef __APPLE__
 #define SHADER_PATH "../../shader_compiled/"
+#elif defined(__linux__)
+#define SHADER_PATH "../../shader_compiled/"
 #else
 #define SHADER_PATH "../../pseffect/shader_compiled/"
 #endif /* __APPLE__ */
@@ -19,6 +21,8 @@
 
 
 #ifdef __APPLE__
+#define LOG_TO_FILE 0
+#elif defined(__linux__)
 #define LOG_TO_FILE 0
 #else
 #define LOG_TO_FILE 1

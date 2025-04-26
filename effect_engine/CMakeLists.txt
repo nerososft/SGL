@@ -48,10 +48,10 @@ set(ENGINE_SOURCE EffectEngine.cpp
         filters/impl/SurfaceBlurFilter.h
         filters/impl/ThresholdSplitFilter.h
         filters/impl/ThresholdSplitFilter.cpp
-        filters/impl/customKernelFilter.h
-        filters/impl/customKernelFilter.cpp
-        filters/impl/colorBalanceFilter.h
-        filters/impl/colorBalanceFilter.cpp
+        filters/impl/CustomKernelFilter.h
+        filters/impl/CustomKernelFilter.cpp
+        filters/impl/ColorBalanceFilter.h
+        filters/impl/ColorBalanceFilter.cpp
         filters/impl/BlackWhiteFilter.h
         filters/impl/BlackWhiteFilter.cpp
         filters/impl/VibranceFilter.cpp

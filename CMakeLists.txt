@@ -8,6 +8,7 @@ message(STATUS "${CMAKE_SYSTEM_NAME}/${CMAKE_SYSTEM_PROCESSOR}")
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     message(STATUS "Running on Linux")
+    set(SHADER_COMPILER "glslang")
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     message(STATUS "Running on windows")
     add_compile_options(-DENABLE_WIN64=1)
