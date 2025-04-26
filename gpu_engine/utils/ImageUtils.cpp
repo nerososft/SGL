@@ -11,6 +11,8 @@
 #else 
 #include "png.h"
 #endif
+#include <cstring>
+
 #include "TimeUtils.h"
 #include "log/Log.h"
 

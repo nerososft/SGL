@@ -10,6 +10,8 @@
 #else
 #include <vulkan/vk_enum_string_helper.h>
 #endif
+#include <cmath>
+
 #include "gpu_engine/config.h"
 #include "effect_engine/filters/BasicFilter.h"
 #include "gpu_engine/gpu/VkGPUHelper.h"
@@ -24,7 +26,7 @@ std::vector<float> GaussianBlurFilter::CalculateWeights() {
 
     for (int i = 0; i <= 2 * MAX_RADIUS; ++i) {
         const int x = i - MAX_RADIUS;
-        weights[i] = exp(-x * x / (2 * sigma * sigma));
+        weights[i] = std::exp(-x * x / (2 * sigma * sigma));
         sum += weights[i];
     }
 

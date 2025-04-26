@@ -8,11 +8,11 @@
 int main(int argc, char *argv[]) {
     Logger() << "Hello World!\n";
     GraphicsApp app;
-    app.SetWindowTitle("HPS Blur Demo");
+    app.SetWindowTitle("Renderer Demo");
     app.SetWindowPos(20, 20);
     app.SetWindowSize(1024, 768);
     app.Init();
-    // app.CaptureFrame("../../renderer_demo/images/render_offscreen.png");
-    app.Run();
+    app.CaptureFrame("../../renderer_demo/images/render_offscreen.png");
+    // app.Run();
     return 0;
 }
