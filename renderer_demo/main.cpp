@@ -13,6 +13,6 @@ int main(int argc, char *argv[]) {
     app.SetWindowSize(1024, 768);
     app.Init();
     app.CaptureFrame("../../renderer_demo/images/render_offscreen.png");
-    // app.Run();
+    app.Run();
     return 0;
 }
