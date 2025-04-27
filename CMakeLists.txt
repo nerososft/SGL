@@ -39,28 +39,6 @@ if (CMAKE_SYSTEM_PROCESSOR MATCHES "arm64")
     add_compile_options(-O3 -march=armv8-a+simd)
 endif ()
 
-# compile builtin shaders
-set(BUILTIN_SHADER_DIR ${CMAKE_CURRENT_SOURCE_DIR}/assets/builtin.shaders/*)
-message("Builtin shaders dir: ${BUILTIN_SHADER_DIR}")
-file(GLOB BUILTIN_SHADER_FILES ${BUILTIN_SHADER_DIR}/*.glsl)
-
-foreach (SHADER_FILE ${BUILTIN_SHADER_FILES})
-    message(${SHADER_FILE})
-    get_filename_component(SHADER_NAME ${SHADER_FILE} NAME)
-    set(COMPILED_SHADER ${CMAKE_CURRENT_SOURCE_DIR}/shader_compiled/${SHADER_NAME}.spv)
-    message("${SHADER_COMPILER} -V ${SHADER_FILE} -o ${COMPILED_SHADER} -e main")
-    add_custom_command(
-            OUTPUT ${COMPILED_SHADER}
-            COMMAND ${SHADER_COMPILER} -V ${SHADER_FILE} -o ${COMPILED_SHADER} -e main
-            DEPENDS ${SHADER_FILE}
-            COMMENT "Compiling ${SHADER_FILE} to ${COMPILED_SHADER}"
-            VERBATIM
-    )
-    list(APPEND COMPILED_SHADERS ${COMPILED_SHADER})
-endforeach ()
-message("Need: ${COMPILED_SHADERS}")
-add_custom_target(compile_shaders ALL DEPENDS ${COMPILED_SHADERS})
-
 add_subdirectory(gpu_engine)
 add_subdirectory(effect_engine)
 add_subdirectory(effect_demo)
