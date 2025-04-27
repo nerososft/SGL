@@ -17,6 +17,7 @@ layout (push_constant) uniform FilterParams {
     uint bytesPerLine;
     uint targetWidth;
     uint targetHeight;
+	uint type;
 } filterParams;
 
 // ABGR
@@ -47,6 +48,19 @@ float cubicWeight(float d) {
     return 0.0;
 }
 
+
+// 双三次插值权重函数 (a = -0.5)
+float cubicWeightNew(float x) {
+    x = abs(x);
+    if (x < 1.0) {
+        return (-0.5 + 2.0) * x*x*x - (-0.5 + 3.0) * x*x + 1.0;
+    } else if (x < 2.0) {
+        return -0.5 * x*x*x + 5.0 * 0.5 * x*x - 8.0 * 0.5 * x + 4.0 * 0.5;
+    }
+    return 0.0;
+}
+
+
 void main() {
     uvec2 coord = gl_GlobalInvocationID.xy;
     if (any(greaterThanEqual(coord, uvec2(filterParams.targetWidth, filterParams.targetHeight)))) return;
@@ -65,8 +79,16 @@ void main() {
             ivec2 samplePos = base + ivec2(x, y);
             vec2 d = vec2(x, y) - fractPart + 1.0; // 计算相对位置
 
-            float wx = cubicWeight(d.x);
-            float wy = cubicWeight(d.y);
+            float wx = 0;
+            float wy = 0;
+			if(filterParams.type == 1){
+				 wx = cubicWeight(d.x);
+				 wy = cubicWeight(d.y);
+			}else if(filterParams.type == 2){
+				 wx = cubicWeightNew(d.x);
+				 wy = cubicWeightNew(d.y);
+			}
+			
             float weight = wx * wy;
 
             samplePos = clamp(samplePos, ivec2(0), ivec2(filterParams.width - 1, filterParams.height - 1));

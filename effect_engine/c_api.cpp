@@ -357,11 +357,12 @@ bool black_white_filter_gpu(void *in, void *out, float *weight, const int wSize)
     return true;
 }
 
-bool scale_filter_gpu(void *in, void *out, const int weight, const int height) {
+bool scale_filter_gpu(void *in, void *out, const int weight, const int height, int type ) {
     if (in == nullptr || out == nullptr) return false;
     const auto filter = std::make_shared<ScaleFilter>();
     filter->SetTargetWidth(weight);
     filter->SetTargetHeight(height);
+    filter->SetInterpType(type);
 
     const auto *input = static_cast<ImageInfo *>(in);
     const auto *output = static_cast<ImageInfo *>(out);
