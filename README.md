@@ -28,3 +28,6 @@
    - 基于Vulkan实现，支持主流GPU平台
    - 相比OpenCL和CUDA具有更广泛的硬件支持
    - 跨平台支持
+
+## Env
+依赖：`vulkan` `libpng-dev` `libglfw3-dev` `libglm-dev`
