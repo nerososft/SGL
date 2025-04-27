@@ -37,7 +37,39 @@ GraphicsPipelineNode::GraphicsPipelineNode(const std::shared_ptr<VkGPUContext> &
     this->height = height;
 }
 
+std::shared_ptr<VkGPUDescriptorSet> GraphicsPipelineNode::CreateDescriptorSet(const GraphicsElement &graphicsElement) {
+    const auto descriptorSet = std::make_shared<VkGPUDescriptorSet>(
+        gpuCtx->GetCurrentDevice(),
+        graphicsPipeline->GetPipelineLayout(),
+        graphicsPipeline->GetDescriptorSetLayout());
+    const VkResult ret = descriptorSet->AllocateDescriptorSets(gpuCtx->GetDescriptorPool());
+    if (ret != VK_SUCCESS) {
+        Logger() << "Failed to allocate descriptor sets, err =" << string_VkResult(ret) << std::endl;
+        return nullptr;
+    }
+
+    for (const auto &buffer: graphicsElement.buffers) {
+        if (buffer.type == PIPELINE_NODE_BUFFER_VERTEX || buffer.type == PIPELINE_NODE_BUFFER_INDEX) {
+            break;
+        }
+        VkDescriptorBufferInfo bufferInfo = {};
+        bufferInfo.offset = 0;
+        bufferInfo.range = buffer.bufferSize;
+        bufferInfo.buffer = buffer.buffer;
+        this->pipelineDescriptorBufferInfos.push_back(bufferInfo);
+    }
+    for (uint32_t i = 0; i < pipelineDescriptorBufferInfos.size(); ++i) {
+        descriptorSet->AddStorageBufferDescriptorSet(i, pipelineDescriptorBufferInfos.at(i));
+    }
+    descriptorSet->UpdateDescriptorSets();
+    return descriptorSet;
+}
+
 void GraphicsPipelineNode::AddGraphicsElement(const GraphicsElement &graphicsElement) {
+    // FIXME: crash
+    // const std::shared_ptr<VkGPUDescriptorSet> descriptorSet = CreateDescriptorSet(graphicsElement);
+    // pipelineDescriptorSets.push_back(descriptorSet);
+
     this->graphicsElements.push_back(graphicsElement);
 }
 
@@ -87,40 +119,16 @@ VkResult GraphicsPipelineNode::CreateComputeGraphNode() {
                                                                pushConstantRanges,
                                                                vertexInputBindingDescriptions,
                                                                vertexInputAttributeDescriptions);
-    VkResult ret = graphicsPipeline->CreateGraphicsPipeline(gpuCtx->GetCurrentDevice(),
-                                                            gpuCtx->GetPipelineCache(),
-                                                            renderPass->GetRenderPass());
+    const VkResult ret = graphicsPipeline->CreateGraphicsPipeline(gpuCtx->GetCurrentDevice(),
+                                                                  gpuCtx->GetPipelineCache(),
+                                                                  renderPass->GetRenderPass());
     if (ret != VK_SUCCESS) {
         Logger() << "Failed to create compute pipeline, err =" << string_VkResult(ret) << std::endl;
         return ret;
     }
 
-
-    for (const auto &[pushConstantInfo, buffers, customDrawFunc]: graphicsElements) {
-        auto descriptorSet = std::make_shared<VkGPUDescriptorSet>(
-            gpuCtx->GetCurrentDevice(),
-            graphicsPipeline->GetPipelineLayout(),
-            graphicsPipeline->GetDescriptorSetLayout());
-        ret = descriptorSet->AllocateDescriptorSets(gpuCtx->GetDescriptorPool());
-        if (ret != VK_SUCCESS) {
-            Logger() << "Failed to allocate descriptor sets, err =" << string_VkResult(ret) << std::endl;
-            return ret;
-        }
-
-        for (const auto &buffer: buffers) {
-            if (buffer.type == PIPELINE_NODE_BUFFER_VERTEX || buffer.type == PIPELINE_NODE_BUFFER_INDEX) {
-                break;
-            }
-            VkDescriptorBufferInfo bufferInfo = {};
-            bufferInfo.offset = 0;
-            bufferInfo.range = buffer.bufferSize;
-            bufferInfo.buffer = buffer.buffer;
-            this->pipelineDescriptorBufferInfos.push_back(bufferInfo);
-        }
-        for (uint32_t i = 0; i < pipelineDescriptorBufferInfos.size(); ++i) {
-            descriptorSet->AddStorageBufferDescriptorSet(i, pipelineDescriptorBufferInfos.at(i));
-        }
-        descriptorSet->UpdateDescriptorSets();
+    for (const auto &graphicsElement: graphicsElements) {
+        const std::shared_ptr<VkGPUDescriptorSet> descriptorSet = CreateDescriptorSet(graphicsElement);
         pipelineDescriptorSets.push_back(descriptorSet);
     }
     return ret;

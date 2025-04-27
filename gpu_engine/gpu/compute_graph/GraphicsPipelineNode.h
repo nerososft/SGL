@@ -47,6 +47,8 @@ public:
                          float width,
                          float height);
 
+    std::shared_ptr<VkGPUDescriptorSet> CreateDescriptorSet(const GraphicsElement &graphicsElement);
+
     void AddGraphicsElement(const GraphicsElement &graphicsElement);
 
     ~GraphicsPipelineNode() override = default;
