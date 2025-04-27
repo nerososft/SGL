@@ -147,6 +147,7 @@ void GraphicsPipelineNode::Compute(const VkCommandBuffer commandBuffer) {
         std::vector<VkBuffer> bindVertexBuffers;
         std::vector<VkDeviceSize> bindVertexOffsets;
         std::vector<VkBuffer> bindIndexBuffers;
+        int32_t indexCount = 0;
         for (const auto &buffer: graphicsElements[i].buffers) {
             if (buffer.type == PIPELINE_NODE_BUFFER_VERTEX) {
                 if (buffer.buffer == VK_NULL_HANDLE) {
@@ -158,6 +159,7 @@ void GraphicsPipelineNode::Compute(const VkCommandBuffer commandBuffer) {
             }
             if (buffer.type == PIPELINE_NODE_BUFFER_INDEX) {
                 bindIndexBuffers.push_back(buffer.buffer);
+                indexCount = buffer.bufferSize / sizeof(uint32_t);
             }
         }
         if (!bindVertexBuffers.empty()) {
@@ -170,7 +172,7 @@ void GraphicsPipelineNode::Compute(const VkCommandBuffer commandBuffer) {
         for (const auto &buffer: bindIndexBuffers) {
             vkCmdBindIndexBuffer(commandBuffer, buffer, 0, VK_INDEX_TYPE_UINT32);
         }
-        vkCmdDrawIndexed(commandBuffer, 6, 1, 0, 0, 0);
+        vkCmdDrawIndexed(commandBuffer, indexCount, 1, 0, 0, 0);
 
         if (graphicsElements[i].customDrawFunc != nullptr) {
             graphicsElements[i].customDrawFunc(commandBuffer);
