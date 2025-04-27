@@ -9,15 +9,13 @@
 
 #include "Model.h"
 
-
 class ModelLoader {
 public:
     ModelLoader() = default;
 
     ~ModelLoader() = default;
 
-    static std::shared_ptr<Model> LoadModel(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                                            const std::string &path);
+    static std::shared_ptr<Model> LoadModel(const std::string &path);
 };
 
 

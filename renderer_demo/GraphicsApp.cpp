@@ -25,36 +25,6 @@ void GraphicsApp::Init() {
     if (!renderer->Init(requiredExtensions, GetWindowSurface)) {
         Logger() << "Failed to initialize renderer" << std::endl;
     }
-    // ModelLoader::LoadModel(renderer->GetGPUContext(),
-    //                        "../../renderer_demo/assets/builtin.models/Lion Sculpture 3D Model.OBJ");
-    const std::vector<Vertex> vertices = {
-        {
-            .position = {-0.5f, -0.5f, 0.0f},
-            .color = {0.0f, 0.0f, 1.0f},
-        },
-        {
-            .position = {0.5f, -0.5f, 0.0f},
-            .color = {1.0f, 0.0f, 0.0f},
-        },
-        {
-            .position = {-0.5f, 0.5f, 0.0f},
-            .color = {0.0f, 1.0f, 0.0f},
-        },
-        {
-            .position = {-0.5f, 0.5f, 0.0f},
-            .color = {1.0f, 1.0f, 0.0f},
-        },
-        {
-            .position = {0.5f, -0.5f, 0.0f},
-            .color = {0.0f, 0.0f, 1.0f},
-        },
-        {
-            .position = {0.5f, 0.5f, 0.0f},
-            .color = {1.0f, 0.0f, 0.0f},
-        },
-    };
-    const std::vector<uint32_t> indices = {0, 1, 2, 3, 4, 5};
-    // renderer->AddDrawElement(vertices, indices);
 }
 
 void GraphicsApp::Run() const {

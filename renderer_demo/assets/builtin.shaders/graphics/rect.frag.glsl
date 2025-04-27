@@ -9,5 +9,5 @@ layout (push_constant) uniform FrameInfo {
 } frameInfo;
 
 void main() {
-    FragColor = color * sin(frameInfo.frameIndex);
+    FragColor = color;
 }

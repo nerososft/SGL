@@ -12,6 +12,7 @@
 #include "../../gpu_engine/gpu/compute_graph/ImageToBufferCopyNode.h"
 #include "../../gpu_engine/log/Log.h"
 #include "../../gpu_engine/utils/ImageUtils.h"
+#include "renderer_demo/model/ModelLoader.h"
 
 bool Renderer::AddDrawElement(const std::vector<Vertex> &vertexData,
                               const std::vector<uint32_t> &indicesData) {
@@ -101,7 +102,19 @@ bool Renderer::ConstructMainGraphicsPipeline() {
             .binding = 0,
             .format = VK_FORMAT_R32G32B32_SFLOAT,
             .offset = offsetof(Vertex, color),
-        }
+        },
+        {
+            .location = 2,
+            .binding = 0,
+            .format = VK_FORMAT_R32G32B32_SFLOAT,
+            .offset = offsetof(Vertex, normal),
+        },
+        {
+            .location = 3,
+            .binding = 0,
+            .format = VK_FORMAT_R32G32_SFLOAT,
+            .offset = offsetof(Vertex, texCoords),
+        },
     };
 
     this->graphicsPipelineNode = std::make_shared<GraphicsPipelineNode>(this->gpuCtx,
@@ -118,35 +131,9 @@ bool Renderer::ConstructMainGraphicsPipeline() {
         return false;
     }
 
-    // FIXME: for layout
-    const std::vector<Vertex> vertices = {
-        {
-            .position = {-0.5f, -0.5f, 0.0f},
-            .color = {0.0f, 0.0f, 1.0f},
-        },
-        {
-            .position = {0.5f, -0.5f, 0.0f},
-            .color = {1.0f, 0.0f, 0.0f},
-        },
-        {
-            .position = {-0.5f, 0.5f, 0.0f},
-            .color = {0.0f, 1.0f, 0.0f},
-        },
-        {
-            .position = {-0.5f, 0.5f, 0.0f},
-            .color = {1.0f, 1.0f, 0.0f},
-        },
-        {
-            .position = {0.5f, -0.5f, 0.0f},
-            .color = {0.0f, 0.0f, 1.0f},
-        },
-        {
-            .position = {0.5f, 0.5f, 0.0f},
-            .color = {1.0f, 0.0f, 0.0f},
-        },
-    };
-    const std::vector<uint32_t> indices = {0, 1, 2, 3, 4, 5};
-    if (!this->AddDrawElement(vertices, indices)) {
+    const std::shared_ptr<Model> model = ModelLoader::LoadModel(
+        "../../renderer_demo/assets/builtin.models/Lion Sculpture 3D Model.OBJ");
+    if (!this->AddDrawElement(model->vertices, model->indices)) {
         Logger() << "Vertex buffer add failed" << std::endl;
         return false;
     }
