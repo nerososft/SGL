@@ -7,80 +7,59 @@
 #include <queue>
 #include <vulkan/vk_enum_string_helper.h>
 
-#include "../gpu_engine/gpu/VkGPUBuffer.h"
-#include "../gpu_engine/gpu/VkGPUHelper.h"
-#include "../gpu_engine/gpu/compute_graph/ImageToBufferCopyNode.h"
-#include "../gpu_engine/log/Log.h"
-#include "../gpu_engine/utils/ImageUtils.h"
+#include "../../gpu_engine/gpu/VkGPUBuffer.h"
+#include "../../gpu_engine/gpu/VkGPUHelper.h"
+#include "../../gpu_engine/gpu/compute_graph/ImageToBufferCopyNode.h"
+#include "../../gpu_engine/log/Log.h"
+#include "../../gpu_engine/utils/ImageUtils.h"
 
-bool Renderer::ConstructMainGraphicsPipeline() {
+bool Renderer::AddDrawElement(const std::vector<Vertex> &vertexData,
+                              const std::vector<uint32_t> &indicesData) {
     std::vector<PipelineNodeBuffer> buffers;
 
-    vertexBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
+    const auto vertexBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
     if (vertexBuffer == nullptr) {
         Logger() << "vertexBuffer is null" << std::endl;
         return false;
     }
-    const std::vector<Vertex> vertices = {
-        {
-            .position = {-0.5f, -0.5f, 0.0f},
-            .color = {0.0f, 0.0f, 1.0f},
-        },
-        {
-            .position = {0.5f, -0.5f, 0.0f},
-            .color = {1.0f, 0.0f, 0.0f},
-        },
-        {
-            .position = {-0.5f, 0.5f, 0.0f},
-            .color = {0.0f, 1.0f, 0.0f},
-        },
-        {
-            .position = {-0.5f, 0.5f, 0.0f},
-            .color = {1.0f, 1.0f, 0.0f},
-        },
-        {
-            .position = {0.5f, -0.5f, 0.0f},
-            .color = {0.0f, 0.0f, 1.0f},
-        },
-        {
-            .position = {0.5f, 0.5f, 0.0f},
-            .color = {1.0f, 0.0f, 0.0f},
-        },
-    };
-    const VkDeviceSize vertexBufferSize = vertices.size() * sizeof(Vertex);
+    const VkDeviceSize vertexBufferSize = vertexData.size() * sizeof(Vertex);
     VkResult ret = vertexBuffer->AllocateAndBind(GPU_BUFFER_TYPE_VERTEX, vertexBufferSize);
     if (ret != VK_SUCCESS) {
         Logger() << "Vertex buffer allocate and bind failed" << std::endl;
         return false;
     }
-    ret = vertexBuffer->UploadData(vertices.data(), vertexBufferSize);
+    ret = vertexBuffer->UploadData(vertexData.data(), vertexBufferSize);
     if (ret != VK_SUCCESS) {
         Logger() << "Vertex buffer upload failed" << std::endl;
         return false;
     }
+
+    vertexBuffers.push_back(vertexBuffer);
 
     PipelineNodeBuffer vertexBufferNode = {};
     vertexBufferNode.type = PIPELINE_NODE_BUFFER_VERTEX;
     vertexBufferNode.bufferSize = vertexBufferSize;
     vertexBufferNode.buffer = vertexBuffer->GetBuffer();
 
-    indicesBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
+    const auto indicesBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
     if (indicesBuffer == nullptr) {
         Logger() << "indexBuffer is null" << std::endl;
         return false;
     }
-    const std::vector indices = {0, 1, 2, 3, 4, 5};
-    const VkDeviceSize indicesBufferSize = indices.size() * sizeof(uint32_t);
+
+    const VkDeviceSize indicesBufferSize = indicesData.size() * sizeof(uint32_t);
     ret = indicesBuffer->AllocateAndBind(GPU_BUFFER_TYPE_INDEX, indicesBufferSize);
     if (ret != VK_SUCCESS) {
         Logger() << "Index buffer allocate and bind failed" << std::endl;
         return false;
     }
-    ret = indicesBuffer->UploadData(indices.data(), indicesBufferSize);
+    ret = indicesBuffer->UploadData(indicesData.data(), indicesBufferSize);
     if (ret != VK_SUCCESS) {
         Logger() << "Index buffer upload failed" << std::endl;
         return false;
     }
+
+    indicesBuffers.push_back(indicesBuffer);
 
     PipelineNodeBuffer indexBufferNode = {};
     indexBufferNode.type = PIPELINE_NODE_BUFFER_INDEX;
@@ -98,6 +77,11 @@ bool Renderer::ConstructMainGraphicsPipeline() {
         .customDrawFunc = nullptr,
     };
 
+    this->graphicsPipelineNode->AddGraphicsElement(element);
+    return true;
+}
+
+bool Renderer::ConstructMainGraphicsPipeline() {
     std::vector<VkVertexInputBindingDescription> vertexInputBindingDescriptions = {
         {
             .binding = 0,
@@ -134,9 +118,40 @@ bool Renderer::ConstructMainGraphicsPipeline() {
         return false;
     }
 
-    this->graphicsPipelineNode->AddGraphicsElement(element);
+    // FIXME: for layout
+    const std::vector<Vertex> vertices = {
+        {
+            .position = {-0.5f, -0.5f, 0.0f},
+            .color = {0.0f, 0.0f, 1.0f},
+        },
+        {
+            .position = {0.5f, -0.5f, 0.0f},
+            .color = {1.0f, 0.0f, 0.0f},
+        },
+        {
+            .position = {-0.5f, 0.5f, 0.0f},
+            .color = {0.0f, 1.0f, 0.0f},
+        },
+        {
+            .position = {-0.5f, 0.5f, 0.0f},
+            .color = {1.0f, 1.0f, 0.0f},
+        },
+        {
+            .position = {0.5f, -0.5f, 0.0f},
+            .color = {0.0f, 0.0f, 1.0f},
+        },
+        {
+            .position = {0.5f, 0.5f, 0.0f},
+            .color = {1.0f, 0.0f, 0.0f},
+        },
+    };
+    const std::vector<uint32_t> indices = {0, 1, 2, 3, 4, 5};
+    if (!this->AddDrawElement(vertices, indices)) {
+        Logger() << "Vertex buffer add failed" << std::endl;
+        return false;
+    }
 
-    ret = this->graphicsPipelineNode->CreateComputeGraphNode();
+    const VkResult ret = this->graphicsPipelineNode->CreateComputeGraphNode();
     if (ret != VK_SUCCESS) {
         Logger() << Logger::ERROR << "Failed to create graphics pipeline node!" << std::endl;
         return false;

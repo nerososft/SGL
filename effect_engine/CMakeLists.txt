@@ -108,7 +108,7 @@ set(ENGINE_SOURCE EffectEngine.cpp
 
 if (CMAKE_SYSTEM_NAME MATCHES "OHOS")
     set(ENGINE_SOURCE ${ENGINE_SOURCE} filters/impl/HPSBlurFilter.cpp filters/impl/HPSBlurFilter.h
-            ../compute_demo/main.cpp)
+            ../renderer_demo/main.cpp)
 endif ()
 
 add_library(effect_engine SHARED

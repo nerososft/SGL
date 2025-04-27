@@ -34,8 +34,8 @@ message("Need: ${COMPILED_SHADERS}")
 add_custom_target(compile_renderer_shaders ALL DEPENDS ${COMPILED_SHADERS})
 
 add_executable(renderer_demo
-        Renderer.h
-        Renderer.cpp
+        renderer/Renderer.h
+        renderer/Renderer.cpp
         main.cpp
         event/IEventHandler.h
         window/IWindow.h
@@ -44,7 +44,12 @@ add_executable(renderer_demo
         window/impl/GLFWWindowImpl.cpp
         GraphicsApp.h
         GraphicsApp.cpp
+        model/ModelLoader.cpp
+        model/ModelLoader.h
+        model/Model.cpp
+        model/Model.h
 )
 target_link_libraries(renderer_demo gpu_engine)
 target_link_libraries(renderer_demo glfw)
 target_link_libraries(renderer_demo png)
+target_link_libraries(renderer_demo assimp)

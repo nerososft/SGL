@@ -4,16 +4,16 @@
 
 #ifndef RENDERER_H
 #define RENDERER_H
-#include "../gpu_engine/gpu/VkGPUBuffer.h"
-#include "../gpu_engine/gpu/VkGPUContext.h"
-#include "../gpu_engine/gpu/VkGPUFramebuffer.h"
-#include "../gpu_engine/gpu/compute_graph/ComputeGraph.h"
-#include "../gpu_engine/gpu/compute_graph/GraphicsPipelineNode.h"
-#include "../gpu_engine/gpu/compute_graph/GraphicsRenderPassNode.h"
-#include "../gpu_engine/gpu/compute_graph/ImageToBufferCopyNode.h"
+#include "../../gpu_engine/gpu/VkGPUBuffer.h"
+#include "../../gpu_engine/gpu/VkGPUContext.h"
+#include "../../gpu_engine/gpu/VkGPUFramebuffer.h"
+#include "../../gpu_engine/gpu/compute_graph/ComputeGraph.h"
+#include "../../gpu_engine/gpu/compute_graph/GraphicsPipelineNode.h"
+#include "../../gpu_engine/gpu/compute_graph/GraphicsRenderPassNode.h"
+#include "../../gpu_engine/gpu/compute_graph/ImageToBufferCopyNode.h"
 #include <glm/glm.hpp>
 
-#include "../gpu_engine/gpu/VkGPUSwapChain.h"
+#include "../../gpu_engine/gpu/VkGPUSwapChain.h"
 
 struct Vertex {
     glm::vec3 position;
@@ -45,8 +45,8 @@ class Renderer {
     uint32_t width = 1024;
     uint32_t height = 768;
 
-    std::shared_ptr<VkGPUBuffer> indicesBuffer = nullptr;
-    std::shared_ptr<VkGPUBuffer> vertexBuffer = nullptr;
+    std::vector<std::shared_ptr<VkGPUBuffer> > indicesBuffers;
+    std::vector<std::shared_ptr<VkGPUBuffer> > vertexBuffers;
 
     VkCommandBuffer presentCmdBuffer = VK_NULL_HANDLE;
     VkSemaphore imageAvailableSemaphore = VK_NULL_HANDLE;
@@ -55,6 +55,9 @@ class Renderer {
 
 public:
     Renderer() = default;
+
+    bool AddDrawElement(const std::vector<Vertex> &vertexData,
+                        const std::vector<uint32_t> &indicesData);
 
     [[nodiscard]] bool ConstructMainGraphicsPipeline();
 
@@ -67,6 +70,8 @@ public:
     ~Renderer() = default;
 
     void RenderFrameOffScreen(const std::string &path);
+
+    std::shared_ptr<VkGPUContext> &GetGPUContext() { return gpuCtx; }
 };
 
 #endif //RENDERER_H
