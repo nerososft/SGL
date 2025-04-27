@@ -363,7 +363,8 @@ bool Renderer::Init(const std::vector<const char *> &requiredExtensions,
     return true;
 }
 
-VkResult Renderer::RenderFrame() const {
+VkResult Renderer::RenderFrame() {
+    this->frameInfo.frameIndex++;
     const VkResult ret = this->computeGraph->Compute();
     if (ret != VK_SUCCESS) {
         Logger() << Logger::ERROR << "Failed to render compute graph!" << std::endl;
@@ -447,7 +448,7 @@ VkResult Renderer::Present() const {
     return VK_SUCCESS;
 }
 
-void Renderer::RenderFrameOffScreen(const std::string &path) const {
+void Renderer::RenderFrameOffScreen(const std::string &path) {
     VkResult ret = this->RenderFrame();
     if (ret != VK_SUCCESS) {
         Logger() << Logger::ERROR << "Failed to render frame!" << std::endl;

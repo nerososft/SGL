@@ -60,13 +60,13 @@ public:
 
     bool Init(const std::vector<const char *> &requiredExtensions, VkSurfaceKHR (*GetSurface)(VkInstance instance));
 
-    [[nodiscard]] VkResult RenderFrame() const;
+    [[nodiscard]] VkResult RenderFrame();
 
     [[nodiscard]] VkResult Present() const;
 
     ~Renderer() = default;
 
-    void RenderFrameOffScreen(const std::string &path) const;
+    void RenderFrameOffScreen(const std::string &path);
 };
 
 #endif //RENDERER_H
