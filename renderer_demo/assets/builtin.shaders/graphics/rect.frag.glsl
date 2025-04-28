@@ -10,6 +10,7 @@ layout (binding = 0) uniform Material {
      vec3 ambientColor;
      vec3 diffuseColor;
      vec3 specularColor;
+     float shininess;
 } material;
 
 layout (push_constant) uniform FrameInfo {
@@ -28,7 +29,7 @@ void main() {
     vec3 diffuse = diff * material.diffuseColor;
     vec3 viewDir = normalize(viewPos - position);
     vec3 reflectDir = reflect(-lightDir, norm);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32.0);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
     vec3 specular = spec * material.specularColor;
     FragColor = ambient + diffuse + specular;
 }
