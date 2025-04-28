@@ -15,9 +15,13 @@
 #include "renderer_demo/scene/ModelLoader.h"
 
 bool Renderer::AddDrawElement(const std::vector<Vertex> &vertexData,
-                              const std::vector<uint32_t> &indicesData) {
+                              const std::vector<uint32_t> &indicesData,
+                              const Material &material) {
     std::vector<PipelineNodeBuffer> buffers;
 
+    /*
+     * Vertex upload
+     */
     const auto vertexBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
     if (vertexBuffer == nullptr) {
         Logger() << "vertexBuffer is null" << std::endl;
@@ -42,6 +46,9 @@ bool Renderer::AddDrawElement(const std::vector<Vertex> &vertexData,
     vertexBufferNode.bufferSize = vertexBufferSize;
     vertexBufferNode.buffer = vertexBuffer->GetBuffer();
 
+    /*
+     * Indices upload
+     */
     const auto indicesBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
     if (indicesBuffer == nullptr) {
         Logger() << "indexBuffer is null" << std::endl;
@@ -62,13 +69,39 @@ bool Renderer::AddDrawElement(const std::vector<Vertex> &vertexData,
 
     indicesBuffers.push_back(indicesBuffer);
 
-    PipelineNodeBuffer indexBufferNode = {};
-    indexBufferNode.type = PIPELINE_NODE_BUFFER_INDEX;
-    indexBufferNode.buffer = indicesBuffer->GetBuffer();
-    indexBufferNode.bufferSize = indicesBufferSize;
+    PipelineNodeBuffer indicesBufferNode = {};
+    indicesBufferNode.type = PIPELINE_NODE_BUFFER_INDEX;
+    indicesBufferNode.buffer = indicesBuffer->GetBuffer();
+    indicesBufferNode.bufferSize = indicesBufferSize;
+
+    /*
+     * Material upload
+     */
+    const auto materialBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
+    if (materialBuffer == nullptr) {
+        Logger() << "material is null" << std::endl;
+        return false;
+    }
+    const VkDeviceSize materialBufferSize = sizeof(Material);
+    ret = materialBuffer->AllocateAndBind(GPU_BUFFER_TYPE_UNIFORM, materialBufferSize);
+    if (ret != VK_SUCCESS) {
+        Logger() << "Material buffer allocate and bind failed" << std::endl;
+        return false;
+    }
+    ret = materialBuffer->UploadData(&material, materialBufferSize);
+    if (ret != VK_SUCCESS) {
+        Logger() << "Material buffer upload failed" << std::endl;
+        return false;
+    }
+    uniformBuffers.push_back(materialBuffer);
+    PipelineNodeBuffer materialBufferNode = {};
+    materialBufferNode.type = PIPELINE_NODE_BUFFER_UNIFORM;
+    materialBufferNode.buffer = indicesBuffer->GetBuffer();
+    materialBufferNode.bufferSize = indicesBufferSize;
 
     buffers.push_back(vertexBufferNode);
-    buffers.push_back(indexBufferNode);
+    buffers.push_back(indicesBufferNode);
+    buffers.push_back(materialBufferNode);
     const GraphicsElement element{
         .pushConstantInfo = {
             .size = sizeof(FrameInfo),
@@ -133,7 +166,7 @@ bool Renderer::ConstructMainGraphicsPipeline() {
 
     const std::vector<std::shared_ptr<Mesh> > models = ModelLoader::LoadModel(
         "../../renderer_demo/assets/builtin.models/Lion Sculpture 3D Model.OBJ");
-    if (!this->AddDrawElement(models[0]->vertices, models[0]->indices)) {
+    if (!this->AddDrawElement(models[0]->vertices, models[0]->indices, models[0]->material)) {
         Logger() << "Vertex buffer add failed" << std::endl;
         return false;
     }

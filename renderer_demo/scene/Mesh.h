@@ -9,12 +9,6 @@
 #include "gpu_engine/gpu/VkGPUBuffer.h"
 #include "renderer_demo/renderer/Renderer.h"
 
-struct Material {
-    glm::vec3 ambientColor;
-    glm::vec3 diffuseColor;
-    glm::vec3 specularColor;
-};
-
 class Mesh {
 public:
     std::vector<Vertex> vertices;

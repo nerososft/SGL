@@ -15,6 +15,12 @@
 
 #include "../../gpu_engine/gpu/VkGPUSwapChain.h"
 
+struct Material {
+    glm::vec3 ambientColor;
+    glm::vec3 diffuseColor;
+    glm::vec3 specularColor;
+};
+
 struct Vertex {
     glm::vec3 position;
     glm::vec3 color;
@@ -48,6 +54,7 @@ class Renderer {
 
     std::vector<std::shared_ptr<VkGPUBuffer> > indicesBuffers;
     std::vector<std::shared_ptr<VkGPUBuffer> > vertexBuffers;
+    std::vector<std::shared_ptr<VkGPUBuffer> > uniformBuffers;
 
     VkCommandBuffer presentCmdBuffer = VK_NULL_HANDLE;
     VkSemaphore imageAvailableSemaphore = VK_NULL_HANDLE;
@@ -58,7 +65,8 @@ public:
     Renderer() = default;
 
     bool AddDrawElement(const std::vector<Vertex> &vertexData,
-                        const std::vector<uint32_t> &indicesData);
+                        const std::vector<uint32_t> &indicesData,
+                        const Material &material);
 
     [[nodiscard]] bool ConstructMainGraphicsPipeline();
 
