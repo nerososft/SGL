@@ -233,6 +233,7 @@ bool Renderer::Init(const std::vector<const char *> &requiredExtensions,
     this->matrixMVP.projection = this->camera->GetProjectionMatrix(this->width / this->height);
     this->matrixMVP.view = this->camera->GetViewMatrix();
     this->matrixMVP.model = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(1, 0, 0));
+    this->matrixMVP.model = glm::rotate(this->matrixMVP.model, glm::radians(-45.0f), glm::vec3(0, 0, 1));
 
     this->swapChain = std::make_shared<VkGPUSwapChain>(this->gpuCtx);
     if (this->swapChain == nullptr) {

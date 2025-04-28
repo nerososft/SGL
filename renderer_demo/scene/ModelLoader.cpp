@@ -51,9 +51,9 @@ std::vector<std::shared_ptr<Mesh> > ModelLoader::LoadModel(const std::string &pa
                 vertex.normal.y = normal.y;
                 vertex.normal.z = normal.z;
 
-                vertex.color.r = rand() % 100 / 100.0f;
-                vertex.color.g = rand() % 100 / 100.0f;
-                vertex.color.b = rand() % 100 / 100.0f;
+                vertex.color.r = 1.0f;
+                vertex.color.g = 1.0f;
+                vertex.color.b = 1.0f;
 
                 model->vertices.push_back(vertex);
             }
