@@ -15,5 +15,5 @@ layout (push_constant) uniform FrameInfo {
 } frameInfo;
 
 void main() {
-    FragColor = color;
+    FragColor = material.diffuseColor;
 }

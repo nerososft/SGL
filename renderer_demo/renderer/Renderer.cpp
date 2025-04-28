@@ -165,7 +165,7 @@ bool Renderer::ConstructMainGraphicsPipeline() {
     }
 
     const std::vector<std::shared_ptr<Mesh> > models = ModelLoader::LoadModel(
-        "../../renderer_demo/assets/builtin.models/Lion Sculpture 3D Model.OBJ");
+        "../../renderer_demo/assets/builtin.models/Lion.OBJ");
     if (!this->AddDrawElement(models[0]->vertices, models[0]->indices, models[0]->material)) {
         Logger() << "Vertex buffer add failed" << std::endl;
         return false;
