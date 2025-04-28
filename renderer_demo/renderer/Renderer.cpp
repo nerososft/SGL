@@ -462,7 +462,6 @@ VkResult Renderer::Present() const {
     }
 
     VkGPUHelper::GPUBeginCommandBuffer(this->presentCmdBuffer);
-
     const VkImageCopy region{
         .srcSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1},
         .dstSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1},
@@ -475,7 +474,6 @@ VkResult Renderer::Present() const {
                    VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                    1,
                    &region);
-
     vkEndCommandBuffer(this->presentCmdBuffer);
 
     std::vector submitWaitSemaphores = {imageAvailableSemaphore};
@@ -530,7 +528,9 @@ void Renderer::RenderFrameOffScreen(const std::string &path) {
     }
 
     const VkDeviceSize offScreenBufferSize = this->width * this->height * 4;
-    ret = offScreenBuffer->MapBuffer(offScreenBufferSize);
+
+    std::vector<char> imgData(offScreenBufferSize);
+    ret = offScreenBuffer->DownloadData(imgData.data(), offScreenBufferSize);
     if (ret != VK_SUCCESS) {
         Logger() << "Failed to map output storage buffer!" << std::endl;
         return;
@@ -540,5 +540,5 @@ void Renderer::RenderFrameOffScreen(const std::string &path) {
                              this->width,
                              this->height,
                              4,
-                             offScreenBuffer->GetMappedAddr());
+                             imgData.data());
 }

@@ -1,6 +1,11 @@
 #pragma once
 
-#define GPU_API __declspec(dllexport)
+#ifdef _WIN32
+    #define GPU_API __declspec(dllexport)
+#else
+    #define GPU_API
+#endif
+
 extern "C" GPU_API bool init_gpu_engine();
 extern "C" GPU_API const char *get_gpu_engine_name();
 extern "C" GPU_API bool destroy_gpu_engine();
