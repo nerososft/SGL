@@ -53,9 +53,9 @@ std::vector<std::shared_ptr<Mesh> > ModelLoader::LoadModel(const std::string &pa
                 vertex.normal.y = normal.y;
                 vertex.normal.z = normal.z;
 
-                vertex.color.r = 0.0f;
-                vertex.color.g = 0.0f;
-                vertex.color.b = 0.0f;
+                vertex.color.r = 1.0f;
+                vertex.color.g = 1.0f;
+                vertex.color.b = 1.0f;
 
                 model->vertices.push_back(vertex);
             }
@@ -105,7 +105,7 @@ std::vector<std::shared_ptr<Mesh> > ModelLoader::LoadModel(const std::string &pa
             model->material.reflectiveColor.g = reflectiveColor.g;
             model->material.reflectiveColor.b = reflectiveColor.b;
 
-            model->material.shininess = shininess;
+            model->material.shininess.r = shininess;
         }
 
         meshes.push_back(model);

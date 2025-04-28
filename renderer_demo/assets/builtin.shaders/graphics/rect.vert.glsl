@@ -16,8 +16,9 @@ layout (binding = 1) uniform MVP {
 } mvp;
 
 void main() {
-    gl_Position = mvp.projection * mvp.view * mvp.model * vec4(position, 1.0f);
+    vec4 pos = mvp.projection * mvp.view * mvp.model * vec4(position, 1.0f);
+    gl_Position = pos;
     outNormal = normal;
     outColor = color;
-    outPosition = position;
+    outPosition = pos.xyz;
 }

@@ -17,13 +17,13 @@
 #include "renderer_demo/scene/Camera.h"
 
 struct Material {
-    glm::vec3 ambientColor;
-    glm::vec3 diffuseColor;
-    glm::vec3 specularColor;
-    glm::vec3 transparentColor;
-    glm::vec3 emissiveColor;
-    glm::vec3 reflectiveColor;
-    float shininess;
+    glm::vec4 ambientColor;
+    glm::vec4 diffuseColor;
+    glm::vec4 specularColor;
+    glm::vec4 transparentColor;
+    glm::vec4 emissiveColor;
+    glm::vec4 reflectiveColor;
+    glm::vec4 shininess;
 };
 
 struct MatrixMVP {
