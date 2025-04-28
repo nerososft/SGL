@@ -7,7 +7,7 @@
 #include <memory>
 #include <string>
 
-#include "Model.h"
+#include "Mesh.h"
 
 class ModelLoader {
 public:
@@ -15,7 +15,7 @@ public:
 
     ~ModelLoader() = default;
 
-    static std::shared_ptr<Model> LoadModel(const std::string &path);
+    static std::vector<std::shared_ptr<Mesh>> LoadModel(const std::string &path);
 };
 
 

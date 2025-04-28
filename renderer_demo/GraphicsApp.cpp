@@ -5,7 +5,7 @@
 #include "GraphicsApp.h"
 
 #include "gpu_engine/log/Log.h"
-#include "model/ModelLoader.h"
+#include "scene/ModelLoader.h"
 #include "window/impl/GLFWWindowImpl.h"
 
 VkSurfaceKHR GetWindowSurface(const VkInstance instance) {

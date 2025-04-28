@@ -9,19 +9,26 @@
 #include "gpu_engine/gpu/VkGPUBuffer.h"
 #include "renderer_demo/renderer/Renderer.h"
 
+struct Material {
+    glm::vec3 ambientColor;
+    glm::vec3 diffuseColor;
+    glm::vec3 specularColor;
+};
 
-class Model {
+class Mesh {
 public:
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;
+    Material material{};
+
     std::shared_ptr<VkGPUBuffer> vertexBuffer = nullptr;
     std::shared_ptr<VkGPUBuffer> indexBuffer = nullptr;
 
-    Model() = default;
+    Mesh() = default;
 
-    Model(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices);
+    Mesh(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices);
 
-    ~Model() = default;
+    ~Mesh() = default;
 };
 
 

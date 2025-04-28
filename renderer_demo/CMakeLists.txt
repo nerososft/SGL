@@ -44,10 +44,10 @@ add_executable(renderer_demo
         window/impl/GLFWWindowImpl.cpp
         GraphicsApp.h
         GraphicsApp.cpp
-        model/ModelLoader.cpp
-        model/ModelLoader.h
-        model/Model.cpp
-        model/Model.h
+        scene/ModelLoader.cpp
+        scene/ModelLoader.h
+        scene/Mesh.cpp
+        scene/Mesh.h
 )
 target_link_libraries(renderer_demo gpu_engine)
 target_link_libraries(renderer_demo glfw)

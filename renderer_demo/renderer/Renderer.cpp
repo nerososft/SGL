@@ -12,7 +12,7 @@
 #include "../../gpu_engine/gpu/compute_graph/ImageToBufferCopyNode.h"
 #include "../../gpu_engine/log/Log.h"
 #include "../../gpu_engine/utils/ImageUtils.h"
-#include "renderer_demo/model/ModelLoader.h"
+#include "renderer_demo/scene/ModelLoader.h"
 
 bool Renderer::AddDrawElement(const std::vector<Vertex> &vertexData,
                               const std::vector<uint32_t> &indicesData) {
@@ -131,9 +131,9 @@ bool Renderer::ConstructMainGraphicsPipeline() {
         return false;
     }
 
-    const std::shared_ptr<Model> model = ModelLoader::LoadModel(
+    const std::vector<std::shared_ptr<Mesh> > models = ModelLoader::LoadModel(
         "../../renderer_demo/assets/builtin.models/Lion Sculpture 3D Model.OBJ");
-    if (!this->AddDrawElement(model->vertices, model->indices)) {
+    if (!this->AddDrawElement(models[0]->vertices, models[0]->indices)) {
         Logger() << "Vertex buffer add failed" << std::endl;
         return false;
     }

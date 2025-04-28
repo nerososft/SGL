@@ -4,7 +4,7 @@
 
 #include "GraphicsApp.h"
 #include "gpu_engine/log/Log.h"
-#include "model/ModelLoader.h"
+#include "scene/ModelLoader.h"
 
 int main(int argc, char *argv[]) {
     Logger() << "Hello World!\n";
