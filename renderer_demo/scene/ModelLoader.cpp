@@ -67,7 +67,7 @@ std::vector<std::shared_ptr<Mesh> > ModelLoader::LoadModel(const std::string &pa
 
         if (scene->HasMaterials()) {
             aiMaterial *material = scene->mMaterials[mesh->mMaterialIndex];
-            aiColor3D ambientColor, diffuseColor, specularColor;
+            aiColor3D ambientColor, diffuseColor, specularColor, emissiveColor, transparentColor, reflectiveColor;
             float shininess;
             aiString materialName;
             material->Get(AI_MATKEY_NAME, materialName);
@@ -76,6 +76,9 @@ std::vector<std::shared_ptr<Mesh> > ModelLoader::LoadModel(const std::string &pa
             material->Get(AI_MATKEY_COLOR_DIFFUSE, diffuseColor);
             material->Get(AI_MATKEY_COLOR_SPECULAR, specularColor);
             material->Get(AI_MATKEY_SHININESS, shininess);
+            material->Get(AI_MATKEY_COLOR_EMISSIVE, emissiveColor);
+            material->Get(AI_MATKEY_COLOR_TRANSPARENT, transparentColor);
+            material->Get(AI_MATKEY_COLOR_REFLECTIVE, reflectiveColor);
             model->material.ambientColor.r = ambientColor.r;
             model->material.ambientColor.g = ambientColor.g;
             model->material.ambientColor.b = ambientColor.b;
@@ -87,6 +90,18 @@ std::vector<std::shared_ptr<Mesh> > ModelLoader::LoadModel(const std::string &pa
             model->material.specularColor.r = specularColor.r;
             model->material.specularColor.g = specularColor.g;
             model->material.specularColor.b = specularColor.b;
+
+            model->material.transparentColor.r = transparentColor.r;
+            model->material.transparentColor.g = transparentColor.g;
+            model->material.transparentColor.b = transparentColor.b;
+
+            model->material.emissiveColor.r = emissiveColor.r;
+            model->material.emissiveColor.g = emissiveColor.g;
+            model->material.emissiveColor.b = emissiveColor.b;
+
+            model->material.reflectiveColor.r = reflectiveColor.r;
+            model->material.reflectiveColor.g = reflectiveColor.g;
+            model->material.reflectiveColor.b = reflectiveColor.b;
 
             model->material.shininess = shininess;
         }

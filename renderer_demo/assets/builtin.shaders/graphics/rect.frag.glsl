@@ -10,6 +10,9 @@ layout (binding = 0) uniform Material {
      vec3 ambientColor;
      vec3 diffuseColor;
      vec3 specularColor;
+     vec3 transparentColor;
+     vec3 emissiveColor;
+     vec3 reflectiveColor;
      float shininess;
 } material;
 

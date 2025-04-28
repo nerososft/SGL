@@ -20,6 +20,9 @@ struct Material {
     glm::vec3 ambientColor;
     glm::vec3 diffuseColor;
     glm::vec3 specularColor;
+    glm::vec3 transparentColor;
+    glm::vec3 emissiveColor;
+    glm::vec3 reflectiveColor;
     float shininess;
 };
 
