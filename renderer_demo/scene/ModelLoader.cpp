@@ -72,13 +72,15 @@ std::vector<std::shared_ptr<Mesh> > ModelLoader::LoadModel(const std::string &pa
             aiString materialName;
             material->Get(AI_MATKEY_NAME, materialName);
             Logger() << "Loading material '" << materialName.C_Str() << "'" << std::endl;
+
             material->Get(AI_MATKEY_COLOR_AMBIENT, ambientColor);
             material->Get(AI_MATKEY_COLOR_DIFFUSE, diffuseColor);
             material->Get(AI_MATKEY_COLOR_SPECULAR, specularColor);
-            material->Get(AI_MATKEY_SHININESS, shininess);
             material->Get(AI_MATKEY_COLOR_EMISSIVE, emissiveColor);
             material->Get(AI_MATKEY_COLOR_TRANSPARENT, transparentColor);
             material->Get(AI_MATKEY_COLOR_REFLECTIVE, reflectiveColor);
+            material->Get(AI_MATKEY_SHININESS, shininess);
+
             model->material.ambientColor.r = ambientColor.r;
             model->material.ambientColor.g = ambientColor.g;
             model->material.ambientColor.b = ambientColor.b;

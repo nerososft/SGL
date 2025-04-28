@@ -392,7 +392,6 @@ bool Renderer::Init(const std::vector<const char *> &requiredExtensions,
     srcCopyInfo.width = this->width;
     srcCopyInfo.rowLength = this->width;
     srcCopyInfo.image = this->framebuffer->GetColorImage();
-    srcCopyInfo.imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
     ImageToCopyNodeBufferInfo dstCopyInfo;
     dstCopyInfo.buffer = this->offScreenBuffer->GetBuffer();
     dstCopyInfo.bufferSize = this->width * this->height * 4;

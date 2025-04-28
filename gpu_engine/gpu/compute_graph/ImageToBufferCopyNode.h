@@ -19,7 +19,6 @@ typedef struct {
     uint32_t height;
     uint32_t width;
     VkImage image;
-    VkImageLayout imageLayout;
 } ImageToCopyNodeImageInfo;
 
 class ImageToBufferCopyNode final : public IComputeGraphNode {

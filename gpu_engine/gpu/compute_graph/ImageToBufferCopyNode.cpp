@@ -78,7 +78,7 @@ void ImageToBufferCopyNode::Compute(const VkCommandBuffer commandBuffer) {
 
     vkCmdCopyImageToBuffer(commandBuffer,
                            this->srcImage.image,
-                           this->srcImage.imageLayout,
+                           VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                            this->dstBuffer.buffer,
                            copyRegions.size(),
                            copyRegions.data());
