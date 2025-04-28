@@ -102,8 +102,8 @@ bool Renderer::AddDrawElement(const std::vector<Vertex> &vertexData,
     uniformBuffers.push_back(materialBuffer);
     PipelineNodeBuffer materialBufferNode = {};
     materialBufferNode.type = PIPELINE_NODE_BUFFER_UNIFORM;
-    materialBufferNode.buffer = indicesBuffer->GetBuffer();
-    materialBufferNode.bufferSize = indicesBufferSize;
+    materialBufferNode.buffer = materialBuffer->GetBuffer();
+    materialBufferNode.bufferSize = materialBufferSize;
 
     /*
      * MVP matrix
