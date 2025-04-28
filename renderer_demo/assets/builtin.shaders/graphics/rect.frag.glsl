@@ -1,6 +1,8 @@
 #version 450
 
 layout(location = 0) in vec3 color;
+layout(location = 1) in vec3 normal;
+
 layout(location = 0) out vec3 FragColor;
 
 layout (binding = 0) uniform Material {
@@ -15,5 +17,5 @@ layout (push_constant) uniform FrameInfo {
 } frameInfo;
 
 void main() {
-    FragColor = material.diffuseColor;
+    FragColor = normal;
 }

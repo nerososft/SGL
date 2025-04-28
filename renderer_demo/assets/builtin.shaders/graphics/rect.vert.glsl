@@ -6,6 +6,7 @@ layout(location = 2) in vec3 normal;
 layout(location = 3) in vec2 texCoord;
 
 layout(location = 0) out vec3 outColor;
+layout(location = 1) out vec3 outNormal;
 
 layout (binding = 1) uniform MVP {
      mat4 model;
@@ -14,6 +15,7 @@ layout (binding = 1) uniform MVP {
 } mvp;
 
 void main() {
-    gl_Position = vec4(position, 1.0f);
+    gl_Position = mvp.projection * mvp.view * mvp.model * vec4(position, 1.0f);
+    outNormal = normal;
     outColor = color;
 }

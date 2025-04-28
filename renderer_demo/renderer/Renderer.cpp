@@ -5,6 +5,7 @@
 #include "Renderer.h"
 
 #include <queue>
+#include <glm/ext/matrix_transform.hpp>
 #include <vulkan/vk_enum_string_helper.h>
 
 #include "../../gpu_engine/gpu/VkGPUBuffer.h"
@@ -228,10 +229,10 @@ bool Renderer::Init(const std::vector<const char *> &requiredExtensions,
     }
     Logger() << Logger::INFO << "Initialized Renderer, version: " << VERSION << std::endl;
 
-    this->camera = std::make_shared<Camera>(glm::vec3(0, 0, -1), glm::vec3(0, 1, 0));
+    this->camera = std::make_shared<Camera>(glm::vec3(0, 0, -3), glm::vec3(0, 1, 0));
     this->matrixMVP.projection = this->camera->GetProjectionMatrix(this->width / this->height);
     this->matrixMVP.view = this->camera->GetViewMatrix();
-    this->matrixMVP.model = glm::mat4(1.0f);
+    this->matrixMVP.model = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(1, 0, 0));
 
     this->swapChain = std::make_shared<VkGPUSwapChain>(this->gpuCtx);
     if (this->swapChain == nullptr) {
