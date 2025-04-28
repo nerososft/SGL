@@ -14,11 +14,18 @@
 #include <glm/glm.hpp>
 
 #include "../../gpu_engine/gpu/VkGPUSwapChain.h"
+#include "renderer_demo/scene/Camera.h"
 
 struct Material {
     glm::vec3 ambientColor;
     glm::vec3 diffuseColor;
     glm::vec3 specularColor;
+};
+
+struct MatrixMVP {
+    glm::mat4 model;
+    glm::mat4 view;
+    glm::mat4 projection;
 };
 
 struct Vertex {
@@ -51,6 +58,10 @@ class Renderer {
 
     uint32_t width = 1024;
     uint32_t height = 768;
+
+    std::shared_ptr<Camera> camera = nullptr;
+
+    MatrixMVP matrixMVP{};
 
     std::vector<std::shared_ptr<VkGPUBuffer> > indicesBuffers;
     std::vector<std::shared_ptr<VkGPUBuffer> > vertexBuffers;

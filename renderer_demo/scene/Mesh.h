@@ -11,6 +11,7 @@
 
 class Mesh {
 public:
+    glm::mat4 model{};
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;
     Material material{};

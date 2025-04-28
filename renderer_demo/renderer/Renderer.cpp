@@ -99,9 +99,35 @@ bool Renderer::AddDrawElement(const std::vector<Vertex> &vertexData,
     materialBufferNode.buffer = indicesBuffer->GetBuffer();
     materialBufferNode.bufferSize = indicesBufferSize;
 
+    /*
+     * MVP matrix
+     */
+    const auto mvpBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
+    if (materialBuffer == nullptr) {
+        Logger() << "mvp is null" << std::endl;
+        return false;
+    }
+    const VkDeviceSize mvpBufferSize = sizeof(MatrixMVP);
+    ret = mvpBuffer->AllocateAndBind(GPU_BUFFER_TYPE_UNIFORM, mvpBufferSize);
+    if (ret != VK_SUCCESS) {
+        Logger() << "MVP buffer allocate and bind failed" << std::endl;
+        return false;
+    }
+    ret = mvpBuffer->UploadData(&matrixMVP, mvpBufferSize);
+    if (ret != VK_SUCCESS) {
+        Logger() << "MVP buffer upload failed" << std::endl;
+        return false;
+    }
+    uniformBuffers.push_back(mvpBuffer);
+    PipelineNodeBuffer mvpBufferNode = {};
+    mvpBufferNode.type = PIPELINE_NODE_BUFFER_UNIFORM;
+    mvpBufferNode.buffer = mvpBuffer->GetBuffer();
+    mvpBufferNode.bufferSize = mvpBufferSize;
+
     buffers.push_back(vertexBufferNode);
     buffers.push_back(indicesBufferNode);
     buffers.push_back(materialBufferNode);
+    buffers.push_back(mvpBufferNode);
     const GraphicsElement element{
         .pushConstantInfo = {
             .size = sizeof(FrameInfo),
@@ -201,6 +227,11 @@ bool Renderer::Init(const std::vector<const char *> &requiredExtensions,
         return false;
     }
     Logger() << Logger::INFO << "Initialized Renderer, version: " << VERSION << std::endl;
+
+    this->camera = std::make_shared<Camera>(glm::vec3(0, 0, -1), glm::vec3(0, 1, 0));
+    this->matrixMVP.projection = this->camera->GetProjectionMatrix(this->width / this->height);
+    this->matrixMVP.view = this->camera->GetViewMatrix();
+    this->matrixMVP.model = glm::mat4(1.0f);
 
     this->swapChain = std::make_shared<VkGPUSwapChain>(this->gpuCtx);
     if (this->swapChain == nullptr) {
