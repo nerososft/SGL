@@ -21,18 +21,14 @@ void main() {
     vec3 lightPos = vec3(3, 3, 3);
     vec3 viewPos = vec3(0, 0, -3);
 
-    vec3 ambientColor = vec3(0.2f, 0.2f, 0.2f);
-    vec3 diffuseColor = vec3(0.3f, 0.3f, 0.3f);
-    vec3 specularColor = vec3(0.7f, 0.7f, 0.7f);
-
     vec3 norm = normalize(normal);
     vec3 lightDir = normalize(lightPos - position);
-    vec3 ambient = ambientColor;
+    vec3 ambient = material.ambientColor;
     float diff = max(dot(norm, lightDir), 0.0);
-    vec3 diffuse = diff * diffuseColor;
+    vec3 diffuse = diff * material.diffuseColor;
     vec3 viewDir = normalize(viewPos - position);
     vec3 reflectDir = reflect(-lightDir, norm);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 2.0);
-    vec3 specular = spec * specularColor;
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32.0);
+    vec3 specular = spec * material.specularColor;
     FragColor = ambient + diffuse + specular;
 }

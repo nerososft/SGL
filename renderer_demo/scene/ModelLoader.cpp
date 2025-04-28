@@ -21,11 +21,13 @@ std::vector<std::shared_ptr<Mesh> > ModelLoader::LoadModel(const std::string &pa
     }
 
     std::vector<std::shared_ptr<Mesh> > meshes;
+    Logger() << "Loading model '" << path << "'" << std::endl;
     for (int i = 0; i < scene->mNumMeshes; i++) {
         auto model = std::make_shared<Mesh>();
         const aiMesh *mesh = scene->mMeshes[i];
-        std::cout << "Vertices:" << mesh->mNumVertices << std::endl;
-        std::cout << "Faces:" << mesh->mNumFaces << std::endl;
+        Logger() << "Loading mesh '" << mesh->mName.C_Str() <<
+                "', Vertices:" << mesh->mNumVertices <<
+                ", Faces:" << mesh->mNumFaces << std::endl;
         for (int j = 0; j < mesh->mNumFaces; j++) {
             const aiFace face = mesh->mFaces[j];
             aiVector3D normal;
@@ -62,6 +64,7 @@ std::vector<std::shared_ptr<Mesh> > ModelLoader::LoadModel(const std::string &pa
             model->indices.push_back(j * face.mNumIndices + 1);
             model->indices.push_back(j * face.mNumIndices + 2);
         }
+
         if (scene->HasMaterials()) {
             aiMaterial *material = scene->mMaterials[mesh->mMaterialIndex];
             aiColor3D ambientColor, diffuseColor, specularColor;
@@ -80,10 +83,6 @@ std::vector<std::shared_ptr<Mesh> > ModelLoader::LoadModel(const std::string &pa
             model->material.specularColor.g = specularColor.g;
             model->material.specularColor.b = specularColor.b;
         }
-
-        std::cout << "Loaded model '" << path
-                << "', vertex:" << model->vertices.size()
-                << ", indices:" << model->indices.size() << std::endl;
 
         meshes.push_back(model);
     }

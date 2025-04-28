@@ -12,9 +12,9 @@ int main(int argc, char *argv[]) {
     GraphicsApp app;
     app.SetWindowTitle("Renderer Demo");
     app.SetWindowPos(20, 20);
-    app.SetWindowSize(1024, 768);
+    app.SetWindowSize(768, 768);
     app.Init();
     app.CaptureFrame("../../renderer_demo/images/render_offscreen.png");
-    app.Run();
+    // app.Run();
     return 0;
 }
