@@ -15,6 +15,11 @@
 #include "../../gpu_engine/utils/ImageUtils.h"
 #include "renderer_demo/scene/ModelLoader.h"
 
+Renderer::Renderer(const uint32_t width, const uint32_t height) {
+    this->width = width;
+    this->height = height;
+}
+
 bool Renderer::AddDrawElement(const std::vector<Vertex> &vertexData,
                               const std::vector<uint32_t> &indicesData,
                               const Material &material) {
@@ -234,6 +239,8 @@ bool Renderer::Init(const std::vector<const char *> &requiredExtensions,
     this->matrixMVP.view = this->camera->GetViewMatrix();
     this->matrixMVP.model = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(1, 0, 0));
     this->matrixMVP.model = glm::rotate(this->matrixMVP.model, glm::radians(-45.0f), glm::vec3(0, 0, 1));
+    this->matrixMVP.model = glm::translate(this->matrixMVP.model, glm::vec3(-1.000000, -0.471877, -0.507677));
+    this->matrixMVP.model = glm::scale(this->matrixMVP.model, glm::vec3(0.015385f));
 
     this->swapChain = std::make_shared<VkGPUSwapChain>(this->gpuCtx);
     if (this->swapChain == nullptr) {

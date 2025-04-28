@@ -40,9 +40,9 @@ std::vector<std::shared_ptr<Mesh> > ModelLoader::LoadModel(const std::string &pa
             }
             for (int k = 0; k < face.mNumIndices; k++) {
                 Vertex vertex{};
-                vertex.position.x = (mesh->mVertices[face.mIndices[k]].x - 50.0f) / 100.0f;
-                vertex.position.y = (mesh->mVertices[face.mIndices[k]].y - 50.0f) / 100.0f;
-                vertex.position.z = (mesh->mVertices[face.mIndices[k]].z - 50.0f) / 100.0f;
+                vertex.position.x = mesh->mVertices[face.mIndices[k]].x;
+                vertex.position.y = mesh->mVertices[face.mIndices[k]].y;
+                vertex.position.z = mesh->mVertices[face.mIndices[k]].z;
 
                 if (mesh->HasNormals()) {
                     normal = mesh->mNormals[j * face.mNumIndices + k];
@@ -51,9 +51,9 @@ std::vector<std::shared_ptr<Mesh> > ModelLoader::LoadModel(const std::string &pa
                 vertex.normal.y = normal.y;
                 vertex.normal.z = normal.z;
 
-                vertex.color.r = 1.0f;
-                vertex.color.g = 1.0f;
-                vertex.color.b = 1.0f;
+                vertex.color.r = 0.0f;
+                vertex.color.g = 0.0f;
+                vertex.color.b = 0.0f;
 
                 model->vertices.push_back(vertex);
             }

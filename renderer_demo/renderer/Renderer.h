@@ -56,7 +56,7 @@ class Renderer {
 
     FrameInfo frameInfo{};
 
-    uint32_t width = 1024;
+    uint32_t width = 768;
     uint32_t height = 768;
 
     std::shared_ptr<Camera> camera = nullptr;
@@ -73,7 +73,7 @@ class Renderer {
     VkFence renderFinishedFence = VK_NULL_HANDLE;
 
 public:
-    Renderer() = default;
+    Renderer(uint32_t width, uint32_t height);
 
     bool AddDrawElement(const std::vector<Vertex> &vertexData,
                         const std::vector<uint32_t> &indicesData,
