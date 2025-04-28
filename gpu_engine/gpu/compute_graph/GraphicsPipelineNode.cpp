@@ -50,7 +50,7 @@ std::shared_ptr<VkGPUDescriptorSet> GraphicsPipelineNode::CreateDescriptorSet(co
 
     for (const auto &buffer: graphicsElement.buffers) {
         if (buffer.type == PIPELINE_NODE_BUFFER_VERTEX || buffer.type == PIPELINE_NODE_BUFFER_INDEX) {
-            break;
+            continue;
         }
         VkDescriptorBufferInfo bufferInfo = {};
         bufferInfo.offset = 0;
@@ -58,18 +58,24 @@ std::shared_ptr<VkGPUDescriptorSet> GraphicsPipelineNode::CreateDescriptorSet(co
         bufferInfo.buffer = buffer.buffer;
         this->pipelineDescriptorBufferInfos.push_back(bufferInfo);
     }
+
     for (uint32_t i = 0; i < pipelineDescriptorBufferInfos.size(); ++i) {
-        descriptorSet->AddStorageBufferDescriptorSet(i, pipelineDescriptorBufferInfos.at(i));
+        Logger() << "Descriptor(" << i << "):" << string_VkDescriptorType(this->descriptorSetLayoutBindings[i].descriptorType)
+                << std::endl;
+        if (this->descriptorSetLayoutBindings[i].descriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER) {
+            descriptorSet->AddUniformBufferDescriptorSet(i, pipelineDescriptorBufferInfos.at(i));
+        } else if (this->descriptorSetLayoutBindings[i].descriptorType == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER) {
+            descriptorSet->AddStorageBufferDescriptorSet(i, pipelineDescriptorBufferInfos.at(i));
+        } else {
+            Logger() << "Unsupported descriptor type " << std::endl;
+            return nullptr;
+        }
     }
     descriptorSet->UpdateDescriptorSets();
     return descriptorSet;
 }
 
 void GraphicsPipelineNode::AddGraphicsElement(const GraphicsElement &graphicsElement) {
-    // FIXME: crash
-    // const std::shared_ptr<VkGPUDescriptorSet> descriptorSet = CreateDescriptorSet(graphicsElement);
-    // pipelineDescriptorSets.push_back(descriptorSet);
-
     this->graphicsElements.push_back(graphicsElement);
 }
 
@@ -84,19 +90,18 @@ VkResult GraphicsPipelineNode::CreateComputeGraphNode() {
         return VK_ERROR_INITIALIZATION_FAILED;
     }
 
-    std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
     const auto [pushConstantInfo, buffers, customDrawFunc] = graphicsElements[0];
     int binding = 0;
-    for (uint32_t i = 0; i < buffers.size(); ++i) {
-        if (buffers[i].type == PIPELINE_NODE_BUFFER_VERTEX || buffers[i].type == PIPELINE_NODE_BUFFER_INDEX) {
-            break;
+    for (const auto &buffer: buffers) {
+        if (buffer.type == PIPELINE_NODE_BUFFER_VERTEX || buffer.type == PIPELINE_NODE_BUFFER_INDEX) {
+            continue;
         }
         VkDescriptorSetLayoutBinding bufferBinding;
         bufferBinding.binding = binding;
-        if (buffers[i].type == PIPELINE_NODE_BUFFER_UNIFORM) {
+        if (buffer.type == PIPELINE_NODE_BUFFER_UNIFORM) {
             bufferBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        } else if (buffers[i].type == PIPELINE_NODE_BUFFER_STORAGE_READ ||
-                   buffers[i].type == PIPELINE_NODE_BUFFER_STORAGE_WRITE) {
+        } else if (buffer.type == PIPELINE_NODE_BUFFER_STORAGE_READ ||
+                   buffer.type == PIPELINE_NODE_BUFFER_STORAGE_WRITE) {
             bufferBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
         }
         bufferBinding.descriptorCount = 1;
@@ -104,6 +109,11 @@ VkResult GraphicsPipelineNode::CreateComputeGraphNode() {
         bufferBinding.pImmutableSamplers = nullptr;
         descriptorSetLayoutBindings.push_back(bufferBinding);
         binding++;
+    }
+
+    for (auto &layoutBinding: descriptorSetLayoutBindings) {
+        Logger() << "Binding(" << layoutBinding.binding << "):" << string_VkDescriptorType(layoutBinding.descriptorType)
+                << std::endl;
     }
 
     std::vector<VkPushConstantRange> pushConstantRanges;
@@ -146,7 +156,7 @@ void GraphicsPipelineNode::Compute(const VkCommandBuffer commandBuffer) {
     Logger() << "Executing Compute Node: " << name << std::endl;
     graphicsPipeline->GPUCmdBindPipeline(commandBuffer);
     for (size_t i = 0; i < graphicsElements.size(); ++i) {
-        pipelineDescriptorSets[i]->GPUCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE);
+        pipelineDescriptorSets[i]->GPUCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS);
         VkGPUHelper::GPUCmdPushConstant(commandBuffer,
                                         graphicsPipeline->GetPipelineLayout(),
                                         VK_SHADER_STAGE_ALL_GRAPHICS,

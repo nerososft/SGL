@@ -27,6 +27,8 @@ public:
 
     VkResult AllocateDescriptorSets(VkDescriptorPool descriptorPool);
 
+    void AddUniformBufferDescriptorSet(uint32_t dtsBinding, const VkDescriptorBufferInfo &descriptorBufferInfo);
+
     void AddStorageBufferDescriptorSet(uint32_t dtsBinding, const VkDescriptorBufferInfo &descriptorBufferInfo);
 
     void UpdateDescriptorSets() const;

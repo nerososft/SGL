@@ -24,13 +24,21 @@ VkResult VkGPUDescriptorSet::AllocateDescriptorSets(const VkDescriptorPool descr
     std::vector<VkDescriptorSetLayout> descriptorSetLayouts;
     descriptorSetLayouts.push_back(this->descriptorSetLayout);
     this->writeDescriptorSets.clear();
-    const VkResult ret = VkGPUHelper::AllocateDescriptorSets(device, descriptorPool, descriptorSetLayouts, &this->descriptorSet);
+    const VkResult ret = VkGPUHelper::AllocateDescriptorSets(device, descriptorPool, descriptorSetLayouts,
+                                                             &this->descriptorSet);
     if (ret != VK_SUCCESS) {
         Logger() << "failed to allocate descriptor sets!" << std::endl;
         return ret;
     }
     this->descriptorSets.push_back(this->descriptorSet);
     return ret;
+}
+
+void VkGPUDescriptorSet::AddUniformBufferDescriptorSet(const uint32_t dtsBinding,
+                                                       const VkDescriptorBufferInfo &descriptorBufferInfo) {
+    this->writeDescriptorSets.push_back(
+        VkGPUHelper::BuildWriteUniformBufferDescriptorSet(this->descriptorSet, dtsBinding, &descriptorBufferInfo)
+    );
 }
 
 void VkGPUDescriptorSet::AddStorageBufferDescriptorSet(const uint32_t dtsBinding,

@@ -168,6 +168,10 @@ public:
                                                         const VkDescriptorBufferInfo *bufferInfo,
                                                         const VkBufferView *texelBufferView);
 
+    static VkWriteDescriptorSet BuildWriteUniformBufferDescriptorSet(VkDescriptorSet descriptorSet, uint32_t dstBinding,
+                                                                     const VkDescriptorBufferInfo *
+                                                                     descriptorBufferInfo);
+
     static VkWriteDescriptorSet BuildWriteStorageBufferDescriptorSet(VkDescriptorSet descriptorSet,
                                                                      uint32_t dstBinding,
                                                                      const VkDescriptorBufferInfo *

@@ -25,6 +25,8 @@ class GraphicsPipelineNode final : public IComputeGraphNode {
     std::vector<VkVertexInputBindingDescription> vertexInputBindingDescriptions;
     std::vector<VkVertexInputAttributeDescription> vertexInputAttributeDescriptions;
 
+    std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
+
     float width = 1.0f;
     float height = 1.0f;
 

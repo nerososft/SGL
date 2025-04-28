@@ -645,6 +645,18 @@ VkWriteDescriptorSet VkGPUHelper::BuildWriteDescriptorSet(const VkDescriptorSet 
     return writeDescriptorSet;
 }
 
+VkWriteDescriptorSet VkGPUHelper::BuildWriteUniformBufferDescriptorSet(const VkDescriptorSet descriptorSet,
+                                                                       const uint32_t dstBinding,
+                                                                       const VkDescriptorBufferInfo *
+                                                                       descriptorBufferInfo) {
+    return BuildWriteDescriptorSet(descriptorSet,
+                                   dstBinding,
+                                   VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+                                   nullptr,
+                                   descriptorBufferInfo,
+                                   nullptr);
+}
+
 VkWriteDescriptorSet VkGPUHelper::BuildWriteStorageBufferDescriptorSet(const VkDescriptorSet descriptorSet,
                                                                        const uint32_t dstBinding,
                                                                        const VkDescriptorBufferInfo *
