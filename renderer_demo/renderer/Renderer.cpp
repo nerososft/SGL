@@ -330,7 +330,7 @@ bool Renderer::Init(const std::vector<const char *> &requiredExtensions,
 
     std::vector<VkClearValue> clearValues;
     clearValues.push_back({
-        .color = {1.0f, 1.0f, 1.0f, 0.0f}
+        .color = {0.0f, 0.0f, 0.0f, 0.0f}
     });
     clearValues.push_back({
         .depthStencil = {1.0f, 0}
@@ -467,6 +467,28 @@ VkResult Renderer::Present() const {
         .dstSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1},
         .extent = {width, height, 1}
     };
+
+    std::vector<VkImageMemoryBarrier> imageMemoryBarriers;
+    imageMemoryBarriers.push_back(VkGPUHelper::BuildImageMemoryBarrier(VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+                                                                          VK_ACCESS_TRANSFER_READ_BIT,
+                                                                          this->framebuffer->GetColorImage(),
+                                                                          VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                                                                          VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL));
+
+    imageMemoryBarriers.push_back(VkGPUHelper::BuildImageMemoryBarrier(VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+                                                                          VK_ACCESS_TRANSFER_WRITE_BIT,
+                                                                          this->swapChain->GetSwapChainImg(imageIndex),
+                                                                          VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                                                                          VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL));
+
+    vkCmdPipelineBarrier(this->presentCmdBuffer,
+                         VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                         VK_PIPELINE_STAGE_TRANSFER_BIT,
+                         0,
+                         0, nullptr,
+                         0, nullptr,
+                         imageMemoryBarriers.size(),
+                         imageMemoryBarriers.data());
     vkCmdCopyImage(this->presentCmdBuffer,
                    this->framebuffer->GetColorImage(),
                    VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
