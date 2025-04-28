@@ -40,7 +40,7 @@ vec4 unpackColor(uint color) {
     );
 }
 
-// 修正后的三次卷积权重计算
+// 修正后的三次卷积权重计算  Keys' Cubic Interpolation
 float cubicWeight(float d) {
     d = abs(d);
     if (d < 1.0) return (4.0 + d * d * (3.0 * d - 6.0)) / 6.0;
@@ -49,7 +49,7 @@ float cubicWeight(float d) {
 }
 
 
-// 双三次插值权重函数 (a = -0.5)
+// 双三次插值权重函数 (a = -0.5)  Mitchell-Netravali 
 float cubicWeightNew(float x) {
     x = abs(x);
     if (x < 1.0) {
@@ -60,6 +60,22 @@ float cubicWeightNew(float x) {
     return 0.0;
 }
 
+
+
+
+// Lanczos插值权重函数 (a=2.0)
+float lanczosWeight(float x) {
+    x = abs(x);
+    if (x < 2.0) {  // 通常Lanczos窗口大小为2
+        if (x == 0.0) {
+            return 1.0;
+        }
+        float pi_x = 3.14159265359 * x;  // πx
+        float pi_x_over_a = 3.14159265359 * x / 2.0;  
+        return (sin(pi_x) * sin(pi_x_over_a)) / (pi_x * pi_x_over_a);
+    }
+    return 0.0;
+}
 
 void main() {
     uvec2 coord = gl_GlobalInvocationID.xy;
@@ -87,6 +103,9 @@ void main() {
 			}else if(filterParams.type == 2){
 				 wx = cubicWeightNew(d.x);
 				 wy = cubicWeightNew(d.y);
+			}else if(filterParams.type == 3){
+				 wx = lanczosWeight(d.x);
+				 wy = lanczosWeight(d.y);
 			}
 			
             float weight = wx * wy;
