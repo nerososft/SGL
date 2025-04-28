@@ -86,12 +86,13 @@ VkResult GraphicsPipelineNode::CreateComputeGraphNode() {
 
     std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
     const auto [pushConstantInfo, buffers, customDrawFunc] = graphicsElements[0];
+    int binding = 0;
     for (uint32_t i = 0; i < buffers.size(); ++i) {
         if (buffers[i].type == PIPELINE_NODE_BUFFER_VERTEX || buffers[i].type == PIPELINE_NODE_BUFFER_INDEX) {
             break;
         }
         VkDescriptorSetLayoutBinding bufferBinding;
-        bufferBinding.binding = i;
+        bufferBinding.binding = binding;
         if (buffers[i].type == PIPELINE_NODE_BUFFER_UNIFORM) {
             bufferBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
         } else if (buffers[i].type == PIPELINE_NODE_BUFFER_STORAGE_READ ||
@@ -102,6 +103,7 @@ VkResult GraphicsPipelineNode::CreateComputeGraphNode() {
         bufferBinding.stageFlags = VK_SHADER_STAGE_ALL_GRAPHICS;
         bufferBinding.pImmutableSamplers = nullptr;
         descriptorSetLayoutBindings.push_back(bufferBinding);
+        binding++;
     }
 
     std::vector<VkPushConstantRange> pushConstantRanges;
