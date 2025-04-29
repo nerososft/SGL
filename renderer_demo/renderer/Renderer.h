@@ -77,7 +77,7 @@ public:
 
     std::shared_ptr<VkGPUContext> &GetGPUContext() { return gpuCtx; }
 
-    void Update();
+    void Update() const;
 };
 
 #endif //RENDERER_H

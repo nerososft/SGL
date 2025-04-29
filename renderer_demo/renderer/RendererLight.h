@@ -27,6 +27,8 @@ public:
 
     void Destroy();
 
+    glm::vec4 GetLightPosition() const { return light.position; }
+
     void SetLightPosition(const glm::vec4 &position);
 
     bool CreateGPULight(const std::shared_ptr<VkGPUContext> &gpuCtx);

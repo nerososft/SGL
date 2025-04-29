@@ -22,6 +22,10 @@ class RendererCamera {
 
     std::shared_ptr<VkGPUBuffer> viewProjectionBuffer = nullptr;
 
+    glm::mat4 GetInitialViewMatrix() const;
+
+    static glm::mat4 GetInitialProjectionMatrix(float aspectRatio);
+
 public:
     RendererCamera(glm::vec3 position, glm::vec3 up);
 
@@ -35,7 +39,9 @@ public:
 
     [[nodiscard]] glm::mat4 GetViewMatrix() const;
 
-    static glm::mat4 GetProjectionMatrix(float aspectRatio);
+    void SetViewMatrix(const glm::mat4 &viewMatrix);
+
+    glm::mat4 GetProjectionMatrix() const;
 
     void Destroy();
 

@@ -14,13 +14,26 @@ RendererCamera::RendererCamera(const glm::vec3 position, const glm::vec3 up) {
     this->up = up;
 }
 
-glm::mat4 RendererCamera::GetViewMatrix() const {
+glm::mat4 RendererCamera::GetInitialViewMatrix() const {
     const glm::mat4 view = glm::lookAt(this->position, glm::vec3(0, 0, 0), this->up);
     return view;
 }
 
-glm::mat4 RendererCamera::GetProjectionMatrix(const float aspectRatio) {
+glm::mat4 RendererCamera::GetInitialProjectionMatrix(const float aspectRatio) {
     return glm::perspective(glm::radians(45.0f), aspectRatio, 0.1f, 100.0f);
+}
+
+glm::mat4 RendererCamera::GetViewMatrix() const {
+    return viewProjectionMatrix.view;
+}
+
+void RendererCamera::SetViewMatrix(const glm::mat4 &viewMatrix) {
+    this->viewProjectionMatrix.view = viewMatrix;
+    this->viewProjectionBuffer->UploadData(&viewProjectionMatrix, sizeof(ViewProjectionMatrix));
+}
+
+glm::mat4 RendererCamera::GetProjectionMatrix() const {
+    return viewProjectionMatrix.projection;
 }
 
 void RendererCamera::Destroy() {
@@ -42,8 +55,8 @@ bool RendererCamera::CreateGPUCamera(const std::shared_ptr<VkGPUContext> &gpuCtx
         Logger() << "VP buffer allocate and bind failed" << std::endl;
         return false;
     }
-    this->viewProjectionMatrix.view = GetViewMatrix();
-    this->viewProjectionMatrix.projection = GetProjectionMatrix(aspectRatio);
+    this->viewProjectionMatrix.view = GetInitialViewMatrix();
+    this->viewProjectionMatrix.projection = GetInitialProjectionMatrix(aspectRatio);
     ret = viewProjectionBuffer->UploadData(&viewProjectionMatrix, vpBufferSize);
     if (ret != VK_SUCCESS) {
         Logger() << "VP buffer upload failed" << std::endl;
