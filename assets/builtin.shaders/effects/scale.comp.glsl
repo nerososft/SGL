@@ -52,10 +52,11 @@ float cubicWeight(float d) {
 // 双三次插值权重函数 (a = -0.5)  Mitchell-Netravali 
 float cubicWeightNew(float x) {
     x = abs(x);
+	float k = -0.75;
     if (x < 1.0) {
-        return (-0.5 + 2.0) * x*x*x - (-0.5 + 3.0) * x*x + 1.0;
+        return (k + 2.0) * x*x*x - (k + 3.0) * x*x + 1.0;
     } else if (x < 2.0) {
-        return -0.5 * x*x*x + 5.0 * 0.5 * x*x - 8.0 * 0.5 * x + 4.0 * 0.5;
+        return k * x*x*x -  5 * k * x*x + 8.0 * k * x - 4.0 * k;
     }
     return 0.0;
 }
