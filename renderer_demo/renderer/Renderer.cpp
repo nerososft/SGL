@@ -5,6 +5,7 @@
 #include "Renderer.h"
 
 #include <queue>
+#include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
 #include <vulkan/vk_enum_string_helper.h>
 
@@ -22,144 +23,31 @@ Renderer::Renderer(const uint32_t width, const uint32_t height) {
 
 bool Renderer::AddDrawElement(const std::vector<Vertex> &vertexData,
                               const std::vector<uint32_t> &indicesData,
-                              const Material &material) {
+                              const Material &material,
+                              const glm::mat4 &transform) {
     std::vector<PipelineNodeBuffer> buffers;
 
-    /*
-     * Vertex upload
-     */
-    const auto vertexBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
-    if (vertexBuffer == nullptr) {
-        Logger() << "vertexBuffer is null" << std::endl;
-        return false;
-    }
-    const VkDeviceSize vertexBufferSize = vertexData.size() * sizeof(Vertex);
-    VkResult ret = vertexBuffer->AllocateAndBind(GPU_BUFFER_TYPE_VERTEX, vertexBufferSize);
-    if (ret != VK_SUCCESS) {
-        Logger() << "Vertex buffer allocate and bind failed" << std::endl;
-        return false;
-    }
-    ret = vertexBuffer->UploadData(vertexData.data(), vertexBufferSize);
-    if (ret != VK_SUCCESS) {
-        Logger() << "Vertex buffer upload failed" << std::endl;
+    const auto renderMesh = std::make_shared<RendererMesh>(vertexData, indicesData, material, transform);
+    if (!renderMesh->CreateGPUMesh(this->gpuCtx)) {
         return false;
     }
 
-    vertexBuffers.push_back(vertexBuffer);
+    // TODO: from camera system
+    const glm::mat4 view = glm::lookAt(glm::vec3(0, 0, -60), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+    const glm::mat4 projection = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 100.0f);
+    const MatrixMVP mvp = {
+        .model = transform,
+        .view = glm::rotate(view, glm::radians(-45.0f), glm::vec3(1, 1, 1)),
+        .projection = projection,
+    };
+    renderMesh->SetMvpMatrix(mvp);
+    this->rendererMeshes.push_back(renderMesh);
 
-    PipelineNodeBuffer vertexBufferNode = {};
-    vertexBufferNode.type = PIPELINE_NODE_BUFFER_VERTEX;
-    vertexBufferNode.bufferSize = vertexBufferSize;
-    vertexBufferNode.buffer = vertexBuffer->GetBuffer();
-
-    /*
-     * Indices upload
-     */
-    const auto indicesBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
-    if (indicesBuffer == nullptr) {
-        Logger() << "indexBuffer is null" << std::endl;
-        return false;
-    }
-
-    const VkDeviceSize indicesBufferSize = indicesData.size() * sizeof(uint32_t);
-    ret = indicesBuffer->AllocateAndBind(GPU_BUFFER_TYPE_INDEX, indicesBufferSize);
-    if (ret != VK_SUCCESS) {
-        Logger() << "Index buffer allocate and bind failed" << std::endl;
-        return false;
-    }
-    ret = indicesBuffer->UploadData(indicesData.data(), indicesBufferSize);
-    if (ret != VK_SUCCESS) {
-        Logger() << "Index buffer upload failed" << std::endl;
-        return false;
-    }
-
-    indicesBuffers.push_back(indicesBuffer);
-
-    PipelineNodeBuffer indicesBufferNode = {};
-    indicesBufferNode.type = PIPELINE_NODE_BUFFER_INDEX;
-    indicesBufferNode.buffer = indicesBuffer->GetBuffer();
-    indicesBufferNode.bufferSize = indicesBufferSize;
-
-    /*
-     * Material upload
-     */
-    materialBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
-    if (materialBuffer == nullptr) {
-        Logger() << "material is null" << std::endl;
-        return false;
-    }
-    const VkDeviceSize materialBufferSize = sizeof(Material);
-    ret = materialBuffer->AllocateAndBind(GPU_BUFFER_TYPE_UNIFORM, materialBufferSize);
-    if (ret != VK_SUCCESS) {
-        Logger() << "Material buffer allocate and bind failed" << std::endl;
-        return false;
-    }
-    ret = materialBuffer->UploadData(&material, materialBufferSize);
-    if (ret != VK_SUCCESS) {
-        Logger() << "Material buffer upload failed" << std::endl;
-        return false;
-    }
-    uniformBuffers.push_back(materialBuffer);
-    PipelineNodeBuffer materialBufferNode = {};
-    materialBufferNode.type = PIPELINE_NODE_BUFFER_UNIFORM;
-    materialBufferNode.buffer = materialBuffer->GetBuffer();
-    materialBufferNode.bufferSize = materialBufferSize;
-
-    /*
-     * MVP matrix
-     */
-    mvpBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
-    if (materialBuffer == nullptr) {
-        Logger() << "mvp is null" << std::endl;
-        return false;
-    }
-    const VkDeviceSize mvpBufferSize = sizeof(MatrixMVP);
-    ret = mvpBuffer->AllocateAndBind(GPU_BUFFER_TYPE_UNIFORM, mvpBufferSize);
-    if (ret != VK_SUCCESS) {
-        Logger() << "MVP buffer allocate and bind failed" << std::endl;
-        return false;
-    }
-    ret = mvpBuffer->UploadData(&matrixMVP, mvpBufferSize);
-    if (ret != VK_SUCCESS) {
-        Logger() << "MVP buffer upload failed" << std::endl;
-        return false;
-    }
-    uniformBuffers.push_back(mvpBuffer);
-    PipelineNodeBuffer mvpBufferNode = {};
-    mvpBufferNode.type = PIPELINE_NODE_BUFFER_UNIFORM;
-    mvpBufferNode.buffer = mvpBuffer->GetBuffer();
-    mvpBufferNode.bufferSize = mvpBufferSize;
-
-    /*
-    * Light
-    */
-    lightBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
-    if (lightBuffer == nullptr) {
-        Logger() << "light is null" << std::endl;
-        return false;
-    }
-    const VkDeviceSize lightBufferSize = sizeof(Light);
-    ret = lightBuffer->AllocateAndBind(GPU_BUFFER_TYPE_UNIFORM, lightBufferSize);
-    if (ret != VK_SUCCESS) {
-        Logger() << "light buffer allocate and bind failed" << std::endl;
-        return false;
-    }
-    ret = lightBuffer->UploadData(&light, lightBufferSize);
-    if (ret != VK_SUCCESS) {
-        Logger() << "light buffer upload failed" << std::endl;
-        return false;
-    }
-    uniformBuffers.push_back(lightBuffer);
-    PipelineNodeBuffer lightBufferNode = {};
-    lightBufferNode.type = PIPELINE_NODE_BUFFER_UNIFORM;
-    lightBufferNode.buffer = lightBuffer->GetBuffer();
-    lightBufferNode.bufferSize = lightBufferSize;
-
-    buffers.push_back(vertexBufferNode);
-    buffers.push_back(indicesBufferNode);
-    buffers.push_back(materialBufferNode);
-    buffers.push_back(mvpBufferNode);
-    buffers.push_back(lightBufferNode);
+    buffers.push_back(renderMesh->GetVertexBufferNode());
+    buffers.push_back(renderMesh->GetIndicesBufferNode());
+    buffers.push_back(renderMesh->GetMaterialBufferNode());
+    buffers.push_back(renderMesh->GetMVPBufferNode());
+    buffers.push_back(rendererLights[0]->GetLightBufferNode());
     const GraphicsElement element{
         .pushConstantInfo = {
             .size = sizeof(FrameInfo),
@@ -222,11 +110,16 @@ bool Renderer::ConstructMainGraphicsPipeline() {
         return false;
     }
 
+    // const std::vector<std::shared_ptr<Mesh> > models = ModelLoader::LoadModel(
+    //     "../../renderer_demo/assets/builtin.models/Lion.OBJ");
     const std::vector<std::shared_ptr<Mesh> > models = ModelLoader::LoadModel(
-        "../../renderer_demo/assets/builtin.models/Lion.OBJ");
-    if (!this->AddDrawElement(models[0]->vertices, models[0]->indices, models[0]->material)) {
-        Logger() << "Vertex buffer add failed" << std::endl;
-        return false;
+        "../../renderer_demo/assets/builtin.models/1911.FBX");
+
+    for (auto &mesh: models) {
+        if (!this->AddDrawElement(mesh->vertexData, mesh->indicesData, mesh->material, mesh->transform)) {
+            Logger() << "Vertex buffer add failed" << std::endl;
+            return false;
+        }
     }
 
     const VkResult ret = this->graphicsPipelineNode->CreateComputeGraphNode();
@@ -237,6 +130,20 @@ bool Renderer::ConstructMainGraphicsPipeline() {
 
     this->mainRenderPassNode->AddDependenceNode(this->graphicsPipelineNode);
 
+    return true;
+}
+
+bool Renderer::InitCamera() {
+    return true;
+}
+
+bool Renderer::InitLights() {
+    const auto light = std::make_shared<RendererLight>();
+    if (!light->CreateGPULight(this->gpuCtx)) {
+        return false;
+    }
+    light->SetLightPosition(glm::vec4(3, 3, 3, 0));
+    this->rendererLights.push_back(light);
     return true;
 }
 
@@ -260,13 +167,15 @@ bool Renderer::Init(const std::vector<const char *> &requiredExtensions,
     }
     Logger() << Logger::INFO << "Initialized Renderer, version: " << VERSION << std::endl;
 
-    this->camera = std::make_shared<Camera>(glm::vec3(0, 0, -3), glm::vec3(0, 1, 0));
-    this->matrixMVP.projection = this->camera->GetProjectionMatrix(this->width / this->height);
-    this->matrixMVP.view = this->camera->GetViewMatrix();
-    this->matrixMVP.model = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(1, 0, 0));
-    this->matrixMVP.model = glm::rotate(this->matrixMVP.model, glm::radians(-45.0f), glm::vec3(0, 0, 1));
-    this->matrixMVP.model = glm::translate(this->matrixMVP.model, glm::vec3(-1.000000, -0.471877, -0.507677));
-    this->matrixMVP.model = glm::scale(this->matrixMVP.model, glm::vec3(0.015385f));
+    if (!InitCamera()) {
+        Logger() << Logger::ERROR << "Failed to initialize camera!" << std::endl;
+        return false;
+    }
+
+    if (!InitLights()) {
+        Logger() << Logger::ERROR << "Failed to initialize Lights!" << std::endl;
+        return false;
+    }
 
     this->swapChain = std::make_shared<VkGPUSwapChain>(this->gpuCtx);
     if (this->swapChain == nullptr) {
@@ -593,17 +502,5 @@ void Renderer::RenderFrameOffScreen(const std::string &path) {
 
 
 void Renderer::Update() {
-    this->matrixMVP.model = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(1, 0, 0));
-    this->matrixMVP.model = glm::rotate(this->matrixMVP.model,
-                                        glm::radians(static_cast<float>(this->frameInfo.frameIndex)),
-                                        glm::vec3(0, 0, 1));
-    this->matrixMVP.model = glm::translate(this->matrixMVP.model, glm::vec3(-1.000000, -0.471877, -0.507677));
-    this->matrixMVP.model = glm::scale(this->matrixMVP.model, glm::vec3(0.015385f));
-
-    mvpBuffer->UploadData(&this->matrixMVP, sizeof(MatrixMVP));
-
-    this->light.position = glm::rotate(glm::mat4(1.0f),
-                                       glm::radians(static_cast<float>(2 * this->frameInfo.frameIndex)),
-                                       glm::vec3(1, 1, 1)) * glm::vec4(3, 0, 0, 0);
-    lightBuffer->UploadData(&this->light, sizeof(Light));
+    // TODO: update world matrix
 }

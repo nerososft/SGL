@@ -46,10 +46,12 @@ add_executable(renderer_demo
         GraphicsApp.cpp
         scene/ModelLoader.cpp
         scene/ModelLoader.h
-        scene/Mesh.cpp
-        scene/Mesh.h
-        scene/Camera.cpp
-        scene/Camera.h
+        renderer/RendererMesh.cpp
+        renderer/RendererMesh.h
+        renderer/RendererLight.cpp
+        renderer/RendererLight.h
+        renderer/RendererCamera.cpp
+        renderer/RendererCamera.h
 )
 target_link_libraries(renderer_demo gpu_engine)
 target_link_libraries(renderer_demo glfw)

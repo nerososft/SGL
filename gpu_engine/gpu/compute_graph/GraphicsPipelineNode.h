@@ -33,7 +33,6 @@ class GraphicsPipelineNode final : public IComputeGraphNode {
     std::shared_ptr<VkGPUContext> gpuCtx = nullptr;
     std::shared_ptr<VkGPURenderPass> renderPass = nullptr;
     std::shared_ptr<VkGPUGraphicsPipeline> graphicsPipeline = nullptr;
-    std::vector<VkDescriptorBufferInfo> pipelineDescriptorBufferInfos;
     std::vector<std::shared_ptr<VkGPUDescriptorSet> > pipelineDescriptorSets;
 
     std::vector<GraphicsElement> graphicsElements;
@@ -49,7 +48,7 @@ public:
                          float width,
                          float height);
 
-    std::shared_ptr<VkGPUDescriptorSet> CreateDescriptorSet(const GraphicsElement &graphicsElement);
+    std::shared_ptr<VkGPUDescriptorSet> CreateDescriptorSet(const GraphicsElement &graphicsElement) const;
 
     void AddGraphicsElement(const GraphicsElement &graphicsElement);
 

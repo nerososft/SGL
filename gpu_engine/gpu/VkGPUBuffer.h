@@ -45,6 +45,8 @@ public:
 
     VkResult DownloadData(void *downloadAddr, VkDeviceSize size);
 
+    [[nodiscard]] VkDeviceSize GetBufferSize() const { return this->bufferSize; }
+
     void Destroy();
 
     [[nodiscard]] VkBuffer GetBuffer() const { return buffer; }

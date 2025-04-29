@@ -1,20 +1,21 @@
 //
-// Created by neo on 25-4-28.
+// Created by neo on 25-4-29.
 //
 
-#ifndef CAMERA_H
-#define CAMERA_H
+#ifndef RENDERERCAMERA_H
+#define RENDERERCAMERA_H
 #include <glm/fwd.hpp>
 #include <glm/vec3.hpp>
 
-class Camera {
+
+class RendererCamera {
     glm::vec3 position{};
     glm::vec3 up{};
 
 public:
-    Camera(glm::vec3 position, glm::vec3 up);
+    RendererCamera(glm::vec3 position, glm::vec3 up);
 
-    ~Camera() = default;
+    ~RendererCamera() = default;
 
     void SetPosition(const glm::vec3 position) {
         this->position = position;
@@ -28,4 +29,4 @@ public:
 };
 
 
-#endif //CAMERA_H
+#endif //RENDERERCAMERA_H

@@ -13,37 +13,9 @@
 #include "../../gpu_engine/gpu/compute_graph/ImageToBufferCopyNode.h"
 #include <glm/glm.hpp>
 
+#include "RendererLight.h"
+#include "RendererMesh.h"
 #include "../../gpu_engine/gpu/VkGPUSwapChain.h"
-#include "renderer_demo/scene/Camera.h"
-
-struct Material {
-    glm::vec4 ambientColor;
-    glm::vec4 diffuseColor;
-    glm::vec4 specularColor;
-    glm::vec4 transparentColor;
-    glm::vec4 emissiveColor;
-    glm::vec4 reflectiveColor;
-    glm::vec4 shininess;
-};
-
-struct MatrixMVP {
-    glm::mat4 model;
-    glm::mat4 view;
-    glm::mat4 projection;
-};
-
-struct Light {
-    glm::vec4 position;
-    glm::vec4 color;
-    glm::vec4 direction;
-};
-
-struct Vertex {
-    glm::vec3 position;
-    glm::vec3 color;
-    glm::vec3 normal;
-    glm::vec2 texCoords;
-};
 
 struct FrameInfo {
     uint32_t frameIndex;
@@ -69,31 +41,26 @@ class Renderer {
     uint32_t width = 768;
     uint32_t height = 768;
 
-    std::shared_ptr<Camera> camera = nullptr;
-
-    Material material{};
-    MatrixMVP matrixMVP{};
-    Light light{};
-
-    std::vector<std::shared_ptr<VkGPUBuffer> > indicesBuffers;
-    std::vector<std::shared_ptr<VkGPUBuffer> > vertexBuffers;
-    std::vector<std::shared_ptr<VkGPUBuffer> > uniformBuffers;
-
-    std::shared_ptr<VkGPUBuffer> materialBuffer = nullptr;
-    std::shared_ptr<VkGPUBuffer> mvpBuffer = nullptr;
-    std::shared_ptr<VkGPUBuffer> lightBuffer = nullptr;
+    glm::mat4 worldMatrix = glm::mat4(1.0f);
+    std::vector<std::shared_ptr<RendererMesh> > rendererMeshes;
+    std::vector<std::shared_ptr<RendererLight> > rendererLights;
 
     VkCommandBuffer presentCmdBuffer = VK_NULL_HANDLE;
     VkSemaphore imageAvailableSemaphore = VK_NULL_HANDLE;
     VkSemaphore renderFinishedSemaphore = VK_NULL_HANDLE;
     VkFence renderFinishedFence = VK_NULL_HANDLE;
 
+    bool InitCamera();
+
+    bool InitLights();
+
 public:
     Renderer(uint32_t width, uint32_t height);
 
     bool AddDrawElement(const std::vector<Vertex> &vertexData,
                         const std::vector<uint32_t> &indicesData,
-                        const Material &material);
+                        const Material &material,
+                        const glm::mat4 &transform);
 
     [[nodiscard]] bool ConstructMainGraphicsPipeline();
 
