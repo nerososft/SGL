@@ -71,6 +71,9 @@ class Renderer {
     std::vector<std::shared_ptr<VkGPUBuffer> > vertexBuffers;
     std::vector<std::shared_ptr<VkGPUBuffer> > uniformBuffers;
 
+    std::shared_ptr<VkGPUBuffer> materialBuffer = nullptr;
+    std::shared_ptr<VkGPUBuffer> mvpBuffer = nullptr;
+
     VkCommandBuffer presentCmdBuffer = VK_NULL_HANDLE;
     VkSemaphore imageAvailableSemaphore = VK_NULL_HANDLE;
     VkSemaphore renderFinishedSemaphore = VK_NULL_HANDLE;
@@ -96,6 +99,8 @@ public:
     void RenderFrameOffScreen(const std::string &path);
 
     std::shared_ptr<VkGPUContext> &GetGPUContext() { return gpuCtx; }
+
+    void Update();
 };
 
 #endif //RENDERER_H

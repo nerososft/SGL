@@ -83,7 +83,7 @@ bool Renderer::AddDrawElement(const std::vector<Vertex> &vertexData,
     /*
      * Material upload
      */
-    const auto materialBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
+    materialBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
     if (materialBuffer == nullptr) {
         Logger() << "material is null" << std::endl;
         return false;
@@ -108,7 +108,7 @@ bool Renderer::AddDrawElement(const std::vector<Vertex> &vertexData,
     /*
      * MVP matrix
      */
-    const auto mvpBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
+    mvpBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
     if (materialBuffer == nullptr) {
         Logger() << "mvp is null" << std::endl;
         return false;
@@ -470,16 +470,16 @@ VkResult Renderer::Present() const {
 
     std::vector<VkImageMemoryBarrier> imageMemoryBarriers;
     imageMemoryBarriers.push_back(VkGPUHelper::BuildImageMemoryBarrier(VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-                                                                          VK_ACCESS_TRANSFER_READ_BIT,
-                                                                          this->framebuffer->GetColorImage(),
-                                                                          VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-                                                                          VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL));
+                                                                       VK_ACCESS_TRANSFER_READ_BIT,
+                                                                       this->framebuffer->GetColorImage(),
+                                                                       VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                                                                       VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL));
 
     imageMemoryBarriers.push_back(VkGPUHelper::BuildImageMemoryBarrier(VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-                                                                          VK_ACCESS_TRANSFER_WRITE_BIT,
-                                                                          this->swapChain->GetSwapChainImg(imageIndex),
-                                                                          VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-                                                                          VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL));
+                                                                       VK_ACCESS_TRANSFER_WRITE_BIT,
+                                                                       this->swapChain->GetSwapChainImg(imageIndex),
+                                                                       VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                                                                       VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL));
 
     vkCmdPipelineBarrier(this->presentCmdBuffer,
                          VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
@@ -563,4 +563,15 @@ void Renderer::RenderFrameOffScreen(const std::string &path) {
                              this->height,
                              4,
                              imgData.data());
+}
+
+void Renderer::Update() {
+    this->matrixMVP.model = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(1, 0, 0));
+    this->matrixMVP.model = glm::rotate(this->matrixMVP.model,
+                                        glm::radians(static_cast<float>(this->frameInfo.frameIndex)),
+                                        glm::vec3(0, 0, 1));
+    this->matrixMVP.model = glm::translate(this->matrixMVP.model, glm::vec3(-1.000000, -0.471877, -0.507677));
+    this->matrixMVP.model = glm::scale(this->matrixMVP.model, glm::vec3(0.015385f));
+
+    mvpBuffer->UploadData(&this->matrixMVP, sizeof(MatrixMVP));
 }
