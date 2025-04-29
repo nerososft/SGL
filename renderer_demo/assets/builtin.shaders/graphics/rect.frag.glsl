@@ -16,6 +16,12 @@ layout (binding = 0) uniform Material {
     vec3 shininess;
 } material;
 
+layout (binding = 2) uniform Light {
+    vec3 position;
+    vec3 color;
+    vec3 direction;
+} light;
+
 layout (push_constant) uniform FrameInfo {
     uint frameIndex;
     float time;
@@ -36,11 +42,11 @@ vec3 calculatePhongLighting(vec3 lightPos, vec3 viewPos, vec3 norm, vec3 fragPos
 }
 
 void main() {
-    vec3 lightPos = vec3(-3, -3, -3);
+    vec3 lightPos = light.position;
     vec3 viewPos = vec3(0, 0, -3);
     vec3 norm = normalize(normal);
 
     vec3 phongLighting = calculatePhongLighting(lightPos, viewPos, norm, position);
     vec3 finalColor = vec3(color * phongLighting);
-    FragColor = vec4(finalColor, 1.0); // surface not support rgb
+    FragColor = vec4(finalColor, 1.0);
 }

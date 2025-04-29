@@ -130,10 +130,36 @@ bool Renderer::AddDrawElement(const std::vector<Vertex> &vertexData,
     mvpBufferNode.buffer = mvpBuffer->GetBuffer();
     mvpBufferNode.bufferSize = mvpBufferSize;
 
+    /*
+    * Light
+    */
+    lightBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
+    if (lightBuffer == nullptr) {
+        Logger() << "light is null" << std::endl;
+        return false;
+    }
+    const VkDeviceSize lightBufferSize = sizeof(Light);
+    ret = lightBuffer->AllocateAndBind(GPU_BUFFER_TYPE_UNIFORM, lightBufferSize);
+    if (ret != VK_SUCCESS) {
+        Logger() << "light buffer allocate and bind failed" << std::endl;
+        return false;
+    }
+    ret = lightBuffer->UploadData(&light, lightBufferSize);
+    if (ret != VK_SUCCESS) {
+        Logger() << "light buffer upload failed" << std::endl;
+        return false;
+    }
+    uniformBuffers.push_back(lightBuffer);
+    PipelineNodeBuffer lightBufferNode = {};
+    lightBufferNode.type = PIPELINE_NODE_BUFFER_UNIFORM;
+    lightBufferNode.buffer = lightBuffer->GetBuffer();
+    lightBufferNode.bufferSize = lightBufferSize;
+
     buffers.push_back(vertexBufferNode);
     buffers.push_back(indicesBufferNode);
     buffers.push_back(materialBufferNode);
     buffers.push_back(mvpBufferNode);
+    buffers.push_back(lightBufferNode);
     const GraphicsElement element{
         .pushConstantInfo = {
             .size = sizeof(FrameInfo),
@@ -565,6 +591,7 @@ void Renderer::RenderFrameOffScreen(const std::string &path) {
                              imgData.data());
 }
 
+
 void Renderer::Update() {
     this->matrixMVP.model = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(1, 0, 0));
     this->matrixMVP.model = glm::rotate(this->matrixMVP.model,
@@ -574,4 +601,14 @@ void Renderer::Update() {
     this->matrixMVP.model = glm::scale(this->matrixMVP.model, glm::vec3(0.015385f));
 
     mvpBuffer->UploadData(&this->matrixMVP, sizeof(MatrixMVP));
+    static float dir = 0.5;
+    if (this->light.position.x < -10) {
+        dir = 0.5;
+    } else if (this->light.position.x > 10) {
+        dir = -0.5;
+    }
+    this->light.position.x += dir;
+    this->light.position.y += dir;
+    this->light.position.z += dir;
+    lightBuffer->UploadData(&this->light, sizeof(Light));
 }

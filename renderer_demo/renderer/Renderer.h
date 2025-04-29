@@ -32,6 +32,12 @@ struct MatrixMVP {
     glm::mat4 projection;
 };
 
+struct Light {
+    glm::vec4 position;
+    glm::vec4 color;
+    glm::vec4 direction;
+};
+
 struct Vertex {
     glm::vec3 position;
     glm::vec3 color;
@@ -66,6 +72,7 @@ class Renderer {
     std::shared_ptr<Camera> camera = nullptr;
 
     MatrixMVP matrixMVP{};
+    Light light{};
 
     std::vector<std::shared_ptr<VkGPUBuffer> > indicesBuffers;
     std::vector<std::shared_ptr<VkGPUBuffer> > vertexBuffers;
@@ -73,6 +80,7 @@ class Renderer {
 
     std::shared_ptr<VkGPUBuffer> materialBuffer = nullptr;
     std::shared_ptr<VkGPUBuffer> mvpBuffer = nullptr;
+    std::shared_ptr<VkGPUBuffer> lightBuffer = nullptr;
 
     VkCommandBuffer presentCmdBuffer = VK_NULL_HANDLE;
     VkSemaphore imageAvailableSemaphore = VK_NULL_HANDLE;
