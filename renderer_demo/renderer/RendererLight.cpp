@@ -13,7 +13,7 @@ bool RendererLight::CreateGPULight(const std::shared_ptr<VkGPUContext> &gpuCtx) 
         return false;
     }
     const VkDeviceSize lightBufferSize = sizeof(Light);
-    VkResult ret = lightBuffer->AllocateAndBind(GPU_BUFFER_TYPE_VERTEX, lightBufferSize);
+    VkResult ret = lightBuffer->AllocateAndBind(GPU_BUFFER_TYPE_UNIFORM, lightBufferSize);
     if (ret != VK_SUCCESS) {
         Logger() << "Light buffer allocate and bind failed" << std::endl;
         return false;

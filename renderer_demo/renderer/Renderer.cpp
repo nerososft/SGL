@@ -5,7 +5,6 @@
 #include "Renderer.h"
 
 #include <queue>
-#include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
 #include <vulkan/vk_enum_string_helper.h>
 
@@ -31,23 +30,14 @@ bool Renderer::AddDrawElement(const std::vector<Vertex> &vertexData,
     if (!renderMesh->CreateGPUMesh(this->gpuCtx)) {
         return false;
     }
-
-    // TODO: from camera system
-    const glm::mat4 view = glm::lookAt(glm::vec3(0, 0, -60), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
-    const glm::mat4 projection = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 100.0f);
-    const MatrixMVP mvp = {
-        .model = transform,
-        .view = glm::rotate(view, glm::radians(-45.0f), glm::vec3(1, 1, 1)),
-        .projection = projection,
-    };
-    renderMesh->SetMvpMatrix(mvp);
     this->rendererMeshes.push_back(renderMesh);
 
     buffers.push_back(renderMesh->GetVertexBufferNode());
     buffers.push_back(renderMesh->GetIndicesBufferNode());
-    buffers.push_back(renderMesh->GetMaterialBufferNode());
-    buffers.push_back(renderMesh->GetMVPBufferNode());
-    buffers.push_back(rendererLights[0]->GetLightBufferNode());
+    buffers.push_back(renderMesh->GetMaterialBufferNode()); // uniform 0
+    buffers.push_back(renderMesh->GetTransformMatrixBufferNode()); // uniform 1
+    buffers.push_back(camera->GetViewProjectionMatrixBufferNode()); // uniform 2
+    buffers.push_back(rendererLights[0]->GetLightBufferNode()); // uniform 3
     const GraphicsElement element{
         .pushConstantInfo = {
             .size = sizeof(FrameInfo),
@@ -134,6 +124,10 @@ bool Renderer::ConstructMainGraphicsPipeline() {
 }
 
 bool Renderer::InitCamera() {
+    camera = std::make_shared<RendererCamera>(glm::vec3(0, 0, -60), glm::vec3(0, 1, 0));
+    if (!camera->CreateGPUCamera(this->gpuCtx, this->width / this->height)) {
+        return false;
+    }
     return true;
 }
 

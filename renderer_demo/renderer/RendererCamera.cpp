@@ -7,6 +7,8 @@
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
 
+#include "gpu_engine/log/Log.h"
+
 RendererCamera::RendererCamera(const glm::vec3 position, const glm::vec3 up) {
     this->position = position;
     this->up = up;
@@ -19,4 +21,41 @@ glm::mat4 RendererCamera::GetViewMatrix() const {
 
 glm::mat4 RendererCamera::GetProjectionMatrix(const float aspectRatio) {
     return glm::perspective(glm::radians(45.0f), aspectRatio, 0.1f, 100.0f);
+}
+
+void RendererCamera::Destroy() {
+    if (viewProjectionBuffer != nullptr) {
+        viewProjectionBuffer->Destroy();
+        viewProjectionBuffer = nullptr;
+    }
+}
+
+bool RendererCamera::CreateGPUCamera(const std::shared_ptr<VkGPUContext> &gpuCtx, const float aspectRatio) {
+    viewProjectionBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
+    if (viewProjectionBuffer == nullptr) {
+        Logger() << "vp is null" << std::endl;
+        return false;
+    }
+    const VkDeviceSize vpBufferSize = sizeof(ViewProjectionMatrix);
+    VkResult ret = viewProjectionBuffer->AllocateAndBind(GPU_BUFFER_TYPE_UNIFORM, vpBufferSize);
+    if (ret != VK_SUCCESS) {
+        Logger() << "VP buffer allocate and bind failed" << std::endl;
+        return false;
+    }
+    this->viewProjectionMatrix.view = GetViewMatrix();
+    this->viewProjectionMatrix.projection = GetProjectionMatrix(aspectRatio);
+    ret = viewProjectionBuffer->UploadData(&viewProjectionMatrix, vpBufferSize);
+    if (ret != VK_SUCCESS) {
+        Logger() << "VP buffer upload failed" << std::endl;
+        return false;
+    }
+    return true;
+}
+
+PipelineNodeBuffer RendererCamera::GetViewProjectionMatrixBufferNode() const {
+    PipelineNodeBuffer vpBufferNode = {};
+    vpBufferNode.type = PIPELINE_NODE_BUFFER_UNIFORM;
+    vpBufferNode.buffer = viewProjectionBuffer->GetBuffer();
+    vpBufferNode.bufferSize = viewProjectionBuffer->GetBufferSize();
+    return vpBufferNode;
 }

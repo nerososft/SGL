@@ -13,6 +13,7 @@
 #include "../../gpu_engine/gpu/compute_graph/ImageToBufferCopyNode.h"
 #include <glm/glm.hpp>
 
+#include "RendererCamera.h"
 #include "RendererLight.h"
 #include "RendererMesh.h"
 #include "../../gpu_engine/gpu/VkGPUSwapChain.h"
@@ -41,9 +42,9 @@ class Renderer {
     uint32_t width = 768;
     uint32_t height = 768;
 
-    glm::mat4 worldMatrix = glm::mat4(1.0f);
     std::vector<std::shared_ptr<RendererMesh> > rendererMeshes;
     std::vector<std::shared_ptr<RendererLight> > rendererLights;
+    std::shared_ptr<RendererCamera> camera = nullptr;
 
     VkCommandBuffer presentCmdBuffer = VK_NULL_HANDLE;
     VkSemaphore imageAvailableSemaphore = VK_NULL_HANDLE;

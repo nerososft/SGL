@@ -16,7 +16,7 @@ layout (binding = 0) uniform Material {
     vec3 shininess;
 } material;
 
-layout (binding = 2) uniform Light {
+layout (binding = 3) uniform Light {
     vec3 position;
     vec3 color;
     vec3 direction;

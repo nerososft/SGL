@@ -27,10 +27,8 @@ struct Material {
     glm::vec4 shininess;
 };
 
-struct MatrixMVP {
+struct ModelMatrix {
     glm::mat4 model;
-    glm::mat4 view;
-    glm::mat4 projection;
 };
 
 struct Mesh {
@@ -43,12 +41,11 @@ struct Mesh {
 class RendererMesh {
 public:
     Mesh mesh{};
-    MatrixMVP matrixMVP{};
 
     std::shared_ptr<VkGPUBuffer> vertexBuffer = nullptr;
     std::shared_ptr<VkGPUBuffer> indicesBuffer = nullptr;
     std::shared_ptr<VkGPUBuffer> materialBuffer = nullptr;
-    std::shared_ptr<VkGPUBuffer> mvpBuffer = nullptr;
+    std::shared_ptr<VkGPUBuffer> transformMatrixBuffer = nullptr;
 
     RendererMesh() = delete;
 
@@ -59,9 +56,7 @@ public:
 
     void SetMaterial(const Material &material);
 
-    void SetMvpMatrix(const MatrixMVP &mvpMatrix);
-
-    void SetTransform(const glm::mat4 &transform);
+    void SetTransformMatrix(const glm::mat4 &transform);
 
     [[nodiscard]] PipelineNodeBuffer GetVertexBufferNode() const;
 
@@ -69,7 +64,7 @@ public:
 
     [[nodiscard]] PipelineNodeBuffer GetMaterialBufferNode() const;
 
-    [[nodiscard]] PipelineNodeBuffer GetMVPBufferNode() const;
+    [[nodiscard]] PipelineNodeBuffer GetTransformMatrixBufferNode() const;
 
     bool CreateGPUMesh(const std::shared_ptr<VkGPUContext> &gpuCtx);
 

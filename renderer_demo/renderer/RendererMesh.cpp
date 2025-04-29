@@ -21,15 +21,9 @@ void RendererMesh::SetMaterial(const Material &material) {
     this->materialBuffer->UploadData(&material, sizeof(Material));
 }
 
-void RendererMesh::SetMvpMatrix(const MatrixMVP &mvpMatrix) {
-    this->matrixMVP = mvpMatrix;
-    this->mvpBuffer->UploadData(&matrixMVP, sizeof(MatrixMVP));
-}
-
-void RendererMesh::SetTransform(const glm::mat4 &transform) {
+void RendererMesh::SetTransformMatrix(const glm::mat4 &transform) {
     this->mesh.transform = transform;
-    this->matrixMVP.model = this->mesh.transform;
-    this->mvpBuffer->UploadData(&matrixMVP, sizeof(MatrixMVP));
+    this->transformMatrixBuffer->UploadData(&mesh.transform, sizeof(glm::mat4));
 }
 
 PipelineNodeBuffer RendererMesh::GetVertexBufferNode() const {
@@ -56,12 +50,12 @@ PipelineNodeBuffer RendererMesh::GetMaterialBufferNode() const {
     return materialBufferNode;
 }
 
-PipelineNodeBuffer RendererMesh::GetMVPBufferNode() const {
-    PipelineNodeBuffer mvpBufferNode = {};
-    mvpBufferNode.type = PIPELINE_NODE_BUFFER_UNIFORM;
-    mvpBufferNode.buffer = mvpBuffer->GetBuffer();
-    mvpBufferNode.bufferSize = mvpBuffer->GetBufferSize();
-    return mvpBufferNode;
+PipelineNodeBuffer RendererMesh::GetTransformMatrixBufferNode() const {
+    PipelineNodeBuffer transformMatrixBufferNode = {};
+    transformMatrixBufferNode.type = PIPELINE_NODE_BUFFER_UNIFORM;
+    transformMatrixBufferNode.buffer = transformMatrixBuffer->GetBuffer();
+    transformMatrixBufferNode.bufferSize = transformMatrixBuffer->GetBufferSize();
+    return transformMatrixBufferNode;
 }
 
 bool RendererMesh::CreateGPUMesh(const std::shared_ptr<VkGPUContext> &gpuCtx) {
@@ -127,23 +121,23 @@ bool RendererMesh::CreateGPUMesh(const std::shared_ptr<VkGPUContext> &gpuCtx) {
     }
 
     /*
-     * MVP matrix
+     * Transform matrix
      */
-    mvpBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
-    if (materialBuffer == nullptr) {
-        Logger() << "mvp is null" << std::endl;
+    transformMatrixBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
+    if (transformMatrixBuffer == nullptr) {
+        Logger() << "transform matrix is null" << std::endl;
         return false;
     }
-    const VkDeviceSize mvpBufferSize = sizeof(MatrixMVP);
-    ret = mvpBuffer->AllocateAndBind(GPU_BUFFER_TYPE_UNIFORM, mvpBufferSize);
+    const VkDeviceSize transformMatrixBufferSize = sizeof(glm::mat4);
+    ret = transformMatrixBuffer->AllocateAndBind(GPU_BUFFER_TYPE_UNIFORM, transformMatrixBufferSize);
     if (ret != VK_SUCCESS) {
-        Logger() << "MVP buffer allocate and bind failed" << std::endl;
+        Logger() << "transform matrix buffer allocate and bind failed" << std::endl;
         return false;
     }
 
-    ret = mvpBuffer->UploadData(&matrixMVP, mvpBufferSize);
+    ret = transformMatrixBuffer->UploadData(&mesh.transform, transformMatrixBufferSize);
     if (ret != VK_SUCCESS) {
-        Logger() << "MVP buffer upload failed" << std::endl;
+        Logger() << "transform matrix buffer upload failed" << std::endl;
         return false;
     }
 
@@ -163,8 +157,8 @@ void RendererMesh::Destroy() {
         materialBuffer->Destroy();
         materialBuffer = nullptr;
     }
-    if (mvpBuffer != nullptr) {
-        mvpBuffer->Destroy();
-        mvpBuffer = nullptr;
+    if (transformMatrixBuffer != nullptr) {
+        transformMatrixBuffer->Destroy();
+        transformMatrixBuffer = nullptr;
     }
 }
