@@ -43,5 +43,5 @@ endif ()
 
 add_subdirectory(gpu_engine)
 add_subdirectory(effect_engine)
-add_subdirectory(effect_demo)
+#add_subdirectory(effect_demo)
 #add_subdirectory(renderer_demo)

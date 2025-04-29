@@ -1,4 +1,4 @@
-
+rm -rf build_os
 mkdir build_os
 cd build_os
 
