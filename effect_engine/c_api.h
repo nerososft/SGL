@@ -30,3 +30,14 @@ extern "C"  GPU_API  bool accented_edge_filter_gpu(void* in, void* out, int* sob
 extern "C"  GPU_API  bool irisblur_filter_gpu(void* in, void* in2, void* out, float x, float y, float a, float b, float ina, float inb, float angle);
 extern "C"  GPU_API  bool tiltshiftblur_filter_gpu(void* in, void* in2, void* out, float* A, float* B, float* C, float xoffset, float yoffset,int size);
 extern "C"  GPU_API const char *get_gpu_engine_name();
+extern "C"  GPU_API  bool minmax_filter_gpu(void* in, void* out, int radius,int type);
+extern "C"  GPU_API  bool colorhalftone_filter_gpu(void* in, void* out, float cyanAngle, float yellowAngle, float magentaAngle, float radius, float* lookup);
+extern "C"  GPU_API  bool sharpen_filter_gpu(void* in, void* out, int* kernel,int size);
+extern "C"  GPU_API  bool polarcoordinates_filter_gpu(void* in, void* out, int type);
+extern "C"  GPU_API  bool clouds_filter_gpu(void* in, void* out, int* permuteLookup, int size, int type);
+extern "C"  GPU_API  bool motionblur_filter_gpu(void* in, void* out, int distance, int angle, float proportion);
+extern "C"  GPU_API  bool twirlwarp_filter_gpu(void* in, void* out, int angle);
+extern "C"  GPU_API  bool zigzag_filter_gpu(void* in, void* out, int wavelength, int amplitude, int type_wave, float proportion);
+extern "C"  GPU_API  bool spherize_filter_gpu(void* in, void* out, int alpha, int type);
+extern "C"  GPU_API  bool pinch_filter_gpu(void* in, void* out, int amount);
+extern "C"  GPU_API  bool wave_filter_gpu(void* in, void* out, int wavelength,int amplitude,int x_pro,int y_pro,int type,int method);
