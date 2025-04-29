@@ -26,6 +26,17 @@
 #include"effect_engine/filters/impl/AccentedEdgeFilter.h"
 #include"effect_engine/filters/impl/IrisBlurFilter.h"
 #include"effect_engine/filters/impl/TiltshiftBlurFilter.h"
+#include"effect_engine/filters/impl/MinMaxFilter.h"
+#include"effect_engine/filters/impl/ColorhalftoneFilter.h"
+#include"effect_engine/filters/impl/SharpenFilter.h"
+#include"effect_engine/filters/impl/PolarCoordinatesFilter.h"
+#include"effect_engine/filters/impl/CloudsFilter.h"
+#include"effect_engine/filters/impl/MotionblurFilter.h"
+#include"effect_engine/filters/impl/TwirlWarpFilter.h"
+#include"effect_engine/filters/impl/ZigzagFilter.h"
+#include"effect_engine/filters/impl/SpherizeFilter.h"
+#include"effect_engine/filters/impl/PinchFilter.h"
+#include"effect_engine/filters/impl/WaveFilter.h"
 
 #include "log/Log.h"
 
@@ -408,6 +419,7 @@ bool pathblur_filter_gpu(void *in, void *out, float *vec, const int amount, cons
     const auto *output = static_cast<ImageInfo *>(out);
 
     int k_size = width * height * 2;
+    filter->SetK1(vec, k_size);
     filter->SetK(k_size);
     filter->SetAmount(amount);
     filter->SetStartpos(startpos, num);
@@ -539,6 +551,163 @@ bool tiltshiftblur_filter_gpu(void* in, void* in2, void* out, float* A, float* B
     filter->SetOffset(xoffset,yoffset);
 
     g_effect_engine.Process(inputs, outputs, filter);
+
+    return true;
+}
+
+bool minmax_filter_gpu(void* in, void* out, int radius,int type)
+{
+    const auto filter = std::make_shared<MinMaxFilter>();
+    const auto* input = static_cast<ImageInfo*>(in);
+    const auto* output = static_cast<ImageInfo*>(out);
+
+    filter->SetRadius(radius);
+    filter->SetType(type);
+
+    g_effect_engine.Process(*input, *output, filter);
+
+    return true;
+}
+
+bool colorhalftone_filter_gpu(void* in, void* out, float cyanAngle, float yellowAngle, float magentaAngle, float radius, float* lookup)
+{
+    const auto filter = std::make_shared<ColorhalftoneFilter>();
+    const auto* input = static_cast<ImageInfo*>(in);
+    const auto* output = static_cast<ImageInfo*>(out);
+
+    const int size = 256;
+    filter->SetColor(cyanAngle,yellowAngle,magentaAngle,radius);
+    filter->SetLookup(lookup,size);
+
+    g_effect_engine.Process(*input, *output, filter);
+
+    return true;
+}
+
+bool sharpen_filter_gpu(void* in, void* out, int* kernel, int size)
+{
+    const auto filter = std::make_shared<SharpenFilter>();
+    const auto* input = static_cast<ImageInfo*>(in);
+    const auto* output = static_cast<ImageInfo*>(out);
+
+    filter->SetKernel(kernel, size);
+
+    g_effect_engine.Process(*input, *output, filter);
+
+    return true;
+}
+
+bool polarcoordinates_filter_gpu(void* in, void* out, int type)
+{
+    const auto filter = std::make_shared<PolarCoordinatesFilter>();
+    const auto* input = static_cast<ImageInfo*>(in);
+    const auto* output = static_cast<ImageInfo*>(out);
+
+    filter->SetType(type);
+
+    g_effect_engine.Process(*input, *output, filter);
+
+    return true;
+}
+
+bool clouds_filter_gpu(void* in, void* out, int* permuteLookup, int size,int type)
+{
+    const auto filter = std::make_shared<CloudsFilter>();
+    const auto* input = static_cast<ImageInfo*>(in);
+    const auto* output = static_cast<ImageInfo*>(out);
+
+    filter->SetLookup(permuteLookup,size);
+    filter->SetType(type);
+
+    g_effect_engine.Process(*input, *output, filter);
+
+    return true;
+}
+
+bool motionblur_filter_gpu(void* in, void* out, int distance, int angle, float proportion)
+{
+    const auto filter = std::make_shared<MotionblurFilter>();
+    const auto* input = static_cast<ImageInfo*>(in);
+    const auto* output = static_cast<ImageInfo*>(out);
+
+    filter->SetAngle(angle);
+    filter->SetDistance(distance);
+    filter->SetPro(proportion);
+
+    g_effect_engine.Process(*input, *output, filter);
+
+    return true;
+}
+
+bool twirlwarp_filter_gpu(void* in, void* out, int angle)
+{
+    const auto filter = std::make_shared<TwirlWarpFilter>();
+    const auto* input = static_cast<ImageInfo*>(in);
+    const auto* output = static_cast<ImageInfo*>(out);
+
+    filter->SetAngle(angle);
+
+    g_effect_engine.Process(*input, *output, filter);
+
+    return true;
+}
+
+bool zigzag_filter_gpu(void* in, void* out, int wavelength, int amplitude, int type_wave, float proportion)
+{
+    const auto filter = std::make_shared<ZigzagFilter>();
+    const auto* input = static_cast<ImageInfo*>(in);
+    const auto* output = static_cast<ImageInfo*>(out);
+
+    filter->SetWavelength(wavelength);
+    filter->SetAmplitude(amplitude);
+    filter->SetTypewave(type_wave);
+    filter->SetPro(proportion);
+
+    g_effect_engine.Process(*input, *output, filter);
+
+    return true;
+}
+
+bool spherize_filter_gpu(void* in, void* out, int alpha, int type)
+{
+    const auto filter = std::make_shared<SpherizeFilter>();
+    const auto* input = static_cast<ImageInfo*>(in);
+    const auto* output = static_cast<ImageInfo*>(out);
+
+    filter->SetAlpha(alpha);
+    filter->SetType(type);
+
+    g_effect_engine.Process(*input, *output, filter);
+
+    return true;
+}
+
+bool pinch_filter_gpu(void* in, void* out, int amount)
+{
+    const auto filter = std::make_shared<PinchFilter>();
+    const auto* input = static_cast<ImageInfo*>(in);
+    const auto* output = static_cast<ImageInfo*>(out);
+
+    filter->SetAmount(amount);
+
+    g_effect_engine.Process(*input, *output, filter);
+
+    return true;
+}
+
+bool wave_filter_gpu(void* in, void* out, int wavelength, int amplitude, int x_pro, int y_pro, int type, int method)
+{
+    const auto filter = std::make_shared<WaveFilter>();
+    const auto* input = static_cast<ImageInfo*>(in);
+    const auto* output = static_cast<ImageInfo*>(out);
+
+    filter->SetWavelength(wavelength);
+    filter->SetAmplitude(amplitude);
+    filter->SetPro(x_pro, y_pro);
+    filter->SetType(type);
+    filter->SetMethod(method);
+
+    g_effect_engine.Process(*input, *output, filter);
 
     return true;
 }

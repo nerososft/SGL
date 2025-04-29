@@ -255,11 +255,6 @@ void EffectEngine::Process(const std::vector<ImageInfo> &inputs,
         if (buffer == nullptr) {
             break;
         }
-        ret = buffer->MapBuffer(filterOutputImages[i].bufferSize);
-        if (ret != VK_SUCCESS) {
-            Logger() << "Failed to map output storage buffer!" << std::endl;
-            break;
-        }
         ret = buffer->DownloadData(outputs[i].data, filterOutputImages[i].bufferSize);
         if (ret != VK_SUCCESS) {
             Logger() << "Failed to download data from output storage buffer!" << std::endl;

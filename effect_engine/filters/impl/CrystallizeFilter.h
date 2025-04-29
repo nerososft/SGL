@@ -1,5 +1,4 @@
 #pragma once
-#pragma once
 #ifndef CRYSTALLIZEFILTER_H
 #define CRYSTALLIZEFILTER_H
 #include <vulkan/vulkan_core.h>

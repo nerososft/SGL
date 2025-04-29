@@ -22,7 +22,7 @@ class pathBlurFilter final : public IFilter {
     std::shared_ptr<VkGPUBuffer> endposBuffer = nullptr;
     std::shared_ptr<VkGPUBuffer> startvecBuffer = nullptr;
     std::shared_ptr<VkGPUBuffer> endvecBuffer = nullptr;
-    //float *vec = nullptr;
+    float *vec = nullptr;
     float* startpos = nullptr;
     float* endpos = nullptr;
     float* startvec = nullptr;
@@ -39,10 +39,10 @@ public:
                    const std::vector<FilterImageInfo> &inputImageInfo,
                    const std::vector<FilterImageInfo> &outputImageInfo) override;
 
-    /*void SetK(float *vec, int size) {
+    void SetK1(float *vec, int size) {
         this->vec = vec;
         this->k_size = size;
-    }*/
+    }
 
     void SetK(int size)
     {

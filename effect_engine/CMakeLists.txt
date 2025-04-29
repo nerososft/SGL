@@ -144,8 +144,29 @@ set(ENGINE_SOURCE ${ENGINE_GPU_SOURCE} EffectEngine.cpp
         filters/impl/IrisBlurFilter.cpp
         filters/impl/TiltshiftBlurFilter.h
         filters/impl/TiltshiftBlurFilter.cpp
-        
-        
+        filters/impl/MinMaxFilter.h
+        filters/impl/MinMaxFilter.cpp
+        filters/impl/ColorhalftoneFilter.h
+        filters/impl/ColorhalftoneFilter.cpp
+        filters/impl/SharpenFilter.h
+        filters/impl/SharpenFilter.cpp
+        filters/impl/PolarCoordinatesFilter.h
+        filters/impl/PolarCoordinatesFilter.cpp
+        filters/impl/CloudsFilter.h
+        filters/impl/CloudsFilter.cpp
+        filters/impl/MotionblurFilter.h
+        filters/impl/MotionblurFilter.cpp
+        filters/impl/TwirlWarpFilter.h
+        filters/impl/TwirlWarpFilter.cpp
+        filters/impl/ZigzagFilter.h
+        filters/impl/ZigzagFilter.cpp
+        filters/impl/SpherizeFilter.h
+        filters/impl/SpherizeFilter.cpp
+        filters/impl/PinchFilter.h
+        filters/impl/PinchFilter.cpp
+        filters/impl/WaveFilter.h
+        filters/impl/WaveFilter.cpp
+
         )
 
 if (CMAKE_SYSTEM_NAME MATCHES "OHOS")
