@@ -3,6 +3,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     message(STATUS "Running on Windows")
     include_directories("../../")
+	include_directories("../gpu_engine")
     #include_directories("D:/vcpkg_install/vcpkg/installed/x64-windows/include/libpng16")
     #link_directories("$D:/vcpkg_install/vcpkg/installed/x64-windows/lib")
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
@@ -164,6 +165,14 @@ target_link_libraries(effect_engine gpu_engine)
 target_link_libraries(effect_engine vulkan)
 if (CMAKE_SYSTEM_NAME MATCHES "OHOS")
 elseif (CMAKE_SYSTEM_NAME MATCHES "Windows")
+
+add_custom_command(
+    TARGET effect_engine POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_CURRENT_SOURCE_DIR}/../build/effect_engine/$<CONFIG>/
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../x64/$<CONFIG>/
+    COMMENT "Copying build files to x64 directory"
+)
 else ()
     target_link_libraries(effect_engine png)
 endif ()
