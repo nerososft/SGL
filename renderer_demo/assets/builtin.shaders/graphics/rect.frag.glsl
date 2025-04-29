@@ -36,10 +36,11 @@ vec3 calculatePhongLighting(vec3 lightPos, vec3 viewPos, vec3 norm, vec3 fragPos
 }
 
 void main() {
-    vec3 lightPos = vec3(3, 3, 3);
+    vec3 lightPos = vec3(-3, -3, -3);
     vec3 viewPos = vec3(0, 0, -3);
     vec3 norm = normalize(normal);
 
     vec3 phongLighting = calculatePhongLighting(lightPos, viewPos, norm, position);
-    FragColor = color * phongLighting;
+    vec3 finalColor = vec3(color * phongLighting);
+    FragColor = vec3(finalColor.b, finalColor.g, finalColor.r); // surface not support rgb
 }

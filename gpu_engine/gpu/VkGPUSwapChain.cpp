@@ -69,7 +69,7 @@ VkResult VkGPUSwapChain::CreateSwapChain(const VkSurfaceKHR surface,
     createInfo.pNext = nullptr;
     createInfo.surface = surface;
     createInfo.minImageCount = capabilities.minImageCount;
-    createInfo.imageFormat = VK_FORMAT_B8G8R8A8_SRGB;
+    createInfo.imageFormat = VK_FORMAT_R8G8B8A8_SRGB;
     createInfo.imageColorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
     createInfo.imageExtent = imageExtent;
     createInfo.imageArrayLayers = 1;
