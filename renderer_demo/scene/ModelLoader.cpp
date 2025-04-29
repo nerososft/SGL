@@ -80,6 +80,11 @@ std::vector<std::shared_ptr<Mesh> > ModelLoader::LoadModel(const std::string &pa
             model->indicesData.push_back(faceIndex * face.mNumIndices + 2);
         }
 
+        if (scene->HasTextures()) {
+            aiTexture *texture = scene->mTextures[meshIndex];
+            Logger() << "Loading texture '" << texture->mFilename.C_Str() << "'" << std::endl;
+        }
+
         if (scene->HasMaterials()) {
             aiMaterial *material = scene->mMaterials[mesh->mMaterialIndex];
             aiColor3D ambientColor, diffuseColor, specularColor, emissiveColor, transparentColor, reflectiveColor;
@@ -121,6 +126,20 @@ std::vector<std::shared_ptr<Mesh> > ModelLoader::LoadModel(const std::string &pa
             model->material.reflectiveColor.b = reflectiveColor.b;
 
             model->material.shininess.r = shininess;
+
+            for (uint32_t textureType = aiTextureType_NONE; textureType < aiTextureType_UNKNOWN; textureType++) {
+                uint32_t normalTextureCount = material->GetTextureCount(static_cast<aiTextureType>(textureType));
+                Logger() << "Texture " << aiTextureTypeToString(static_cast<aiTextureType>(textureType)) <<
+                        " count: " << normalTextureCount <<
+                        std::endl;
+                for (uint32_t i = 0; i < normalTextureCount; i++) {
+                    aiString texturePath;
+                    material->GetTexture(static_cast<aiTextureType>(textureType), i, &texturePath);
+                    Logger() << "Loading " << aiTextureTypeToString(static_cast<aiTextureType>(textureType)) <<
+                            "texture '" << texturePath.C_Str()
+                            << "'" << std::endl;
+                }
+            }
         }
 
         aiMatrix4x4 matrix = GetMeshTransform(scene, meshIndex);
