@@ -601,14 +601,9 @@ void Renderer::Update() {
     this->matrixMVP.model = glm::scale(this->matrixMVP.model, glm::vec3(0.015385f));
 
     mvpBuffer->UploadData(&this->matrixMVP, sizeof(MatrixMVP));
-    static float dir = 0.5;
-    if (this->light.position.x < -10) {
-        dir = 0.5;
-    } else if (this->light.position.x > 10) {
-        dir = -0.5;
-    }
-    this->light.position.x += dir;
-    this->light.position.y += dir;
-    this->light.position.z += dir;
+
+    this->light.position = glm::rotate(glm::mat4(1.0f),
+                                       glm::radians(static_cast<float>(2 * this->frameInfo.frameIndex)),
+                                       glm::vec3(1, 1, 1)) * glm::vec4(3, 0, 0, 0);
     lightBuffer->UploadData(&this->light, sizeof(Light));
 }

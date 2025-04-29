@@ -71,6 +71,7 @@ class Renderer {
 
     std::shared_ptr<Camera> camera = nullptr;
 
+    Material material{};
     MatrixMVP matrixMVP{};
     Light light{};
 
