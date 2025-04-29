@@ -1,6 +1,6 @@
 #include "MinMaxFilter.h"
 
-#include "effect_engine/config.h"
+#include "gpu_engine/config.h"
 
 VkResult MinMaxFilter::Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
     const std::vector<FilterImageInfo>& inputImageInfo,

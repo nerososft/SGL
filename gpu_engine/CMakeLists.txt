@@ -61,7 +61,7 @@ set(ENGINE_SOURCE ${ENGINE_GPU_SOURCE} utils/IOUtils.cpp
 
 include_directories("./")
 
-add_library(gpu_engine SHARED
+add_library(gpu_engine 
         ${ENGINE_SOURCE}
 )
 target_link_libraries(gpu_engine vulkan)

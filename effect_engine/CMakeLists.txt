@@ -109,13 +109,6 @@ set(ENGINE_SOURCE EffectEngine.cpp
         blenders/impl/OverlayBlender.h
         blenders/impl/LighterColorBlender.cpp
         blenders/impl/LighterColorBlender.h
-        log/Log.h
-        config.h
-        operators/IOperator.h
-        operators/UnaryOperator.cpp
-        operators/UnaryOperator.h
-        operators/BinaryOperator.cpp
-        operators/BinaryOperator.h
 
         filters/impl/CrystallizeFilter.h
         filters/impl/CrystallizeFilter.cpp

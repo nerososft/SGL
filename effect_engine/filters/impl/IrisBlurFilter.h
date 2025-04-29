@@ -4,7 +4,7 @@
 #include <vulkan/vulkan_core.h>
 
 #include "effect_engine/filters/BasicFilter.h"
-#include "effect_engine/gpu/VkGPUContext.h"
+#include "gpu_engine/gpu/VkGPUContext.h"
 
 
 struct IrisBlurFilterParams {
