@@ -1,4 +1,9 @@
-#include "c_api.h"
+//#include "c_api.h"
+
+#if  defined(OS_OPEN_HARMONY)  || defined(ENABLE_WIN64)
+#include "psutil/imageprocess/GpuFilterCAPI.h"
+#endif
+
 #include "effect_engine/EffectEngine.h"
 #include "effect_engine/filters/impl/ColorSeparationFilter.h"
 
@@ -26,6 +31,8 @@
 #include"effect_engine/filters/impl/AccentedEdgeFilter.h"
 #include"effect_engine/filters/impl/IrisBlurFilter.h"
 #include"effect_engine/filters/impl/TiltshiftBlurFilter.h"
+#include "effect_engine/filters/impl/RotationalBlurFilter.h"
+#include "effect_engine/filters/impl/RadialBlurNewFilter.h"
 #include"effect_engine/filters/impl/MinMaxFilter.h"
 #include"effect_engine/filters/impl/ColorhalftoneFilter.h"
 #include"effect_engine/filters/impl/SharpenFilter.h"
@@ -179,11 +186,32 @@ bool adjust_saturation_gpu(void *in, void *out, const int v, const int s) {
     }
 
     if (0) {
-        const auto filter = std::make_shared<MedianFilter>();
+        const auto filter = std::make_shared<RadialBlurNewFilter>();
 
         const ImageInfo *input = static_cast<ImageInfo *>(in);
         const ImageInfo *output = static_cast<ImageInfo *>(out);
-        filter->SetRadius(v);
+        //filter->SetAngle( (v + 4)/ 10.0);
+        //filter->SetStrength(s *2 +4);
+
+        filter->SetSharpness((v + 4) / 10.0);
+        filter->SetStrength(s * 2 + 4);
+        filter->SetCenter(0.5 , 0.5);
+
+        g_effect_engine.Process(*input, *output, filter);
+    }
+
+    if (0) {
+        const auto filter = std::make_shared<RotationalBlurFilter>();
+
+        const ImageInfo* input = static_cast<ImageInfo*>(in);
+        const ImageInfo* output = static_cast<ImageInfo*>(out);
+        //filter->SetAngle( (v + 4)/ 10.0);
+        //filter->SetStrength(s *2 +4);
+
+        filter->SetAngle((v + 4));
+        filter->SetStrength(s + 4);
+        filter->SetCenter(0.3, 0.3);
+
         g_effect_engine.Process(*input, *output, filter);
     }
 
@@ -554,6 +582,39 @@ bool tiltshiftblur_filter_gpu(void* in, void* in2, void* out, float* A, float* B
 
     return true;
 }
+
+
+bool radial_blur_filter_gpu(void* in, void* out, int sharpness,  int strength, float xCenter, float yCenter) {
+    if (in == nullptr || out == nullptr) return false;
+    const auto filter = std::make_shared<RadialBlurNewFilter>();
+    
+    filter->SetSharpness(sharpness);
+    filter->SetStrength(strength);
+    filter->SetCenter(xCenter , yCenter);
+
+    const auto* input = static_cast<ImageInfo*>(in);
+    const auto* output = static_cast<ImageInfo*>(out);
+
+    g_effect_engine.Process(*input, *output, filter);
+
+    return true;
+}
+
+bool rotational_blur_filter_gpu(void* in, void* out, const float angle, const int strength, float x, float y) {
+    if (in == nullptr || out == nullptr) return false;
+    const auto filter = std::make_shared<RotationalBlurFilter>();
+
+    filter->SetAngle(angle);
+    filter->SetStrength(strength);
+    filter->SetCenter(x , y );
+    const auto* input = static_cast<ImageInfo*>(in);
+    const auto* output = static_cast<ImageInfo*>(out);
+
+    g_effect_engine.Process(*input, *output, filter);
+
+    return true;
+}
+
 
 bool minmax_filter_gpu(void* in, void* out, int radius,int type)
 {

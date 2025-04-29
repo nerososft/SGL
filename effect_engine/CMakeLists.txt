@@ -9,6 +9,10 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     message(STATUS "Running on macOS")
     link_directories("/opt/homebrew/Cellar/libpng/1.6.47/lib")
     include_directories("/opt/homebrew/Cellar/libpng/1.6.47/include")
+	
+elseif (CMAKE_SYSTEM_NAME MATCHES "OHOS")
+	message(STATUS "Running on OHOS")
+	include_directories("../../")
 endif ()
 
 set(ENGINE_GPU_SOURCE gpu/VkGPUHelper.cpp
@@ -144,6 +148,10 @@ set(ENGINE_SOURCE ${ENGINE_GPU_SOURCE} EffectEngine.cpp
         filters/impl/IrisBlurFilter.cpp
         filters/impl/TiltshiftBlurFilter.h
         filters/impl/TiltshiftBlurFilter.cpp
+        filters/impl/RotationalBlurFilter.h
+        filters/impl/RotationalBlurFilter.cpp
+        filters/impl/RadialBlurNewFilter.h
+		filters/impl/RadialBlurNewFilter.cpp
         filters/impl/MinMaxFilter.h
         filters/impl/MinMaxFilter.cpp
         filters/impl/ColorhalftoneFilter.h

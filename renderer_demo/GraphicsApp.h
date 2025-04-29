@@ -33,6 +33,8 @@ public:
 
     void Run() const;
 
+    void CaptureFrame(const std::string &path) const;
+
     void SetWindowSize(uint32_t width, uint32_t height);
 
     void SetWindowPos(uint32_t x, uint32_t y);
