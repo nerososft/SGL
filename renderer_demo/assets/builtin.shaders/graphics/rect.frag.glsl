@@ -4,7 +4,7 @@ layout(location = 0) in vec3 color;
 layout(location = 1) in vec3 normal;
 layout(location = 2) in vec3 position;
 
-layout(location = 0) out vec3 FragColor;
+layout(location = 0) out vec4 FragColor;
 
 layout (binding = 0) uniform Material {
     vec3 ambientColor;
@@ -42,5 +42,5 @@ void main() {
 
     vec3 phongLighting = calculatePhongLighting(lightPos, viewPos, norm, position);
     vec3 finalColor = vec3(color * phongLighting);
-    FragColor = vec3(finalColor.b, finalColor.g, finalColor.r); // surface not support rgb
+    FragColor = vec4(finalColor.b, finalColor.g, finalColor.r, 1.0); // surface not support rgb
 }
