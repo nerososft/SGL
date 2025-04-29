@@ -1,0 +1,42 @@
+//
+// Created by neo on 2025/3/9.
+//
+
+#ifndef VKGPUDESCRIPTORSET_H
+#define VKGPUDESCRIPTORSET_H
+#include <vector>
+#include <vulkan/vulkan_core.h>
+
+
+class VkGPUDescriptorSet {
+    VkDevice device = VK_NULL_HANDLE;
+    VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
+    VkDescriptorSetLayout descriptorSetLayout = VK_NULL_HANDLE;
+    VkDescriptorPool descriptorPool = VK_NULL_HANDLE;
+
+    VkDescriptorSet descriptorSet = VK_NULL_HANDLE;
+    std::vector<VkWriteDescriptorSet> writeDescriptorSets;
+    std::vector<VkDescriptorSet> descriptorSets;
+
+public:
+    VkGPUDescriptorSet(VkDevice device,
+                       VkPipelineLayout pipelineLayout,
+                       VkDescriptorSetLayout descriptorSetLayout);
+
+    ~VkGPUDescriptorSet();
+
+    VkResult AllocateDescriptorSets(VkDescriptorPool descriptorPool);
+
+    void AddUniformBufferDescriptorSet(uint32_t dtsBinding, const VkDescriptorBufferInfo &descriptorBufferInfo);
+
+    void AddStorageBufferDescriptorSet(uint32_t dtsBinding, const VkDescriptorBufferInfo &descriptorBufferInfo);
+
+    void UpdateDescriptorSets() const;
+
+    void GPUCmdBindDescriptorSets(VkCommandBuffer commandBuffer, VkPipelineBindPoint pipelineBindPoint) const;
+
+    void Destroy();
+};
+
+
+#endif //VKGPUDESCRIPTORSET_H

@@ -45,7 +45,7 @@
 #include"effect_engine/filters/impl/PinchFilter.h"
 #include"effect_engine/filters/impl/WaveFilter.h"
 
-#include "log/Log.h"
+#include "gpu_engine/log/Log.h"
 
 EffectEngine g_effect_engine;
 bool g_effect_engine_inited = false;

@@ -6,7 +6,7 @@
 #define IBLEND_H
 #include <vulkan/vulkan_core.h>
 
-#include "effect_engine/gpu/VkGPUContext.h"
+#include "gpu_engine/gpu/VkGPUContext.h"
 #include <memory>
 typedef struct {
     uint32_t width;

@@ -4,21 +4,21 @@
 
 #include "BlackWhiteFilter.h"
 
-#include "effect_engine/config.h"
+#include "gpu_engine/config.h"
 
 
 #include <iostream>
 #ifdef OS_OPEN_HARMONY
-#include <effect_engine/gpu/utils/vk_enum_string_helper.h>
+#include <gpu_engine/gpu/utils/vk_enum_string_helper.h>
 #else
 #include <vulkan/vk_enum_string_helper.h>
 #endif
 
 #include "effect_engine/filters/BasicFilter.h"
-#include "effect_engine/gpu/VkGPUHelper.h"
-#include "effect_engine/gpu/compute_graph/BufferCopyNode.h"
-#include "effect_engine/gpu/compute_graph/ComputePipelineNode.h"
-#include "effect_engine/log/Log.h"
+#include "gpu_engine/gpu/VkGPUHelper.h"
+#include "gpu_engine/gpu/compute_graph/BufferCopyNode.h"
+#include "gpu_engine/gpu/compute_graph/ComputePipelineNode.h"
+#include "gpu_engine/log/Log.h"
 
 
 VkResult BlackWhiteFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,

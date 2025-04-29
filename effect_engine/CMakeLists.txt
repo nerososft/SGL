@@ -15,50 +15,32 @@ elseif (CMAKE_SYSTEM_NAME MATCHES "OHOS")
 	include_directories("../../")
 endif ()
 
-set(ENGINE_GPU_SOURCE gpu/VkGPUHelper.cpp
-        gpu/VkGPUHelper.h
-        gpu/VKGPUContext.cpp
-        gpu/VKGPUContext.h
-        gpu/VkGPUComputePipeline.cpp
-        gpu/VkGPUComputePipeline.h
-        gpu/VkGPUDescriptorSet.cpp
-        gpu/VkGPUDescriptorSet.h
-        gpu/VkGPUBuffer.cpp
-        gpu/VkGPUBuffer.h
-        gpu/VkGPUGraphicsPipeline.cpp
-        gpu/VkGPUGraphicsPipeline.h
-        gpu/VkGPURenderPass.cpp
-        gpu/VkGPURenderPass.h
-        gpu/VkGPUFramebuffer.cpp
-        gpu/VkGPUFramebuffer.h
-        gpu/VkGPUSwapChain.cpp
-        gpu/VkGPUSwapChain.h
-        gpu/compute_graph/ComputeGraph.cpp
-        gpu/compute_graph/ComputeGraph.h
-        gpu/compute_graph/IComputeGraphNode.h
-        gpu/compute_graph/ComputePipelineNode.cpp
-        gpu/compute_graph/ComputePipelineNode.h
-        gpu/compute_graph/BufferCopyNode.h
-        gpu/compute_graph/BufferCopyNode.cpp
-        gpu/compute_graph/GraphicsPipelineNode.cpp
-        gpu/compute_graph/GraphicsPipelineNode.h
-        gpu/compute_graph/GraphicsRenderPassNode.cpp
-        gpu/compute_graph/GraphicsRenderPassNode.h
-        gpu/compute_graph/SubComputeGraph.cpp
-        gpu/compute_graph/SubComputeGraph.h
-        gpu/compute_graph/ImageToBufferCopyNode.cpp
-        gpu/compute_graph/ImageToBufferCopyNode.h)
+# compile builtin shaders
+set(BUILTIN_SHADER_DIR assets/builtin.shaders/*)
+message("Builtin shaders dir: ${BUILTIN_SHADER_DIR}")
+file(GLOB BUILTIN_SHADER_FILES ${BUILTIN_SHADER_DIR}/*.glsl)
 
-set(ENGINE_SOURCE ${ENGINE_GPU_SOURCE} EffectEngine.cpp
+foreach (SHADER_FILE ${BUILTIN_SHADER_FILES})
+    message(${SHADER_FILE})
+    get_filename_component(SHADER_NAME ${SHADER_FILE} NAME)
+    set(COMPILED_SHADER ${CMAKE_SOURCE_DIR}/shader_compiled/${SHADER_NAME}.spv)
+    message("${SHADER_COMPILER} -V ${SHADER_FILE} -o ${COMPILED_SHADER} -e main")
+    add_custom_command(
+            OUTPUT ${COMPILED_SHADER}
+            COMMAND ${SHADER_COMPILER} -V ${SHADER_FILE} -o ${COMPILED_SHADER} -e main
+            DEPENDS ${SHADER_FILE}
+            COMMENT "Compiling ${SHADER_FILE} to ${COMPILED_SHADER}"
+            VERBATIM
+    )
+    list(APPEND COMPILED_SHADERS ${COMPILED_SHADER})
+endforeach ()
+message("Need: ${COMPILED_SHADERS}")
+add_custom_target(compile_effect_shaders ALL DEPENDS ${COMPILED_SHADERS})
+
+set(ENGINE_SOURCE EffectEngine.cpp
         EffectEngine.h
         c_api.cpp
         c_api.h
-        utils/IOUtils.cpp
-        utils/IOUtils.h
-        utils/TimeUtils.cpp
-        utils/TimeUtils.h
-        utils/ImageUtils.cpp
-        utils/ImageUtils.h
         filters/IFilter.h
         filters/BasicFilter.cpp
         filters/BasicFilter.h
@@ -92,10 +74,10 @@ set(ENGINE_SOURCE ${ENGINE_GPU_SOURCE} EffectEngine.cpp
         filters/impl/SurfaceBlurFilter.h
         filters/impl/ThresholdSplitFilter.h
         filters/impl/ThresholdSplitFilter.cpp
-        filters/impl/customKernelFilter.h
-        filters/impl/customKernelFilter.cpp
-        filters/impl/colorBalanceFilter.h
-        filters/impl/colorBalanceFilter.cpp
+        filters/impl/CustomKernelFilter.h
+        filters/impl/CustomKernelFilter.cpp
+        filters/impl/ColorBalanceFilter.h
+        filters/impl/ColorBalanceFilter.cpp
         filters/impl/BlackWhiteFilter.h
         filters/impl/BlackWhiteFilter.cpp
         filters/impl/VibranceFilter.cpp
@@ -178,18 +160,20 @@ set(ENGINE_SOURCE ${ENGINE_GPU_SOURCE} EffectEngine.cpp
         )
 
 if (CMAKE_SYSTEM_NAME MATCHES "OHOS")
-    set(ENGINE_SOURCE ${ENGINE_SOURCE} filters/impl/HPSBlurFilter.cpp filters/impl/HPSBlurFilter.h)
+    set(ENGINE_SOURCE ${ENGINE_SOURCE} filters/impl/HPSBlurFilter.cpp filters/impl/HPSBlurFilter.h
+            ../renderer_demo/main.cpp)
 endif ()
 
-add_library(gpu_effect_engine SHARED
+add_library(effect_engine SHARED
         ${ENGINE_SOURCE}
 )
-target_link_libraries(gpu_effect_engine vulkan)
+target_link_libraries(effect_engine gpu_engine)
+target_link_libraries(effect_engine vulkan)
 if (CMAKE_SYSTEM_NAME MATCHES "OHOS")
 elseif (CMAKE_SYSTEM_NAME MATCHES "Windows")
 else ()
-    target_link_libraries(gpu_effect_engine png)
+    target_link_libraries(effect_engine png)
 endif ()
 if (CMAKE_SYSTEM_NAME MATCHES "OHOS")
-    target_link_libraries(gpu_effect_engine hilog_ndk.z)
+    target_link_libraries(effect_engine hilog_ndk.z)
 endif ()

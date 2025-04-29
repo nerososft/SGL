@@ -6,15 +6,15 @@
 
 #include <iostream>
 #ifdef OS_OPEN_HARMONY
-#include <effect_engine/gpu/utils/vk_enum_string_helper.h>
+#include <gpu_engine/gpu/utils/vk_enum_string_helper.h>
 #else
 #include <vulkan/vk_enum_string_helper.h>
 #endif
 
-#include "effect_engine/gpu/compute_graph/BufferCopyNode.h"
-#include "effect_engine/gpu/compute_graph/ComputeGraph.h"
-#include "effect_engine/gpu/compute_graph/ComputePipelineNode.h"
-#include "effect_engine/log/Log.h"
+#include "gpu_engine/gpu/compute_graph/BufferCopyNode.h"
+#include "gpu_engine/gpu/compute_graph/ComputeGraph.h"
+#include "gpu_engine/gpu/compute_graph/ComputePipelineNode.h"
+#include "gpu_engine/log/Log.h"
 
 VkResult BaseBlender::DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                               const std::string &name,

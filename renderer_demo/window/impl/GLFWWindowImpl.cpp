@@ -6,7 +6,7 @@
 
 #include <iostream>
 
-#include "effect_engine/log/Log.h"
+#include "gpu_engine/log/Log.h"
 
 static IEventHandler *gHandler = nullptr;
 

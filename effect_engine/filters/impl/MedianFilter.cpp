@@ -5,19 +5,19 @@
 #include "MedianFilter.h"
 
 #include <memory>
-#include <effect_engine/config.h>
+#include <gpu_engine/config.h>
 #include <effect_engine/filters/BasicFilter.h>
-#include <effect_engine/gpu/VkGPUContext.h>
+#include <gpu_engine/gpu/VkGPUContext.h>
 #include <vulkan/vulkan_core.h>
 
 #ifdef OS_OPEN_HARMONY
-#include <effect_engine/gpu/utils/vk_enum_string_helper.h>
+#include <gpu_engine/gpu/utils/vk_enum_string_helper.h>
 #else
 #include <vulkan/vk_enum_string_helper.h>
 #endif
 
-#include "effect_engine/gpu/compute_graph/ComputePipelineNode.h"
-#include "effect_engine/log/Log.h"
+#include "gpu_engine/gpu/compute_graph/ComputePipelineNode.h"
+#include "gpu_engine/log/Log.h"
 
 std::shared_ptr<SubComputeGraph> MedianFilter::CreateParallelSubGraph(const size_t parallelIndex,
                                                                       const std::shared_ptr<VkGPUContext> &gpuCtx,

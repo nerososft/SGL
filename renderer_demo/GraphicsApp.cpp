@@ -4,7 +4,8 @@
 
 #include "GraphicsApp.h"
 
-#include "effect_engine/log/Log.h"
+#include "gpu_engine/log/Log.h"
+#include "scene/ModelLoader.h"
 #include "window/impl/GLFWWindowImpl.h"
 
 VkSurfaceKHR GetWindowSurface(const VkInstance instance) {
@@ -19,7 +20,7 @@ VkSurfaceKHR GetWindowSurface(const VkInstance instance) {
 void GraphicsApp::Init() {
     window = std::make_shared<GLFWWindowImpl>(this);
     const std::vector<const char *> requiredExtensions = window->GetRendererRequiredExtensions();
-    renderer = std::make_shared<Renderer>();
+    renderer = std::make_shared<Renderer>(this->windowWidth, this->windowHeight);
     window->CreateWindow(this->windowPosX, this->windowPosY, this->windowWidth, this->windowHeight, this->windowTitle);
     if (!renderer->Init(requiredExtensions, GetWindowSurface)) {
         Logger() << "Failed to initialize renderer" << std::endl;

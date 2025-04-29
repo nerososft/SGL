@@ -4,7 +4,7 @@
 
 #ifndef MEDIANFILTER_H
 #define MEDIANFILTER_H
-#include <effect_engine/gpu/compute_graph/ComputeGraph.h>
+#include <gpu_engine/gpu/compute_graph/ComputeGraph.h>
 
 #include "effect_engine/filters/BasicFilter.h"
 #include "effect_engine/filters/IFilter.h"

@@ -4,7 +4,7 @@
 
 #include "ScaleFilter.h"
 
-#include "effect_engine/config.h"
+#include "gpu_engine/config.h"
 
 #include "effect_engine/gpu/compute_graph/BufferCopyNode.h"
 #include "effect_engine/gpu/compute_graph/ComputePipelineNode.h"
