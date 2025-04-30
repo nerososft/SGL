@@ -52,7 +52,6 @@ add_executable(renderer_demo
         renderer/RendererLight.h
         renderer/RendererCamera.cpp
         renderer/RendererCamera.h
-        offscreen.cpp
 )
 target_link_libraries(renderer_demo gpu_engine)
 target_link_libraries(renderer_demo glfw)
