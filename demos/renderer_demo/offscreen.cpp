@@ -38,8 +38,7 @@ int main(int argc, char *argv[]) {
         return true;
     });
 
-    const std::vector<const char *> requiredExtensions;
-    if (!renderer->Init(requiredExtensions)) {
+    if (!renderer->Init()) {
         Logger() << "Failed to initialize renderer" << std::endl;
     }
     renderer->RenderFrameOffScreen("../../../demos/renderer_demo/images/render_offscreen1.png");

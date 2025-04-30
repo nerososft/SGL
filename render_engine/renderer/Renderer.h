@@ -40,8 +40,6 @@ class Renderer {
     std::shared_ptr<GraphicsPipelineNode> graphicsPipelineNode = nullptr;
     std::shared_ptr<VkGPUFramebuffer> framebuffer = nullptr;
 
-    std::shared_ptr<VkGPUSwapChain> swapChain = nullptr;
-
     RenderMode renderMode = RENDER_MODE_ONSCREEN;
 
     FrameInfo frameInfo{};
@@ -53,6 +51,7 @@ class Renderer {
     std::vector<std::shared_ptr<RendererLight> > rendererLights;
     std::shared_ptr<RendererCamera> camera = nullptr;
 
+    std::shared_ptr<VkGPUSwapChain> swapChain = nullptr;
     VkCommandBuffer presentCmdBuffer = VK_NULL_HANDLE;
     VkSemaphore imageAvailableSemaphore = VK_NULL_HANDLE;
     VkSemaphore renderFinishedSemaphore = VK_NULL_HANDLE;
@@ -75,7 +74,7 @@ public:
 
     [[nodiscard]] bool ConstructMainGraphicsPipeline();
 
-    bool Init(const std::vector<const char *> &requiredExtensions);
+    bool Init();
 
     bool Init(const std::vector<const char *> &requiredExtensions, VkSurfaceKHR (*GetSurface)(VkInstance instance));
 
