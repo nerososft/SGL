@@ -341,29 +341,36 @@ bool Renderer::Init(const std::vector<const char *> &requiredExtensions,
     this->computeGraph->AddSubGraph(this->subComputeGraph);
 
 
-    result = VkGPUHelper::CreateFence(this->gpuCtx->GetCurrentDevice(), &this->renderFinishedFence);
-    if (result != VK_SUCCESS) {
-        Logger() << Logger::ERROR << "Failed to create fence!" << std::endl;
-        return false;
+    if (renderMode == RENDER_MODE_ONSCREEN) {
+        result = VkGPUHelper::CreateFence(this->gpuCtx->GetCurrentDevice(), &this->renderFinishedFence);
+        if (result != VK_SUCCESS) {
+            Logger() << Logger::ERROR << "Failed to create fence!" << std::endl;
+            return false;
+        }
+        result = VkGPUHelper::CreateSemaphore(this->gpuCtx->GetCurrentDevice(), &this->imageAvailableSemaphore);
+        if (result != VK_SUCCESS) {
+            Logger() << Logger::ERROR << "Failed to create semaphore!" << std::endl;
+            return false;
+        }
+        result = VkGPUHelper::CreateSemaphore(this->gpuCtx->GetCurrentDevice(), &this->renderFinishedSemaphore);
+        if (result != VK_SUCCESS) {
+            Logger() << Logger::ERROR << "Failed to create semaphore!" << std::endl;
+            return false;
+        }
+        result = VkGPUHelper::AllocateCommandBuffers(this->gpuCtx->GetCurrentDevice(),
+                                                     this->gpuCtx->GetCommandPool(0),
+                                                     1,
+                                                     &presentCmdBuffer);
+        if (result != VK_SUCCESS) {
+            Logger() << Logger::ERROR << "Failed to allocate command buffers!" << std::endl;
+            return false;
+        }
     }
-    result = VkGPUHelper::CreateSemaphore(this->gpuCtx->GetCurrentDevice(), &this->imageAvailableSemaphore);
-    if (result != VK_SUCCESS) {
-        Logger() << Logger::ERROR << "Failed to create semaphore!" << std::endl;
-        return false;
+
+    if (onRendererReady != nullptr) {
+        onRendererReady(this);
     }
-    result = VkGPUHelper::CreateSemaphore(this->gpuCtx->GetCurrentDevice(), &this->renderFinishedSemaphore);
-    if (result != VK_SUCCESS) {
-        Logger() << Logger::ERROR << "Failed to create semaphore!" << std::endl;
-        return false;
-    }
-    result = VkGPUHelper::AllocateCommandBuffers(this->gpuCtx->GetCurrentDevice(),
-                                                 this->gpuCtx->GetCommandPool(0),
-                                                 1,
-                                                 &presentCmdBuffer);
-    if (result != VK_SUCCESS) {
-        Logger() << Logger::ERROR << "Failed to allocate command buffers!" << std::endl;
-        return false;
-    }
+
     return true;
 }
 

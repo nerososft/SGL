@@ -4,6 +4,7 @@
 
 
 #include <memory>
+#include <glm/ext/matrix_transform.hpp>
 
 #include "gpu_engine/log/Log.h"
 #include "renderer/Renderer.h"
@@ -29,6 +30,13 @@ int main(int argc, char *argv[]) {
             return true;
         }
     );
+
+    renderer->SetOnRendererReady([](Renderer *rdr) -> bool {
+        const std::shared_ptr<RendererCamera> camera = rdr->GetCamera();
+        const glm::mat4 view = camera->GetViewMatrix();
+        camera->SetViewMatrix(glm::rotate(view, glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
+        return true;
+    });
 
     const std::vector<const char *> requiredExtensions;
     if (!renderer->Init(requiredExtensions)) {

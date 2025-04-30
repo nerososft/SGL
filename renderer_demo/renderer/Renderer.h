@@ -59,6 +59,7 @@ class Renderer {
     VkFence renderFinishedFence = VK_NULL_HANDLE;
 
     std::function<bool(Renderer *rdr)> onLoadScene = nullptr;
+    std::function<bool(Renderer *rdr)> onRendererReady = nullptr;
 
     bool InitCamera();
 
@@ -92,7 +93,13 @@ public:
 
     void SetOnLoadScene(const std::function<bool(Renderer *dr)> &loadSceneFunc) {
         this->onLoadScene = loadSceneFunc;
-    };
+    }
+
+    void SetOnRendererReady(const std::function<bool(Renderer *dr)> &onRendererReady) {
+        this->onRendererReady = onRendererReady;
+    }
+
+    std::shared_ptr<RendererCamera> GetCamera() { return camera; }
 };
 
 #endif //RENDERER_H
