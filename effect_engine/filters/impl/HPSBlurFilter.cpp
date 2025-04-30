@@ -4,13 +4,13 @@
 
 #include "HPSBlurFilter.h"
 #ifdef OS_OPEN_HARMONY
-#include <effect_engine/gpu/utils/vk_enum_string_helper.h>
+#include <gpu_engine/gpu/utils/vk_enum_string_helper.h>
 #else
 #include <vulkan/vk_enum_string_helper.h>
 #endif
-#include "effect_engine/gpu/compute_graph/GraphicsPipelineNode.h"
-#include "effect_engine/gpu/compute_graph/GraphicsRenderPassNode.h"
-#include "effect_engine/log/Log.h"
+#include "gpu_engine/gpu/compute_graph/GraphicsPipelineNode.h"
+#include "gpu_engine/gpu/compute_graph/GraphicsRenderPassNode.h"
+#include "gpu_engine/log/Log.h"
 
 VkResult HPSBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                               const std::vector<FilterImageInfo> &inputImageInfo,

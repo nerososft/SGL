@@ -36,7 +36,7 @@ public:
     void SetA(const float _a) { this->rotationblurFilterParams.a = _a; }
     void SetB(const float _b) { this->rotationblurFilterParams.b = _b; }
     void SetinA(const float _ina) { this->rotationblurFilterParams.ina = _ina; }
-    void SetinB(const float _inb) { this->rotationblurFilterParams.ina = _inb; }
+    void SetinB(const float _inb) { this->rotationblurFilterParams.inb = _inb; }
     void SetStrength(const int _strength) { this->rotationblurFilterParams.strength = _strength; }
     void SetAngle(const float _angle) { this->rotationblurFilterParams.angle = _angle; }
 

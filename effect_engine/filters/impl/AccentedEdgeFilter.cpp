@@ -1,8 +1,4 @@
-//
-// Created by 1234 on 2025/3/6.
-//
-
-#include "CustomKernelFilter.h"
+#include "AccentedEdgeFilter.h"
 
 #include "gpu_engine/config.h"
 
@@ -20,18 +16,17 @@
 #include "gpu_engine/gpu/compute_graph/ComputePipelineNode.h"
 #include "gpu_engine/log/Log.h"
 
-VkResult CustomKernelFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                                   const std::vector<FilterImageInfo> &inputImageInfo,
-                                   const std::vector<FilterImageInfo> &outputImageInfo) {
+VkResult AccentedEdgeFilter::Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
+    const std::vector<FilterImageInfo>& inputImageInfo,
+    const std::vector<FilterImageInfo>& outputImageInfo) {
     BasicFilterParams params;
-    this->kFilterParams.imageSize.width = inputImageInfo[0].width;
-    this->kFilterParams.imageSize.height = inputImageInfo[0].height;
-    this->kFilterParams.imageSize.channels = 4;
-    this->kFilterParams.imageSize.bytesPerLine = this->kFilterParams.imageSize.width * 4;
+    this->accentedEdgeFilterParams.imageSize.width = inputImageInfo[0].width;
+    this->accentedEdgeFilterParams.imageSize.height = inputImageInfo[0].height;
+    this->accentedEdgeFilterParams.imageSize.channels = 4;
+    this->accentedEdgeFilterParams.imageSize.bytesPerLine = this->accentedEdgeFilterParams.imageSize.width * 4;
 
     this->computeGraph = std::make_shared<ComputeGraph>(gpuCtx);
     this->computeSubGraph = std::make_shared<SubComputeGraph>(gpuCtx);
-
     VkResult ret = this->computeSubGraph->Init();
     if (ret != VK_SUCCESS) {
         Logger() << "Failed to create compute graph, err =" << string_VkResult(ret) << std::endl;
@@ -39,19 +34,16 @@ VkResult CustomKernelFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     }
 
     PushConstantInfo pushConstantInfo;
-    pushConstantInfo.size = sizeof(customKernelFilterParams);
-    pushConstantInfo.data = &this->kFilterParams;
+    pushConstantInfo.size = sizeof(AccentedEdgeFilterParams);
+    pushConstantInfo.data = &this->accentedEdgeFilterParams;
 
+    sobelxBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
+    sobelxBuffer->AllocateAndBind(GPU_BUFFER_TYPE_UNIFORM, s_size * sizeof(int));
+    sobelxBuffer->UploadData(sobelx, s_size * sizeof(int));
 
-    //int k[25] = { 0 , 0 ,0 ,0 ,0,
-    //		0 , 0 ,-1 ,0 ,0,
-    //		0 , -1 ,5 ,-1 ,0,
-    //		0 , 0 ,-1 ,0 ,0,
-    //	   0 , 0 ,0 ,0 ,0 };
-
-    kBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
-    kBuffer->AllocateAndBind(GPU_BUFFER_TYPE_UNIFORM, k_size * sizeof(int));
-    kBuffer->UploadData(k, k_size * sizeof(int));
+    sobelyBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
+    sobelyBuffer->AllocateAndBind(GPU_BUFFER_TYPE_UNIFORM, s_size * sizeof(int));
+    sobelyBuffer->UploadData(sobely, s_size * sizeof(int));
 
     PipelineNodeBuffer pipelineNodeInput;
     pipelineNodeInput.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
@@ -60,8 +52,13 @@ VkResult CustomKernelFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
 
     PipelineNodeBuffer pipelineNodeKInput;
     pipelineNodeKInput.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
-    pipelineNodeKInput.buffer = kBuffer->GetBuffer();
-    pipelineNodeKInput.bufferSize = k_size * sizeof(int);
+    pipelineNodeKInput.buffer = sobelxBuffer->GetBuffer();
+    pipelineNodeKInput.bufferSize = s_size * sizeof(int);
+
+    PipelineNodeBuffer pipelineNodeK2Input;
+    pipelineNodeK2Input.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
+    pipelineNodeK2Input.buffer = sobelyBuffer->GetBuffer();
+    pipelineNodeK2Input.bufferSize = s_size * sizeof(int);
 
     PipelineNodeBuffer pipelineNodeOutput;
     pipelineNodeOutput.type = PIPELINE_NODE_BUFFER_STORAGE_WRITE;
@@ -71,19 +68,20 @@ VkResult CustomKernelFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     std::vector<PipelineNodeBuffer> vPipelineBuffers;
     vPipelineBuffers.push_back(pipelineNodeInput);
     vPipelineBuffers.push_back(pipelineNodeKInput);
+    vPipelineBuffers.push_back(pipelineNodeK2Input);
     vPipelineBuffers.push_back(pipelineNodeOutput);
 
     const auto kCalculateNode = std::make_shared<ComputePipelineNode>(gpuCtx,
-                                                                      "kCalculate",
-                                                                      SHADER(custom_kernel.comp.glsl.spv),
-                                                                      (inputImageInfo[0].width + 31) / 32,
-                                                                      (inputImageInfo[0].height + 31) / 32,
-                                                                      1);
+        "accentededge",
+        SHADER(accentededge.comp.glsl.spv),
+        (inputImageInfo[0].width + 31) / 32,
+        (inputImageInfo[0].height + 31) / 32,
+        1);
 
     kCalculateNode->AddComputeElement({
         .pushConstantInfo = pushConstantInfo,
         .buffers = vPipelineBuffers
-    });
+        });
 
     ret = kCalculateNode->CreateComputeGraphNode();
     if (ret != VK_SUCCESS) {
@@ -97,13 +95,17 @@ VkResult CustomKernelFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     return computeGraph->Compute();
 }
 
-void CustomKernelFilter::Destroy() {
+void AccentedEdgeFilter::Destroy() {
     if (computeGraph != nullptr) {
         computeGraph->Destroy();
         computeGraph = nullptr;
     }
-    if (kBuffer != nullptr) {
-        kBuffer->Destroy();
-        kBuffer = nullptr;
+    if (sobelxBuffer != nullptr) {
+        sobelxBuffer->Destroy();
+        sobelxBuffer = nullptr;
+    }
+    if (sobelyBuffer != nullptr) {
+        sobelyBuffer->Destroy();
+        sobelyBuffer = nullptr;
     }
 }

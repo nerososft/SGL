@@ -10,11 +10,13 @@ struct ScaleFilterParams {
     BasicFilterParam imageSize;
     uint32_t targetWidth;
     uint32_t targetHeight;
+    uint32_t interpType = 1;
 };
 
 class ScaleFilter final : public BasicFilter {
     ScaleFilterParams scaleFilterParams{};
-
+    std::shared_ptr<SubComputeGraph> computeSubGraph = nullptr;
+    std::shared_ptr<ComputeGraph> computeGraph = nullptr;
 public:
     ScaleFilter() = default;
 
@@ -28,6 +30,8 @@ public:
 
     void SetTargetWidth(const uint32_t width) { this->scaleFilterParams.targetWidth = width; }
     void SetTargetHeight(const uint32_t height) { this->scaleFilterParams.targetHeight = height; }
+    void SetInterpType(const uint32_t type) {  this->scaleFilterParams.interpType = type;   }
+
 };
 
 

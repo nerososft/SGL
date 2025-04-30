@@ -1,38 +1,28 @@
-//
-// Created by neo on 2025/3/13.
-//
+#include "RotationalBlurFilter.h"
 
-#include "ScaleFilter.h"
-
-#include "gpu_engine/config.h"
-
-#include "gpu_engine/gpu/compute_graph/BufferCopyNode.h"
-#include "gpu_engine/gpu/compute_graph/ComputePipelineNode.h"
+#include <iostream>
 #ifdef OS_OPEN_HARMONY
 #include <gpu_engine/gpu/utils/vk_enum_string_helper.h>
 #else
 #include <vulkan/vk_enum_string_helper.h>
 #endif
-
+#include "effect_engine/filters/BasicFilter.h"
+#include "gpu_engine/gpu/VkGPUHelper.h"
+#include "gpu_engine/gpu/compute_graph/BufferCopyNode.h"
+#include "gpu_engine/gpu/compute_graph/ComputePipelineNode.h"
 #include "gpu_engine/log/Log.h"
 
-VkResult ScaleFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                            const std::vector<FilterImageInfo> &inputImageInfo,
-                          const std::vector<FilterImageInfo> &outputImageInfo) {
-
-
-
-
+VkResult RotationalBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                                   const std::vector<FilterImageInfo> &inputImageInfo,
+                                   const std::vector<FilterImageInfo> &outputImageInfo) {
     BasicFilterParams params;
-    this->scaleFilterParams.imageSize.width = inputImageInfo[0].width;
-    this->scaleFilterParams.imageSize.height = inputImageInfo[0].height;
-    this->scaleFilterParams.imageSize.channels = 4;
-    this->scaleFilterParams.imageSize.bytesPerLine = this->scaleFilterParams.imageSize.width * 4;
-
-
+    this->rotationblurFilterParams.imageSize.width = inputImageInfo[0].width;
+    this->rotationblurFilterParams.imageSize.height = inputImageInfo[0].height;
+    this->rotationblurFilterParams.imageSize.channels = 4;
+    this->rotationblurFilterParams.imageSize.bytesPerLine = this->rotationblurFilterParams.imageSize.width * 4;
+    
     this->computeGraph = std::make_shared<ComputeGraph>(gpuCtx);
     this->computeSubGraph = std::make_shared<SubComputeGraph>(gpuCtx);
-
     VkResult ret = this->computeSubGraph->Init();
     if (ret != VK_SUCCESS) {
         Logger() << "Failed to create compute graph, err =" << string_VkResult(ret) << std::endl;
@@ -40,17 +30,13 @@ VkResult ScaleFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     }
 
     PushConstantInfo pushConstantInfo;
-    pushConstantInfo.size = sizeof(ScaleFilterParams);
-    pushConstantInfo.data = &this->scaleFilterParams;
-
-
+    pushConstantInfo.size = sizeof(RotationalBlurFilterParams);
+    pushConstantInfo.data = &this->rotationblurFilterParams;
 
     PipelineNodeBuffer pipelineNodeInput;
     pipelineNodeInput.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
     pipelineNodeInput.buffer = inputImageInfo[0].storageBuffer;
     pipelineNodeInput.bufferSize = inputImageInfo[0].bufferSize;
-
-
 
     PipelineNodeBuffer pipelineNodeOutput;
     pipelineNodeOutput.type = PIPELINE_NODE_BUFFER_STORAGE_WRITE;
@@ -62,15 +48,16 @@ VkResult ScaleFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     vPipelineBuffers.push_back(pipelineNodeOutput);
 
     const auto kCalculateNode = std::make_shared<ComputePipelineNode>(gpuCtx,
-        "scaleImage",
-        SHADER(scale.comp.glsl.spv),
-        (outputImageInfo[0].width + 31) / 32,
-        (outputImageInfo[0].height + 31) / 32,
+        "rotationalblur",
+        SHADER(rotational_blur.comp.glsl.spv),
+        (inputImageInfo[0].width + 31) / 32,
+        (inputImageInfo[0].height + 31) / 32,
         1);
 
+
     kCalculateNode->AddComputeElement({
-        .pushConstantInfo = pushConstantInfo,
-        .buffers = vPipelineBuffers
+    .pushConstantInfo = pushConstantInfo,
+    .buffers = vPipelineBuffers
         });
 
     ret = kCalculateNode->CreateComputeGraphNode();
@@ -83,10 +70,11 @@ VkResult ScaleFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     computeGraph->AddSubGraph(computeSubGraph);
 
     return computeGraph->Compute();
-
-
 }
 
-void ScaleFilter::Destroy() {
-    BasicFilter::Destroy();
+void RotationalBlurFilter::Destroy() {
+    if (computeGraph != nullptr) {
+        computeGraph->Destroy();
+        computeGraph = nullptr;
+    }
 }
