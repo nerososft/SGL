@@ -28,7 +28,7 @@ public:
 
     void SetWavelength(const int wavelength) { this->zigzagFilterParams.wavelength = wavelength; }
     void SetAmplitude(const int amplitude) { this->zigzagFilterParams.amplitude = amplitude; }
-    void SetTypewave(const int type_wave) { this->zigzagFilterParams.type_wave = type_wave; }
+    void SetTypeWave(const int type_wave) { this->zigzagFilterParams.type_wave = type_wave; }
     void SetPro(const float proportion) { this->zigzagFilterParams.proportion = proportion; }
 
     void Destroy() override;

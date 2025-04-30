@@ -718,7 +718,7 @@ bool zigzag_filter_gpu(void *in, void *out, const int wavelength, const int ampl
 
     filter->SetWavelength(wavelength);
     filter->SetAmplitude(amplitude);
-    filter->SetTypewave(type_wave);
+    filter->SetTypeWave(type_wave);
     filter->SetPro(proportion);
 
     g_effect_engine.Process(*input, *output, filter);
