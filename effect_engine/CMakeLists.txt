@@ -112,10 +112,6 @@ set(ENGINE_SOURCE EffectEngine.cpp
         filters/impl/CrystallizeFilter.cpp
         filters/impl/RotationBlurFilter.h
         filters/impl/RotationBlurFilter.cpp
-        filters/impl/CrystallizeFilter.h
-        filters/impl/CrystallizeFilter.cpp
-        filters/impl/RotationBlurFilter.h
-        filters/impl/RotationBlurFilter.cpp
         filters/impl/FacetFilter.h
         filters/impl/FacetFilter.cpp
         filters/impl/AccentedEdgeFilter.h
