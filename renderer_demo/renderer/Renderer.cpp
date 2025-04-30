@@ -100,17 +100,13 @@ bool Renderer::ConstructMainGraphicsPipeline() {
         return false;
     }
 
-    // TODO：The rendered scene should be passed in by the engine rather than read by the renderer
-    // const std::vector<std::shared_ptr<Mesh> > models = ModelLoader::LoadModel(
-    //     "../../renderer_demo/assets/builtin.models/Lion.OBJ");
-    const std::vector<std::shared_ptr<Mesh> > models = ModelLoader::LoadModel(
-        "../../renderer_demo/assets/builtin.models/1911.FBX");
-
-    for (auto &mesh: models) {
-        if (!this->AddDrawElement(mesh->vertexData, mesh->indicesData, mesh->material, mesh->transform)) {
-            Logger() << "Vertex buffer add failed" << std::endl;
-            return false;
-        }
+    if (onLoadScene == nullptr) {
+        Logger() << Logger::ERROR << "Need load scene first!" << std::endl;
+        return false;
+    }
+    if (!onLoadScene(this)) {
+        Logger() << Logger::ERROR << "Failed to load scene!" << std::endl;
+        return false;
     }
 
     const VkResult ret = this->graphicsPipelineNode->CreateComputeGraphNode();

@@ -21,6 +21,23 @@ void GraphicsApp::Init() {
     window = std::make_shared<GLFWWindowImpl>(this);
     const std::vector<const char *> requiredExtensions = window->GetRendererRequiredExtensions();
     renderer = std::make_shared<Renderer>(this->windowWidth, this->windowHeight);
+
+    renderer->SetOnLoadScene([](Renderer *rdr) -> bool {
+            // TODO：The rendered scene should be passed in by the engine rather than read by the renderer
+            // const std::vector<std::shared_ptr<Mesh> > models = ModelLoader::LoadModel(
+            //     "../../renderer_demo/assets/builtin.models/Lion.OBJ");
+            const std::vector<std::shared_ptr<Mesh> > models = ModelLoader::LoadModel(
+                "../../renderer_demo/assets/builtin.models/1911.FBX");
+
+            for (auto &mesh: models) {
+                if (!rdr->AddDrawElement(mesh->vertexData, mesh->indicesData, mesh->material, mesh->transform)) {
+                    Logger() << "Vertex buffer add failed" << std::endl;
+                    return false;
+                }
+            }
+            return true;
+        }
+    );
     window->CreateWindow(this->windowPosX, this->windowPosY, this->windowWidth, this->windowHeight, this->windowTitle);
     if (!renderer->Init(requiredExtensions, GetWindowSurface)) {
         Logger() << "Failed to initialize renderer" << std::endl;

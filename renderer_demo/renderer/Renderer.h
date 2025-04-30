@@ -58,6 +58,7 @@ class Renderer {
     VkSemaphore renderFinishedSemaphore = VK_NULL_HANDLE;
     VkFence renderFinishedFence = VK_NULL_HANDLE;
 
+    std::function<bool(Renderer *rdr)> onLoadScene = nullptr;
 
     bool InitCamera();
 
@@ -88,6 +89,10 @@ public:
     std::shared_ptr<VkGPUContext> &GetGPUContext() { return gpuCtx; }
 
     void Update() const;
+
+    void SetOnLoadScene(const std::function<bool(Renderer *dr)> &loadSceneFunc) {
+        this->onLoadScene = loadSceneFunc;
+    };
 };
 
 #endif //RENDERER_H
