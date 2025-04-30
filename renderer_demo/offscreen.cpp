@@ -11,9 +11,7 @@
 int main(int argc, char *argv[]) {
     Logger() << "Hello World!\n";
 
-    std::shared_ptr<Renderer> renderer = nullptr;
-
-    renderer = std::make_shared<Renderer>(768, 768);
+    const auto renderer = std::make_shared<Renderer>(768, 768);
     const std::vector<const char *> requiredExtensions;
     if (!renderer->Init(requiredExtensions)) {
         Logger() << "Failed to initialize renderer" << std::endl;
