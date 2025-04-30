@@ -30,7 +30,7 @@ void GraphicsApp::Init() {
 
             for (auto &mesh: models) {
                 if (!rdr->AddDrawElement(mesh->vertexData, mesh->indicesData, mesh->material, mesh->transform)) {
-                    Logger() << "Vertex buffer add failed" << std::endl;
+                    Logger() << "draw mesh add failed" << std::endl;
                     return false;
                 }
             }

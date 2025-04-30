@@ -23,7 +23,7 @@ int main(int argc, char *argv[]) {
 
             for (auto &mesh: models) {
                 if (!rdr->AddDrawElement(mesh->vertexData, mesh->indicesData, mesh->material, mesh->transform)) {
-                    Logger() << "Vertex buffer add failed" << std::endl;
+                    Logger() << "draw mash add failed" << std::endl;
                     return false;
                 }
             }
