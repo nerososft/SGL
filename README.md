@@ -24,10 +24,10 @@
    - 跨平台支持
 
 ## Env
-`effect_engine`依赖：`vulkan`
+`effect_engine` 依赖：`vulkan`
 
-`render_engine`依赖：`vulkan` `libglm-dev`
+`render_engine` 依赖：`vulkan` `libglm-dev`
 
 `effect_demo` 依赖 `effect_engine` `libpng-dev`
 
-`render_demo` 依赖：`render_engine` `libpng-dev` `libglfw3-dev` `assimp`
+`renderer_demo` 依赖：`render_engine` `libpng-dev` `libglfw3-dev` `assimp`
