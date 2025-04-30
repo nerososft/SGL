@@ -19,11 +19,11 @@ public:
 
     ~TwirlWarpFilter() override = default;
 
-    VkResult Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
-        const std::vector<FilterImageInfo>& inputImageInfo,
-        const std::vector<FilterImageInfo>& outputImageInfo) override;
+    VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                   const std::vector<FilterImageInfo> &inputImageInfo,
+                   const std::vector<FilterImageInfo> &outputImageInfo) override;
 
-    void SetAngle(int angle) { this->twirlwarpFilterParams.angle = angle; }
+    void SetAngle(const int angle) { this->twirlwarpFilterParams.angle = angle; }
 
     void Destroy() override;
 };

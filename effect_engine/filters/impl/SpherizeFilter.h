@@ -20,12 +20,12 @@ public:
 
     ~SpherizeFilter() override = default;
 
-    VkResult Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
-        const std::vector<FilterImageInfo>& inputImageInfo,
-        const std::vector<FilterImageInfo>& outputImageInfo) override;
+    VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                   const std::vector<FilterImageInfo> &inputImageInfo,
+                   const std::vector<FilterImageInfo> &outputImageInfo) override;
 
-    void SetAlpha(int alpha) { this->spherizeFilterParams.alpha = alpha; }
-    void SetType(int type) { this->spherizeFilterParams.type = type; }    
+    void SetAlpha(const int alpha) { this->spherizeFilterParams.alpha = alpha; }
+    void SetType(const int type) { this->spherizeFilterParams.type = type; }
 
     void Destroy() override;
 };

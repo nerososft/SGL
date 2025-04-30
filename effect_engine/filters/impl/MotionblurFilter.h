@@ -6,28 +6,28 @@
 #include "effect_engine/filters/BasicFilter.h"
 #include "gpu_engine/gpu/VkGPUContext.h"
 
-struct MotionblurFilterParams {
+struct MotionBlurFilterParams {
     BasicFilterParam imageSize;
     int distance;
     int angle;
     float proportion;
 };
 
-class MotionblurFilter final : public BasicFilter {
-    MotionblurFilterParams motionblurFilterParams{};
+class MotionBlurFilter final : public BasicFilter {
+    MotionBlurFilterParams motionBlurFilterParams{};
 
 public:
-    MotionblurFilter() = default;
+    MotionBlurFilter() = default;
 
-    ~MotionblurFilter() override = default;
+    ~MotionBlurFilter() override = default;
 
-    VkResult Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
-        const std::vector<FilterImageInfo>& inputImageInfo,
-        const std::vector<FilterImageInfo>& outputImageInfo) override;
+    VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                   const std::vector<FilterImageInfo> &inputImageInfo,
+                   const std::vector<FilterImageInfo> &outputImageInfo) override;
 
-    void SetDistance(int distance) { this->motionblurFilterParams.distance = distance; }
-    void SetAngle(int angle) { this->motionblurFilterParams.angle = angle; }
-    void SetPro(float proportion) { this->motionblurFilterParams.proportion = proportion; }
+    void SetDistance(const int distance) { this->motionBlurFilterParams.distance = distance; }
+    void SetAngle(const int angle) { this->motionBlurFilterParams.angle = angle; }
+    void SetPro(const float proportion) { this->motionBlurFilterParams.proportion = proportion; }
 
     void Destroy() override;
 };

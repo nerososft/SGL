@@ -16,9 +16,9 @@
 #include "gpu_engine/gpu/compute_graph/ComputePipelineNode.h"
 #include "gpu_engine/log/Log.h"
 
-VkResult ColorhalftoneFilter::Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
-    const std::vector<FilterImageInfo>& inputImageInfo,
-    const std::vector<FilterImageInfo>& outputImageInfo) {
+VkResult ColorhalftoneFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                                    const std::vector<FilterImageInfo> &inputImageInfo,
+                                    const std::vector<FilterImageInfo> &outputImageInfo) {
     BasicFilterParams params;
     this->colorhalftoneFilterParams.imageSize.width = inputImageInfo[0].width;
     this->colorhalftoneFilterParams.imageSize.height = inputImageInfo[0].height;
@@ -62,16 +62,16 @@ VkResult ColorhalftoneFilter::Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
     vPipelineBuffers.push_back(pipelineNodeOutput);
 
     const auto kCalculateNode = std::make_shared<ComputePipelineNode>(gpuCtx,
-        "colorhalftone",
-        SHADER(colorhalftone.comp.glsl.spv),
-        (inputImageInfo[0].width + 31) / 32,
-        (inputImageInfo[0].height + 31) / 32,
-        1);
+                                                                      "colorhalftone",
+                                                                      SHADER(colorhalftone.comp.glsl.spv),
+                                                                      (inputImageInfo[0].width + 31) / 32,
+                                                                      (inputImageInfo[0].height + 31) / 32,
+                                                                      1);
 
     kCalculateNode->AddComputeElement({
         .pushConstantInfo = pushConstantInfo,
         .buffers = vPipelineBuffers
-        });
+    });
 
     ret = kCalculateNode->CreateComputeGraphNode();
     if (ret != VK_SUCCESS) {

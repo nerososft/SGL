@@ -16,9 +16,9 @@
 #include "gpu_engine/gpu/compute_graph/ComputePipelineNode.h"
 #include "gpu_engine/log/Log.h"
 
-VkResult SharpenFilter::Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
-    const std::vector<FilterImageInfo>& inputImageInfo,
-    const std::vector<FilterImageInfo>& outputImageInfo) {
+VkResult SharpenFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                              const std::vector<FilterImageInfo> &inputImageInfo,
+                              const std::vector<FilterImageInfo> &outputImageInfo) {
     BasicFilterParams params;
     this->sharpenFilterParams.imageSize.width = inputImageInfo[0].width;
     this->sharpenFilterParams.imageSize.height = inputImageInfo[0].height;
@@ -62,16 +62,16 @@ VkResult SharpenFilter::Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
     vPipelineBuffers.push_back(pipelineNodeOutput);
 
     const auto kCalculateNode = std::make_shared<ComputePipelineNode>(gpuCtx,
-        "sharpen",
-        SHADER(sharpen.comp.glsl.spv),
-        (inputImageInfo[0].width + 31) / 32,
-        (inputImageInfo[0].height + 31) / 32,
-        1);
+                                                                      "sharpen",
+                                                                      SHADER(sharpen.comp.glsl.spv),
+                                                                      (inputImageInfo[0].width + 31) / 32,
+                                                                      (inputImageInfo[0].height + 31) / 32,
+                                                                      1);
 
     kCalculateNode->AddComputeElement({
         .pushConstantInfo = pushConstantInfo,
         .buffers = vPipelineBuffers
-        });
+    });
 
     ret = kCalculateNode->CreateComputeGraphNode();
     if (ret != VK_SUCCESS) {

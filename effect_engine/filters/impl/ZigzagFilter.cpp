@@ -2,9 +2,9 @@
 
 #include "gpu_engine/config.h"
 
-VkResult ZigzagFilter::Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
-    const std::vector<FilterImageInfo>& inputImageInfo,
-    const std::vector<FilterImageInfo>& outputImageInfo) {
+VkResult ZigzagFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                             const std::vector<FilterImageInfo> &inputImageInfo,
+                             const std::vector<FilterImageInfo> &outputImageInfo) {
     BasicFilterParams params;
     this->zigzagFilterParams.imageSize.width = inputImageInfo[0].width;;
     this->zigzagFilterParams.imageSize.height = inputImageInfo[0].height;;
@@ -15,14 +15,14 @@ VkResult ZigzagFilter::Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
     params.shaderPath = SHADER(zigzag.comp.glsl.spv);
 
     return BasicFilter::Apply(gpuCtx,
-        "ZigZag",
-        inputImageInfo[0].bufferSize,
-        inputImageInfo[0].storageBuffer,
-        outputImageInfo[0].storageBuffer,
-        params,
-        (outputImageInfo[0].width + 31) / 32,
-        (outputImageInfo[0].height + 31) / 32,
-        1);
+                              "ZigZag",
+                              inputImageInfo[0].bufferSize,
+                              inputImageInfo[0].storageBuffer,
+                              outputImageInfo[0].storageBuffer,
+                              params,
+                              (outputImageInfo[0].width + 31) / 32,
+                              (outputImageInfo[0].height + 31) / 32,
+                              1);
 }
 
 void ZigzagFilter::Destroy() {

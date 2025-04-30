@@ -61,15 +61,21 @@ set(ENGINE_SOURCE ${ENGINE_GPU_SOURCE} utils/IOUtils.cpp
 
 include_directories("./")
 
-add_library(gpu_engine 
-        ${ENGINE_SOURCE}
-)
-target_link_libraries(gpu_engine vulkan)
+
+
+
 if (CMAKE_SYSTEM_NAME MATCHES "OHOS")
-elseif (CMAKE_SYSTEM_NAME MATCHES "Windows")
+    add_library(gpu_engine
+            ${ENGINE_SOURCE}
+    )
 else ()
+    add_library(gpu_engine SHARED
+            ${ENGINE_SOURCE}
+    )
     target_link_libraries(gpu_engine png)
 endif ()
+
+target_link_libraries(gpu_engine vulkan)
 if (CMAKE_SYSTEM_NAME MATCHES "OHOS")
     target_link_libraries(gpu_engine hilog_ndk.z)
 endif ()

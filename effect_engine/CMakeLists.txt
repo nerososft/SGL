@@ -157,7 +157,6 @@ set(ENGINE_SOURCE EffectEngine.cpp
 
 if (CMAKE_SYSTEM_NAME MATCHES "OHOS")
     set(ENGINE_SOURCE ${ENGINE_SOURCE} filters/impl/HPSBlurFilter.cpp filters/impl/HPSBlurFilter.h)
-            #../renderer_demo/main.cpp)
 endif ()
 
 add_library(effect_engine SHARED
@@ -167,7 +166,6 @@ target_link_libraries(effect_engine gpu_engine)
 target_link_libraries(effect_engine vulkan)
 if (CMAKE_SYSTEM_NAME MATCHES "OHOS")
 elseif (CMAKE_SYSTEM_NAME MATCHES "Windows")
-
 add_custom_command(
     TARGET effect_engine POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory

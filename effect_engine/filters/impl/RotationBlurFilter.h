@@ -18,10 +18,12 @@ struct RotationBlurFilterParams {
     int strength;
     float angle;
 };
+
 class RotationBlurFilter final : public IFilter {
     RotationBlurFilterParams rotationblurFilterParams{};
     std::shared_ptr<ComputeGraph> computeGraph = nullptr;
     std::shared_ptr<SubComputeGraph> computeSubGraph = nullptr;
+
 public:
     RotationBlurFilter() = default;
 

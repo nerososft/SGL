@@ -7,8 +7,8 @@
 #include "gpu_engine/config.h"
 
 VkResult RadialBlurNewFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                                 const std::vector<FilterImageInfo> &inputImageInfo,
-                                 const std::vector<FilterImageInfo> &outputImageInfo) {
+                                    const std::vector<FilterImageInfo> &inputImageInfo,
+                                    const std::vector<FilterImageInfo> &outputImageInfo) {
     BasicFilterParams params;
     this->radialBlurFilterParams.imageSize.width = inputImageInfo[0].width;
     this->radialBlurFilterParams.imageSize.height = inputImageInfo[0].height;

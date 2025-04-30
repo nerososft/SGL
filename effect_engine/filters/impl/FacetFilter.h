@@ -21,9 +21,9 @@ public:
 
     ~FacetFilter() override = default;
 
-    VkResult Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
-        const std::vector<FilterImageInfo>& inputImageInfo,
-        const std::vector<FilterImageInfo>& outputImageInfo) override;
+    VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                   const std::vector<FilterImageInfo> &inputImageInfo,
+                   const std::vector<FilterImageInfo> &outputImageInfo) override;
 
     void SetRadius(const int radius) { this->facetParams.radius = radius; }
     void SetLevel(const int intensityLevel) { this->facetParams.intensityLevel = intensityLevel; }

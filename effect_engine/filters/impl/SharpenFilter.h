@@ -16,7 +16,7 @@ class SharpenFilter final : public IFilter {
     std::shared_ptr<ComputeGraph> computeGraph = nullptr;
     std::shared_ptr<SubComputeGraph> computeSubGraph = nullptr;
     std::shared_ptr<VkGPUBuffer> kernelBuffer = nullptr;
-    int* kernel = nullptr;
+    int *kernel = nullptr;
     int size = 0;
 
 public:
@@ -24,11 +24,11 @@ public:
 
     ~SharpenFilter() override = default;
 
-    VkResult Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
-        const std::vector<FilterImageInfo>& inputImageInfo,
-        const std::vector<FilterImageInfo>& outputImageInfo) override;;
+    VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                   const std::vector<FilterImageInfo> &inputImageInfo,
+                   const std::vector<FilterImageInfo> &outputImageInfo) override;;
 
-    void SetKernel(int* _kernel, int size) {
+    void SetKernel(int *_kernel, const int size) {
         this->kernel = _kernel;
         this->size = size;
     }

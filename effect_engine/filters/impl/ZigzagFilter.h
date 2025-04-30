@@ -22,14 +22,14 @@ public:
 
     ~ZigzagFilter() override = default;
 
-    VkResult Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
-        const std::vector<FilterImageInfo>& inputImageInfo,
-        const std::vector<FilterImageInfo>& outputImageInfo) override;
+    VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                   const std::vector<FilterImageInfo> &inputImageInfo,
+                   const std::vector<FilterImageInfo> &outputImageInfo) override;
 
-    void SetWavelength(int wavelength) { this->zigzagFilterParams.wavelength = wavelength; }
-    void SetAmplitude(int amplitude) { this->zigzagFilterParams.amplitude = amplitude; }
-    void SetTypewave(int type_wave) { this->zigzagFilterParams.type_wave = type_wave; }
-    void SetPro(float proportion) { this->zigzagFilterParams.proportion = proportion; }
+    void SetWavelength(const int wavelength) { this->zigzagFilterParams.wavelength = wavelength; }
+    void SetAmplitude(const int amplitude) { this->zigzagFilterParams.amplitude = amplitude; }
+    void SetTypewave(const int type_wave) { this->zigzagFilterParams.type_wave = type_wave; }
+    void SetPro(const float proportion) { this->zigzagFilterParams.proportion = proportion; }
 
     void Destroy() override;
 };

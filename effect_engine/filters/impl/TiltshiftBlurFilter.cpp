@@ -16,9 +16,9 @@
 #include "gpu_engine/gpu/compute_graph/ComputePipelineNode.h"
 #include "gpu_engine/log/Log.h"
 
-VkResult TiltshiftBlurFilter::Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
-    const std::vector<FilterImageInfo>& inputImageInfo,
-    const std::vector<FilterImageInfo>& outputImageInfo) {
+VkResult TiltshiftBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                                    const std::vector<FilterImageInfo> &inputImageInfo,
+                                    const std::vector<FilterImageInfo> &outputImageInfo) {
     BasicFilterParams params;
     this->tiltshiftblurFilterParams.imageSize.width = inputImageInfo[0].width;
     this->tiltshiftblurFilterParams.imageSize.height = inputImageInfo[0].height;
@@ -34,7 +34,7 @@ VkResult TiltshiftBlurFilter::Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
     }
 
     PushConstantInfo pushConstantInfo;
-    pushConstantInfo.size = sizeof(tiltshiftBlurFilterParams);
+    pushConstantInfo.size = sizeof(TiltshiftBlurFilterParams);
     pushConstantInfo.data = &this->tiltshiftblurFilterParams;
 
     ABuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
@@ -88,16 +88,16 @@ VkResult TiltshiftBlurFilter::Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
     vPipelineBuffers.push_back(pipelineNodeOutput);
 
     const auto kCalculateNode = std::make_shared<ComputePipelineNode>(gpuCtx,
-        "tiltshiftblur",
-        SHADER(tiltshiftblur.comp.glsl.spv),
-        (inputImageInfo[0].width + 31) / 32,
-        (inputImageInfo[0].height + 31) / 32,
-        1);
+                                                                      "tiltshiftblur",
+                                                                      SHADER(tiltshiftblur.comp.glsl.spv),
+                                                                      (inputImageInfo[0].width + 31) / 32,
+                                                                      (inputImageInfo[0].height + 31) / 32,
+                                                                      1);
 
     kCalculateNode->AddComputeElement({
         .pushConstantInfo = pushConstantInfo,
         .buffers = vPipelineBuffers
-        });
+    });
 
     ret = kCalculateNode->CreateComputeGraphNode();
     if (ret != VK_SUCCESS) {

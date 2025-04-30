@@ -18,11 +18,7 @@
 
 VkResult ScaleFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                             const std::vector<FilterImageInfo> &inputImageInfo,
-                          const std::vector<FilterImageInfo> &outputImageInfo) {
-
-
-
-
+                            const std::vector<FilterImageInfo> &outputImageInfo) {
     BasicFilterParams params;
     this->scaleFilterParams.imageSize.width = inputImageInfo[0].width;
     this->scaleFilterParams.imageSize.height = inputImageInfo[0].height;
@@ -44,12 +40,10 @@ VkResult ScaleFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     pushConstantInfo.data = &this->scaleFilterParams;
 
 
-
     PipelineNodeBuffer pipelineNodeInput;
     pipelineNodeInput.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
     pipelineNodeInput.buffer = inputImageInfo[0].storageBuffer;
     pipelineNodeInput.bufferSize = inputImageInfo[0].bufferSize;
-
 
 
     PipelineNodeBuffer pipelineNodeOutput;
@@ -62,16 +56,16 @@ VkResult ScaleFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     vPipelineBuffers.push_back(pipelineNodeOutput);
 
     const auto kCalculateNode = std::make_shared<ComputePipelineNode>(gpuCtx,
-        "scaleImage",
-        SHADER(scale.comp.glsl.spv),
-        (outputImageInfo[0].width + 31) / 32,
-        (outputImageInfo[0].height + 31) / 32,
-        1);
+                                                                      "scaleImage",
+                                                                      SHADER(scale.comp.glsl.spv),
+                                                                      (outputImageInfo[0].width + 31) / 32,
+                                                                      (outputImageInfo[0].height + 31) / 32,
+                                                                      1);
 
     kCalculateNode->AddComputeElement({
         .pushConstantInfo = pushConstantInfo,
         .buffers = vPipelineBuffers
-        });
+    });
 
     ret = kCalculateNode->CreateComputeGraphNode();
     if (ret != VK_SUCCESS) {
@@ -83,8 +77,6 @@ VkResult ScaleFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     computeGraph->AddSubGraph(computeSubGraph);
 
     return computeGraph->Compute();
-
-
 }
 
 void ScaleFilter::Destroy() {

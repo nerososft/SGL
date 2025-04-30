@@ -6,9 +6,10 @@
 #define EFFECTENGINE_H
 #include "blenders/IBlender.h"
 #include "filters/IFilter.h"
-#include "gpu/VkGPUBuffer.h"
-#include "gpu/VkGPUContext.h"
+#include "gpu_engine/gpu/VkGPUBuffer.h"
+#include "gpu_engine/gpu/VkGPUContext.h"
 #include <string>
+
 struct ImageInfo {
     uint32_t width;
     uint32_t height;

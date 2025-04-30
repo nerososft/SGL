@@ -23,27 +23,29 @@ class AccentedEdgeFilter final : public IFilter {
     std::shared_ptr<VkGPUBuffer> sobelxBuffer = nullptr;
     std::shared_ptr<VkGPUBuffer> sobelyBuffer = nullptr;
     int s_size = 0;
-    int* sobelx = nullptr;
-    int* sobely = nullptr;
+    int *sobelx = nullptr;
+    int *sobely = nullptr;
+
 public:
     AccentedEdgeFilter() = default;
 
     ~AccentedEdgeFilter() override = default;
 
-    VkResult Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
-        const std::vector<FilterImageInfo>& inputImageInfo,
-        const std::vector<FilterImageInfo>& outputImageInfo) override;
+    VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                   const std::vector<FilterImageInfo> &inputImageInfo,
+                   const std::vector<FilterImageInfo> &outputImageInfo) override;
 
-    void SetSobelx(int* _sobelx, const int size) {
+    void SetSobelx(int *_sobelx, const int size) {
         this->sobelx = _sobelx;
         this->s_size = size;
     }
-    void SetSobely(int* _sobely, const int size) {
+
+    void SetSobely(int *_sobely, const int size) {
         this->sobely = _sobely;
         //this->s_size = size;
     }
-    void SetType(int type)
-    {
+
+    void SetType(int type) {
         this->accentedEdgeFilterParams.type = type;
     }
 

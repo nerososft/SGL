@@ -19,11 +19,11 @@ public:
 
     ~PinchFilter() override = default;
 
-    VkResult Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
-        const std::vector<FilterImageInfo>& inputImageInfo,
-        const std::vector<FilterImageInfo>& outputImageInfo) override;
+    VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                   const std::vector<FilterImageInfo> &inputImageInfo,
+                   const std::vector<FilterImageInfo> &outputImageInfo) override;
 
-    void SetAmount(int amount) { this->pinchFilterParams.amount = amount; }
+    void SetAmount(const int amount) { this->pinchFilterParams.amount = amount; }
 
     void Destroy() override;
 };

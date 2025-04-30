@@ -13,14 +13,14 @@
 #include "gpu_engine/log/Log.h"
 
 VkResult RotationalBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                                   const std::vector<FilterImageInfo> &inputImageInfo,
-                                   const std::vector<FilterImageInfo> &outputImageInfo) {
+                                     const std::vector<FilterImageInfo> &inputImageInfo,
+                                     const std::vector<FilterImageInfo> &outputImageInfo) {
     BasicFilterParams params;
     this->rotationblurFilterParams.imageSize.width = inputImageInfo[0].width;
     this->rotationblurFilterParams.imageSize.height = inputImageInfo[0].height;
     this->rotationblurFilterParams.imageSize.channels = 4;
     this->rotationblurFilterParams.imageSize.bytesPerLine = this->rotationblurFilterParams.imageSize.width * 4;
-    
+
     this->computeGraph = std::make_shared<ComputeGraph>(gpuCtx);
     this->computeSubGraph = std::make_shared<SubComputeGraph>(gpuCtx);
     VkResult ret = this->computeSubGraph->Init();
@@ -48,17 +48,17 @@ VkResult RotationalBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx
     vPipelineBuffers.push_back(pipelineNodeOutput);
 
     const auto kCalculateNode = std::make_shared<ComputePipelineNode>(gpuCtx,
-        "rotationalblur",
-        SHADER(rotational_blur.comp.glsl.spv),
-        (inputImageInfo[0].width + 31) / 32,
-        (inputImageInfo[0].height + 31) / 32,
-        1);
+                                                                      "rotationalblur",
+                                                                      SHADER(rotational_blur.comp.glsl.spv),
+                                                                      (inputImageInfo[0].width + 31) / 32,
+                                                                      (inputImageInfo[0].height + 31) / 32,
+                                                                      1);
 
 
     kCalculateNode->AddComputeElement({
-    .pushConstantInfo = pushConstantInfo,
-    .buffers = vPipelineBuffers
-        });
+        .pushConstantInfo = pushConstantInfo,
+        .buffers = vPipelineBuffers
+    });
 
     ret = kCalculateNode->CreateComputeGraphNode();
     if (ret != VK_SUCCESS) {

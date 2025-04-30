@@ -20,7 +20,7 @@ VkResult RotationBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     this->rotationblurFilterParams.imageSize.height = inputImageInfo[0].height;
     this->rotationblurFilterParams.imageSize.channels = 4;
     this->rotationblurFilterParams.imageSize.bytesPerLine = this->rotationblurFilterParams.imageSize.width * 4;
-    
+
     this->computeGraph = std::make_shared<ComputeGraph>(gpuCtx);
     this->computeSubGraph = std::make_shared<SubComputeGraph>(gpuCtx);
     VkResult ret = this->computeSubGraph->Init();
@@ -54,17 +54,17 @@ VkResult RotationBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     vPipelineBuffers.push_back(pipelineNodeOutput);
 
     const auto kCalculateNode = std::make_shared<ComputePipelineNode>(gpuCtx,
-        "rotationblur",
-        SHADER(rotationblur.comp.glsl.spv),
-        (inputImageInfo[0].width + 31) / 32,
-        (inputImageInfo[0].height + 31) / 32,
-        1);
+                                                                      "rotationblur",
+                                                                      SHADER(rotationblur.comp.glsl.spv),
+                                                                      (inputImageInfo[0].width + 31) / 32,
+                                                                      (inputImageInfo[0].height + 31) / 32,
+                                                                      1);
 
 
     kCalculateNode->AddComputeElement({
-    .pushConstantInfo = pushConstantInfo,
-    .buffers = vPipelineBuffers
-        });
+        .pushConstantInfo = pushConstantInfo,
+        .buffers = vPipelineBuffers
+    });
 
     ret = kCalculateNode->CreateComputeGraphNode();
     if (ret != VK_SUCCESS) {

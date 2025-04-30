@@ -19,11 +19,11 @@ public:
 
     ~PolarCoordinatesFilter() override = default;
 
-    VkResult Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
-        const std::vector<FilterImageInfo>& inputImageInfo,
-        const std::vector<FilterImageInfo>& outputImageInfo) override;
+    VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                   const std::vector<FilterImageInfo> &inputImageInfo,
+                   const std::vector<FilterImageInfo> &outputImageInfo) override;
 
-    void SetType(int type) { this->polarcoordinatesFilterParams.type = type; }
+    void SetType(const int type) { this->polarcoordinatesFilterParams.type = type; }
 
     void Destroy() override;
 };

@@ -17,18 +17,20 @@ struct IrisBlurFilterParams {
     float inb;
     float angle;
 };
+
 class IrisBlurFilter final : public IFilter {
     IrisBlurFilterParams irisblurFilterParams{};
     std::shared_ptr<ComputeGraph> computeGraph = nullptr;
     std::shared_ptr<SubComputeGraph> computeSubGraph = nullptr;
+
 public:
     IrisBlurFilter() = default;
 
     ~IrisBlurFilter() override = default;
 
-    VkResult Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
-        const std::vector<FilterImageInfo>& inputImageInfo,
-        const std::vector<FilterImageInfo>& outputImageInfo) override;
+    VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                   const std::vector<FilterImageInfo> &inputImageInfo,
+                   const std::vector<FilterImageInfo> &outputImageInfo) override;
 
     void SetCenterX(const float _x) { this->irisblurFilterParams.x = _x; }
     void SetCenterY(const float _y) { this->irisblurFilterParams.y = _y; }
