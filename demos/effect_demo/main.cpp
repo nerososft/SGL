@@ -60,124 +60,124 @@ void effect_engine_main() {
     // filter->SetRedFactor(0.299);
     // filter->SetGreenFactor(0.587);
     // filter->SetBlueFactor(0.114);
-    // effectEngine.Process("../../effect_demo/images/girl.png", "../../effect_demo/images/girl_gray.png", filter);
+    // effectEngine.Process("../../../demos/effect_demo/images/girl.png", "../../../demos/effect_demo/images/girl_gray.png", filter);
 
     // const auto filter = std::make_shared<GaussianBlurFilter>();
     // filter->SetRadius(300);
-    // effectEngine.Process("../../effect_demo/images/girl.png", "../../effect_demo/images/girl_blur.png", filter);
+    // effectEngine.Process("../../../demos/effect_demo/images/girl.png", "../../../demos/effect_demo/images/girl_blur.png", filter);
 
     // const auto filter = std::make_shared<ChinesePaintFilter>();
-    // effectEngine.Process("../../effect_demo/images/girl.png", "../../effect_demo/images/girl_chinese_paint.png", filter);
+    // effectEngine.Process("../../../demos/effect_demo/images/girl.png", "../../../demos/effect_demo/images/girl_chinese_paint.png", filter);
 
     // const auto filter = std::make_shared<ColorPencilSketchFilter>();
-    // effectEngine.Process("../../effect_demo/images/girl.png", "../../effect_demo/images/girl_color_pencil_sketch.png", filter);
+    // effectEngine.Process("../../../demos/effect_demo/images/girl.png", "../../../demos/effect_demo/images/girl_color_pencil_sketch.png", filter);
 
     // const auto filter = std::make_shared<ColorSeparationFilter>();
     // filter->SetRedOffsetX(60.0f);
     // filter->SetGreenOffsetX(120.0f);
     // filter->SetBlueOffsetX(180.0f);
-    // effectEngine.Process("../../effect_demo/images/girl.png", "../../effect_demo/images/girl_color_separation.png", filter);
+    // effectEngine.Process("../../../demos/effect_demo/images/girl.png", "../../../demos/effect_demo/images/girl_color_separation.png", filter);
 
     // const auto filter = std::make_shared<ScaleFilter>();
     // filter->SetTargetWidth(409);
     // filter->SetTargetHeight(613);
-    // effectEngine.Process("../../effect_demo/images/girl.png", "../../effect_demo/images/girl_scale_down.png", 409, 613, filter);
+    // effectEngine.Process("../../../demos/effect_demo/images/girl.png", "../../../demos/effect_demo/images/girl_scale_down.png", 409, 613, filter);
 
     // const auto filter = std::make_shared<OldGaussianBlurFilter>();
     // filter->SetRadius(12);
-    // effectEngine.Process("../../effect_demo/images/girl_scale_down.png", "../../effect_demo/images/girl_scale_down_blur.png", filter);
+    // effectEngine.Process("../../../demos/effect_demo/images/girl_scale_down.png", "../../../demos/effect_demo/images/girl_scale_down_blur.png", filter);
 
     // const auto filter = std::make_shared<ScaleFilter>();
     // filter->SetTargetWidth(4093);
     // filter->SetTargetHeight(6139);
-    // effectEngine.Process("../../effect_demo/images/girl_scale_down_blur.png",
-    //                      "../../effect_demo/images/girl_scale_up_blur.png", 4093, 6139, filter);
+    // effectEngine.Process("../../../demos/effect_demo/images/girl_scale_down_blur.png",
+    //                      "../../../demos/effect_demo/images/girl_scale_up_blur.png", 4093, 6139, filter);
 
     // const auto filter = std::make_shared<RadialBlurFilter>();
     // filter->SetCenter(2000, 3000);
     // filter->SetStrength(500);
     // filter->SetRotationStrength(600);
     // filter->SetSharpness(0.1);
-    // effectEngine.Process("../../effect_demo/images/girl.png", "../../effect_demo/images/girl_radial_blur.png", filter);
+    // effectEngine.Process("../../../demos/effect_demo/images/girl.png", "../../../demos/effect_demo/images/girl_radial_blur.png", filter);
 
     // const auto filter = std::make_shared<FocusBlurFilter>();
     // filter->SetCenter(390, 510);
     // filter->SetBlurRadius(110);
     // filter->SetCenterRadius(100);
     // filter->SetSharpness(3);
-    // effectEngine.Process("../../effect_demo/images/colorful.png", "../../effect_demo/images/colorful_focus_blur.png", filter);
+    // effectEngine.Process("../../../demos/effect_demo/images/colorful.png", "../../../demos/effect_demo/images/colorful_focus_blur.png", filter);
 
     // const auto filter = std::make_shared<SurfaceBlurFilter>();
     // filter->SetBlurRadius(60);
     // filter->SetThreshold(128);
-    // effectEngine.Process("../../effect_demo/images/girl.png", "../../effect_demo/images/girl_surface_blur.png", filter);
+    // effectEngine.Process("../../../demos/effect_demo/images/girl.png", "../../../demos/effect_demo/images/girl_surface_blur.png", filter);
 
     // const auto blender = std::make_shared<DissolveBlender>();
     // blender->SetDissolveFactor(0.5);
-    // effectEngine.Process("../../effect_demo/images/girl.png",
-    //                      "../../effect_demo/images/colorful.png",
+    // effectEngine.Process("../../../demos/effect_demo/images/girl.png",
+    //                      "../../../demos/effect_demo/images/colorful.png",
     //                      500,
     //                      800,
-    //                      "../../effect_demo/images/girl_colorful_dissolve.png", blender);
+    //                      "../../../demos/effect_demo/images/girl_colorful_dissolve.png", blender);
 
     // const auto blender = std::make_shared<MultiplyBlender>();
-    // effectEngine.Process("../../effect_demo/images/girl.png",
-    //                      "../../effect_demo/images/colorful.png",
+    // effectEngine.Process("../../../demos/effect_demo/images/girl.png",
+    //                      "../../../demos/effect_demo/images/colorful.png",
     //                      500,
     //                      800,
-    //                      "../../effect_demo/images/girl_colorful_multiply.png", blender);
+    //                      "../../../demos/effect_demo/images/girl_colorful_multiply.png", blender);
 
     // const auto blender = std::make_shared<OverlayBlender>();
-    // effectEngine.Process("../../effect_demo/images/girl.png",
-    //                      "../../effect_demo/images/colorful.png",
+    // effectEngine.Process("../../../demos/effect_demo/images/girl.png",
+    //                      "../../../demos/effect_demo/images/colorful.png",
     //                      500,
     //                      800,
-    //                      "../../effect_demo/images/girl_colorful_lighter.png", blender);
-    //                      "../../effect_demo/images/girl_colorful_overlay.png", blender);
+    //                      "../../../demos/effect_demo/images/girl_colorful_lighter.png", blender);
+    //                      "../../../demos/effect_demo/images/girl_colorful_overlay.png", blender);
 
     // const auto blender = std::make_shared<LighterColorBlender>();
     // blender->SetBrightnessThreshold(0.7f);
     // blender->SetBlendFactor(0.3f);
-    // effectEngine.Process("../../effect_demo/images/girl.png",
-    //                      "../../effect_demo/images/colorful.png",
+    // effectEngine.Process("../../../demos/effect_demo/images/girl.png",
+    //                      "../../../demos/effect_demo/images/colorful.png",
     //                      500,
     //                      800,
-    //                      "../../effect_demo/images/girl_colorful_lighter.png", blender);
+    //                      "../../../demos/effect_demo/images/girl_colorful_lighter.png", blender);
 
     // const auto filter = std::make_shared<VibranceFilter>();
     // filter->SetVibrance(40);
     // filter->SetSaturation(50);
-    // effectEngine.Process("../../effect_demo/images/colorful.png", "../../effect_demo/images/colorful_vibrance.png", filter);
+    // effectEngine.Process("../../../demos/effect_demo/images/colorful.png", "../../../demos/effect_demo/images/colorful_vibrance.png", filter);
 
     // const auto filter = std::make_shared<PaletteKnifeFilter>();
     // filter->SetRadius(10);
     // filter->SetQuantScale(5);
-    // effectEngine.Process("../../effect_demo/images/colorful.png", "../../effect_demo/images/colorful_palette_knife.png", filter);
+    // effectEngine.Process("../../../demos/effect_demo/images/colorful.png", "../../../demos/effect_demo/images/colorful_palette_knife.png", filter);
 
     // const auto filter = std::make_shared<NES8BitMosaicFilter>();
     // filter->SetBlockSize(64);
-    // effectEngine.Process("../../effect_demo/images/girl.png", "../../effect_demo/images/girl_8bit.png", filter);
+    // effectEngine.Process("../../../demos/effect_demo/images/girl.png", "../../../demos/effect_demo/images/girl_8bit.png", filter);
 
     // const auto filter = std::make_shared<ThresholdSplitFilter>();
     // filter->SetBright(10);
-    // effectEngine.Process("../../effect_demo/images/girl.png", "../../effect_demo/images/girl_threshold.png", filter);
+    // effectEngine.Process("../../../demos/effect_demo/images/girl.png", "../../../demos/effect_demo/images/girl_threshold.png", filter);
 
     // const auto filter = std::make_shared<VoronoiFilter>();
     // filter->SetGridSize(64);
     // filter->SetEnableEdge(true);
-    // effectEngine.Process("../../effect_demo/images/colorful.png", "../../effect_demo/images/colorful_voronoi.png", filter);
+    // effectEngine.Process("../../../demos/effect_demo/images/colorful.png", "../../../demos/effect_demo/images/colorful_voronoi.png", filter);
 
     // const auto filter = std::make_shared<OldGaussianBlurFilter>();
     // filter->SetRadius(128);
-    // effectEngine.Process("../../effect_demo/images/girl.png", "../../effect_demo/images/girl_blur.png", filter);
+    // effectEngine.Process("../../../demos/effect_demo/images/girl.png", "../../../demos/effect_demo/images/girl_blur.png", filter);
 
     const auto filter = std::make_shared<FastGaussianBlurFilter>();
     filter->SetRadius(120);
-    effectEngine.Process("../../effect_demo/images/girl.png", "../../effect_demo/images/girl_fast_blur.png", filter);
+    effectEngine.Process("../../../demos/effect_demo/images/girl.png", "../../../demos/effect_demo/images/girl_fast_blur.png", filter);
 
     // const auto filter = std::make_shared<MedianFilter>();
     // filter->SetRadius(50);
-    // effectEngine.Process("../../effect_demo/images/test.png", "../../effect_demo/images/test_median.png", filter);
+    // effectEngine.Process("../../../demos/effect_demo/images/test.png", "../../../demos/effect_demo/images/test_median.png", filter);
 }
 
 int main(int argc, char *argv[]) {

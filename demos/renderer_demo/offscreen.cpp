@@ -7,7 +7,7 @@
 #include <glm/ext/matrix_transform.hpp>
 
 #include "gpu_engine/log/Log.h"
-#include "renderer/Renderer.h"
+#include "render_engine/renderer/Renderer.h"
 #include "scene/ModelLoader.h"
 
 int main(int argc, char *argv[]) {
@@ -19,7 +19,7 @@ int main(int argc, char *argv[]) {
             // const std::vector<std::shared_ptr<Mesh> > models = ModelLoader::LoadModel(
             //     "../../renderer_demo/assets/builtin.models/Lion.OBJ");
             const std::vector<std::shared_ptr<Mesh> > models = ModelLoader::LoadModel(
-                "../../renderer_demo/assets/builtin.models/1911.FBX");
+                "../../../demos/renderer_demo/assets/builtin.models/1911.FBX");
 
             for (auto &mesh: models) {
                 if (!rdr->AddDrawElement(mesh->vertexData, mesh->indicesData, mesh->material, mesh->transform)) {
@@ -42,6 +42,6 @@ int main(int argc, char *argv[]) {
     if (!renderer->Init(requiredExtensions)) {
         Logger() << "Failed to initialize renderer" << std::endl;
     }
-    renderer->RenderFrameOffScreen("../../renderer_demo/images/render_offscreen1.png");
+    renderer->RenderFrameOffScreen("../../../demos/renderer_demo/images/render_offscreen1.png");
     return 0;
 }

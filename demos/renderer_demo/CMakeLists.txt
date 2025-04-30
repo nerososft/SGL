@@ -34,8 +34,6 @@ message("Need: ${COMPILED_SHADERS}")
 add_custom_target(compile_renderer_shaders ALL DEPENDS ${COMPILED_SHADERS})
 
 add_executable(renderer_demo
-        renderer/Renderer.h
-        renderer/Renderer.cpp
         main.cpp
         event/IEventHandler.h
         window/IWindow.h
@@ -46,31 +44,19 @@ add_executable(renderer_demo
         GraphicsApp.cpp
         scene/ModelLoader.cpp
         scene/ModelLoader.h
-        renderer/RendererMesh.cpp
-        renderer/RendererMesh.h
-        renderer/RendererLight.cpp
-        renderer/RendererLight.h
-        renderer/RendererCamera.cpp
-        renderer/RendererCamera.h
 )
 target_link_libraries(renderer_demo gpu_engine)
+target_link_libraries(renderer_demo render_engine)
 target_link_libraries(renderer_demo glfw)
 target_link_libraries(renderer_demo png)
 target_link_libraries(renderer_demo assimp)
 
 add_executable(renderer_offscreen_demo
-        renderer/Renderer.h
-        renderer/Renderer.cpp
         scene/ModelLoader.cpp
         scene/ModelLoader.h
-        renderer/RendererMesh.cpp
-        renderer/RendererMesh.h
-        renderer/RendererLight.cpp
-        renderer/RendererLight.h
-        renderer/RendererCamera.cpp
-        renderer/RendererCamera.h
         offscreen.cpp
 )
 target_link_libraries(renderer_offscreen_demo gpu_engine)
+target_link_libraries(renderer_offscreen_demo render_engine)
 target_link_libraries(renderer_offscreen_demo png)
 target_link_libraries(renderer_offscreen_demo assimp)

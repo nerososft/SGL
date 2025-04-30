@@ -8,7 +8,7 @@
 #include <string>
 #include <assimp/scene.h>
 
-#include "../renderer/RendererMesh.h"
+#include "render_engine/renderer/RendererMesh.h"
 
 class ModelLoader {
     static aiMatrix4x4 GetNodeTransform(const aiNode *node);

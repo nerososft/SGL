@@ -13,7 +13,6 @@
 #include "../../gpu_engine/gpu/compute_graph/ImageToBufferCopyNode.h"
 #include "../../gpu_engine/log/Log.h"
 #include "../../gpu_engine/utils/ImageUtils.h"
-#include "renderer_demo/scene/ModelLoader.h"
 
 Renderer::Renderer(const uint32_t width, const uint32_t height) {
     this->width = width;

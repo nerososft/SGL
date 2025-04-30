@@ -11,9 +11,9 @@
 #define SHADER_PATH "/data/storage/el1/bundle/entry/resources/resfile/shader_compiled/"
 #else
 #ifdef __APPLE__
-#define SHADER_PATH "../../shader_compiled/"
+#define SHADER_PATH "../../../shader_compiled/"
 #elif defined(__linux__)
-#define SHADER_PATH "../../shader_compiled/"
+#define SHADER_PATH "../../../shader_compiled/"
 #else
 #define SHADER_PATH "../../pseffect/shader_compiled/"
 #endif /* __APPLE__ */

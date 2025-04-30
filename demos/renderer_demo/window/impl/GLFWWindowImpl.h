@@ -9,8 +9,8 @@
 #include <vector>
 #include <GLFW/glfw3.h>
 
-#include "renderer_demo/event/IEventHandler.h"
-#include "renderer_demo/window/IWindow.h"
+#include "../../event/IEventHandler.h"
+#include "../../window/IWindow.h"
 
 class GLFWWindowImpl final : public IWindow {
     GLFWwindow *window = nullptr;

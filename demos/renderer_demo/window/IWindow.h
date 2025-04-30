@@ -8,7 +8,7 @@
 #include <vector>
 #include <vulkan/vulkan_core.h>
 
-#include "renderer_demo/event/IEventHandler.h"
+#include "../event/IEventHandler.h"
 
 struct Surface {
     int width;

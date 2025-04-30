@@ -6,7 +6,7 @@
 #define GRAPHICSAPP_H
 #include <memory>
 
-#include "renderer/Renderer.h"
+#include "render_engine/renderer/Renderer.h"
 #include "event/IEventHandler.h"
 #include "window/IWindow.h"
 
