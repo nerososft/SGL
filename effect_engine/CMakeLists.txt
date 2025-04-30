@@ -44,6 +44,17 @@ set(ENGINE_SOURCE EffectEngine.cpp
         EffectEngine.h
         c_api.cpp
         c_api.h
+        blenders/IBlender.h
+        blenders/BaseBlender.cpp
+        blenders/BaseBlender.h
+        blenders/impl/DissolveBlender.cpp
+        blenders/impl/DissolveBlender.h
+        blenders/impl/MultiplyBlender.cpp
+        blenders/impl/MultiplyBlender.h
+        blenders/impl/OverlayBlender.cpp
+        blenders/impl/OverlayBlender.h
+        blenders/impl/LighterColorBlender.cpp
+        blenders/impl/LighterColorBlender.h
         filters/IFilter.h
         filters/BasicFilter.cpp
         filters/BasicFilter.h
@@ -101,21 +112,8 @@ set(ENGINE_SOURCE EffectEngine.cpp
         filters/impl/CrystallizeFilter.cpp
         filters/impl/RotationBlurFilter.h
         filters/impl/RotationBlurFilter.cpp
-        blenders/IBlender.h
-        blenders/BaseBlender.cpp
-        blenders/BaseBlender.h
-        blenders/impl/DissolveBlender.cpp
-        blenders/impl/DissolveBlender.h
-        blenders/impl/MultiplyBlender.cpp
-        blenders/impl/MultiplyBlender.h
-        blenders/impl/OverlayBlender.cpp
-        blenders/impl/OverlayBlender.h
-        blenders/impl/LighterColorBlender.cpp
-        blenders/impl/LighterColorBlender.h
-
         filters/impl/CrystallizeFilter.h
         filters/impl/CrystallizeFilter.cpp
-
         filters/impl/RotationBlurFilter.h
         filters/impl/RotationBlurFilter.cpp
         filters/impl/FacetFilter.h
@@ -152,7 +150,6 @@ set(ENGINE_SOURCE EffectEngine.cpp
         filters/impl/PinchFilter.cpp
         filters/impl/WaveFilter.h
         filters/impl/WaveFilter.cpp
-
         )
 
 if (CMAKE_SYSTEM_NAME MATCHES "OHOS")
