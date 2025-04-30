@@ -376,8 +376,7 @@ bool Renderer::Init(const std::vector<const char *> &requiredExtensions,
 
 bool Renderer::Init() {
     this->renderMode = RENDER_MODE_OFFSCREEN;
-    const std::vector<const char *> requiredExtensions;
-    return this->Init(requiredExtensions, nullptr);
+    return this->Init({}, nullptr);
 }
 
 
