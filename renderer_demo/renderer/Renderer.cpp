@@ -154,7 +154,9 @@ bool Renderer::Init(const std::vector<const char *> &requiredExtensions,
     // this->gpuCtx->AddInstanceEnableLayer("VK_LAYER_LUNARG_api_dump");
     // this->gpuCtx->AddInstanceEnableLayer("VK_LAYER_KHRONOS_synchronization2");
     // this->gpuCtx->AddDeviceEnabledExtension("VK_KHR_synchronization2");
-    this->gpuCtx->AddDeviceEnabledExtension("VK_KHR_swapchain");
+    if (this->renderMode == RENDER_MODE_ONSCREEN) {
+        this->gpuCtx->AddDeviceEnabledExtension("VK_KHR_swapchain");
+    }
     VkResult result = this->gpuCtx->Init();
     if (result != VK_SUCCESS) {
         Logger() << Logger::ERROR << "Failed to initialize Vulkan GPU context!" << std::endl;
@@ -172,20 +174,22 @@ bool Renderer::Init(const std::vector<const char *> &requiredExtensions,
         return false;
     }
 
-    this->swapChain = std::make_shared<VkGPUSwapChain>(this->gpuCtx);
-    if (this->swapChain == nullptr) {
-        Logger() << Logger::ERROR << "Failed to create swap chain!" << std::endl;
-        return false;
-    }
-
     std::vector<uint32_t> queueFamilies = {0};
-    result = this->swapChain->CreateSwapChain(GetSurface(this->gpuCtx->GetInstance()),
-                                              this->width,
-                                              this->height,
-                                              queueFamilies);
-    if (result != VK_SUCCESS) {
-        Logger() << Logger::ERROR << "Failed to create swap chain!" << std::endl;
-        return false;
+    if (this->renderMode == RENDER_MODE_ONSCREEN) {
+        this->swapChain = std::make_shared<VkGPUSwapChain>(this->gpuCtx);
+        if (this->swapChain == nullptr) {
+            Logger() << Logger::ERROR << "Failed to create swap chain!" << std::endl;
+            return false;
+        }
+
+        result = this->swapChain->CreateSwapChain(GetSurface(this->gpuCtx->GetInstance()),
+                                                  this->width,
+                                                  this->height,
+                                                  queueFamilies);
+        if (result != VK_SUCCESS) {
+            Logger() << Logger::ERROR << "Failed to create swap chain!" << std::endl;
+            return false;
+        }
     }
 
     this->computeGraph = std::make_shared<ComputeGraph>(this->gpuCtx);
@@ -367,6 +371,12 @@ bool Renderer::Init(const std::vector<const char *> &requiredExtensions,
     return true;
 }
 
+bool Renderer::Init(const std::vector<const char *> &requiredExtensions) {
+    this->renderMode = RENDER_MODE_OFFSCREEN;
+    return this->Init(requiredExtensions, nullptr);
+}
+
+
 VkResult Renderer::RenderFrame() {
     this->frameInfo.frameIndex++;
     const VkResult ret = this->computeGraph->Compute();
@@ -377,6 +387,10 @@ VkResult Renderer::RenderFrame() {
 }
 
 VkResult Renderer::Present() const {
+    if (this->renderMode == RENDER_MODE_OFFSCREEN) {
+        Logger() << Logger::ERROR << "OffScreen mode!" << std::endl;
+        return VK_SUCCESS;
+    }
     uint32_t imageIndex = 0;
     const std::vector fences = {renderFinishedFence};
     vkResetFences(this->gpuCtx->GetCurrentDevice(), fences.size(), fences.data());

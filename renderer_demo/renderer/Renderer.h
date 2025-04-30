@@ -23,6 +23,11 @@ struct FrameInfo {
     uint64_t timestamp;
 };
 
+enum RenderMode {
+    RENDER_MODE_ONSCREEN,
+    RENDER_MODE_OFFSCREEN
+};
+
 class Renderer {
     std::shared_ptr<VkGPUContext> gpuCtx = nullptr;
     std::shared_ptr<ComputeGraph> computeGraph = nullptr;
@@ -36,6 +41,8 @@ class Renderer {
     std::shared_ptr<VkGPUFramebuffer> framebuffer = nullptr;
 
     std::shared_ptr<VkGPUSwapChain> swapChain = nullptr;
+
+    RenderMode renderMode = RENDER_MODE_ONSCREEN;
 
     FrameInfo frameInfo{};
 
@@ -51,6 +58,7 @@ class Renderer {
     VkSemaphore renderFinishedSemaphore = VK_NULL_HANDLE;
     VkFence renderFinishedFence = VK_NULL_HANDLE;
 
+
     bool InitCamera();
 
     bool InitLights();
@@ -64,6 +72,8 @@ public:
                         const glm::mat4 &transform);
 
     [[nodiscard]] bool ConstructMainGraphicsPipeline();
+
+    bool Init(const std::vector<const char *> &requiredExtensions);
 
     bool Init(const std::vector<const char *> &requiredExtensions, VkSurfaceKHR (*GetSurface)(VkInstance instance));
 
