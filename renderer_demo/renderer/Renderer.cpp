@@ -24,6 +24,7 @@ bool Renderer::AddDrawElement(const std::vector<Vertex> &vertexData,
                               const std::vector<uint32_t> &indicesData,
                               const Material &material,
                               const glm::mat4 &transform) {
+    // TODO: maybe this should be created at outer and passed into renderer?
     std::vector<PipelineNodeBuffer> buffers;
 
     const auto renderMesh = std::make_shared<RendererMesh>(vertexData, indicesData, material, transform);
