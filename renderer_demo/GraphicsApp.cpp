@@ -23,7 +23,6 @@ void GraphicsApp::Init() {
     renderer = std::make_shared<Renderer>(this->windowWidth, this->windowHeight);
 
     renderer->SetOnLoadScene([](Renderer *rdr) -> bool {
-            // TODO：The rendered scene should be passed in by the engine rather than read by the renderer
             // const std::vector<std::shared_ptr<Mesh> > models = ModelLoader::LoadModel(
             //     "../../renderer_demo/assets/builtin.models/Lion.OBJ");
             const std::vector<std::shared_ptr<Mesh> > models = ModelLoader::LoadModel(

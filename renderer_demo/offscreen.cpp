@@ -15,7 +15,6 @@ int main(int argc, char *argv[]) {
     const auto renderer = std::make_shared<Renderer>(768, 768);
 
     renderer->SetOnLoadScene([](Renderer *rdr) -> bool {
-            // TODO：The rendered scene should be passed in by the engine rather than read by the renderer
             // const std::vector<std::shared_ptr<Mesh> > models = ModelLoader::LoadModel(
             //     "../../renderer_demo/assets/builtin.models/Lion.OBJ");
             const std::vector<std::shared_ptr<Mesh> > models = ModelLoader::LoadModel(
