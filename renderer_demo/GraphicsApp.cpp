@@ -31,6 +31,7 @@ void GraphicsApp::Run() const {
     while (running && !window->ShouldClose()) {
         window->PollEvent();
         window->Render();
+        renderer->Update();
         if (renderer->RenderFrame() != VK_SUCCESS) {
             return;
         }

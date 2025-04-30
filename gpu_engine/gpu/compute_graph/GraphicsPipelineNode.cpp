@@ -37,7 +37,8 @@ GraphicsPipelineNode::GraphicsPipelineNode(const std::shared_ptr<VkGPUContext> &
     this->height = height;
 }
 
-std::shared_ptr<VkGPUDescriptorSet> GraphicsPipelineNode::CreateDescriptorSet(const GraphicsElement &graphicsElement) {
+std::shared_ptr<VkGPUDescriptorSet> GraphicsPipelineNode::CreateDescriptorSet(
+    const GraphicsElement &graphicsElement) const {
     const auto descriptorSet = std::make_shared<VkGPUDescriptorSet>(
         gpuCtx->GetCurrentDevice(),
         graphicsPipeline->GetPipelineLayout(),
@@ -48,6 +49,7 @@ std::shared_ptr<VkGPUDescriptorSet> GraphicsPipelineNode::CreateDescriptorSet(co
         return nullptr;
     }
 
+    std::vector<VkDescriptorBufferInfo> pipelineDescriptorBufferInfos;
     for (const auto &buffer: graphicsElement.buffers) {
         if (buffer.type == PIPELINE_NODE_BUFFER_VERTEX || buffer.type == PIPELINE_NODE_BUFFER_INDEX) {
             continue;
@@ -56,11 +58,12 @@ std::shared_ptr<VkGPUDescriptorSet> GraphicsPipelineNode::CreateDescriptorSet(co
         bufferInfo.offset = 0;
         bufferInfo.range = buffer.bufferSize;
         bufferInfo.buffer = buffer.buffer;
-        this->pipelineDescriptorBufferInfos.push_back(bufferInfo);
+        pipelineDescriptorBufferInfos.push_back(bufferInfo);
     }
 
     for (uint32_t i = 0; i < pipelineDescriptorBufferInfos.size(); ++i) {
-        Logger() << "Descriptor(" << i << "):" << string_VkDescriptorType(this->descriptorSetLayoutBindings[i].descriptorType)
+        Logger() << "Descriptor(" << i << "):" << string_VkDescriptorType(
+                    this->descriptorSetLayoutBindings[i].descriptorType)
                 << std::endl;
         if (this->descriptorSetLayoutBindings[i].descriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER) {
             descriptorSet->AddUniformBufferDescriptorSet(i, pipelineDescriptorBufferInfos.at(i));

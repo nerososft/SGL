@@ -6,16 +6,21 @@
 #define MODELLOADER_H
 #include <memory>
 #include <string>
+#include <assimp/scene.h>
 
-#include "Mesh.h"
+#include "../renderer/RendererMesh.h"
 
 class ModelLoader {
+    static aiMatrix4x4 GetNodeTransform(const aiNode *node);
+
+    static aiMatrix4x4 GetMeshTransform(const aiScene *scene, unsigned int meshIndex);
+
 public:
     ModelLoader() = default;
 
     ~ModelLoader() = default;
 
-    static std::vector<std::shared_ptr<Mesh>> LoadModel(const std::string &path);
+    static std::vector<std::shared_ptr<Mesh> > LoadModel(const std::string &path);
 };
 
 

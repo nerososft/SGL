@@ -11,6 +11,20 @@
 
 #include "gpu_engine/log/Log.h"
 
+aiMatrix4x4 ModelLoader::GetNodeTransform(const aiNode *node) {
+    if (!node->mParent) {
+        return node->mTransformation;
+    }
+    return GetNodeTransform(node->mParent) * node->mTransformation;
+}
+
+aiMatrix4x4 ModelLoader::GetMeshTransform(const aiScene *scene, const unsigned int meshIndex) {
+    const aiMesh *mesh = scene->mMeshes[meshIndex];
+    const aiNode *node = scene->mRootNode->FindNode(mesh->mName);
+
+    return GetNodeTransform(node);
+}
+
 std::vector<std::shared_ptr<Mesh> > ModelLoader::LoadModel(const std::string &path) {
     Assimp::Importer importer;
     const aiScene *scene = importer.
@@ -22,14 +36,15 @@ std::vector<std::shared_ptr<Mesh> > ModelLoader::LoadModel(const std::string &pa
 
     std::vector<std::shared_ptr<Mesh> > meshes;
     Logger() << "Loading model '" << path << "'" << std::endl;
-    for (int i = 0; i < scene->mNumMeshes; i++) {
+
+    for (int meshIndex = 0; meshIndex < scene->mNumMeshes; meshIndex++) {
         auto model = std::make_shared<Mesh>();
-        const aiMesh *mesh = scene->mMeshes[i];
+        const aiMesh *mesh = scene->mMeshes[meshIndex];
         Logger() << "Loading mesh '" << mesh->mName.C_Str() <<
                 "', Vertices:" << mesh->mNumVertices <<
                 ", Faces:" << mesh->mNumFaces << std::endl;
-        for (int j = 0; j < mesh->mNumFaces; j++) {
-            const aiFace face = mesh->mFaces[j];
+        for (int faceIndex = 0; faceIndex < mesh->mNumFaces; faceIndex++) {
+            const aiFace face = mesh->mFaces[faceIndex];
             aiVector3D normal;
             if (!mesh->HasNormals()) {
                 aiVector3D v0 = mesh->mVertices[face.mIndices[0]];
@@ -40,14 +55,14 @@ std::vector<std::shared_ptr<Mesh> > ModelLoader::LoadModel(const std::string &pa
                 normal = edge1 ^ edge2;
                 normal.Normalize();
             }
-            for (int k = 0; k < face.mNumIndices; k++) {
+            for (int faceIndices = 0; faceIndices < face.mNumIndices; faceIndices++) {
                 Vertex vertex{};
-                vertex.position.x = mesh->mVertices[face.mIndices[k]].x;
-                vertex.position.y = mesh->mVertices[face.mIndices[k]].y;
-                vertex.position.z = mesh->mVertices[face.mIndices[k]].z;
+                vertex.position.x = mesh->mVertices[face.mIndices[faceIndices]].x;
+                vertex.position.y = mesh->mVertices[face.mIndices[faceIndices]].y;
+                vertex.position.z = mesh->mVertices[face.mIndices[faceIndices]].z;
 
                 if (mesh->HasNormals()) {
-                    normal = mesh->mNormals[j * face.mNumIndices + k];
+                    normal = mesh->mNormals[faceIndex * face.mNumIndices + faceIndices];
                 }
                 vertex.normal.x = normal.x;
                 vertex.normal.y = normal.y;
@@ -57,12 +72,17 @@ std::vector<std::shared_ptr<Mesh> > ModelLoader::LoadModel(const std::string &pa
                 vertex.color.g = 0.5f;
                 vertex.color.b = 0.5f;
 
-                model->vertices.push_back(vertex);
+                model->vertexData.push_back(vertex);
             }
 
-            model->indices.push_back(j * face.mNumIndices + 0);
-            model->indices.push_back(j * face.mNumIndices + 1);
-            model->indices.push_back(j * face.mNumIndices + 2);
+            model->indicesData.push_back(faceIndex * face.mNumIndices + 0);
+            model->indicesData.push_back(faceIndex * face.mNumIndices + 1);
+            model->indicesData.push_back(faceIndex * face.mNumIndices + 2);
+        }
+
+        if (scene->HasTextures()) {
+            aiTexture *texture = scene->mTextures[meshIndex];
+            Logger() << "Loading texture '" << texture->mFilename.C_Str() << "'" << std::endl;
         }
 
         if (scene->HasMaterials()) {
@@ -106,7 +126,27 @@ std::vector<std::shared_ptr<Mesh> > ModelLoader::LoadModel(const std::string &pa
             model->material.reflectiveColor.b = reflectiveColor.b;
 
             model->material.shininess.r = shininess;
+
+            for (uint32_t textureType = aiTextureType_NONE; textureType < aiTextureType_UNKNOWN; textureType++) {
+                uint32_t normalTextureCount = material->GetTextureCount(static_cast<aiTextureType>(textureType));
+                Logger() << "Texture " << aiTextureTypeToString(static_cast<aiTextureType>(textureType)) <<
+                        " count: " << normalTextureCount <<
+                        std::endl;
+                for (uint32_t i = 0; i < normalTextureCount; i++) {
+                    aiString texturePath;
+                    material->GetTexture(static_cast<aiTextureType>(textureType), i, &texturePath);
+                    Logger() << "Loading " << aiTextureTypeToString(static_cast<aiTextureType>(textureType)) <<
+                            "texture '" << texturePath.C_Str()
+                            << "'" << std::endl;
+                }
+            }
         }
+
+        aiMatrix4x4 matrix = GetMeshTransform(scene, meshIndex);
+        model->transform = glm::mat4x4(matrix.a1, matrix.b1, matrix.c1, matrix.d1,
+                                       matrix.a2, matrix.b2, matrix.c2, matrix.d2,
+                                       matrix.a3, matrix.b3, matrix.c3, matrix.d3,
+                                       matrix.a4, matrix.b4, matrix.c4, matrix.d4);
 
         meshes.push_back(model);
     }
