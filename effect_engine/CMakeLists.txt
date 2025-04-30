@@ -15,6 +15,7 @@ elseif (CMAKE_SYSTEM_NAME MATCHES "OHOS")
 	message(STATUS "Running on OHOS")
 	include_directories("../../")
     include_directories("../gpu_engine")
+	#include_directories("D:/OHOS/glm")
 endif ()
 
 # compile builtin shaders
@@ -156,7 +157,7 @@ set(ENGINE_SOURCE EffectEngine.cpp
 
 if (CMAKE_SYSTEM_NAME MATCHES "OHOS")
     set(ENGINE_SOURCE ${ENGINE_SOURCE} filters/impl/HPSBlurFilter.cpp filters/impl/HPSBlurFilter.h)
-   #         ../renderer_demo/main.cpp)
+            #../renderer_demo/main.cpp)
 endif ()
 
 add_library(effect_engine SHARED
