@@ -21,7 +21,9 @@ aiMatrix4x4 ModelLoader::GetNodeTransform(const aiNode *node) {
 aiMatrix4x4 ModelLoader::GetMeshTransform(const aiScene *scene, const unsigned int meshIndex) {
     const aiMesh *mesh = scene->mMeshes[meshIndex];
     const aiNode *node = scene->mRootNode->FindNode(mesh->mName);
-
+    if (node == nullptr) {
+        return aiMatrix4x4();
+    }
     return GetNodeTransform(node);
 }
 
@@ -54,6 +56,8 @@ std::vector<std::shared_ptr<Mesh> > ModelLoader::LoadModel(const std::string &pa
                 aiVector3D edge2 = v2 - v0;
                 normal = edge1 ^ edge2;
                 normal.Normalize();
+            } else {
+                normal = mesh->mNormals[faceIndex];
             }
             for (int faceIndices = 0; faceIndices < face.mNumIndices; faceIndices++) {
                 Vertex vertex{};
@@ -61,16 +65,13 @@ std::vector<std::shared_ptr<Mesh> > ModelLoader::LoadModel(const std::string &pa
                 vertex.position.y = mesh->mVertices[face.mIndices[faceIndices]].y;
                 vertex.position.z = mesh->mVertices[face.mIndices[faceIndices]].z;
 
-                if (mesh->HasNormals()) {
-                    normal = mesh->mNormals[faceIndex * face.mNumIndices + faceIndices];
-                }
                 vertex.normal.x = normal.x;
                 vertex.normal.y = normal.y;
                 vertex.normal.z = normal.z;
 
-                vertex.color.r = 0.5f;
-                vertex.color.g = 0.5f;
-                vertex.color.b = 0.5f;
+                vertex.color.r = 1.0f;
+                vertex.color.g = 1.0f;
+                vertex.color.b = 1.0f;
 
                 model->vertexData.push_back(vertex);
             }
