@@ -10,12 +10,14 @@ layout(location = 1) out vec3 outNormal;
 layout(location = 2) out vec3 outPosition;
 
 layout (binding = 1) uniform ModelMatrix {
-     mat4 model;
+    mat4 model;
 } modelMatrix;
 
 layout (binding = 2) uniform ViewProjectionMatrix {
     mat4 view;
     mat4 projection;
+    vec3 cameraPosition;
+    vec3 up;
 } vpMatrix;
 
 void main() {

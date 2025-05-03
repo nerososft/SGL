@@ -10,12 +10,18 @@
 #include "gpu_engine/log/Log.h"
 
 RendererCamera::RendererCamera(const glm::vec3 position, const glm::vec3 up) {
-    this->position = position;
-    this->up = up;
+    this->viewProjectionMatrix.position = glm::vec4(position, 1.0f);
+    this->viewProjectionMatrix.up = glm::vec4(up, 1.0f);
 }
 
 glm::mat4 RendererCamera::GetInitialViewMatrix() const {
-    const glm::mat4 view = glm::lookAt(this->position, glm::vec3(0, 0, 0), this->up);
+    const glm::mat4 view = glm::lookAt(glm::vec3(this->viewProjectionMatrix.position.x,
+                                                 this->viewProjectionMatrix.position.y,
+                                                 this->viewProjectionMatrix.position.z),
+                                       glm::vec3(0, 0, 0),
+                                       glm::vec3(this->viewProjectionMatrix.up.x,
+                                                 this->viewProjectionMatrix.up.y,
+                                                 this->viewProjectionMatrix.up.z));
     return view;
 }
 

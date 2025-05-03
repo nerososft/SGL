@@ -23,10 +23,14 @@ void GraphicsApp::Init() {
     renderer = std::make_shared<Renderer>(this->windowWidth, this->windowHeight);
 
     renderer->SetOnLoadScene([](Renderer *rdr) -> bool {
-            // const std::vector<std::shared_ptr<Mesh> > models = ModelLoader::LoadModel(
-            //     "../../renderer_demo/assets/builtin.models/Lion.OBJ");
             const std::vector<std::shared_ptr<Mesh> > models = ModelLoader::LoadModel(
-                "../../../demos/renderer_demo/assets/builtin.models/1911.FBX");
+                "../../../demos/renderer_demo/assets/builtin.models/Helmet/DamagedHelmet.gltf");
+            // const std::vector<std::shared_ptr<Mesh> > models = ModelLoader::LoadModel(
+            //     "../../../demos/renderer_demo/assets/builtin.models/Sponza.gltf");
+            // const std::vector<std::shared_ptr<Mesh> > models = ModelLoader::LoadModel(
+            // "../../../demos/renderer_demo/assets/builtin.models/Lion.OBJ");
+            // const std::vector<std::shared_ptr<Mesh> > models = ModelLoader::LoadModel(
+            //     "../../../demos/renderer_demo/assets/builtin.models/1911.FBX");
 
             for (auto &mesh: models) {
                 if (!rdr->AddDrawElement(mesh->vertexData, mesh->indicesData, mesh->material, mesh->transform)) {

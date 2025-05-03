@@ -22,6 +22,13 @@ layout (binding = 3) uniform Light {
     vec3 direction;
 } light;
 
+layout (binding = 2) uniform ViewProjectionMatrix {
+    mat4 view;
+    mat4 projection;
+    vec3 cameraPosition;
+    vec3 up;
+} vpMatrix;
+
 layout (push_constant) uniform FrameInfo {
     uint frameIndex;
     float time;
@@ -43,7 +50,7 @@ vec3 calculatePhongLighting(vec3 lightPos, vec3 viewPos, vec3 norm, vec3 fragPos
 
 void main() {
     vec3 lightPos = light.position;
-    vec3 viewPos = vec3(0, 0, -3);
+    vec3 viewPos = vpMatrix.cameraPosition;
     vec3 norm = normalize(normal);
 
     vec3 phongLighting = calculatePhongLighting(lightPos, viewPos, norm, position);

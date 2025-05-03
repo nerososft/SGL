@@ -6,9 +6,10 @@
 #define MODELLOADER_H
 #include <memory>
 #include <string>
+#include <vector>
 #include <assimp/scene.h>
 
-#include "render_engine/renderer/RendererMesh.h"
+#include "Scene.h"
 
 class ModelLoader {
     static aiMatrix4x4 GetNodeTransform(const aiNode *node);

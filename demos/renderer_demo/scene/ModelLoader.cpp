@@ -48,17 +48,17 @@ std::vector<std::shared_ptr<Mesh> > ModelLoader::LoadModel(const std::string &pa
         for (int faceIndex = 0; faceIndex < mesh->mNumFaces; faceIndex++) {
             const aiFace face = mesh->mFaces[faceIndex];
             aiVector3D normal;
-            if (!mesh->HasNormals()) {
-                aiVector3D v0 = mesh->mVertices[face.mIndices[0]];
-                aiVector3D v1 = mesh->mVertices[face.mIndices[1]];
-                aiVector3D v2 = mesh->mVertices[face.mIndices[2]];
-                aiVector3D edge1 = v1 - v0;
-                aiVector3D edge2 = v2 - v0;
-                normal = edge1 ^ edge2;
-                normal.Normalize();
-            } else {
-                normal = mesh->mNormals[faceIndex];
-            }
+            // if (!mesh->HasNormals()) {
+            aiVector3D v0 = mesh->mVertices[face.mIndices[0]];
+            aiVector3D v1 = mesh->mVertices[face.mIndices[1]];
+            aiVector3D v2 = mesh->mVertices[face.mIndices[2]];
+            aiVector3D edge1 = v1 - v0;
+            aiVector3D edge2 = v2 - v0;
+            normal = edge1 ^ edge2;
+            normal.Normalize();
+            // } else {
+            // normal = mesh->mNormals[faceIndex];
+            // }
             for (int faceIndices = 0; faceIndices < face.mNumIndices; faceIndices++) {
                 Vertex vertex{};
                 vertex.position.x = mesh->mVertices[face.mIndices[faceIndices]].x;
@@ -141,6 +141,20 @@ std::vector<std::shared_ptr<Mesh> > ModelLoader::LoadModel(const std::string &pa
                             << "'" << std::endl;
                 }
             }
+        } else {
+            model->material.ambientColor.r = 0.3;
+            model->material.ambientColor.g = 0.3;
+            model->material.ambientColor.b = 0.3;
+
+            model->material.diffuseColor.r = 0.5;
+            model->material.diffuseColor.g = 0.5;
+            model->material.diffuseColor.b = 0.5;
+
+            model->material.specularColor.r = 0.7;
+            model->material.specularColor.g = 0.7;
+            model->material.specularColor.b = 0.7;
+
+            model->material.shininess.r = 2;
         }
 
         aiMatrix4x4 matrix = GetMeshTransform(scene, meshIndex);
@@ -150,6 +164,13 @@ std::vector<std::shared_ptr<Mesh> > ModelLoader::LoadModel(const std::string &pa
                                        matrix.a4, matrix.b4, matrix.c4, matrix.d4);
 
         meshes.push_back(model);
+    }
+
+    if (scene->HasLights()) {
+        for (uint32_t lightIdx = 0; lightIdx < scene->mNumLights; lightIdx++) {
+            const aiLight *light = scene->mLights[lightIdx];
+            Logger() << "Light: " << light->mName.C_Str() << std::endl;
+        }
     }
 
     return meshes;

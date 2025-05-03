@@ -7,35 +7,12 @@
 #include <memory>
 #include <glm/glm.hpp>
 
+#include "demos/renderer_demo/scene/Scene.h"
 #include "gpu_engine/gpu/VkGPUBuffer.h"
 #include "gpu_engine/gpu/compute_graph/IComputeGraphNode.h"
 
-struct Vertex {
-    glm::vec3 position;
-    glm::vec3 color;
-    glm::vec3 normal;
-    glm::vec2 texCoords;
-};
-
-struct Material {
-    glm::vec4 ambientColor;
-    glm::vec4 diffuseColor;
-    glm::vec4 specularColor;
-    glm::vec4 transparentColor;
-    glm::vec4 emissiveColor;
-    glm::vec4 reflectiveColor;
-    glm::vec4 shininess;
-};
-
 struct ModelMatrix {
     glm::mat4 model;
-};
-
-struct Mesh {
-    std::vector<Vertex> vertexData;
-    std::vector<uint32_t> indicesData;
-    Material material{};
-    glm::mat4 transform{};
 };
 
 class RendererMesh {

@@ -12,12 +12,11 @@
 struct ViewProjectionMatrix {
     glm::mat4 view;
     glm::mat4 projection;
+    glm::vec4 position;
+    glm::vec4 up;
 };
 
 class RendererCamera {
-    glm::vec3 position{};
-    glm::vec3 up{};
-
     ViewProjectionMatrix viewProjectionMatrix{};
 
     std::shared_ptr<VkGPUBuffer> viewProjectionBuffer = nullptr;
@@ -32,10 +31,14 @@ public:
     ~RendererCamera() = default;
 
     void SetPosition(const glm::vec3 position) {
-        this->position = position;
+        this->viewProjectionMatrix.position = glm::vec4(position, 1.0f);
     }
 
-    [[nodiscard]] glm::vec3 GetPosition() const { return position; }
+    [[nodiscard]] glm::vec3 GetPosition() const {
+        return glm::vec3(this->viewProjectionMatrix.position.x,
+                         this->viewProjectionMatrix.position.y,
+                         this->viewProjectionMatrix.position.z);
+    }
 
     [[nodiscard]] glm::mat4 GetViewMatrix() const;
 

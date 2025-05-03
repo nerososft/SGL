@@ -44,6 +44,7 @@ add_executable(renderer_demo
         GraphicsApp.cpp
         scene/ModelLoader.cpp
         scene/ModelLoader.h
+        scene/Scene.h
 )
 target_link_libraries(renderer_demo gpu_engine)
 target_link_libraries(renderer_demo render_engine)

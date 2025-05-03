@@ -121,7 +121,7 @@ bool Renderer::ConstructMainGraphicsPipeline() {
 }
 
 bool Renderer::InitCamera() {
-    camera = std::make_shared<RendererCamera>(glm::vec3(0, 0, -60), glm::vec3(0, -1, 0));
+    camera = std::make_shared<RendererCamera>(glm::vec3(0, 5, 0), glm::vec3(0, 0, 1));
     if (!camera->CreateGPUCamera(this->gpuCtx, this->width / this->height)) {
         return false;
     }
@@ -133,7 +133,7 @@ bool Renderer::InitLights() {
     if (!light->CreateGPULight(this->gpuCtx)) {
         return false;
     }
-    light->SetLightPosition(glm::vec4(10, 10, 10, 0));
+    light->SetLightPosition(glm::vec4(5, 5, 5, 0));
     this->rendererLights.push_back(light);
     return true;
 }
@@ -515,14 +515,14 @@ void Renderer::RenderFrameOffScreen(const std::string &path) {
 
 void Renderer::Update() const {
     for (const auto light: rendererLights) {
-        glm::vec4 pos = glm::rotate(glm::mat4(1.0f), glm::radians(20.0f),
-                                    glm::vec3(1, 0, 0)) * light->GetLightPosition();
+        glm::vec4 pos = glm::rotate(glm::mat4(1.0f), glm::radians(3.0f),
+                                    glm::vec3(0, 0, 1)) * light->GetLightPosition();
         light->SetLightPosition(pos);
     }
 
     glm::mat4 view = camera->GetViewMatrix();
     view = glm::rotate(view,
-                       glm::radians(1.0f),
-                       glm::vec3(0, 1, 0));
+                       glm::radians(0.1f),
+                       glm::vec3(0, 0, 1));
     camera->SetViewMatrix(view);
 }

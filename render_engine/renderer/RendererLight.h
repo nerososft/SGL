@@ -6,14 +6,9 @@
 #define RENDERERLIGHT_H
 #include <glm/vec4.hpp>
 
+#include "demos/renderer_demo/scene/Scene.h"
 #include "gpu_engine/gpu/VkGPUBuffer.h"
 #include "gpu_engine/gpu/compute_graph/IComputeGraphNode.h"
-
-struct Light {
-    glm::vec4 position;
-    glm::vec4 color;
-    glm::vec4 direction;
-};
 
 class RendererLight {
     Light light{};
