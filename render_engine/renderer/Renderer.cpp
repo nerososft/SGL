@@ -121,7 +121,7 @@ bool Renderer::ConstructMainGraphicsPipeline() {
 }
 
 bool Renderer::InitCamera() {
-    camera = std::make_shared<RendererCamera>(glm::vec3(0, 5, 0), glm::vec3(0, 0, 1));
+    camera = std::make_shared<RendererCamera>(glm::vec3(0, 5, 0), glm::vec3(0, 0, -1));
     if (!camera->CreateGPUCamera(this->gpuCtx, this->width / this->height)) {
         return false;
     }
@@ -133,7 +133,8 @@ bool Renderer::InitLights() {
     if (!light->CreateGPULight(this->gpuCtx)) {
         return false;
     }
-    light->SetLightPosition(glm::vec4(5, 5, 5, 0));
+    light->SetLightPosition(glm::vec4(1, 5, 1, 0));
+    light->SetLightColor(glm::vec4(1.5f, 1.5f, 1.5f, 1.0f));
     this->rendererLights.push_back(light);
     return true;
 }
@@ -515,7 +516,7 @@ void Renderer::RenderFrameOffScreen(const std::string &path) {
 
 void Renderer::Update() const {
     for (const auto light: rendererLights) {
-        glm::vec4 pos = glm::rotate(glm::mat4(1.0f), glm::radians(3.0f),
+        glm::vec4 pos = glm::rotate(glm::mat4(1.0f), glm::radians(-0.4f),
                                     glm::vec3(0, 0, 1)) * light->GetLightPosition();
         light->SetLightPosition(pos);
     }

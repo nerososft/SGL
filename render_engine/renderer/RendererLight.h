@@ -26,6 +26,8 @@ public:
 
     void SetLightPosition(const glm::vec4 &position);
 
+    void SetLightColor(glm::vec4 color);
+
     bool CreateGPULight(const std::shared_ptr<VkGPUContext> &gpuCtx);
 
     [[nodiscard]] PipelineNodeBuffer GetLightBufferNode() const;

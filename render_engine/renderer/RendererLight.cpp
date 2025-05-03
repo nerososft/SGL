@@ -45,3 +45,8 @@ void RendererLight::SetLightPosition(const glm::vec4 &position) {
     this->light.position = position;
     this->lightBuffer->UploadData(&light, sizeof(Light));
 }
+
+void RendererLight::SetLightColor(const glm::vec4 color) {
+    this->light.color = color;
+    this->lightBuffer->UploadData(&light, sizeof(Light));
+}
