@@ -4,7 +4,7 @@
 
 #ifndef RELUOPERATOR_H
 #define RELUOPERATOR_H
-#include "compute_engine/operators/UnaryOperator.h"
+#include "ml_engine/operators/UnaryOperator.h"
 
 class ReLUOperator final : public UnaryOperator {
 public:

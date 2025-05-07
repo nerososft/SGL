@@ -4,5 +4,5 @@
 // Created by neo on 25-5-7.
 //
 int main(int argc, char *argv[]) {
-    std::cout << "Compute demo" << std::endl;
+    std::cout << "Inference demo" << std::endl;
 }

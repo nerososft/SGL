@@ -8,9 +8,7 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     message(STATUS "Running on macOS")
 endif ()
 
-add_library(compute_engine
-        ComputeEngine.cpp
-        ComputeEngine.h
+add_library(ml_engine
         operators/IOperator.h
         operators/UnaryOperator.h
         operators/UnaryOperator.cpp
@@ -19,4 +17,4 @@ add_library(compute_engine
         operators/impl/ReLUOperator.h
         operators/impl/ReLUOperator.cpp
 )
-target_link_libraries(compute_engine gpu_engine)
+target_link_libraries(ml_engine gpu_engine)
