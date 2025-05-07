@@ -52,12 +52,7 @@ set(ENGINE_SOURCE ${ENGINE_GPU_SOURCE} utils/IOUtils.cpp
         utils/ImageUtils.cpp
         utils/ImageUtils.h
         log/Log.h
-        config.h
-        operators/IOperator.h
-        operators/UnaryOperator.cpp
-        operators/UnaryOperator.h
-        operators/BinaryOperator.cpp
-        operators/BinaryOperator.h)
+        config.h)
 
 include_directories("./")
 

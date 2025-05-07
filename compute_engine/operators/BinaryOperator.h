@@ -5,7 +5,7 @@
 #ifndef BINARYOPERATOR_H
 #define BINARYOPERATOR_H
 #include "IOperator.h"
-#include "gpu/VkGPUBuffer.h"
+#include "gpu_engine/gpu/VkGPUBuffer.h"
 
 
 class BinaryOperator : public IOperator {
@@ -14,13 +14,16 @@ class BinaryOperator : public IOperator {
     std::shared_ptr<VkGPUBuffer> outputBuffer = nullptr;
 
 public:
-    BinaryOperator(const std::shared_ptr<VkGPUBuffer> &inputBuffer1,
+    std::shared_ptr<VkGPUContext> gpuCtx = nullptr;
+
+    BinaryOperator(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                   const std::shared_ptr<VkGPUBuffer> &inputBuffer1,
                    const std::shared_ptr<VkGPUBuffer> &inputBuffer2,
                    const std::shared_ptr<VkGPUBuffer> &outputBuffer);
 
     ~BinaryOperator() override;
 
-    void Destroy() const;
+    void Destroy() override;
 };
 
 

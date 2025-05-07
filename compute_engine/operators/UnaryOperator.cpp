@@ -4,21 +4,26 @@
 
 #include "UnaryOperator.h"
 
-UnaryOperator::UnaryOperator(const std::shared_ptr<VkGPUBuffer> &inputBuffer,
+UnaryOperator::UnaryOperator(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                             const std::shared_ptr<VkGPUBuffer> &inputBuffer,
                              const std::shared_ptr<VkGPUBuffer> &outputBuffer) {
+    this->gpuCtx = gpuCtx;
     this->inputBuffer = inputBuffer;
     this->outputBuffer = outputBuffer;
 }
 
 UnaryOperator::~UnaryOperator() {
-    Destroy();
+    UnaryOperator::Destroy();
 }
 
-void UnaryOperator::Destroy() const {
+void UnaryOperator::Destroy() {
     if (this->inputBuffer != nullptr) {
         this->inputBuffer->Destroy();
     }
     if (this->outputBuffer != nullptr) {
         this->outputBuffer->Destroy();
+    }
+    if (this->computeNode != nullptr) {
+        this->computeNode->Destroy();
     }
 }

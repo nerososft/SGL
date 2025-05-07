@@ -4,7 +4,8 @@
 
 #ifndef IOPERATOR_H
 #define IOPERATOR_H
-#include "gpu/compute_graph/IComputeGraphNode.h"
+#include "gpu_engine/gpu/VkGPUContext.h"
+#include "gpu_engine/gpu/compute_graph/IComputeGraphNode.h"
 
 
 class IOperator {
@@ -14,7 +15,9 @@ public:
     virtual ~IOperator() = default;
 
     virtual std::shared_ptr<IComputeGraphNode> CreateComputeGraphNode() = 0;
+
+    virtual void Destroy() = 0;
 };
 
 
-#endif //IOPERATOR_H
+#endif //IOPERATOR_

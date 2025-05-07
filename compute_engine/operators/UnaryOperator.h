@@ -5,18 +5,21 @@
 #ifndef UNARYOPERATOR_H
 #define UNARYOPERATOR_H
 #include "IOperator.h"
-#include "gpu/VkGPUBuffer.h"
+#include "gpu_engine/gpu/VkGPUBuffer.h"
 
 class UnaryOperator : public IOperator {
+public:
+    std::shared_ptr<VkGPUContext> gpuCtx = nullptr;
     std::shared_ptr<VkGPUBuffer> inputBuffer = nullptr;
     std::shared_ptr<VkGPUBuffer> outputBuffer = nullptr;
 
-public:
-    UnaryOperator(const std::shared_ptr<VkGPUBuffer> &inputBuffer, const std::shared_ptr<VkGPUBuffer> &outputBuffer);
+    UnaryOperator(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                  const std::shared_ptr<VkGPUBuffer> &inputBuffer,
+                  const std::shared_ptr<VkGPUBuffer> &outputBuffer);
 
     ~UnaryOperator() override;
 
-    void Destroy() const;
+    void Destroy() override;
 };
 
 #endif //UNARYOPERATOR_H
