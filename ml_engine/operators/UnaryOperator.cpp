@@ -23,7 +23,4 @@ void UnaryOperator::Destroy() {
     if (this->outputBuffer != nullptr) {
         this->outputBuffer->Destroy();
     }
-    if (this->computeNode != nullptr) {
-        this->computeNode->Destroy();
-    }
 }

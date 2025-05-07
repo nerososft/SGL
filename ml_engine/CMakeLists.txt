@@ -16,5 +16,7 @@ add_library(ml_engine
         operators/BinaryOperator.cpp
         operators/impl/ReLUOperator.h
         operators/impl/ReLUOperator.cpp
+        MLEngine.h
+        MLEngine.cpp
 )
 target_link_libraries(ml_engine gpu_engine)
