@@ -17,8 +17,10 @@ int main(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
-    std::vector<float> input;
-    std::vector<float> output;
+    const std::vector<float> input = {-1, 0, 0.4, 0.3, 0.2, 0.1, -0.7, 0.3, 0.2, 0.1};
+    std::vector<float> output(input.size());
 
     mle.ReLU(input, output).Compute();
+
+    std::cout << output.data() << std::endl;
 }

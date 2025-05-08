@@ -5,6 +5,7 @@
 #include "MLEngine.h"
 
 #include "gpu_engine/log/Log.h"
+#include "operators/impl/ReLUOperator.h"
 
 bool MLEngine::Init() {
     std::vector<const char *> requiredExtensions;
@@ -41,7 +42,29 @@ bool MLEngine::Init() {
     return true;
 }
 
-MLEngine MLEngine::ReLU(std::vector<float> input, std::vector<float> output) {
+// FIXME: This design doesn't feel very nice.
+MLEngine MLEngine::ReLU(const std::vector<float> &input, const std::vector<float> &output) {
+    const auto inputBuffer = std::make_shared<VkGPUBuffer>(this->gpuCtx);
+    VkResult result = inputBuffer->AllocateAndUploadVectorF(input);
+    if (result != VK_SUCCESS) {
+        Logger() << Logger::ERROR << "Failed to allocate input buffer!" << std::endl;
+        throw std::runtime_error("Failed to allocate input buffer!");
+    }
+
+    const auto outputBuffer = std::make_shared<VkGPUBuffer>(this->gpuCtx);
+    result = outputBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED, output.size() * sizeof(float));
+    if (result != VK_SUCCESS) {
+        Logger() << Logger::ERROR << "Failed to allocate output buffer!" << std::endl;
+        throw std::runtime_error("Failed to allocate output buffer!");
+    }
+
+    const auto reluOp = std::make_shared<ReLUOperator>(this->gpuCtx, inputBuffer, outputBuffer);
+    const auto node = reluOp->CreateComputeGraphNode();
+    if (node == nullptr) {
+        Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
+        throw std::runtime_error("Failed to create compute graph node!");
+    }
+    this->mainSubGraph->AddComputeGraphNode(node);
     return *this;
 }
 

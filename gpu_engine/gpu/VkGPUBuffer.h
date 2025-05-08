@@ -43,6 +43,8 @@ public:
 
     VkResult UploadData(const void *uploadData, VkDeviceSize size);
 
+    VkResult AllocateAndUploadVectorF(const std::vector<float> &data);
+
     VkResult DownloadData(void *downloadAddr, VkDeviceSize size);
 
     [[nodiscard]] VkDeviceSize GetBufferSize() const { return this->bufferSize; }

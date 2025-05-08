@@ -6,6 +6,7 @@
 #define MLENGINE_H
 #include <memory>
 
+#include "gpu_engine/gpu/VkGPUBuffer.h"
 #include "gpu_engine/gpu/VkGPUContext.h"
 #include "gpu_engine/gpu/compute_graph/ComputeGraph.h"
 
@@ -14,12 +15,14 @@ class MLEngine {
     std::shared_ptr<ComputeGraph> graph = nullptr;
     std::shared_ptr<SubComputeGraph> mainSubGraph = nullptr;
 
+    std::vector<std::shared_ptr<VkGPUBuffer> > buffers;
+
 public:
     MLEngine() = default;
 
     bool Init();
 
-    MLEngine ReLU(std::vector<float> input, std::vector<float> output);
+    MLEngine ReLU(const std::vector<float> &input, const std::vector<float> &output);
 
     ~MLEngine() = default;
 

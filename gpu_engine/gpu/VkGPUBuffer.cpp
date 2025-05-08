@@ -122,6 +122,21 @@ VkResult VkGPUBuffer::UploadData(const void *uploadData, const VkDeviceSize size
     return VK_SUCCESS;
 }
 
+VkResult VkGPUBuffer::AllocateAndUploadVectorF(const std::vector<float> &data) {
+    VkResult result = this->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED, data.size() * sizeof(float));
+    if (result != VK_SUCCESS) {
+        Logger() << "Failed to allocate buffer data, err =" << string_VkResult(result) << std::endl;
+        return result;
+    }
+    result = this->UploadData(data.data(), sizeof(float) * data.size());
+    if (result != VK_SUCCESS) {
+        Logger() << "Failed to upload buffer, err =" << string_VkResult(result) << std::endl;
+        this->Destroy();
+        return result;
+    }
+    return result;
+}
+
 void ParallelCopy(void *dst, const void *src, const size_t size, const uint32_t numThreads) {
     const size_t block_size = size / numThreads;
     std::vector<std::thread> threads;
