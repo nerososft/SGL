@@ -22,7 +22,13 @@ public:
 
     bool Init();
 
-    MLEngine ReLU(const std::vector<float> &input, const std::vector<float> &output);
+    MLEngine ReLU(const std::vector<float> &input,
+                  const std::vector<float> &output);
+
+    MLEngine MatMul(const std::vector<float> &mat1,
+                    const std::vector<float> &mat2,
+                    const std::vector<float> &output);
+
 
     ~MLEngine() = default;
 

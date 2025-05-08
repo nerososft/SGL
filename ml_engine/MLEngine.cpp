@@ -5,6 +5,7 @@
 #include "MLEngine.h"
 
 #include "gpu_engine/log/Log.h"
+#include "operators/impl/MatMulOperator.h"
 #include "operators/impl/ReLUOperator.h"
 
 bool MLEngine::Init() {
@@ -60,6 +61,41 @@ MLEngine MLEngine::ReLU(const std::vector<float> &input, const std::vector<float
 
     const auto reluOp = std::make_shared<ReLUOperator>(this->gpuCtx, inputBuffer, outputBuffer);
     const auto node = reluOp->CreateComputeGraphNode();
+    if (node == nullptr) {
+        Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
+        throw std::runtime_error("Failed to create compute graph node!");
+    }
+    this->mainSubGraph->AddComputeGraphNode(node);
+    return *this;
+}
+
+// FIXME: This design doesn't feel very nice.
+MLEngine MLEngine::MatMul(const std::vector<float> &mat1,
+                          const std::vector<float> &mat2,
+                          const std::vector<float> &output) {
+    const auto inputBuffer = std::make_shared<VkGPUBuffer>(this->gpuCtx);
+    VkResult result = inputBuffer->AllocateAndUploadVectorF(mat1);
+    if (result != VK_SUCCESS) {
+        Logger() << Logger::ERROR << "Failed to allocate input buffer!" << std::endl;
+        throw std::runtime_error("Failed to allocate input buffer!");
+    }
+
+    const auto inputBuffer2 = std::make_shared<VkGPUBuffer>(this->gpuCtx);
+    result = inputBuffer2->AllocateAndUploadVectorF(mat2);
+    if (result != VK_SUCCESS) {
+        Logger() << Logger::ERROR << "Failed to allocate input buffer!" << std::endl;
+        throw std::runtime_error("Failed to allocate input buffer!");
+    }
+
+    const auto outputBuffer = std::make_shared<VkGPUBuffer>(this->gpuCtx);
+    result = outputBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED, output.size() * sizeof(float));
+    if (result != VK_SUCCESS) {
+        Logger() << Logger::ERROR << "Failed to allocate output buffer!" << std::endl;
+        throw std::runtime_error("Failed to allocate output buffer!");
+    }
+
+    const auto matMulOp = std::make_shared<MatMulOperator>(this->gpuCtx, inputBuffer, inputBuffer2, outputBuffer);
+    const auto node = matMulOp->CreateComputeGraphNode();
     if (node == nullptr) {
         Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
         throw std::runtime_error("Failed to create compute graph node!");

@@ -1,5 +1,6 @@
 #include <iostream>
 #include <ostream>
+#include <glm/fwd.hpp>
 
 #include "gpu_engine/log/Log.h"
 #include "ml_engine/MLEngine.h"
@@ -17,10 +18,29 @@ int main(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
-    const std::vector<float> input = {-1, 0, 0.4, 0.3, 0.2, 0.1, -0.7, 0.3, 0.2, 0.1};
-    std::vector<float> output(input.size());
+    const std::vector<float> input = {
+        -1, 0, 0.4, 0.3, 0.2,
+        0.1, -0.7, 0.3,
+        0.2, 0.1, -0.7, 0.3,
+        0.3, 0.2, 0.1, -0.7, 0.3,
+        0.4, 0.3, 0.2, 0.1
+    };
+    const std::vector<float> output(input.size());
+    const std::vector<float> mat1 = {
+        1, 0.1, 0.2, 0,
+        4, 0.4, 0.7, 0.3,
+        6, 0.6, 0.8, 0.5,
+        0.7, 0.9, 0.3, 0.1
+    };
+    const std::vector<float> mat2 = {
+        1, 0.1, 0.2, 0,
+        4, 0.4, 0.7, 0.3,
+        6, 0.6, 0.8, 0.5,
+        0.7, 0.9, 0.3, 0.1
+    };
+    const std::vector<float> matOutput(16);
 
-    mle.ReLU(input, output).Compute();
+    mle.MatMul(mat1, mat2, matOutput);
 
     std::cout << output.data() << std::endl;
 }

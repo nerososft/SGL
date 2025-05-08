@@ -40,5 +40,7 @@ add_library(ml_engine
         operators/impl/ReLUOperator.cpp
         MLEngine.h
         MLEngine.cpp
+        operators/impl/MatMulOperator.cpp
+        operators/impl/MatMulOperator.h
 )
 target_link_libraries(ml_engine gpu_engine)

@@ -9,12 +9,11 @@
 
 
 class BinaryOperator : public IOperator {
+public:
+    std::shared_ptr<VkGPUContext> gpuCtx = nullptr;
     std::shared_ptr<VkGPUBuffer> inputBuffer1 = nullptr;
     std::shared_ptr<VkGPUBuffer> inputBuffer2 = nullptr;
     std::shared_ptr<VkGPUBuffer> outputBuffer = nullptr;
-
-public:
-    std::shared_ptr<VkGPUContext> gpuCtx = nullptr;
 
     BinaryOperator(const std::shared_ptr<VkGPUContext> &gpuCtx,
                    const std::shared_ptr<VkGPUBuffer> &inputBuffer1,
