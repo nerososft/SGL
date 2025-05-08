@@ -19,7 +19,7 @@ std::shared_ptr<IComputeGraphNode> MatMulOperator::CreateComputeGraphNode() {
     auto gemmNode = std::make_shared<ComputePipelineNode>(this->gpuCtx,
                                                           "MatMul",
                                                           SHADER(matmul.comp.glsl.spv),
-                                                          32,
+                                                          32, // FIXME: (width + 31) / 32
                                                           32,
                                                           1);
 

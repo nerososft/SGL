@@ -25,7 +25,6 @@ std::shared_ptr<IComputeGraphNode> ReLUOperator::CreateComputeGraphNode() {
                                                           (nums + 255) / 256,
                                                           1,
                                                           1);
-
     std::vector<PipelineNodeBuffer> buffers;
     buffers.push_back({
         .buffer = this->inputBuffer->GetBuffer(),
