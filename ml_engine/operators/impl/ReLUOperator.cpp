@@ -18,10 +18,11 @@ ReLUOperator::~ReLUOperator() {
 }
 
 std::shared_ptr<IComputeGraphNode> ReLUOperator::CreateComputeGraphNode() {
+    const size_t nums = outputBuffer->GetBufferSize() / sizeof(float);
     auto reluNode = std::make_shared<ComputePipelineNode>(this->gpuCtx,
                                                           "ReLU",
                                                           SHADER(relu.comp.glsl.spv),
-                                                          256,
+                                                          (nums + 255) / 256,
                                                           1,
                                                           1);
 
