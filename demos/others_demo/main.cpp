@@ -19,7 +19,7 @@ struct Point2D {
     float y;
 };
 
-glm::mat4 trans = glm::mat4(1);
+auto trans = glm::mat4(1);
 
 Point2D *transform(const std::vector<Point2D> &points) {
     std::vector<const char *> extensions = {};
@@ -109,7 +109,7 @@ int main(int argc, char *argv[]) {
     };
     trans = glm::translate(glm::mat4(1), glm::vec3(5, 8, 0));
 
-    Point2D *result = transform(points);
+    const Point2D *result = transform(points);
     if (result != nullptr) {
         for (int i = 0; i < points.size(); i++) {
             std::cout << "(" << points[i].x << ", " << points[i].y << ") -> (" << result[i].x << ", " << result[i].y <<
