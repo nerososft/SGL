@@ -6,7 +6,6 @@
 #include <memory>
 #include <ostream>
 #include <vector>
-#include <glm/vec4.hpp>
 #include <gpu_engine/config.h>
 #include <gpu_engine/gpu/VkGPUBuffer.h>
 #include <gpu_engine/gpu/VkGPUContext.h>

@@ -1,4 +1,4 @@
-add_executable(mindmaster_demo
+add_executable(others_demo
         main.cpp
 )
 
@@ -22,6 +22,6 @@ foreach (SHADER_FILE ${BUILTIN_SHADER_FILES})
     list(APPEND COMPILED_SHADERS ${COMPILED_SHADER})
 endforeach ()
 message("Need: ${COMPILED_SHADERS}")
-add_custom_target(compile_mindmaster_shaders ALL DEPENDS ${COMPILED_SHADERS})
+add_custom_target(compile_others_shaders ALL DEPENDS ${COMPILED_SHADERS})
 
-target_link_libraries(mindmaster_demo gpu_engine)
+target_link_libraries(others_demo gpu_engine)
