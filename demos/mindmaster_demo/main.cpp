@@ -6,6 +6,7 @@
 #include <memory>
 #include <ostream>
 #include <vector>
+#include <glm/vec4.hpp>
 #include <gpu_engine/config.h>
 #include <gpu_engine/gpu/VkGPUBuffer.h>
 #include <gpu_engine/gpu/VkGPUContext.h>
@@ -29,9 +30,12 @@ bool bezier_curve() {
     }
     computeGraph->AddSubGraph(computeSubGraph);
 
-    VkDeviceSize controlDataSize = 1; // TODO:
+    const VkDeviceSize controlDataSize = 1;// TODO:
     const auto inputBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
     inputBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED, controlDataSize);
+
+    // BezierCurveControlData controlData;
+    // inputBuffer->UploadData(&controlData, controlDataSize);
 
     VkDeviceSize outputPointDataSize = 1; // TODO:
     const auto outputBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
