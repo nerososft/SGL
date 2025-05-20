@@ -6,45 +6,51 @@
 #include <memory>
 #include <ostream>
 #include <vector>
+#include <glm/glm.hpp>
+#include <glm/ext/matrix_transform.hpp>
 #include <gpu_engine/config.h>
 #include <gpu_engine/gpu/VkGPUBuffer.h>
 #include <gpu_engine/gpu/VkGPUContext.h>
 #include <gpu_engine/gpu/compute_graph/ComputeGraph.h>
 #include <gpu_engine/gpu/compute_graph/ComputePipelineNode.h>
 
-bool bezier_curve() {
+struct Point2D {
+    float x;
+    float y;
+};
+
+glm::mat4 trans = glm::mat4(1);
+
+Point2D *transform(const std::vector<Point2D> &points) {
     std::vector<const char *> extensions = {};
     auto gpuCtx = std::make_shared<VkGPUContext>(extensions);
 
     if (gpuCtx->Init() != VK_SUCCESS) {
         std::cerr << "Failed to initialize GPU context!" << std::endl;
-        return false;
+        return nullptr;
     }
 
     const auto computeGraph = std::make_shared<ComputeGraph>(gpuCtx);
     const auto computeSubGraph = std::make_shared<SubComputeGraph>(gpuCtx);
     if (computeSubGraph->Init() != VK_SUCCESS) {
         std::cerr << "Failed to initialize sub graph!" << std::endl;
-        return false;
+        return nullptr;
     }
     computeGraph->AddSubGraph(computeSubGraph);
 
-    const VkDeviceSize controlDataSize = 1;// TODO:
+    const VkDeviceSize pointsSize = points.size() * sizeof(Point2D);
     const auto inputBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
-    inputBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED, controlDataSize);
+    inputBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED, pointsSize);
+    inputBuffer->UploadData(points.data(), pointsSize);
 
-    // BezierCurveControlData controlData;
-    // inputBuffer->UploadData(&controlData, controlDataSize);
-
-    VkDeviceSize outputPointDataSize = 1; // TODO:
     const auto outputBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
-    outputBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED, outputPointDataSize);
+    outputBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED, pointsSize);
 
-    const auto bezierNode = std::make_shared<ComputePipelineNode>(gpuCtx, "bezier_curve",
-                                                                  SHADER(bezier_curve.comp.glsl.spv),
-                                                                  256,
-                                                                  1,
-                                                                  1);
+    const auto transformNode = std::make_shared<ComputePipelineNode>(gpuCtx, "Transform",
+                                                                     SHADER(transform.comp.glsl.spv),
+                                                                     (points.size() + 255) / 256,
+                                                                     1,
+                                                                     1);
 
     std::vector<PipelineNodeBuffer> ppBuffers;
     ppBuffers.push_back({
@@ -58,35 +64,56 @@ bool bezier_curve() {
         .buffer = outputBuffer->GetBuffer()
     });
 
-    const PushConstantInfo pushConstantInfo{};
+    constexpr PushConstantInfo pushConstantInfo{
+        .size = sizeof(trans),
+        .data = &trans,
+    };
     const ComputeElement element = {
         .pushConstantInfo = pushConstantInfo,
         .buffers = ppBuffers,
         .customDrawFunc = nullptr
     };
 
-    bezierNode->AddComputeElement(element);
+    transformNode->AddComputeElement(element);
 
-    if (bezierNode->CreateComputeGraphNode() != VK_SUCCESS) {
+    if (transformNode->CreateComputeGraphNode() != VK_SUCCESS) {
         std::cerr << "Failed to create compute graph node!" << std::endl;
-        return false;
+        return {};
     }
 
-    computeSubGraph->AddComputeGraphNode(bezierNode);
-
+    computeSubGraph->AddComputeGraphNode(transformNode);
 
     const VkResult ret = computeGraph->Compute();
     if (ret != VK_SUCCESS) {
         std::cerr << "Failed to compute graph!" << std::endl;
-        return false;
+        return {};
     }
-    return true;
+
+    const auto data = static_cast<Point2D *>(malloc(pointsSize));
+    if (data != nullptr) {
+        outputBuffer->DownloadData(data, pointsSize);
+    }
+    return data;
 }
 
 int main(int argc, char *argv[]) {
     std::cout << "mindmaster_demo" << std::endl;
 
-    bezier_curve();
+    const std::vector<Point2D> points{
+        {
+            .x = 10.0f,
+            .y = 12.0f,
+        }
+    };
+    trans = glm::translate(glm::mat4(1), glm::vec3(5, 8, 0));
 
+    Point2D *result = transform(points);
+    if (result != nullptr) {
+        for (int i = 0; i < points.size(); i++) {
+            std::cout << "(" << points[i].x << ", " << points[i].y << ") -> (" << result[i].x << ", " << result[i].y <<
+                    ")" << std::endl;
+        }
+    }
+    free(result);
     return 0;
 }
