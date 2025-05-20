@@ -43,7 +43,7 @@ Point2D *transform(const std::vector<Point2D> &points) {
     inputBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED, pointsSize);
     inputBuffer->UploadData(points.data(), pointsSize);
 
-    const auto outputBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
+    static const auto outputBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
     outputBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED, pointsSize);
 
     const auto transformNode = std::make_shared<ComputePipelineNode>(gpuCtx, "Transform",
@@ -78,22 +78,24 @@ Point2D *transform(const std::vector<Point2D> &points) {
 
     if (transformNode->CreateComputeGraphNode() != VK_SUCCESS) {
         std::cerr << "Failed to create compute graph node!" << std::endl;
-        return {};
+        return nullptr;
     }
 
     computeSubGraph->AddComputeGraphNode(transformNode);
 
-    const VkResult ret = computeGraph->Compute();
+    VkResult ret = computeGraph->Compute();
     if (ret != VK_SUCCESS) {
         std::cerr << "Failed to compute graph!" << std::endl;
-        return {};
+        return nullptr;
     }
 
-    const auto data = static_cast<Point2D *>(malloc(pointsSize));
-    if (data != nullptr) {
-        outputBuffer->DownloadData(data, pointsSize);
+    ret = outputBuffer->MapBuffer();
+    if (ret != VK_SUCCESS) {
+        std::cerr << "Failed to map buffer!" << std::endl;
+        return nullptr;
     }
-    return data;
+
+    return static_cast<Point2D *>(outputBuffer->GetMappedAddr());
 }
 
 int main(int argc, char *argv[]) {
@@ -114,6 +116,5 @@ int main(int argc, char *argv[]) {
                     ")" << std::endl;
         }
     }
-    free(result);
     return 0;
 }
