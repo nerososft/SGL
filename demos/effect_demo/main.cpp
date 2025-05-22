@@ -7,6 +7,8 @@
 #include <effect_engine/filters/impl/MedianFilter.h>
 #include <effect_engine/filters/impl/OldGaussianBlurFilter.h>
 #include <effect_engine/filters/impl/RadialBlurFilter.h>
+#include <glm/ext/matrix_clip_space.hpp>
+#include <glm/ext/matrix_transform.hpp>
 
 #include "effect_engine/blenders/impl/LighterColorBlender.h"
 #include "effect_engine/EffectEngine.h"
@@ -25,6 +27,7 @@
 #include "effect_engine/filters/impl/ScaleFilter.h"
 #include "effect_engine/filters/impl/SurfaceBlurFilter.h"
 #include "effect_engine/filters/impl/ThresholdSplitFilter.h"
+#include "effect_engine/filters/impl/TransformFilter.h"
 #include "effect_engine/filters/impl/VibranceFilter.h"
 #include "effect_engine/filters/impl/VoronoiFilter.h"
 #include "gpu_engine/log/Log.h"
@@ -171,13 +174,30 @@ void effect_engine_main() {
     // filter->SetRadius(128);
     // effectEngine.Process("../../../demos/effect_demo/images/girl.png", "../../../demos/effect_demo/images/girl_blur.png", filter);
 
-    const auto filter = std::make_shared<FastGaussianBlurFilter>();
-    filter->SetRadius(120);
-    effectEngine.Process("../../../demos/effect_demo/images/girl.png", "../../../demos/effect_demo/images/girl_fast_blur.png", filter);
+    // const auto filter = std::make_shared<FastGaussianBlurFilter>();
+    // filter->SetRadius(120);
+    // effectEngine.Process("../../../demos/effect_demo/images/girl.png", "../../../demos/effect_demo/images/girl_fast_blur.png", filter);
 
     // const auto filter = std::make_shared<MedianFilter>();
     // filter->SetRadius(50);
     // effectEngine.Process("../../../demos/effect_demo/images/test.png", "../../../demos/effect_demo/images/test_median.png", filter);
+
+    const auto filter = std::make_shared<TransformFilter>();
+
+    glm::mat4 result(
+        // 第一列
+        1.01035, -0.0184876, 0.0f, 30.5184,
+        // 第二列
+        0.154128, 0.578685, 0.0f, 120.122,
+        // 第三列
+        0.0f, 0.0f, 1.0f, 0.0f,
+        // 第四列 - 包含透视元素
+        0.00054694, -0.000263822, 0.0f, 0.975477
+    );
+
+    filter->SetTransformMatrix(result);
+    effectEngine.Process("../../../demos/effect_demo/images/girl.png",
+                         "../../../demos/effect_demo/images/girl_transform.png", filter);
 }
 
 int main(int argc, char *argv[]) {

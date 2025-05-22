@@ -3,19 +3,19 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     message(STATUS "Running on Windows")
     include_directories("../../")
-	include_directories("../gpu_engine")
+    include_directories("../gpu_engine")
     #include_directories("D:/vcpkg_install/vcpkg/installed/x64-windows/include/libpng16")
     #link_directories("$D:/vcpkg_install/vcpkg/installed/x64-windows/lib")
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     message(STATUS "Running on macOS")
     link_directories("/opt/homebrew/Cellar/libpng/1.6.47/lib")
     include_directories("/opt/homebrew/Cellar/libpng/1.6.47/include")
-	
+
 elseif (CMAKE_SYSTEM_NAME MATCHES "OHOS")
-	message(STATUS "Running on OHOS")
-	include_directories("../../")
+    message(STATUS "Running on OHOS")
+    include_directories("../../")
     include_directories("../gpu_engine")
-	#include_directories("D:/OHOS/glm")
+    #include_directories("D:/OHOS/glm")
 endif ()
 
 # compile builtin shaders
@@ -123,7 +123,7 @@ set(ENGINE_SOURCE EffectEngine.cpp
         filters/impl/RotationalBlurFilter.h
         filters/impl/RotationalBlurFilter.cpp
         filters/impl/RadialBlurNewFilter.h
-		filters/impl/RadialBlurNewFilter.cpp
+        filters/impl/RadialBlurNewFilter.cpp
         filters/impl/MinMaxFilter.h
         filters/impl/MinMaxFilter.cpp
         filters/impl/ColorhalftoneFilter.h
@@ -146,7 +146,9 @@ set(ENGINE_SOURCE EffectEngine.cpp
         filters/impl/PinchFilter.cpp
         filters/impl/WaveFilter.h
         filters/impl/WaveFilter.cpp
-        )
+        filters/impl/TransformFilter.h
+        filters/impl/TransformFilter.cpp
+)
 
 if (CMAKE_SYSTEM_NAME MATCHES "OHOS")
     set(ENGINE_SOURCE ${ENGINE_SOURCE} filters/impl/HPSBlurFilter.cpp filters/impl/HPSBlurFilter.h)
@@ -159,13 +161,13 @@ target_link_libraries(effect_engine gpu_engine)
 target_link_libraries(effect_engine vulkan)
 if (CMAKE_SYSTEM_NAME MATCHES "OHOS")
 elseif (CMAKE_SYSTEM_NAME MATCHES "Windows")
-add_custom_command(
-    TARGET effect_engine POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_CURRENT_SOURCE_DIR}/../build/effect_engine/$<CONFIG>/
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../x64/$<CONFIG>/
-    COMMENT "Copying build files to x64 directory"
-)
+    add_custom_command(
+            TARGET effect_engine POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${CMAKE_CURRENT_SOURCE_DIR}/../build/effect_engine/$<CONFIG>/
+            ${CMAKE_CURRENT_SOURCE_DIR}/../../x64/$<CONFIG>/
+            COMMENT "Copying build files to x64 directory"
+    )
 else ()
     target_link_libraries(effect_engine png)
 endif ()
