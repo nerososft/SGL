@@ -47,7 +47,7 @@ Point2D *transform(const std::vector<Point2D> &points) {
     outputBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED, pointsSize);
 
     const auto transformNode = std::make_shared<ComputePipelineNode>(gpuCtx, "Transform",
-                                                                     SHADER(transform.comp.glsl.spv),
+                                                                     SHADER(demo_transform.comp.glsl.spv),
                                                                      (points.size() + 255) / 256,
                                                                      1,
                                                                      1);
