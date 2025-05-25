@@ -19,8 +19,8 @@ std::shared_ptr<IComputeGraphNode> MatMulOperator::CreateComputeGraphNode() {
     auto gemmNode = std::make_shared<ComputePipelineNode>(this->gpuCtx,
                                                           "MatMul",
                                                           SHADER(matmul.comp.glsl.spv),
-                                                          32, // FIXME: (width + 31) / 32
-                                                          32,
+                                                          (this->params.width1 + 31) / 32,
+                                                          (this->params.height1 + 31) / 32, // FIXME: maye not correct
                                                           1);
 
     std::vector<PipelineNodeBuffer> buffers;
@@ -40,7 +40,10 @@ std::shared_ptr<IComputeGraphNode> MatMulOperator::CreateComputeGraphNode() {
         .buffer = this->outputBuffer->GetBuffer(),
     });
 
-    const PushConstantInfo pushConstantInfo{};
+    const PushConstantInfo pushConstantInfo{
+        .size = sizeof(MatMulOperatorParams),
+        .data = &this->params,
+    };
     const ComputeElement computeElem{
         .pushConstantInfo = pushConstantInfo,
         .buffers = buffers,

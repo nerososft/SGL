@@ -12,7 +12,7 @@ struct SoftmaxOperatorParams {
 };
 
 class SoftmaxOperator final : public UnaryOperator {
-    SoftmaxOperatorParams params;
+    SoftmaxOperatorParams params{};
 
 public:
     SoftmaxOperator(const std::shared_ptr<VkGPUContext> &gpuCtx,

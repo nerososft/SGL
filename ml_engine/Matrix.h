@@ -23,11 +23,17 @@ public:
 
     bool CreateMatrix(std::shared_ptr<VkGPUContext> &ctx);
 
-    bool SetData(const std::vector<float> &data) const;
+    [[nodiscard]] bool SetData(const std::vector<float> &data) const;
 
     std::shared_ptr<VkGPUBuffer> GetBuffer();
 
-    void *GetDataAddr() const;
+    [[nodiscard]] void *GetDataAddr() const;
+
+    [[nodiscard]] uint32_t GetWidth() const { return this->width; }
+
+    [[nodiscard]] uint32_t GetHeight() const { return this->height; }
+
+    void Print() const;
 };
 
 

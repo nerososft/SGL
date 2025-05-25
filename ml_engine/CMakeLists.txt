@@ -40,9 +40,18 @@ add_library(ml_engine
         operators/impl/ReLUOperator.cpp
         operators/impl/MatMulOperator.cpp
         operators/impl/MatMulOperator.h
+        operators/impl/SigmoidOperator.cpp
+        operators/impl/SigmoidOperator.h
+        operators/impl/TanhOperator.cpp
+        operators/impl/TanhOperator.h
+        operators/impl/SoftmaxOperator.cpp
+        operators/impl/SoftmaxOperator.h
+        operators/impl/GELUOperator.cpp
+        operators/impl/GELUOperator.h
         Matrix.h
         Matrix.cpp
         MLEngine.h
         MLEngine.cpp
+
 )
 target_link_libraries(ml_engine gpu_engine)

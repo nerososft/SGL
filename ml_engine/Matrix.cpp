@@ -73,3 +73,21 @@ void *Matrix::GetDataAddr() const {
     }
     return this->buffer->GetMappedAddr();
 }
+
+void Matrix::Print() const {
+    const float *data = static_cast<float *>(this->GetDataAddr());
+    std::cout << "[";
+    for (size_t y = 0; y < this->height; y++) {
+        std::cout << "[";
+        for (size_t x = 0; x < this->width; x++) {
+            std::cout << data[y * this->width + x] << (x == this->width - 1 ? "" : ",");
+        }
+        if (y == this->height - 1) {
+            std::cout << "]";
+        } else {
+            std::cout << "]," << std::endl;
+        }
+    }
+    std::cout << "]" << std::endl;
+    this->buffer->UnMapBuffer();
+}

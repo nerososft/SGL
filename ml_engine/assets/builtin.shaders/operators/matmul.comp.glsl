@@ -15,9 +15,9 @@ layout (std430, binding = 2) buffer OutputStorageBuffer {
 } outputBuffer;
 
 layout (push_constant) uniform Params {
-    uint width1; // width1 == height2
-    uint height1; // height1 = 输出矩阵行数
-    uint width2; // width2 = 输出矩阵列数
+    uint width1;// width1 == height2
+    uint height1;// height1 = 输出矩阵行数
+    uint width2;// width2 = 输出矩阵列数
     uint height2;
 // TODO: params
 } params;

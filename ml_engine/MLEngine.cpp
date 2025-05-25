@@ -175,9 +175,17 @@ void MLEngine::GELU(const std::shared_ptr<Matrix> &input,
 void MLEngine::MatMul(const std::shared_ptr<Matrix> &mat1,
                       const std::shared_ptr<Matrix> &mat2,
                       const std::shared_ptr<Matrix> &output) {
+    if (mat1->GetWidth() != mat2->GetHeight()) {
+        Logger() << "can not mul"
+                << " mat with size (" << mat1->GetWidth() << "," << mat1->GetHeight() << ")"
+                << " and mat with size (" << mat2->GetWidth() << "," << mat2->GetHeight() << ")!" << std::endl;
+        return;
+    }
     const auto matMulOp = std::make_shared<MatMulOperator>(this->gpuCtx, mat1->GetBuffer(),
                                                            mat2->GetBuffer(),
                                                            output->GetBuffer());
+    matMulOp->SetMat1Size(mat1->GetWidth(), mat1->GetHeight());
+    matMulOp->SetMat2Size(mat2->GetWidth(), mat2->GetHeight());
     const auto node = matMulOp->CreateComputeGraphNode();
     if (node == nullptr) {
         Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
