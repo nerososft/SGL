@@ -21,5 +21,5 @@ void main() {
     if (coord.x >= inputBuffer.data.length()) {
         return;
     }
-    inputBuffer.data[coord.x] = inputBuffer.data[coord.x] > 0 ? inputBuffer.data[coord.x]:0;
+    outputBuffer.data[coord.x] = inputBuffer.data[coord.x] > 0 ? inputBuffer.data[coord.x]:0;
 }
