@@ -8,6 +8,7 @@
 #include "operators/impl/MatMulOperator.h"
 #include "operators/impl/ReLUOperator.h"
 #include "operators/impl/SigmoidOperator.h"
+#include "operators/impl/SoftmaxOperator.h"
 #include "operators/impl/TanhOperator.h"
 
 bool MLEngine::Init() {
@@ -126,6 +127,29 @@ void MLEngine::Tanh(const std::shared_ptr<Matrix> &input,
                                                        input->GetBuffer(),
                                                        output->GetBuffer());
     const auto node = tanhOp->CreateComputeGraphNode();
+    if (node == nullptr) {
+        Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
+        throw std::runtime_error("Failed to create compute graph node!");
+    }
+    this->mainSubGraph->AddComputeGraphNode(node);
+}
+
+void MLEngine::Softmax(const std::shared_ptr<Matrix> &input, const std::shared_ptr<Matrix> &output) {
+    const auto inputBuffer = input->GetBuffer();
+    if (inputBuffer->MapBuffer(inputBuffer->GetBufferSize()) != VK_SUCCESS) {
+        Logger() << Logger::ERROR << "Failed to map buffer!" << std::endl;
+        return;
+    }
+    float sum = 0.0f;
+    for (size_t i = 0; i < inputBuffer->GetBufferSize() / sizeof(float); i++) {
+        sum += static_cast<float *>(inputBuffer->GetMappedAddr())[i];
+    }
+    inputBuffer->UnMapBuffer();
+    const auto softmaxOp = std::make_shared<SoftmaxOperator>(this->gpuCtx,
+                                                             input->GetBuffer(),
+                                                             output->GetBuffer());
+    softmaxOp->SetSum(sum);
+    const auto node = softmaxOp->CreateComputeGraphNode();
     if (node == nullptr) {
         Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
         throw std::runtime_error("Failed to create compute graph node!");
