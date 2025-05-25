@@ -32,6 +32,12 @@ public:
     void ReLU(const std::shared_ptr<Matrix> &input,
               const std::shared_ptr<Matrix> &output);
 
+    void Sigmoid(const std::shared_ptr<Matrix> &input,
+                 const std::shared_ptr<Matrix> &output);
+
+    void Tanh(const std::shared_ptr<Matrix> &input,
+              const std::shared_ptr<Matrix> &output);
+
     void MatMul(const std::shared_ptr<Matrix> &mat1,
                 const std::shared_ptr<Matrix> &mat2,
                 const std::shared_ptr<Matrix> &output);

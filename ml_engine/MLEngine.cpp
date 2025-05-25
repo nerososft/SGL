@@ -7,6 +7,8 @@
 #include "gpu_engine/log/Log.h"
 #include "operators/impl/MatMulOperator.h"
 #include "operators/impl/ReLUOperator.h"
+#include "operators/impl/SigmoidOperator.h"
+#include "operators/impl/TanhOperator.h"
 
 bool MLEngine::Init() {
     std::vector<const char *> requiredExtensions;
@@ -97,6 +99,33 @@ void MLEngine::ReLU(const std::shared_ptr<Matrix> &input,
                                                        input->GetBuffer(),
                                                        output->GetBuffer());
     const auto node = reluOp->CreateComputeGraphNode();
+    if (node == nullptr) {
+        Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
+        throw std::runtime_error("Failed to create compute graph node!");
+    }
+    this->mainSubGraph->AddComputeGraphNode(node);
+}
+
+
+void MLEngine::Sigmoid(const std::shared_ptr<Matrix> &input,
+                       const std::shared_ptr<Matrix> &output) {
+    const auto sigmoidOp = std::make_shared<SigmoidOperator>(this->gpuCtx,
+                                                             input->GetBuffer(),
+                                                             output->GetBuffer());
+    const auto node = sigmoidOp->CreateComputeGraphNode();
+    if (node == nullptr) {
+        Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
+        throw std::runtime_error("Failed to create compute graph node!");
+    }
+    this->mainSubGraph->AddComputeGraphNode(node);
+}
+
+void MLEngine::Tanh(const std::shared_ptr<Matrix> &input,
+                    const std::shared_ptr<Matrix> &output) {
+    const auto tanhOp = std::make_shared<TanhOperator>(this->gpuCtx,
+                                                       input->GetBuffer(),
+                                                       output->GetBuffer());
+    const auto node = tanhOp->CreateComputeGraphNode();
     if (node == nullptr) {
         Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
         throw std::runtime_error("Failed to create compute graph node!");
