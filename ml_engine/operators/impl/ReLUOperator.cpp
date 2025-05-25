@@ -27,20 +27,20 @@ std::shared_ptr<IComputeGraphNode> ReLUOperator::CreateComputeGraphNode() {
                                                           1);
     std::vector<PipelineNodeBuffer> buffers;
     buffers.push_back({
-        .buffer = this->inputBuffer->GetBuffer(),
         .type = PIPELINE_NODE_BUFFER_STORAGE_READ,
-        .bufferSize = this->inputBuffer->GetBufferSize()
+        .bufferSize = this->inputBuffer->GetBufferSize(),
+        .buffer = this->inputBuffer->GetBuffer(),
     });
     buffers.push_back({
-        .buffer = this->outputBuffer->GetBuffer(),
         .type = PIPELINE_NODE_BUFFER_STORAGE_WRITE,
-        .bufferSize = this->outputBuffer->GetBufferSize()
+        .bufferSize = this->outputBuffer->GetBufferSize(),
+        .buffer = this->outputBuffer->GetBuffer(),
     });
 
     const PushConstantInfo pushConstantInfo{};
     const ComputeElement computeElem{
-        .buffers = buffers,
         .pushConstantInfo = pushConstantInfo,
+        .buffers = buffers,
         .customDrawFunc = nullptr,
     };
     reluNode->AddComputeElement(computeElem);

@@ -25,25 +25,25 @@ std::shared_ptr<IComputeGraphNode> MatMulOperator::CreateComputeGraphNode() {
 
     std::vector<PipelineNodeBuffer> buffers;
     buffers.push_back({
+        .type = PIPELINE_NODE_BUFFER_STORAGE_READ,
+        .bufferSize = this->inputBuffer1->GetBufferSize(),
         .buffer = this->inputBuffer1->GetBuffer(),
-        .type = PIPELINE_NODE_BUFFER_STORAGE_READ,
-        .bufferSize = this->inputBuffer1->GetBufferSize()
     });
     buffers.push_back({
+        .type = PIPELINE_NODE_BUFFER_STORAGE_READ,
+        .bufferSize = this->inputBuffer2->GetBufferSize(),
         .buffer = this->inputBuffer2->GetBuffer(),
-        .type = PIPELINE_NODE_BUFFER_STORAGE_READ,
-        .bufferSize = this->inputBuffer2->GetBufferSize()
     });
     buffers.push_back({
-        .buffer = this->outputBuffer->GetBuffer(),
         .type = PIPELINE_NODE_BUFFER_STORAGE_WRITE,
-        .bufferSize = this->outputBuffer->GetBufferSize()
+        .bufferSize = this->outputBuffer->GetBufferSize(),
+        .buffer = this->outputBuffer->GetBuffer(),
     });
 
     const PushConstantInfo pushConstantInfo{};
     const ComputeElement computeElem{
-        .buffers = buffers,
         .pushConstantInfo = pushConstantInfo,
+        .buffers = buffers,
         .customDrawFunc = nullptr,
     };
     gemmNode->AddComputeElement(computeElem);

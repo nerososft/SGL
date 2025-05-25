@@ -19,13 +19,4 @@ BinaryOperator::~BinaryOperator() {
 }
 
 void BinaryOperator::Destroy() {
-    if (outputBuffer != nullptr) {
-        outputBuffer->Destroy();
-    }
-    if (inputBuffer1 != nullptr) {
-        inputBuffer1->Destroy();
-    }
-    if (inputBuffer2 != nullptr) {
-        inputBuffer2->Destroy();
-    }
 }

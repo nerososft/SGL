@@ -17,10 +17,4 @@ UnaryOperator::~UnaryOperator() {
 }
 
 void UnaryOperator::Destroy() {
-    if (this->inputBuffer != nullptr) {
-        this->inputBuffer->Destroy();
-    }
-    if (this->outputBuffer != nullptr) {
-        this->outputBuffer->Destroy();
-    }
 }

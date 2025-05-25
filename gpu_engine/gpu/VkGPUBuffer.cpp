@@ -76,9 +76,11 @@ VkResult VkGPUBuffer::AllocateAndBind(const VkGPUBufferType type, const VkDevice
 
 VkResult VkGPUBuffer::MapBuffer(const VkDeviceSize size) {
     if (bufferMemory == VK_NULL_HANDLE) {
+        Logger() << "GPU buffer not allocated!" << std::endl;
         return VK_ERROR_INITIALIZATION_FAILED;
     }
     if (this->type == GPU_BUFFER_TYPE_STORAGE_LOCAL) {
+        Logger() << "can not map device local memory!" << std::endl;
         return VK_ERROR_MEMORY_MAP_FAILED;
     }
     const VkResult result = vkMapMemory(this->gpuCtx->GetCurrentDevice(), bufferMemory, 0, size, 0, &data);

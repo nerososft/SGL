@@ -43,65 +43,79 @@ bool MLEngine::Init() {
     return true;
 }
 
-// FIXME: This design doesn't feel very nice.
-MLEngine MLEngine::ReLU(const std::vector<float> &input, const std::vector<float> &output) {
-    const auto inputBuffer = std::make_shared<VkGPUBuffer>(this->gpuCtx);
-    VkResult result = inputBuffer->AllocateAndUploadVectorF(input);
-    if (result != VK_SUCCESS) {
-        Logger() << Logger::ERROR << "Failed to allocate input buffer!" << std::endl;
-        throw std::runtime_error("Failed to allocate input buffer!");
+std::shared_ptr<Matrix> MLEngine::CreateMatrix(uint32_t width,
+                                               uint32_t height) {
+    auto matrix = std::make_shared<Matrix>(width, height);
+    if (matrix == nullptr) {
+        Logger() << Logger::ERROR << "Failed to allocate matrix!" << std::endl;
+        return nullptr;
     }
-
-    const auto outputBuffer = std::make_shared<VkGPUBuffer>(this->gpuCtx);
-    result = outputBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED, output.size() * sizeof(float));
-    if (result != VK_SUCCESS) {
-        Logger() << Logger::ERROR << "Failed to allocate output buffer!" << std::endl;
-        throw std::runtime_error("Failed to allocate output buffer!");
+    if (!matrix->CreateMatrix(this->gpuCtx)) {
+        Logger() << Logger::ERROR << "Failed to create matrix!" << std::endl;
+        return nullptr;
     }
+    return matrix;
+}
 
-    const auto reluOp = std::make_shared<ReLUOperator>(this->gpuCtx, inputBuffer, outputBuffer);
+std::shared_ptr<Matrix> MLEngine::CreateMatrix(uint32_t width,
+                                               uint32_t height,
+                                               std::shared_ptr<VkGPUBuffer> &buffer) {
+    auto matrix = std::make_shared<Matrix>(width, height, buffer);
+    if (matrix == nullptr) {
+        Logger() << Logger::ERROR << "Failed to allocate matrix!" << std::endl;
+        return nullptr;
+    }
+    if (!matrix->CreateMatrix(this->gpuCtx)) {
+        Logger() << Logger::ERROR << "Failed to create matrix!" << std::endl;
+        return nullptr;
+    }
+    return matrix;
+}
+
+std::shared_ptr<Matrix> MLEngine::CreateMatrix(uint32_t width,
+                                               uint32_t height,
+                                               const std::vector<float> &data) {
+    auto matrix = std::make_shared<Matrix>(width, height);
+    if (matrix == nullptr) {
+        Logger() << Logger::ERROR << "Failed to allocate matrix!" << std::endl;
+        return nullptr;
+    }
+    if (!matrix->CreateMatrix(this->gpuCtx)) {
+        Logger() << Logger::ERROR << "Failed to create matrix!" << std::endl;
+        return nullptr;
+    }
+    if (!matrix->SetData(data)) {
+        Logger() << Logger::ERROR << "Failed to set matrix data!" << std::endl;
+        return nullptr;
+    }
+    return matrix;
+}
+
+void MLEngine::ReLU(const std::shared_ptr<Matrix> &input,
+                    const std::shared_ptr<Matrix> &output) {
+    const auto reluOp = std::make_shared<ReLUOperator>(this->gpuCtx,
+                                                       input->GetBuffer(),
+                                                       output->GetBuffer());
     const auto node = reluOp->CreateComputeGraphNode();
     if (node == nullptr) {
         Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
         throw std::runtime_error("Failed to create compute graph node!");
     }
     this->mainSubGraph->AddComputeGraphNode(node);
-    return *this;
 }
 
-// FIXME: This design doesn't feel very nice.
-MLEngine MLEngine::MatMul(const std::vector<float> &mat1,
-                          const std::vector<float> &mat2,
-                          const std::vector<float> &output) {
-    const auto inputBuffer = std::make_shared<VkGPUBuffer>(this->gpuCtx);
-    VkResult result = inputBuffer->AllocateAndUploadVectorF(mat1);
-    if (result != VK_SUCCESS) {
-        Logger() << Logger::ERROR << "Failed to allocate input buffer!" << std::endl;
-        throw std::runtime_error("Failed to allocate input buffer!");
-    }
-
-    const auto inputBuffer2 = std::make_shared<VkGPUBuffer>(this->gpuCtx);
-    result = inputBuffer2->AllocateAndUploadVectorF(mat2);
-    if (result != VK_SUCCESS) {
-        Logger() << Logger::ERROR << "Failed to allocate input buffer!" << std::endl;
-        throw std::runtime_error("Failed to allocate input buffer!");
-    }
-
-    const auto outputBuffer = std::make_shared<VkGPUBuffer>(this->gpuCtx);
-    result = outputBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED, output.size() * sizeof(float));
-    if (result != VK_SUCCESS) {
-        Logger() << Logger::ERROR << "Failed to allocate output buffer!" << std::endl;
-        throw std::runtime_error("Failed to allocate output buffer!");
-    }
-
-    const auto matMulOp = std::make_shared<MatMulOperator>(this->gpuCtx, inputBuffer, inputBuffer2, outputBuffer);
+void MLEngine::MatMul(const std::shared_ptr<Matrix> &mat1,
+                      const std::shared_ptr<Matrix> &mat2,
+                      const std::shared_ptr<Matrix> &output) {
+    const auto matMulOp = std::make_shared<MatMulOperator>(this->gpuCtx, mat1->GetBuffer(),
+                                                           mat2->GetBuffer(),
+                                                           output->GetBuffer());
     const auto node = matMulOp->CreateComputeGraphNode();
     if (node == nullptr) {
         Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
         throw std::runtime_error("Failed to create compute graph node!");
     }
     this->mainSubGraph->AddComputeGraphNode(node);
-    return *this;
 }
 
 void MLEngine::Compute() const {

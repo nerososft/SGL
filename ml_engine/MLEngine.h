@@ -6,6 +6,7 @@
 #define MLENGINE_H
 #include <memory>
 
+#include "Matrix.h"
 #include "gpu_engine/gpu/VkGPUBuffer.h"
 #include "gpu_engine/gpu/VkGPUContext.h"
 #include "gpu_engine/gpu/compute_graph/ComputeGraph.h"
@@ -22,12 +23,18 @@ public:
 
     bool Init();
 
-    MLEngine ReLU(const std::vector<float> &input,
-                  const std::vector<float> &output);
+    std::shared_ptr<Matrix> CreateMatrix(uint32_t width, uint32_t height);
 
-    MLEngine MatMul(const std::vector<float> &mat1,
-                    const std::vector<float> &mat2,
-                    const std::vector<float> &output);
+    std::shared_ptr<Matrix> CreateMatrix(uint32_t width, uint32_t height, std::shared_ptr<VkGPUBuffer> &buffer);
+
+    std::shared_ptr<Matrix> CreateMatrix(uint32_t width, uint32_t height, const std::vector<float> &data);
+
+    void ReLU(const std::shared_ptr<Matrix> &input,
+              const std::shared_ptr<Matrix> &output);
+
+    void MatMul(const std::shared_ptr<Matrix> &mat1,
+                const std::shared_ptr<Matrix> &mat2,
+                const std::shared_ptr<Matrix> &output);
 
 
     ~MLEngine() = default;
