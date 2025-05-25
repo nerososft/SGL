@@ -40,8 +40,8 @@ int main(int argc, char *argv[]) {
     // mle.ReLU(reluInputMat, reluOutputMat);
     // mle.Sigmoid(reluInputMat, reluOutputMat);
     // mle.Tanh(reluInputMat, reluOutputMat);
-    mle.Softmax(reluInputMat, reluOutputMat);
-
+    // mle.Softmax(reluInputMat, reluOutputMat);
+    mle.GELU(reluInputMat, reluOutputMat);
     // const std::vector<float> mat1 = {
     //     -1, 0, 0.4, 0.3,
     //     0.2, 0.1, -0.7, 0.3,

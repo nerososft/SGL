@@ -5,6 +5,7 @@
 #include "MLEngine.h"
 
 #include "gpu_engine/log/Log.h"
+#include "operators/impl/GELUOperator.h"
 #include "operators/impl/MatMulOperator.h"
 #include "operators/impl/ReLUOperator.h"
 #include "operators/impl/SigmoidOperator.h"
@@ -134,7 +135,8 @@ void MLEngine::Tanh(const std::shared_ptr<Matrix> &input,
     this->mainSubGraph->AddComputeGraphNode(node);
 }
 
-void MLEngine::Softmax(const std::shared_ptr<Matrix> &input, const std::shared_ptr<Matrix> &output) {
+void MLEngine::Softmax(const std::shared_ptr<Matrix> &input,
+                       const std::shared_ptr<Matrix> &output) {
     const auto inputBuffer = input->GetBuffer();
     if (inputBuffer->MapBuffer(inputBuffer->GetBufferSize()) != VK_SUCCESS) {
         Logger() << Logger::ERROR << "Failed to map buffer!" << std::endl;
@@ -150,6 +152,19 @@ void MLEngine::Softmax(const std::shared_ptr<Matrix> &input, const std::shared_p
                                                              output->GetBuffer());
     softmaxOp->SetSum(sum);
     const auto node = softmaxOp->CreateComputeGraphNode();
+    if (node == nullptr) {
+        Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
+        throw std::runtime_error("Failed to create compute graph node!");
+    }
+    this->mainSubGraph->AddComputeGraphNode(node);
+}
+
+void MLEngine::GELU(const std::shared_ptr<Matrix> &input,
+                    const std::shared_ptr<Matrix> &output) {
+    const auto geluOp = std::make_shared<GELUOperator>(this->gpuCtx,
+                                                       input->GetBuffer(),
+                                                       output->GetBuffer());
+    const auto node = geluOp->CreateComputeGraphNode();
     if (node == nullptr) {
         Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
         throw std::runtime_error("Failed to create compute graph node!");
