@@ -194,6 +194,64 @@ void MLEngine::MatMul(const std::shared_ptr<Matrix> &mat1,
     this->mainSubGraph->AddComputeGraphNode(node);
 }
 
+void MLEngine::SelfAttention(const std::shared_ptr<Matrix> &Q,
+                             const std::shared_ptr<Matrix> &K,
+                             const std::shared_ptr<Matrix> &qkMulOutput,
+                             const std::shared_ptr<Matrix> &softmaxOutput,
+                             const std::shared_ptr<Matrix> &V,
+                             const std::shared_ptr<Matrix> &vMulOutput) {
+    if (Q->GetWidth() != V->GetHeight()) {
+        Logger() << "can not mul"
+                << " mat with size (" << Q->GetWidth() << "," << Q->GetHeight() << ")"
+                << " and mat with size (" << V->GetWidth() << "," << V->GetHeight() << ")!" << std::endl;
+        return;
+    }
+    if (qkMulOutput == nullptr) {
+        Logger() << Logger::ERROR << "Failed to create Q K mul result matrix!" << std::endl;
+        return;
+    }
+
+    const auto qkMulOp = std::make_shared<MatMulOperator>(this->gpuCtx,
+                                                          Q->GetBuffer(),
+                                                          K->GetBuffer(),
+                                                          qkMulOutput->GetBuffer());
+    qkMulOp->SetMat1Size(Q->GetWidth(), Q->GetHeight());
+    qkMulOp->SetMat2Size(K->GetWidth(), K->GetHeight());
+    const auto qkMulNode = qkMulOp->CreateComputeGraphNode();
+    if (qkMulNode == nullptr) {
+        Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
+        throw std::runtime_error("Failed to create compute graph node!");
+    }
+
+    // TODO: scale qkMatMulOutput
+    // TODO: mask qkMatMulOutput
+    const auto softmaxOp = std::make_shared<SoftmaxOperator>(this->gpuCtx,
+                                                             qkMulOutput->GetBuffer(),
+                                                             softmaxOutput->GetBuffer());
+    auto softmaxNode = softmaxOp->CreateComputeGraphNode();
+    if (softmaxNode == nullptr) {
+        Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
+        throw std::runtime_error("Failed to create compute graph node!");
+    }
+
+    const auto vMulOp = std::make_shared<MatMulOperator>(this->gpuCtx,
+                                                         softmaxOutput->GetBuffer(),
+                                                         V->GetBuffer(),
+                                                         vMulOutput->GetBuffer());
+    vMulOp->SetMat1Size(softmaxOutput->GetWidth(), softmaxOutput->GetHeight());
+    vMulOp->SetMat2Size(V->GetWidth(), V->GetHeight());
+    const auto vMulNode = vMulOp->CreateComputeGraphNode();
+    if (vMulNode == nullptr) {
+        Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
+        throw std::runtime_error("Failed to create compute graph node!");
+    }
+
+    softmaxNode->AddDependenceNode(qkMulNode);
+    // TODO: scale and mask node
+    vMulNode->AddDependenceNode(softmaxNode);
+    this->mainSubGraph->AddComputeGraphNode(vMulNode);
+}
+
 void MLEngine::Compute() const {
     const VkResult result = this->graph->Compute();
     if (result != VK_SUCCESS) {

@@ -42,11 +42,18 @@ public:
                  const std::shared_ptr<Matrix> &output);
 
     void GELU(const std::shared_ptr<Matrix> &input,
-                 const std::shared_ptr<Matrix> &output);
+              const std::shared_ptr<Matrix> &output);
 
     void MatMul(const std::shared_ptr<Matrix> &mat1,
                 const std::shared_ptr<Matrix> &mat2,
                 const std::shared_ptr<Matrix> &output);
+
+    void SelfAttention(const std::shared_ptr<Matrix> &Q,
+                       const std::shared_ptr<Matrix> &K,
+                       const std::shared_ptr<Matrix> &qkMulOutput,
+                       const std::shared_ptr<Matrix> &softmaxOutput,
+                       const std::shared_ptr<Matrix> &V,
+                       const std::shared_ptr<Matrix> &vMulOutput);
 
 
     ~MLEngine() = default;
