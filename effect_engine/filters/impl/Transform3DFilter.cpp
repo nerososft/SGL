@@ -81,7 +81,7 @@ VkResult Transform3DFilter::AddDrawElement(const std::vector<Vertex> &vertexData
         Logger() << "transform matrix is null" << std::endl;
         return VK_ERROR_INITIALIZATION_FAILED;
     }
-    const VkDeviceSize transformMatrixBufferSize = sizeof(glm::mat4);
+    constexpr VkDeviceSize transformMatrixBufferSize = sizeof(glm::mat4);
     ret = transformMatrixBuffer->AllocateAndBind(GPU_BUFFER_TYPE_UNIFORM, transformMatrixBufferSize);
     if (ret != VK_SUCCESS) {
         Logger() << "transform matrix buffer allocate and bind failed" << std::endl;
@@ -215,7 +215,7 @@ VkResult Transform3DFilter::ConstructMainGraphicsPipeline() {
         },
     };
     const std::vector<uint32_t> indices = {0, 1, 2, 3, 4, 5};
-    const auto transform = glm::mat4(1.0f);
+    constexpr auto transform = glm::mat4(1.0f);
 
     VkResult ret = this->AddDrawElement(vertices, indices, transform);
     if (ret != VK_SUCCESS) {
@@ -241,7 +241,7 @@ VkResult Transform3DFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     this->width = inputImageInfo[0].width;
     this->height = inputImageInfo[0].height;
 
-    std::vector<uint32_t> queueFamilies = {0};
+    const std::vector<uint32_t> queueFamilies = {0};
     this->computeGraph = std::make_shared<ComputeGraph>(this->gpuCtx);
     if (!this->computeGraph) {
         Logger() << Logger::ERROR << "Failed to create compute graph!" << std::endl;

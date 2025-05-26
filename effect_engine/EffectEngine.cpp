@@ -85,6 +85,7 @@ VkResult EffectEngine::Process(const std::shared_ptr<VkGPUBuffer> &inputBuffer,
     inputImageInfo.posX = 0;
     inputImageInfo.posY = 0;
     inputImageInfo.storageBuffer = inputBuffer->GetBuffer();
+    inputImageInfo.storageBufferMemory = inputBuffer->GetDeviceMemory();
     filterInputImages.push_back(inputImageInfo);
 
     std::vector<FilterImageInfo> filterOutputImages;
@@ -96,6 +97,7 @@ VkResult EffectEngine::Process(const std::shared_ptr<VkGPUBuffer> &inputBuffer,
     outputImageInfo.posX = 0;
     outputImageInfo.posY = 0;
     outputImageInfo.storageBuffer = outputBuffer->GetBuffer();
+    outputImageInfo.storageBufferMemory = outputBuffer->GetDeviceMemory();
     filterOutputImages.push_back(outputImageInfo);
 
     const uint64_t gpuProcessTimeStart = TimeUtils::GetCurrentMonoMs();
@@ -192,6 +194,7 @@ void EffectEngine::Process(const std::vector<ImageInfo> &inputs,
         inputImageInfo.posX = 0;
         inputImageInfo.posY = 0;
         inputImageInfo.storageBuffer = inputBuffer->GetBuffer();
+        inputImageInfo.storageBufferMemory = inputBuffer->GetDeviceMemory();
         filterInputImages.push_back(inputImageInfo);
     }
     const uint64_t inputBufferPrepareEnd = TimeUtils::GetCurrentMonoMs();
@@ -226,6 +229,7 @@ void EffectEngine::Process(const std::vector<ImageInfo> &inputs,
         outputImageInfo.posX = 0;
         outputImageInfo.posY = 0;
         outputImageInfo.storageBuffer = outputBuffer->GetBuffer();
+        outputImageInfo.storageBufferMemory = outputBuffer->GetDeviceMemory();
         filterOutputImages.push_back(outputImageInfo);
     }
     const uint64_t outputBufferPrepareEnd = TimeUtils::GetCurrentMonoMs();

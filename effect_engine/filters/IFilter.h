@@ -18,6 +18,7 @@ typedef struct {
     uint32_t posY;
     VkDeviceSize bufferSize;
     VkBuffer storageBuffer;
+    VkDeviceMemory storageBufferMemory;
 } FilterImageInfo;
 
 

@@ -54,6 +54,8 @@ public:
     [[nodiscard]] VkBuffer GetBuffer() const { return buffer; }
 
     [[nodiscard]] void *GetMappedAddr() const { return data; }
+
+    [[nodiscard]] VkDeviceMemory GetDeviceMemory() const { return bufferMemory; }
 };
 
 #endif //VKGPUBUFFER_H
