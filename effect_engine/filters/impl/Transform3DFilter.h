@@ -45,6 +45,10 @@ class Transform3DFilter final : public BasicFilter {
     std::shared_ptr<VkGPUBuffer> indicesBuffer = nullptr;
     std::shared_ptr<VkGPUBuffer> transformMatrixBuffer = nullptr;
 
+    VkImage textureImage = VK_NULL_HANDLE;
+    VkImageView textureImageView = VK_NULL_HANDLE;
+    VkSampler textureSampler = VK_NULL_HANDLE;
+
 public:
     Transform3DFilter() = default;
 

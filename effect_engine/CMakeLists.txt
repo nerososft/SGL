@@ -146,8 +146,8 @@ set(ENGINE_SOURCE EffectEngine.cpp
         filters/impl/PinchFilter.cpp
         filters/impl/WaveFilter.h
         filters/impl/WaveFilter.cpp
-        filters/impl/TransformFilter.h
-        filters/impl/TransformFilter.cpp
+        filters/impl/Transform3DFilter.h
+        filters/impl/Transform3DFilter.cpp
 )
 
 if (CMAKE_SYSTEM_NAME MATCHES "OHOS")

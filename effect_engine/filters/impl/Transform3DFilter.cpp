@@ -5,6 +5,7 @@
 #include "Transform3DFilter.h"
 
 #include "gpu_engine/config.h"
+#include "gpu_engine/gpu/VkGPUHelper.h"
 #include "gpu_engine/log/Log.h"
 
 PipelineNodeBuffer Transform3DFilter::GetVertexBufferNode() const {
@@ -90,6 +91,42 @@ VkResult Transform3DFilter::AddDrawElement(const std::vector<Vertex> &vertexData
     ret = transformMatrixBuffer->UploadData(&transform, transformMatrixBufferSize);
     if (ret != VK_SUCCESS) {
         Logger() << "transform matrix buffer upload failed" << std::endl;
+        return ret;
+    }
+
+    /*
+     * Texture
+     */
+    const std::vector<uint32_t> queueFamilies = {0};
+    ret = VkGPUHelper::CreateImage(this->gpuCtx->GetCurrentDevice(),
+                                   static_cast<float>(this->width),
+                                   static_cast<float>(this->height),
+                                   VK_IMAGE_TYPE_2D,
+                                   VK_FORMAT_R8G8B8A8_SRGB,
+                                   VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+                                   VK_SHARING_MODE_CONCURRENT,
+                                   queueFamilies,
+                                   VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                                   &this->textureImage);
+    if (ret != VK_SUCCESS) {
+        Logger() << "failed to create texture image" << std::endl;
+        return ret;
+    }
+
+    ret = VkGPUHelper::CreateImageView(this->gpuCtx->GetCurrentDevice(),
+                                       this->textureImage,
+                                       VK_IMAGE_VIEW_TYPE_2D,
+                                       VK_FORMAT_R8G8B8A8_SRGB,
+                                       VK_IMAGE_ASPECT_COLOR_BIT,
+                                       &this->textureImageView);
+    if (ret != VK_SUCCESS) {
+        Logger() << "failed to create texture imageview" << std::endl;
+        return ret;
+    }
+
+    ret = VkGPUHelper::CreateSampler(this->gpuCtx->GetCurrentDevice(), &this->textureSampler);
+    if (ret != VK_SUCCESS) {
+        Logger() << "failed to create texture sampler" << std::endl;
         return ret;
     }
 

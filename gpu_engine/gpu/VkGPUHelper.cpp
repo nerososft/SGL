@@ -17,6 +17,22 @@
 #include "log/Log.h"
 #include "utils/IOUtils.h"
 
+VkResult VkGPUHelper::CreateSampler(const VkDevice device,
+                                    VkSampler *sampler) {
+    VkSamplerCreateInfo samplerCreateInfo = {};
+    samplerCreateInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+    samplerCreateInfo.flags = 0;
+    samplerCreateInfo.pNext = nullptr;
+
+    // TODO:
+
+    const VkResult result = vkCreateSampler(device, &samplerCreateInfo, nullptr, sampler);
+    if (result != VK_SUCCESS) {
+        Logger() << "failed to create sampler, err=" << string_VkResult(result) << std::endl;
+    }
+    return result;
+}
+
 VkResult VkGPUHelper::CreateImageView(const VkDevice device,
                                       const VkImage image,
                                       const VkImageViewType viewType,

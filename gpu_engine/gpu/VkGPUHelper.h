@@ -16,6 +16,9 @@ public:
 
     ~VkGPUHelper() = default;
 
+    static VkResult CreateSampler(VkDevice device,
+                                  VkSampler *sampler);
+
     static VkResult CreateImageView(VkDevice device,
                                     VkImage image,
                                     VkImageViewType viewType,
