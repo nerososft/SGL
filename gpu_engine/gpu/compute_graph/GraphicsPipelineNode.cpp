@@ -39,7 +39,7 @@ GraphicsPipelineNode::GraphicsPipelineNode(const std::shared_ptr<VkGPUContext> &
 
 std::shared_ptr<VkGPUDescriptorSet> GraphicsPipelineNode::CreateDescriptorSet(
     const GraphicsElement &graphicsElement) const {
-    const auto descriptorSet = std::make_shared<VkGPUDescriptorSet>(
+    auto descriptorSet = std::make_shared<VkGPUDescriptorSet>(
         gpuCtx->GetCurrentDevice(),
         graphicsPipeline->GetPipelineLayout(),
         graphicsPipeline->GetDescriptorSetLayout());
@@ -78,8 +78,8 @@ std::shared_ptr<VkGPUDescriptorSet> GraphicsPipelineNode::CreateDescriptorSet(
     }
 
     for (uint32_t i = 0; i < pipelineDescriptorInfos.size(); ++i) {
-        Logger() << "Descriptor(" << i << "):" << string_VkDescriptorType(
-                    this->descriptorSetLayoutBindings[i].descriptorType)
+        Logger() << "Descriptor(" << i << "):"
+                << string_VkDescriptorType(this->descriptorSetLayoutBindings[i].descriptorType)
                 << std::endl;
         if (this->descriptorSetLayoutBindings[i].descriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER) {
             descriptorSet->AddUniformBufferDescriptorSet(i, pipelineDescriptorInfos.at(i).bufferInfo);
@@ -222,9 +222,18 @@ void GraphicsPipelineNode::Compute(const VkCommandBuffer commandBuffer) {
                 vkCmdCopyBufferToImage(commandBuffer,
                                        buffer.sampler.imageBuffer,
                                        buffer.sampler.image,
-                                       VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                                       buffer.sampler.imageLayout,
                                        regions.size(),
                                        regions.data());
+                std::vector<VkMemoryBarrier> memoryBarriers;
+                memoryBarriers.push_back(
+                    VkGPUHelper::BuildMemoryBarrier(VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+                                                    VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT));
+                VkGPUHelper::GPUCmdPipelineMemBarrier(commandBuffer,
+                                                      VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                                                      VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                                                      0,
+                                                      memoryBarriers);
             }
         }
         if (!bindVertexBuffers.empty()) {

@@ -88,8 +88,8 @@ VkResult Transform3DFilter::AddDrawElement(const std::vector<Vertex> &vertexData
     }
 
     /*
-    * Transform matrix
-    */
+     * Transform matrix
+     */
     transformMatrixBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
     if (transformMatrixBuffer == nullptr) {
         Logger() << "transform matrix is null" << std::endl;
@@ -109,8 +109,8 @@ VkResult Transform3DFilter::AddDrawElement(const std::vector<Vertex> &vertexData
     }
 
     /*
-    * Texture
-    */
+     * Texture
+     */
     const std::vector<uint32_t> queueFamilies = {0};
     ret = VkGPUHelper::CreateImage(this->gpuCtx->GetCurrentDevice(),
                                    static_cast<float>(this->width),
@@ -220,32 +220,32 @@ VkResult Transform3DFilter::ConstructMainGraphicsPipeline(const FilterImageInfo 
 
     const std::vector<Vertex> vertices = {
         {
-            .position = {-0.5f, -0.5f, 0.0f},
+            .position = {-1.0f, -1.0f, 0.0f},
             .color = {0.0f, 0.0f, 1.0f},
             .texCoords = {0.0f, 0.0f}
         },
         {
-            .position = {0.5f, -0.5f, 0.0f},
+            .position = {1.0f, -1.0f, 0.0f},
             .color = {1.0f, 0.0f, 0.0f},
             .texCoords = {1.0f, 0.0f}
         },
         {
-            .position = {-0.5f, 0.5f, 0.0f},
+            .position = {-1.0f, 1.0f, 0.0f},
             .color = {0.0f, 1.0f, 0.0f},
             .texCoords = {0.0f, 1.0f}
         },
         {
-            .position = {-0.5f, 0.5f, 0.0f},
+            .position = {-1.0f, 1.0f, 0.0f},
             .color = {1.0f, 1.0f, 0.0f},
             .texCoords = {0.0f, 1.0f}
         },
         {
-            .position = {0.5f, -0.5f, 0.0f},
+            .position = {1.0f, -1.0f, 0.0f},
             .color = {0.0f, 0.0f, 1.0f},
             .texCoords = {1.0f, 0.0f}
         },
         {
-            .position = {0.5f, 0.5f, 0.0f},
+            .position = {1.0f, 1.0f, 0.0f},
             .color = {1.0f, 0.0f, 0.0f},
             .texCoords = {1.0f, 1.0f}
         },
