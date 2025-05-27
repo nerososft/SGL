@@ -40,7 +40,10 @@ typedef struct {
         } buf;
 
         struct {
+            VkImage image;
             VkImageView imageView;
+            VkBuffer imageBuffer;
+            VkDeviceMemory imageBufferMemory;
             VkImageLayout imageLayout;
             VkSampler sampler;
         } sampler;

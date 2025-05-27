@@ -32,10 +32,14 @@ PipelineNodeBuffer Transform3DFilter::GetTransformMatrixBufferNode() const {
     return transformMatrixBufferNode;
 }
 
-PipelineNodeBuffer Transform3DFilter::GetTextureBufferNode() const {
+PipelineNodeBuffer Transform3DFilter::GetTextureBufferNode(const VkBuffer buffer,
+                                                           const VkDeviceMemory memory) const {
     PipelineNodeBuffer textureBufferNode = {};
     textureBufferNode.type = PIPELINE_NODE_SAMPLER;
+    textureBufferNode.sampler.image = this->textureImage;
     textureBufferNode.sampler.imageView = this->textureImageView;
+    textureBufferNode.sampler.imageBuffer = buffer;
+    textureBufferNode.sampler.imageBufferMemory = memory;
     textureBufferNode.sampler.imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
     textureBufferNode.sampler.sampler = this->textureSampler;
     return textureBufferNode;
@@ -43,7 +47,8 @@ PipelineNodeBuffer Transform3DFilter::GetTextureBufferNode() const {
 
 VkResult Transform3DFilter::AddDrawElement(const std::vector<Vertex> &vertexData,
                                            const std::vector<uint32_t> &indicesData,
-                                           const glm::mat4 &transform) {
+                                           const glm::mat4 &transform,
+                                           const FilterImageInfo &imageInfo) {
     vertexBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
     if (vertexBuffer == nullptr) {
         Logger() << "vertexBuffer is null" << std::endl;
@@ -104,8 +109,8 @@ VkResult Transform3DFilter::AddDrawElement(const std::vector<Vertex> &vertexData
     }
 
     /*
-     * Texture
-     */
+    * Texture
+    */
     const std::vector<uint32_t> queueFamilies = {0};
     ret = VkGPUHelper::CreateImage(this->gpuCtx->GetCurrentDevice(),
                                    static_cast<float>(this->width),
@@ -119,6 +124,21 @@ VkResult Transform3DFilter::AddDrawElement(const std::vector<Vertex> &vertexData
                                    &this->textureImage);
     if (ret != VK_SUCCESS) {
         Logger() << "failed to create texture image" << std::endl;
+        return ret;
+    }
+
+    imageBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
+    ret = imageBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_LOCAL, imageInfo.bufferSize);
+    if (ret != VK_SUCCESS) {
+        Logger() << "failed to allocate image buffer" << std::endl;
+    }
+
+    ret = vkBindImageMemory(this->gpuCtx->GetCurrentDevice(),
+                            this->textureImage,
+                            imageBuffer->GetDeviceMemory(),
+                            0);
+    if (ret != VK_SUCCESS) {
+        Logger() << "failed to bind image memory" << std::endl;
         return ret;
     }
 
@@ -143,7 +163,7 @@ VkResult Transform3DFilter::AddDrawElement(const std::vector<Vertex> &vertexData
     buffers.push_back(GetVertexBufferNode());
     buffers.push_back(GetIndicesBufferNode());
     buffers.push_back(GetTransformMatrixBufferNode()); // uniform 0
-    buffers.push_back(GetTextureBufferNode()); // sampler 1
+    buffers.push_back(GetTextureBufferNode(imageInfo.storageBuffer, imageInfo.storageBufferMemory)); // sampler 1
     const GraphicsElement element{
         .pushConstantInfo = {},
         .buffers = buffers,
@@ -155,7 +175,7 @@ VkResult Transform3DFilter::AddDrawElement(const std::vector<Vertex> &vertexData
 }
 
 
-VkResult Transform3DFilter::ConstructMainGraphicsPipeline() {
+VkResult Transform3DFilter::ConstructMainGraphicsPipeline(const FilterImageInfo &imageInfo) {
     std::vector<VkVertexInputBindingDescription> vertexInputBindingDescriptions = {
         {
             .binding = 0,
@@ -202,32 +222,38 @@ VkResult Transform3DFilter::ConstructMainGraphicsPipeline() {
         {
             .position = {-0.5f, -0.5f, 0.0f},
             .color = {0.0f, 0.0f, 1.0f},
+            .texCoords = {0.0f, 0.0f}
         },
         {
             .position = {0.5f, -0.5f, 0.0f},
             .color = {1.0f, 0.0f, 0.0f},
+            .texCoords = {1.0f, 0.0f}
         },
         {
             .position = {-0.5f, 0.5f, 0.0f},
             .color = {0.0f, 1.0f, 0.0f},
+            .texCoords = {0.0f, 1.0f}
         },
         {
             .position = {-0.5f, 0.5f, 0.0f},
             .color = {1.0f, 1.0f, 0.0f},
+            .texCoords = {0.0f, 1.0f}
         },
         {
             .position = {0.5f, -0.5f, 0.0f},
             .color = {0.0f, 0.0f, 1.0f},
+            .texCoords = {1.0f, 0.0f}
         },
         {
             .position = {0.5f, 0.5f, 0.0f},
             .color = {1.0f, 0.0f, 0.0f},
+            .texCoords = {1.0f, 1.0f}
         },
     };
     const std::vector<uint32_t> indices = {0, 1, 2, 3, 4, 5};
     constexpr auto transform = glm::mat4(1.0f);
 
-    VkResult ret = this->AddDrawElement(vertices, indices, transform);
+    VkResult ret = this->AddDrawElement(vertices, indices, transform, imageInfo);
     if (ret != VK_SUCCESS) {
         Logger() << "draw mash add failed" << std::endl;
         return ret;
@@ -366,7 +392,7 @@ VkResult Transform3DFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     mainRenderPassNode->SetFramebuffer(framebuffer);
     Logger() << Logger::INFO << "Renderer Initialized!" << std::endl;
 
-    if (ConstructMainGraphicsPipeline() != VK_SUCCESS) {
+    if (ConstructMainGraphicsPipeline(inputImageInfo[0]) != VK_SUCCESS) {
         Logger() << Logger::ERROR << "Failed to create main graphics pipeline!" << std::endl;
         return VK_ERROR_INITIALIZATION_FAILED;
     }

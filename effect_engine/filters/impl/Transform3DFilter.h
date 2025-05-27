@@ -46,6 +46,7 @@ class Transform3DFilter final : public BasicFilter {
     std::shared_ptr<VkGPUBuffer> transformMatrixBuffer = nullptr;
 
     VkImage textureImage = VK_NULL_HANDLE;
+    std::shared_ptr<VkGPUBuffer> imageBuffer = nullptr;
     VkImageView textureImageView = VK_NULL_HANDLE;
     VkSampler textureSampler = VK_NULL_HANDLE;
 
@@ -60,13 +61,14 @@ public:
 
     [[nodiscard]] PipelineNodeBuffer GetTransformMatrixBufferNode() const;
 
-    PipelineNodeBuffer GetTextureBufferNode() const;
+    [[nodiscard]] PipelineNodeBuffer GetTextureBufferNode(VkBuffer buffer, VkDeviceMemory memory) const;
 
-    VkResult ConstructMainGraphicsPipeline();
+    VkResult ConstructMainGraphicsPipeline(const FilterImageInfo &imageInfo);
 
     VkResult AddDrawElement(const std::vector<Vertex> &vertexData,
                             const std::vector<uint32_t> &indicesData,
-                            const glm::mat4 &transform);
+                            const glm::mat4 &transform,
+                            const FilterImageInfo &imageInfo);
 
     VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                    const std::vector<FilterImageInfo> &inputImageInfo,

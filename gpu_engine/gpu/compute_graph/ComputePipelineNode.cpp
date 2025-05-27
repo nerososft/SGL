@@ -128,7 +128,7 @@ void ComputePipelineNode::Compute(const VkCommandBuffer commandBuffer) {
 
         std::vector<VkBufferMemoryBarrier> readBufferMemoryBarriers;
         for (const auto &buffer: computeElements[i].buffers) {
-            if (type == PIPELINE_NODE_BUFFER_STORAGE_READ) {
+            if (buffer.type == PIPELINE_NODE_BUFFER_STORAGE_READ) {
                 readBufferMemoryBarriers.push_back(VkGPUHelper::BuildBufferMemoryBarrier(
                     VK_ACCESS_MEMORY_WRITE_BIT,
                     VK_ACCESS_MEMORY_READ_BIT,
@@ -170,7 +170,7 @@ void ComputePipelineNode::Compute(const VkCommandBuffer commandBuffer) {
         VkGPUHelper::GPUCmdDispatch(commandBuffer, this->workGroupCountX, workGroupCountY, workGroupCountZ);
         std::vector<VkBufferMemoryBarrier> writeBufferMemoryBarriers;
         for (const auto &buffer: computeElements[i].buffers) {
-            if (type == PIPELINE_NODE_BUFFER_STORAGE_WRITE) {
+            if (buffer.type == PIPELINE_NODE_BUFFER_STORAGE_WRITE) {
                 writeBufferMemoryBarriers.push_back(VkGPUHelper::BuildBufferMemoryBarrier(
                     VK_ACCESS_MEMORY_WRITE_BIT,
                     VK_ACCESS_MEMORY_READ_BIT,

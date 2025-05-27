@@ -204,6 +204,28 @@ void GraphicsPipelineNode::Compute(const VkCommandBuffer commandBuffer) {
                 bindIndexBuffers.push_back(buffer.buf.buffer);
                 indexCount = buffer.buf.bufferSize / sizeof(uint32_t);
             }
+            if (buffer.type == PIPELINE_NODE_SAMPLER) {
+                std::vector<VkBufferImageCopy> regions;
+                VkBufferImageCopy region;
+                region.bufferOffset = 0;
+                region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+                region.imageSubresource.mipLevel = 0;
+                region.imageSubresource.baseArrayLayer = 0;
+                region.imageSubresource.layerCount = 1;
+                region.imageOffset = {0, 0, 1};
+                region.imageExtent.depth = 1;
+                region.imageExtent.width = static_cast<uint32_t>(width);
+                region.imageExtent.height = static_cast<uint32_t>(height);
+                region.bufferRowLength = static_cast<uint32_t>(width);
+                region.bufferImageHeight = static_cast<uint32_t>(height);
+                regions.push_back(region);
+                vkCmdCopyBufferToImage(commandBuffer,
+                                       buffer.sampler.imageBuffer,
+                                       buffer.sampler.image,
+                                       VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                                       regions.size(),
+                                       regions.data());
+            }
         }
         if (!bindVertexBuffers.empty()) {
             vkCmdBindVertexBuffers(commandBuffer,
