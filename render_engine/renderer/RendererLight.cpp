@@ -29,8 +29,8 @@ bool RendererLight::CreateGPULight(const std::shared_ptr<VkGPUContext> &gpuCtx) 
 PipelineNodeBuffer RendererLight::GetLightBufferNode() const {
     PipelineNodeBuffer lightBufferNode = {};
     lightBufferNode.type = PIPELINE_NODE_BUFFER_UNIFORM;
-    lightBufferNode.buffer = lightBuffer->GetBuffer();
-    lightBufferNode.bufferSize = lightBuffer->GetBufferSize();
+    lightBufferNode.buf.buffer = lightBuffer->GetBuffer();
+    lightBufferNode.buf.bufferSize = lightBuffer->GetBufferSize();
     return lightBufferNode;
 }
 

@@ -29,32 +29,32 @@ void RendererMesh::SetTransformMatrix(const glm::mat4 &transform) {
 PipelineNodeBuffer RendererMesh::GetVertexBufferNode() const {
     PipelineNodeBuffer vertexBufferNode = {};
     vertexBufferNode.type = PIPELINE_NODE_BUFFER_VERTEX;
-    vertexBufferNode.bufferSize = vertexBuffer->GetBufferSize();
-    vertexBufferNode.buffer = vertexBuffer->GetBuffer();
+    vertexBufferNode.buf.bufferSize = vertexBuffer->GetBufferSize();
+    vertexBufferNode.buf.buffer = vertexBuffer->GetBuffer();
     return vertexBufferNode;
 }
 
 PipelineNodeBuffer RendererMesh::GetIndicesBufferNode() const {
     PipelineNodeBuffer indicesBufferNode = {};
     indicesBufferNode.type = PIPELINE_NODE_BUFFER_INDEX;
-    indicesBufferNode.buffer = indicesBuffer->GetBuffer();
-    indicesBufferNode.bufferSize = indicesBuffer->GetBufferSize();
+    indicesBufferNode.buf.buffer = indicesBuffer->GetBuffer();
+    indicesBufferNode.buf.bufferSize = indicesBuffer->GetBufferSize();
     return indicesBufferNode;
 }
 
 PipelineNodeBuffer RendererMesh::GetMaterialBufferNode() const {
     PipelineNodeBuffer materialBufferNode = {};
     materialBufferNode.type = PIPELINE_NODE_BUFFER_UNIFORM;
-    materialBufferNode.buffer = materialBuffer->GetBuffer();
-    materialBufferNode.bufferSize = materialBuffer->GetBufferSize();
+    materialBufferNode.buf.buffer = materialBuffer->GetBuffer();
+    materialBufferNode.buf.bufferSize = materialBuffer->GetBufferSize();
     return materialBufferNode;
 }
 
 PipelineNodeBuffer RendererMesh::GetTransformMatrixBufferNode() const {
     PipelineNodeBuffer transformMatrixBufferNode = {};
     transformMatrixBufferNode.type = PIPELINE_NODE_BUFFER_UNIFORM;
-    transformMatrixBufferNode.buffer = transformMatrixBuffer->GetBuffer();
-    transformMatrixBufferNode.bufferSize = transformMatrixBuffer->GetBufferSize();
+    transformMatrixBufferNode.buf.buffer = transformMatrixBuffer->GetBuffer();
+    transformMatrixBufferNode.buf.bufferSize = transformMatrixBuffer->GetBufferSize();
     return transformMatrixBufferNode;
 }
 

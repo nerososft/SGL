@@ -76,7 +76,7 @@ bool RendererCamera::CreateGPUCamera(const std::shared_ptr<VkGPUContext> &gpuCtx
 PipelineNodeBuffer RendererCamera::GetViewProjectionMatrixBufferNode() const {
     PipelineNodeBuffer vpBufferNode = {};
     vpBufferNode.type = PIPELINE_NODE_BUFFER_UNIFORM;
-    vpBufferNode.buffer = viewProjectionBuffer->GetBuffer();
-    vpBufferNode.bufferSize = viewProjectionBuffer->GetBufferSize();
+    vpBufferNode.buf.buffer = viewProjectionBuffer->GetBuffer();
+    vpBufferNode.buf.bufferSize = viewProjectionBuffer->GetBufferSize();
     return vpBufferNode;
 }
