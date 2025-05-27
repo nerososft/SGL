@@ -35,13 +35,13 @@ VkResult RotationalBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx
 
     PipelineNodeBuffer pipelineNodeInput;
     pipelineNodeInput.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
-    pipelineNodeInput.buffer = inputImageInfo[0].storageBuffer;
-    pipelineNodeInput.bufferSize = inputImageInfo[0].bufferSize;
+    pipelineNodeInput.buf.buffer = inputImageInfo[0].storageBuffer;
+    pipelineNodeInput.buf.bufferSize = inputImageInfo[0].bufferSize;
 
     PipelineNodeBuffer pipelineNodeOutput;
     pipelineNodeOutput.type = PIPELINE_NODE_BUFFER_STORAGE_WRITE;
-    pipelineNodeOutput.buffer = outputImageInfo[0].storageBuffer;
-    pipelineNodeOutput.bufferSize = outputImageInfo[0].bufferSize;
+    pipelineNodeOutput.buf.buffer = outputImageInfo[0].storageBuffer;
+    pipelineNodeOutput.buf.bufferSize = outputImageInfo[0].bufferSize;
 
     std::vector<PipelineNodeBuffer> vPipelineBuffers;
     vPipelineBuffers.push_back(pipelineNodeInput);

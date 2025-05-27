@@ -17,6 +17,17 @@
 #include "log/Log.h"
 #include "utils/IOUtils.h"
 
+VkWriteDescriptorSet VkGPUHelper::BuildWriteSamplerDescriptorSet(const VkDescriptorSet descriptorSet,
+                                                                 const uint32_t dstBinding,
+                                                                 const VkDescriptorImageInfo *imageInfo) {
+    return BuildWriteDescriptorSet(descriptorSet,
+                                   dstBinding,
+                                   VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+                                   imageInfo,
+                                   nullptr,
+                                   nullptr);
+}
+
 VkResult VkGPUHelper::CreateSampler(const VkDevice device,
                                     VkSampler *sampler) {
     VkSamplerCreateInfo samplerCreateInfo = {};

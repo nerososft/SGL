@@ -51,33 +51,33 @@ VkResult TiltshiftBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
 
     PipelineNodeBuffer pipelineNodeInput;
     pipelineNodeInput.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
-    pipelineNodeInput.buffer = inputImageInfo[0].storageBuffer;
-    pipelineNodeInput.bufferSize = inputImageInfo[0].bufferSize;
+    pipelineNodeInput.buf.buffer = inputImageInfo[0].storageBuffer;
+    pipelineNodeInput.buf.bufferSize = inputImageInfo[0].bufferSize;
 
     PipelineNodeBuffer pipelineNodeTempInput;
     pipelineNodeTempInput.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
-    pipelineNodeTempInput.buffer = inputImageInfo[1].storageBuffer;
-    pipelineNodeTempInput.bufferSize = inputImageInfo[1].bufferSize;
+    pipelineNodeTempInput.buf.buffer = inputImageInfo[1].storageBuffer;
+    pipelineNodeTempInput.buf.bufferSize = inputImageInfo[1].bufferSize;
 
     PipelineNodeBuffer pipelineNodeAInput;
     pipelineNodeAInput.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
-    pipelineNodeAInput.buffer = ABuffer->GetBuffer();
-    pipelineNodeAInput.bufferSize = size * sizeof(float);
+    pipelineNodeAInput.buf.buffer = ABuffer->GetBuffer();
+    pipelineNodeAInput.buf.bufferSize = size * sizeof(float);
 
     PipelineNodeBuffer pipelineNodeBInput;
     pipelineNodeBInput.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
-    pipelineNodeBInput.buffer = BBuffer->GetBuffer();
-    pipelineNodeBInput.bufferSize = size * sizeof(float);
+    pipelineNodeBInput.buf.buffer = BBuffer->GetBuffer();
+    pipelineNodeBInput.buf.bufferSize = size * sizeof(float);
 
     PipelineNodeBuffer pipelineNodeCInput;
     pipelineNodeCInput.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
-    pipelineNodeCInput.buffer = CBuffer->GetBuffer();
-    pipelineNodeCInput.bufferSize = size * sizeof(float);
+    pipelineNodeCInput.buf.buffer = CBuffer->GetBuffer();
+    pipelineNodeCInput.buf.bufferSize = size * sizeof(float);
 
     PipelineNodeBuffer pipelineNodeOutput;
     pipelineNodeOutput.type = PIPELINE_NODE_BUFFER_STORAGE_WRITE;
-    pipelineNodeOutput.buffer = outputImageInfo[0].storageBuffer;
-    pipelineNodeOutput.bufferSize = outputImageInfo[0].bufferSize;
+    pipelineNodeOutput.buf.buffer = outputImageInfo[0].storageBuffer;
+    pipelineNodeOutput.buf.bufferSize = outputImageInfo[0].bufferSize;
 
     std::vector<PipelineNodeBuffer> vPipelineBuffers;
     vPipelineBuffers.push_back(pipelineNodeInput);

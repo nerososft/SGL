@@ -8,13 +8,15 @@
 #include <vulkan/vulkan_core.h>
 #include <string>
 
-#include "VkGPUFramebuffer.h"
-
 class VkGPUHelper {
 public:
     VkGPUHelper() = default;
 
     ~VkGPUHelper() = default;
+
+    static VkWriteDescriptorSet BuildWriteSamplerDescriptorSet(VkDescriptorSet descriptorSet,
+                                                               uint32_t dstBinding,
+                                                               const VkDescriptorImageInfo *imageInfo);
 
     static VkResult CreateSampler(VkDevice device,
                                   VkSampler *sampler);

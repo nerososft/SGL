@@ -48,6 +48,13 @@ void VkGPUDescriptorSet::AddStorageBufferDescriptorSet(const uint32_t dtsBinding
     );
 }
 
+void VkGPUDescriptorSet::AddSamplerDescriptorSet(const uint32_t dtsBinding,
+                                                 const VkDescriptorImageInfo &descriptorImageInfo) {
+    this->writeDescriptorSets.push_back(
+       VkGPUHelper::BuildWriteSamplerDescriptorSet(this->descriptorSet, dtsBinding, &descriptorImageInfo)
+   );
+}
+
 void VkGPUDescriptorSet::UpdateDescriptorSets() const {
     if (descriptorSet == VK_NULL_HANDLE) {
         Logger() << "Update descriptor set to VK_NULL_HANDLE failed, descriptor not Allocated." << std::endl;

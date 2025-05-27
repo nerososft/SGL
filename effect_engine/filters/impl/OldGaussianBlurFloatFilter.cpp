@@ -39,13 +39,13 @@ VkResult OldGaussianBlurFloatFilter::Apply(const std::shared_ptr<VkGPUContext> &
 
     PipelineNodeBuffer vPipelineNodeInput;
     vPipelineNodeInput.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
-    vPipelineNodeInput.buffer = inputImageInfo[0].storageBuffer;
-    vPipelineNodeInput.bufferSize = inputImageInfo[0].bufferSize;
+    vPipelineNodeInput.buf.buffer = inputImageInfo[0].storageBuffer;
+    vPipelineNodeInput.buf.bufferSize = inputImageInfo[0].bufferSize;
 
     PipelineNodeBuffer vPipelineNodeOutput;
     vPipelineNodeOutput.type = PIPELINE_NODE_BUFFER_STORAGE_WRITE;
-    vPipelineNodeOutput.buffer = outputImageInfo[0].storageBuffer;
-    vPipelineNodeOutput.bufferSize = outputImageInfo[0].bufferSize;
+    vPipelineNodeOutput.buf.buffer = outputImageInfo[0].storageBuffer;
+    vPipelineNodeOutput.buf.bufferSize = outputImageInfo[0].bufferSize;
 
     std::vector<PipelineNodeBuffer> vPipelineBuffers;
     vPipelineBuffers.push_back(vPipelineNodeInput);
@@ -71,13 +71,13 @@ VkResult OldGaussianBlurFloatFilter::Apply(const std::shared_ptr<VkGPUContext> &
 
     PipelineNodeBuffer hPipelineNodeInput;
     hPipelineNodeInput.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
-    hPipelineNodeInput.buffer = outputImageInfo[0].storageBuffer;
-    hPipelineNodeInput.bufferSize = outputImageInfo[0].bufferSize;
+    hPipelineNodeInput.buf.buffer = outputImageInfo[0].storageBuffer;
+    hPipelineNodeInput.buf.bufferSize = outputImageInfo[0].bufferSize;
 
     PipelineNodeBuffer hPipelineNodeOutput;
     hPipelineNodeOutput.type = PIPELINE_NODE_BUFFER_STORAGE_WRITE;
-    hPipelineNodeOutput.buffer = inputImageInfo[0].storageBuffer;;
-    hPipelineNodeOutput.bufferSize = inputImageInfo[0].bufferSize;
+    hPipelineNodeOutput.buf.buffer = inputImageInfo[0].storageBuffer;;
+    hPipelineNodeOutput.buf.bufferSize = inputImageInfo[0].bufferSize;
 
     std::vector<PipelineNodeBuffer> hPipelineBuffers;
     hPipelineBuffers.push_back(hPipelineNodeInput);

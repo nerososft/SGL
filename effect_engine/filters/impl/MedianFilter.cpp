@@ -38,13 +38,13 @@ std::shared_ptr<SubComputeGraph> MedianFilter::CreateParallelSubGraph(const size
 
     PipelineNodeBuffer pipelineNodeInput;
     pipelineNodeInput.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
-    pipelineNodeInput.buffer = inputBuffer;
-    pipelineNodeInput.bufferSize = inputBufferSize;
+    pipelineNodeInput.buf.buffer = inputBuffer;
+    pipelineNodeInput.buf.bufferSize = inputBufferSize;
 
     PipelineNodeBuffer pipelineNodeOutput;
     pipelineNodeOutput.type = PIPELINE_NODE_BUFFER_STORAGE_WRITE;
-    pipelineNodeOutput.buffer = outputBuffer;
-    pipelineNodeOutput.bufferSize = outputBufferSize;
+    pipelineNodeOutput.buf.buffer = outputBuffer;
+    pipelineNodeOutput.buf.bufferSize = outputBufferSize;
 
     std::vector<PipelineNodeBuffer> pipelineBuffers;
     pipelineBuffers.push_back(pipelineNodeInput);

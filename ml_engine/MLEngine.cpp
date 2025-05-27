@@ -228,7 +228,18 @@ void MLEngine::SelfAttention(const std::shared_ptr<Matrix> &Q,
     const auto softmaxOp = std::make_shared<SoftmaxOperator>(this->gpuCtx,
                                                              qkMulOutput->GetBuffer(),
                                                              softmaxOutput->GetBuffer());
-    auto softmaxNode = softmaxOp->CreateComputeGraphNode();
+    const auto inputBuffer = qkMulOutput->GetBuffer();
+    if (inputBuffer->MapBuffer(inputBuffer->GetBufferSize()) != VK_SUCCESS) {
+        Logger() << Logger::ERROR << "Failed to map buffer!" << std::endl;
+        return;
+    }
+    float sum = 0.0f;
+    for (size_t i = 0; i < inputBuffer->GetBufferSize() / sizeof(float); i++) {
+        sum += static_cast<float *>(inputBuffer->GetMappedAddr())[i];
+    }
+    inputBuffer->UnMapBuffer();
+    softmaxOp->SetSum(sum);
+    const auto softmaxNode = softmaxOp->CreateComputeGraphNode();
     if (softmaxNode == nullptr) {
         Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
         throw std::runtime_error("Failed to create compute graph node!");

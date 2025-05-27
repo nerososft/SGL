@@ -95,8 +95,8 @@ VkResult ComputePipelineNode::CreateComputeGraphNode() {
         for (const auto &buffer: buffers) {
             VkDescriptorBufferInfo bufferInfo = {};
             bufferInfo.offset = 0;
-            bufferInfo.range = buffer.bufferSize;
-            bufferInfo.buffer = buffer.buffer;
+            bufferInfo.range = buffer.buf.bufferSize;
+            bufferInfo.buffer = buffer.buf.buffer;
             this->pipelineDescriptorBufferInfos.push_back(bufferInfo);
         }
         for (uint32_t i = 0; i < pipelineDescriptorBufferInfos.size(); ++i) {
@@ -127,13 +127,13 @@ void ComputePipelineNode::Compute(const VkCommandBuffer commandBuffer) {
                                         computeElements[i].pushConstantInfo.data);
 
         std::vector<VkBufferMemoryBarrier> readBufferMemoryBarriers;
-        for (const auto &[type, bufferSize, buffer]: computeElements[i].buffers) {
+        for (const auto &buffer: computeElements[i].buffers) {
             if (type == PIPELINE_NODE_BUFFER_STORAGE_READ) {
                 readBufferMemoryBarriers.push_back(VkGPUHelper::BuildBufferMemoryBarrier(
                     VK_ACCESS_MEMORY_WRITE_BIT,
                     VK_ACCESS_MEMORY_READ_BIT,
-                    buffer,
-                    bufferSize));
+                    buffer.buf.buffer,
+                    buffer.buf.bufferSize));
             }
         }
 
@@ -169,13 +169,13 @@ void ComputePipelineNode::Compute(const VkCommandBuffer commandBuffer) {
 
         VkGPUHelper::GPUCmdDispatch(commandBuffer, this->workGroupCountX, workGroupCountY, workGroupCountZ);
         std::vector<VkBufferMemoryBarrier> writeBufferMemoryBarriers;
-        for (const auto &[type, bufferSize, buffer]: computeElements[i].buffers) {
+        for (const auto &buffer: computeElements[i].buffers) {
             if (type == PIPELINE_NODE_BUFFER_STORAGE_WRITE) {
                 writeBufferMemoryBarriers.push_back(VkGPUHelper::BuildBufferMemoryBarrier(
                     VK_ACCESS_MEMORY_WRITE_BIT,
                     VK_ACCESS_MEMORY_READ_BIT,
-                    buffer,
-                    bufferSize));
+                    buffer.buf.buffer,
+                    buffer.buf.bufferSize));
             }
         }
 

@@ -47,23 +47,23 @@ VkResult AccentedEdgeFilter::Apply(const std::shared_ptr<VkGPUContext>& gpuCtx,
 
     PipelineNodeBuffer pipelineNodeInput;
     pipelineNodeInput.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
-    pipelineNodeInput.buffer = inputImageInfo[0].storageBuffer;
-    pipelineNodeInput.bufferSize = inputImageInfo[0].bufferSize;
+    pipelineNodeInput.buf.buffer = inputImageInfo[0].storageBuffer;
+    pipelineNodeInput.buf.bufferSize = inputImageInfo[0].bufferSize;
 
     PipelineNodeBuffer pipelineNodeKInput;
     pipelineNodeKInput.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
-    pipelineNodeKInput.buffer = sobelxBuffer->GetBuffer();
-    pipelineNodeKInput.bufferSize = s_size * sizeof(int);
+    pipelineNodeKInput.buf.buffer = sobelxBuffer->GetBuffer();
+    pipelineNodeKInput.buf.bufferSize = s_size * sizeof(int);
 
     PipelineNodeBuffer pipelineNodeK2Input;
     pipelineNodeK2Input.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
-    pipelineNodeK2Input.buffer = sobelyBuffer->GetBuffer();
-    pipelineNodeK2Input.bufferSize = s_size * sizeof(int);
+    pipelineNodeK2Input.buf.buffer = sobelyBuffer->GetBuffer();
+    pipelineNodeK2Input.buf.bufferSize = s_size * sizeof(int);
 
     PipelineNodeBuffer pipelineNodeOutput;
     pipelineNodeOutput.type = PIPELINE_NODE_BUFFER_STORAGE_WRITE;
-    pipelineNodeOutput.buffer = outputImageInfo[0].storageBuffer;
-    pipelineNodeOutput.bufferSize = outputImageInfo[0].bufferSize;
+    pipelineNodeOutput.buf.buffer = outputImageInfo[0].storageBuffer;
+    pipelineNodeOutput.buf.bufferSize = outputImageInfo[0].bufferSize;
 
     std::vector<PipelineNodeBuffer> vPipelineBuffers;
     vPipelineBuffers.push_back(pipelineNodeInput);

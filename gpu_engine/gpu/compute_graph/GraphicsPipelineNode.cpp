@@ -49,26 +49,44 @@ std::shared_ptr<VkGPUDescriptorSet> GraphicsPipelineNode::CreateDescriptorSet(
         return nullptr;
     }
 
-    std::vector<VkDescriptorBufferInfo> pipelineDescriptorBufferInfos;
+    std::vector<PipelineDescriptorInfo> pipelineDescriptorInfos;
     for (const auto &buffer: graphicsElement.buffers) {
         if (buffer.type == PIPELINE_NODE_BUFFER_VERTEX || buffer.type == PIPELINE_NODE_BUFFER_INDEX) {
             continue;
         }
-        VkDescriptorBufferInfo bufferInfo = {};
-        bufferInfo.offset = 0;
-        bufferInfo.range = buffer.bufferSize;
-        bufferInfo.buffer = buffer.buffer;
-        pipelineDescriptorBufferInfos.push_back(bufferInfo);
+        if (buffer.type == PIPELINE_NODE_BUFFER_STORAGE_READ ||
+            buffer.type == PIPELINE_NODE_BUFFER_STORAGE_WRITE ||
+            buffer.type == PIPELINE_NODE_BUFFER_UNIFORM) {
+            PipelineDescriptorInfo info;
+            VkDescriptorBufferInfo bufferInfo = {};
+            bufferInfo.offset = 0;
+            bufferInfo.range = buffer.buf.bufferSize;
+            bufferInfo.buffer = buffer.buf.buffer;
+            info.bufferInfo = bufferInfo;
+            pipelineDescriptorInfos.push_back(info);
+        } else if (buffer.type == PIPELINE_NODE_SAMPLER) {
+            PipelineDescriptorInfo info;
+            VkDescriptorImageInfo imageInfo = {};
+            imageInfo.imageView = buffer.sampler.imageView;
+            imageInfo.imageLayout = buffer.sampler.imageLayout;
+            imageInfo.sampler = buffer.sampler.sampler;
+            info.imageInfo = imageInfo;
+            pipelineDescriptorInfos.push_back(info);
+        } else {
+            Logger() << "unsupported type" << std::endl;
+        }
     }
 
-    for (uint32_t i = 0; i < pipelineDescriptorBufferInfos.size(); ++i) {
+    for (uint32_t i = 0; i < pipelineDescriptorInfos.size(); ++i) {
         Logger() << "Descriptor(" << i << "):" << string_VkDescriptorType(
                     this->descriptorSetLayoutBindings[i].descriptorType)
                 << std::endl;
         if (this->descriptorSetLayoutBindings[i].descriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER) {
-            descriptorSet->AddUniformBufferDescriptorSet(i, pipelineDescriptorBufferInfos.at(i));
+            descriptorSet->AddUniformBufferDescriptorSet(i, pipelineDescriptorInfos.at(i).bufferInfo);
         } else if (this->descriptorSetLayoutBindings[i].descriptorType == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER) {
-            descriptorSet->AddStorageBufferDescriptorSet(i, pipelineDescriptorBufferInfos.at(i));
+            descriptorSet->AddStorageBufferDescriptorSet(i, pipelineDescriptorInfos.at(i).bufferInfo);
+        } else if (this->descriptorSetLayoutBindings[i].descriptorType == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER) {
+            descriptorSet->AddSamplerDescriptorSet(i, pipelineDescriptorInfos.at(i).imageInfo);
         } else {
             Logger() << "Unsupported descriptor type " << std::endl;
             return nullptr;
@@ -106,6 +124,8 @@ VkResult GraphicsPipelineNode::CreateComputeGraphNode() {
         } else if (buffer.type == PIPELINE_NODE_BUFFER_STORAGE_READ ||
                    buffer.type == PIPELINE_NODE_BUFFER_STORAGE_WRITE) {
             bufferBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+        } else if (buffer.type == PIPELINE_NODE_SAMPLER) {
+            bufferBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
         }
         bufferBinding.descriptorCount = 1;
         bufferBinding.stageFlags = VK_SHADER_STAGE_ALL_GRAPHICS;
@@ -173,16 +193,16 @@ void GraphicsPipelineNode::Compute(const VkCommandBuffer commandBuffer) {
         int32_t indexCount = 0;
         for (const auto &buffer: graphicsElements[i].buffers) {
             if (buffer.type == PIPELINE_NODE_BUFFER_VERTEX) {
-                if (buffer.buffer == VK_NULL_HANDLE) {
+                if (buffer.buf.buffer == VK_NULL_HANDLE) {
                     Logger() << " Buffer is null" << std::endl;
                     return;
                 }
-                bindVertexBuffers.push_back(buffer.buffer);
+                bindVertexBuffers.push_back(buffer.buf.buffer);
                 bindVertexOffsets.push_back(0);
             }
             if (buffer.type == PIPELINE_NODE_BUFFER_INDEX) {
-                bindIndexBuffers.push_back(buffer.buffer);
-                indexCount = buffer.bufferSize / sizeof(uint32_t);
+                bindIndexBuffers.push_back(buffer.buf.buffer);
+                indexCount = buffer.buf.bufferSize / sizeof(uint32_t);
             }
         }
         if (!bindVertexBuffers.empty()) {

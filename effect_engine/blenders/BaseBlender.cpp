@@ -50,18 +50,18 @@ VkResult BaseBlender::DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
 
     PipelineNodeBuffer pipelineNodeInput0;
     pipelineNodeInput0.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
-    pipelineNodeInput0.buffer = baseImageInfo.storageBuffer;
-    pipelineNodeInput0.bufferSize = baseImageInfo.bufferSize;
+    pipelineNodeInput0.buf.buffer = baseImageInfo.storageBuffer;
+    pipelineNodeInput0.buf.bufferSize = baseImageInfo.bufferSize;
 
     PipelineNodeBuffer pipelineNodeInput1;
     pipelineNodeInput1.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
-    pipelineNodeInput1.buffer = blendImageInfo.storageBuffer;
-    pipelineNodeInput1.bufferSize = blendImageInfo.bufferSize;
+    pipelineNodeInput1.buf.buffer = blendImageInfo.storageBuffer;
+    pipelineNodeInput1.buf.bufferSize = blendImageInfo.bufferSize;
 
     PipelineNodeBuffer pipelineNodeOutput;
     pipelineNodeOutput.type = PIPELINE_NODE_BUFFER_STORAGE_WRITE;
-    pipelineNodeOutput.buffer = outputBuffer;
-    pipelineNodeOutput.bufferSize = baseImageInfo.bufferSize;
+    pipelineNodeOutput.buf.buffer = outputBuffer;
+    pipelineNodeOutput.buf.bufferSize = baseImageInfo.bufferSize;
 
     std::vector<PipelineNodeBuffer> pipelineBuffers;
     pipelineBuffers.push_back(pipelineNodeInput0);

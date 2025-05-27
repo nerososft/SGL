@@ -11,24 +11,24 @@
 PipelineNodeBuffer Transform3DFilter::GetVertexBufferNode() const {
     PipelineNodeBuffer vertexBufferNode = {};
     vertexBufferNode.type = PIPELINE_NODE_BUFFER_VERTEX;
-    vertexBufferNode.bufferSize = vertexBuffer->GetBufferSize();
-    vertexBufferNode.buffer = vertexBuffer->GetBuffer();
+    vertexBufferNode.buf.bufferSize = vertexBuffer->GetBufferSize();
+    vertexBufferNode.buf.buffer = vertexBuffer->GetBuffer();
     return vertexBufferNode;
 }
 
 PipelineNodeBuffer Transform3DFilter::GetIndicesBufferNode() const {
     PipelineNodeBuffer indicesBufferNode = {};
     indicesBufferNode.type = PIPELINE_NODE_BUFFER_INDEX;
-    indicesBufferNode.buffer = indicesBuffer->GetBuffer();
-    indicesBufferNode.bufferSize = indicesBuffer->GetBufferSize();
+    indicesBufferNode.buf.buffer = indicesBuffer->GetBuffer();
+    indicesBufferNode.buf.bufferSize = indicesBuffer->GetBufferSize();
     return indicesBufferNode;
 }
 
 PipelineNodeBuffer Transform3DFilter::GetTransformMatrixBufferNode() const {
     PipelineNodeBuffer transformMatrixBufferNode = {};
     transformMatrixBufferNode.type = PIPELINE_NODE_BUFFER_UNIFORM;
-    transformMatrixBufferNode.buffer = transformMatrixBuffer->GetBuffer();
-    transformMatrixBufferNode.bufferSize = transformMatrixBuffer->GetBufferSize();
+    transformMatrixBufferNode.buf.buffer = transformMatrixBuffer->GetBuffer();
+    transformMatrixBufferNode.buf.bufferSize = transformMatrixBuffer->GetBufferSize();
     return transformMatrixBufferNode;
 }
 

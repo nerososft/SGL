@@ -31,6 +31,8 @@ public:
 
     void AddStorageBufferDescriptorSet(uint32_t dtsBinding, const VkDescriptorBufferInfo &descriptorBufferInfo);
 
+    void AddSamplerDescriptorSet(uint32_t dtsBinding, const VkDescriptorImageInfo &descriptorImageInfo);
+
     void UpdateDescriptorSets() const;
 
     void GPUCmdBindDescriptorSets(VkCommandBuffer commandBuffer, VkPipelineBindPoint pipelineBindPoint) const;

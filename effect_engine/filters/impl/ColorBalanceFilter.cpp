@@ -51,23 +51,23 @@ VkResult ColorBalanceFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
 
     PipelineNodeBuffer pipelineNodeInput;
     pipelineNodeInput.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
-    pipelineNodeInput.buffer = inputImageInfo[0].storageBuffer;
-    pipelineNodeInput.bufferSize = inputImageInfo[0].bufferSize;
+    pipelineNodeInput.buf.buffer = inputImageInfo[0].storageBuffer;
+    pipelineNodeInput.buf.bufferSize = inputImageInfo[0].bufferSize;
 
     PipelineNodeBuffer pipelineNodeAdjustPInput;
     pipelineNodeAdjustPInput.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
-    pipelineNodeAdjustPInput.buffer = adjustPBuffer->GetBuffer();
-    pipelineNodeAdjustPInput.bufferSize = pSize * sizeof(float);
+    pipelineNodeAdjustPInput.buf.buffer = adjustPBuffer->GetBuffer();
+    pipelineNodeAdjustPInput.buf.bufferSize = pSize * sizeof(float);
 
     PipelineNodeBuffer pipelineNodePInput;
     pipelineNodePInput.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
-    pipelineNodePInput.buffer = PBuffer->GetBuffer();
-    pipelineNodePInput.bufferSize = pSize * sizeof(int);
+    pipelineNodePInput.buf.buffer = PBuffer->GetBuffer();
+    pipelineNodePInput.buf.bufferSize = pSize * sizeof(int);
 
     PipelineNodeBuffer pipelineNodeOutput;
     pipelineNodeOutput.type = PIPELINE_NODE_BUFFER_STORAGE_WRITE;
-    pipelineNodeOutput.buffer = outputImageInfo[0].storageBuffer;
-    pipelineNodeOutput.bufferSize = outputImageInfo[0].bufferSize;
+    pipelineNodeOutput.buf.buffer = outputImageInfo[0].storageBuffer;
+    pipelineNodeOutput.buf.bufferSize = outputImageInfo[0].bufferSize;
 
     std::vector<PipelineNodeBuffer> vPipelineBuffers;
     vPipelineBuffers.push_back(pipelineNodeInput);

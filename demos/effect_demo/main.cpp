@@ -183,7 +183,6 @@ void effect_engine_main() {
     // effectEngine.Process("../../../demos/effect_demo/images/test.png", "../../../demos/effect_demo/images/test_median.png", filter);
 
     const auto filter = std::make_shared<Transform3DFilter>();
-
     filter->SetTransformMatrix(glm::mat4(1.0f));
     effectEngine.Process("../../../demos/effect_demo/images/girl.png",
                          "../../../demos/effect_demo/images/girl_transform.png", filter);

@@ -39,13 +39,13 @@ VkResult BasicFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
 
     PipelineNodeBuffer pipelineNodeInput;
     pipelineNodeInput.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
-    pipelineNodeInput.buffer = inputBuffer;
-    pipelineNodeInput.bufferSize = bufferSize;
+    pipelineNodeInput.buf.buffer = inputBuffer;
+    pipelineNodeInput.buf.bufferSize = bufferSize;
 
     PipelineNodeBuffer pipelineNodeOutput;
     pipelineNodeOutput.type = PIPELINE_NODE_BUFFER_STORAGE_WRITE;
-    pipelineNodeOutput.buffer = outputBuffer;
-    pipelineNodeOutput.bufferSize = bufferSize;
+    pipelineNodeOutput.buf.buffer = outputBuffer;
+    pipelineNodeOutput.buf.bufferSize = bufferSize;
 
     std::vector<PipelineNodeBuffer> pipelineBuffers;
     pipelineBuffers.push_back(pipelineNodeInput);

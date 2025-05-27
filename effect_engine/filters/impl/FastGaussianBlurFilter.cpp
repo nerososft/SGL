@@ -30,13 +30,13 @@ std::shared_ptr<IComputeGraphNode> FastGaussianBlurFilter::CreateScaleDownNode(
 
     PipelineNodeBuffer scaleDownPipelineNodeInput;
     scaleDownPipelineNodeInput.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
-    scaleDownPipelineNodeInput.buffer = inputBuffer;
-    scaleDownPipelineNodeInput.bufferSize = inputBufferSize;
+    scaleDownPipelineNodeInput.buf.buffer = inputBuffer;
+    scaleDownPipelineNodeInput.buf.bufferSize = inputBufferSize;
 
     PipelineNodeBuffer scaleDownPipelineNodeOutput;
     scaleDownPipelineNodeOutput.type = PIPELINE_NODE_BUFFER_STORAGE_WRITE;
-    scaleDownPipelineNodeOutput.buffer = outputBuffer;
-    scaleDownPipelineNodeOutput.bufferSize = outputBufferSize;
+    scaleDownPipelineNodeOutput.buf.buffer = outputBuffer;
+    scaleDownPipelineNodeOutput.buf.bufferSize = outputBufferSize;
 
     std::vector<PipelineNodeBuffer> scaleDownPipelineBuffers;
     scaleDownPipelineBuffers.push_back(scaleDownPipelineNodeInput);
@@ -72,13 +72,13 @@ std::shared_ptr<IComputeGraphNode> FastGaussianBlurFilter::CreateVBlurNode(const
 
     PipelineNodeBuffer vPipelineNodeInput;
     vPipelineNodeInput.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
-    vPipelineNodeInput.buffer = inputBuffer;
-    vPipelineNodeInput.bufferSize = inputBufferSize;
+    vPipelineNodeInput.buf.buffer = inputBuffer;
+    vPipelineNodeInput.buf.bufferSize = inputBufferSize;
 
     PipelineNodeBuffer vPipelineNodeOutput;
     vPipelineNodeOutput.type = PIPELINE_NODE_BUFFER_STORAGE_WRITE;
-    vPipelineNodeOutput.buffer = outputBuffer;
-    vPipelineNodeOutput.bufferSize = outputBufferSize;
+    vPipelineNodeOutput.buf.buffer = outputBuffer;
+    vPipelineNodeOutput.buf.bufferSize = outputBufferSize;
 
     std::vector<PipelineNodeBuffer> vPipelineBuffers;
     vPipelineBuffers.push_back(vPipelineNodeInput);
@@ -116,13 +116,13 @@ std::shared_ptr<IComputeGraphNode> FastGaussianBlurFilter::CreateHBlurNode(const
 
     PipelineNodeBuffer hPipelineNodeInput;
     hPipelineNodeInput.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
-    hPipelineNodeInput.buffer = inputBuffer;
-    hPipelineNodeInput.bufferSize = inputBufferSize;
+    hPipelineNodeInput.buf.buffer = inputBuffer;
+    hPipelineNodeInput.buf.bufferSize = inputBufferSize;
 
     PipelineNodeBuffer hPipelineNodeOutput;
     hPipelineNodeOutput.type = PIPELINE_NODE_BUFFER_STORAGE_WRITE;
-    hPipelineNodeOutput.buffer = outputBuffer;
-    hPipelineNodeOutput.bufferSize = outputBufferSize;
+    hPipelineNodeOutput.buf.buffer = outputBuffer;
+    hPipelineNodeOutput.buf.bufferSize = outputBufferSize;
 
     std::vector<PipelineNodeBuffer> hPipelineBuffers;
     hPipelineBuffers.push_back(hPipelineNodeInput);
@@ -163,13 +163,13 @@ std::shared_ptr<IComputeGraphNode> FastGaussianBlurFilter::CreateScaleUpNode(
 
     PipelineNodeBuffer scaleUpPipelineNodeInput;
     scaleUpPipelineNodeInput.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
-    scaleUpPipelineNodeInput.buffer = inputBuffer;
-    scaleUpPipelineNodeInput.bufferSize = inputBufferSize;
+    scaleUpPipelineNodeInput.buf.buffer = inputBuffer;
+    scaleUpPipelineNodeInput.buf.bufferSize = inputBufferSize;
 
     PipelineNodeBuffer scaleUpPipelineNodeOutput;
     scaleUpPipelineNodeOutput.type = PIPELINE_NODE_BUFFER_STORAGE_WRITE;
-    scaleUpPipelineNodeOutput.buffer = outputBuffer;
-    scaleUpPipelineNodeOutput.bufferSize = outputBufferSize;
+    scaleUpPipelineNodeOutput.buf.buffer = outputBuffer;
+    scaleUpPipelineNodeOutput.buf.bufferSize = outputBufferSize;
 
     std::vector<PipelineNodeBuffer> scaleUpPipelineBuffers;
     scaleUpPipelineBuffers.push_back(scaleUpPipelineNodeInput);

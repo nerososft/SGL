@@ -20,12 +20,31 @@ typedef enum {
     PIPELINE_NODE_BUFFER_INDEX,
     PIPELINE_NODE_BUFFER_STORAGE_READ,
     PIPELINE_NODE_BUFFER_STORAGE_WRITE,
+    PIPELINE_NODE_SAMPLER,
 } PipelineNodeBufferType;
 
 typedef struct {
+    union {
+        VkDescriptorBufferInfo bufferInfo;
+        VkDescriptorImageInfo imageInfo;
+    };
+} PipelineDescriptorInfo;
+
+typedef struct {
     PipelineNodeBufferType type;
-    VkDeviceSize bufferSize;
-    VkBuffer buffer;
+
+    union {
+        struct {
+            VkDeviceSize bufferSize;
+            VkBuffer buffer;
+        } buf;
+
+        struct {
+            VkImageView imageView;
+            VkImageLayout imageLayout;
+            VkSampler sampler;
+        } sampler;
+    };
 } PipelineNodeBuffer;
 
 typedef enum {
