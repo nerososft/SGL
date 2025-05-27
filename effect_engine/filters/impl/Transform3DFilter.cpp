@@ -32,6 +32,15 @@ PipelineNodeBuffer Transform3DFilter::GetTransformMatrixBufferNode() const {
     return transformMatrixBufferNode;
 }
 
+PipelineNodeBuffer Transform3DFilter::GetTextureBufferNode() const {
+    PipelineNodeBuffer textureBufferNode = {};
+    textureBufferNode.type = PIPELINE_NODE_SAMPLER;
+    textureBufferNode.sampler.imageView = this->textureImageView;
+    textureBufferNode.sampler.imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    textureBufferNode.sampler.sampler = this->textureSampler;
+    return textureBufferNode;
+}
+
 VkResult Transform3DFilter::AddDrawElement(const std::vector<Vertex> &vertexData,
                                            const std::vector<uint32_t> &indicesData,
                                            const glm::mat4 &transform) {
@@ -134,6 +143,7 @@ VkResult Transform3DFilter::AddDrawElement(const std::vector<Vertex> &vertexData
     buffers.push_back(GetVertexBufferNode());
     buffers.push_back(GetIndicesBufferNode());
     buffers.push_back(GetTransformMatrixBufferNode()); // uniform 0
+    buffers.push_back(GetTextureBufferNode()); // sampler 1
     const GraphicsElement element{
         .pushConstantInfo = {},
         .buffers = buffers,

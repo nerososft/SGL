@@ -22,7 +22,7 @@ VkWriteDescriptorSet VkGPUHelper::BuildWriteSamplerDescriptorSet(const VkDescrip
                                                                  const VkDescriptorImageInfo *imageInfo) {
     return BuildWriteDescriptorSet(descriptorSet,
                                    dstBinding,
-                                   VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+                                   VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
                                    imageInfo,
                                    nullptr,
                                    nullptr);

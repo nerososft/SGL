@@ -60,6 +60,8 @@ public:
 
     [[nodiscard]] PipelineNodeBuffer GetTransformMatrixBufferNode() const;
 
+    PipelineNodeBuffer GetTextureBufferNode() const;
+
     VkResult ConstructMainGraphicsPipeline();
 
     VkResult AddDrawElement(const std::vector<Vertex> &vertexData,

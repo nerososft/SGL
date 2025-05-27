@@ -314,6 +314,11 @@ VkResult VkGPUContext::Init() {
     uniformBufferDescriptorPoolSize.descriptorCount = 1024;
     descriptorPoolSizes.push_back(uniformBufferDescriptorPoolSize);
 
+    VkDescriptorPoolSize samplerDescriptorPoolSize;
+    samplerDescriptorPoolSize.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    samplerDescriptorPoolSize.descriptorCount = 1024;
+    descriptorPoolSizes.push_back(samplerDescriptorPoolSize);
+
     VkDescriptorPoolCreateInfo descriptorPoolCreateInfo;
     descriptorPoolCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
     descriptorPoolCreateInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
