@@ -20,5 +20,7 @@
 
 ### demo
 `effect_demo` 依赖 `effect_engine` `libpng-dev`
+
 `renderer_demo` 依赖：`render_engine` `libpng-dev` `libglfw3-dev` `assimp`
+
 `inference_demo` 依赖 `ml_engine`
