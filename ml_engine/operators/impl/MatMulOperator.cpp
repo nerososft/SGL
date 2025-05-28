@@ -26,18 +26,24 @@ std::shared_ptr<IComputeGraphNode> MatMulOperator::CreateComputeGraphNode() {
     std::vector<PipelineNodeBuffer> buffers;
     buffers.push_back({
         .type = PIPELINE_NODE_BUFFER_STORAGE_READ,
-        .bufferSize = this->inputBuffer1->GetBufferSize(),
-        .buffer = this->inputBuffer1->GetBuffer(),
+        .buf = {
+            .bufferSize = this->inputBuffer1->GetBufferSize(),
+            .buffer = this->inputBuffer1->GetBuffer(),
+        }
     });
     buffers.push_back({
         .type = PIPELINE_NODE_BUFFER_STORAGE_READ,
-        .bufferSize = this->inputBuffer2->GetBufferSize(),
-        .buffer = this->inputBuffer2->GetBuffer(),
+        .buf = {
+            .bufferSize = this->inputBuffer2->GetBufferSize(),
+            .buffer = this->inputBuffer2->GetBuffer(),
+        }
     });
     buffers.push_back({
         .type = PIPELINE_NODE_BUFFER_STORAGE_WRITE,
-        .bufferSize = this->outputBuffer->GetBufferSize(),
-        .buffer = this->outputBuffer->GetBuffer(),
+        .buf = {
+            .bufferSize = this->outputBuffer->GetBufferSize(),
+            .buffer = this->outputBuffer->GetBuffer(),
+        }
     });
 
     const PushConstantInfo pushConstantInfo{

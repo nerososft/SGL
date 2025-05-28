@@ -28,13 +28,17 @@ std::shared_ptr<IComputeGraphNode> TanhOperator::CreateComputeGraphNode() {
     std::vector<PipelineNodeBuffer> buffers;
     buffers.push_back({
         .type = PIPELINE_NODE_BUFFER_STORAGE_READ,
-        .bufferSize = this->inputBuffer->GetBufferSize(),
-        .buffer = this->inputBuffer->GetBuffer(),
+        .buf = {
+            .bufferSize = this->inputBuffer->GetBufferSize(),
+            .buffer = this->inputBuffer->GetBuffer(),
+        }
     });
     buffers.push_back({
         .type = PIPELINE_NODE_BUFFER_STORAGE_WRITE,
-        .bufferSize = this->outputBuffer->GetBufferSize(),
-        .buffer = this->outputBuffer->GetBuffer(),
+        .buf = {
+            .bufferSize = this->outputBuffer->GetBufferSize(),
+            .buffer = this->outputBuffer->GetBuffer(),
+        }
     });
 
     const PushConstantInfo pushConstantInfo{};
