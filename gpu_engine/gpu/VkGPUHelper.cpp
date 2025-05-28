@@ -30,7 +30,6 @@ VkWriteDescriptorSet VkGPUHelper::BuildWriteSamplerDescriptorSet(const VkDescrip
 
 VkResult VkGPUHelper::CreateSampler(const VkDevice device,
                                     VkSampler *sampler) {
-
     VkSamplerCreateInfo samplerCreateInfo{};
     samplerCreateInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
     samplerCreateInfo.magFilter = VK_FILTER_LINEAR;
@@ -47,7 +46,7 @@ VkResult VkGPUHelper::CreateSampler(const VkDevice device,
     samplerCreateInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
     samplerCreateInfo.mipLodBias = 0.0f;
     samplerCreateInfo.minLod = 0.0f;
-    samplerCreateInfo.maxLod = static_cast<float>(0);
+    samplerCreateInfo.maxLod = 1.0f;
 
     const VkResult result = vkCreateSampler(device, &samplerCreateInfo, nullptr, sampler);
     if (result != VK_SUCCESS) {

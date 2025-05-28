@@ -254,21 +254,8 @@ VkResult Transform3DFilter::ConstructMainGraphicsPipeline(const FilterImageInfo 
         },
     };
     const std::vector<uint32_t> indices = {0, 1, 2, 3, 4, 5};
-    auto transform = glm::mat4(1.0f);
-    transform = glm::rotate(transform, glm::radians(5.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    transform = glm::rotate(transform, glm::radians(5.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-    transform = glm::rotate(transform, glm::radians(10.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
-    glm::mat4 projection = glm::perspective(glm::radians(90.0f),
-                                            1.0f,
-                                            0.0f, 1000.0f);
-
-    glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 0.0f, 1.0f),
-                                 glm::vec3(0.0f, 0.0f, 0.0f),
-                                 glm::vec3(0.0f, 1.0f, 0.0f));
-    transform = projection * view * transform;
-
-    VkResult ret = this->AddDrawElement(vertices, indices, transform, imageInfo);
+    VkResult ret = this->AddDrawElement(vertices, indices, this->transformFilterParams.transformMatrix, imageInfo);
     if (ret != VK_SUCCESS) {
         Logger() << "draw mash add failed" << std::endl;
         return ret;

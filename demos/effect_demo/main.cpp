@@ -183,7 +183,20 @@ void effect_engine_main() {
     // effectEngine.Process("../../../demos/effect_demo/images/test.png", "../../../demos/effect_demo/images/test_median.png", filter);
 
     const auto filter = std::make_shared<Transform3DFilter>();
-    filter->SetTransformMatrix(glm::mat4(1.0f));
+    auto transform = glm::mat4(1.0f);
+    transform = glm::rotate(transform, glm::radians(5.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    transform = glm::rotate(transform, glm::radians(5.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    transform = glm::rotate(transform, glm::radians(10.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+
+    const glm::mat4 projection = glm::perspective(glm::radians(90.0f),
+                                                  1.0f,
+                                                  0.0f, 1000.0f);
+
+    const glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 0.0f, 1.0f),
+                                       glm::vec3(0.0f, 0.0f, 0.0f),
+                                       glm::vec3(0.0f, 1.0f, 0.0f));
+    transform = projection * view * transform;
+    filter->SetTransformMatrix(transform);
     effectEngine.Process("../../../demos/effect_demo/images/girl.png",
                          "../../../demos/effect_demo/images/girl_transform.png", filter);
 }
