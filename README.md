@@ -9,12 +9,16 @@
 4. **优秀的兼容性**
 
 ## Env
+### 图像效果引擎
 `effect_engine` 依赖：`vulkan`
 
+### 机器学习引擎
 `ml_engine` 依赖 `vulkan`
 
+### 渲染引擎
 `render_engine` 依赖：`vulkan` `libglm-dev`
 
+### demo
 `effect_demo` 依赖 `effect_engine` `libpng-dev`
-
 `renderer_demo` 依赖：`render_engine` `libpng-dev` `libglfw3-dev` `assimp`
+`inference_demo` 依赖 `ml_engine`
