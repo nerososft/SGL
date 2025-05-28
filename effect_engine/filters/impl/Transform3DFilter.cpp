@@ -4,6 +4,9 @@
 
 #include "Transform3DFilter.h"
 
+#include <glm/ext/matrix_clip_space.hpp>
+#include <glm/ext/matrix_transform.hpp>
+
 #include "gpu_engine/config.h"
 #include "gpu_engine/gpu/VkGPUHelper.h"
 #include "gpu_engine/log/Log.h"
@@ -117,10 +120,10 @@ VkResult Transform3DFilter::AddDrawElement(const std::vector<Vertex> &vertexData
                                    static_cast<float>(this->height),
                                    VK_IMAGE_TYPE_2D,
                                    VK_FORMAT_R8G8B8A8_SRGB,
-                                   VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
-                                   VK_SHARING_MODE_CONCURRENT,
+                                   VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
+                                   VK_SHARING_MODE_EXCLUSIVE,
                                    queueFamilies,
-                                   VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                                   VK_IMAGE_LAYOUT_UNDEFINED,
                                    &this->textureImage);
     if (ret != VK_SUCCESS) {
         Logger() << "failed to create texture image" << std::endl;
@@ -251,7 +254,19 @@ VkResult Transform3DFilter::ConstructMainGraphicsPipeline(const FilterImageInfo 
         },
     };
     const std::vector<uint32_t> indices = {0, 1, 2, 3, 4, 5};
-    constexpr auto transform = glm::mat4(1.0f);
+    auto transform = glm::mat4(1.0f);
+    transform = glm::rotate(transform, glm::radians(5.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    transform = glm::rotate(transform, glm::radians(5.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    transform = glm::rotate(transform, glm::radians(10.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+
+    glm::mat4 projection = glm::perspective(glm::radians(90.0f),
+                                            1.0f,
+                                            0.0f, 1000.0f);
+
+    glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 0.0f, 1.0f),
+                                 glm::vec3(0.0f, 0.0f, 0.0f),
+                                 glm::vec3(0.0f, 1.0f, 0.0f));
+    transform = projection * view * transform;
 
     VkResult ret = this->AddDrawElement(vertices, indices, transform, imageInfo);
     if (ret != VK_SUCCESS) {

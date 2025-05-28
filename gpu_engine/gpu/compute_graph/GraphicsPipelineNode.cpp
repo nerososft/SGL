@@ -219,19 +219,29 @@ void GraphicsPipelineNode::Compute(const VkCommandBuffer commandBuffer) {
                 region.bufferRowLength = static_cast<uint32_t>(width);
                 region.bufferImageHeight = static_cast<uint32_t>(height);
                 regions.push_back(region);
+
+                std::vector<VkMemoryBarrier> memoryBarriers;
+                memoryBarriers.push_back(VkGPUHelper::BuildMemoryBarrier(VK_ACCESS_TRANSFER_WRITE_BIT,
+                                                                         VK_ACCESS_TRANSFER_READ_BIT));
+                VkGPUHelper::GPUCmdPipelineMemBarrier(commandBuffer,
+                                                      VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                                      VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                                      0,
+                                                      memoryBarriers);
                 vkCmdCopyBufferToImage(commandBuffer,
                                        buffer.sampler.imageBuffer,
                                        buffer.sampler.image,
                                        buffer.sampler.imageLayout,
                                        regions.size(),
                                        regions.data());
-                std::vector<VkMemoryBarrier> memoryBarriers;
-                memoryBarriers.push_back(
-                    VkGPUHelper::BuildMemoryBarrier(VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-                                                    VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT));
+
+                memoryBarriers.clear();
+                memoryBarriers.push_back(VkGPUHelper::BuildMemoryBarrier(VK_ACCESS_TRANSFER_WRITE_BIT,
+                                                                         VK_ACCESS_SHADER_READ_BIT));
+
                 VkGPUHelper::GPUCmdPipelineMemBarrier(commandBuffer,
-                                                      VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-                                                      VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                                                      VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                                      VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
                                                       0,
                                                       memoryBarriers);
             }

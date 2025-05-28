@@ -48,7 +48,7 @@ public:
                          float width,
                          float height);
 
-    std::shared_ptr<VkGPUDescriptorSet> CreateDescriptorSet(const GraphicsElement &graphicsElement) const;
+    [[nodiscard]] std::shared_ptr<VkGPUDescriptorSet> CreateDescriptorSet(const GraphicsElement &graphicsElement) const;
 
     void AddGraphicsElement(const GraphicsElement &graphicsElement);
 

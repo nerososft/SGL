@@ -10,13 +10,13 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     message(STATUS "Running on macOS")
     link_directories("/opt/homebrew/Cellar/libpng/1.6.47/lib")
     include_directories("/opt/homebrew/Cellar/libpng/1.6.47/include")
-
 elseif (CMAKE_SYSTEM_NAME MATCHES "OHOS")
     message(STATUS "Running on OHOS")
     include_directories("../../")
     include_directories("../gpu_engine")
     #include_directories("D:/OHOS/glm")
 endif ()
+add_definitions(-DGLM_FORCE_DEPTH_ZERO_TO_ONE=1)
 
 # compile builtin shaders
 set(BUILTIN_SHADER_DIR assets/builtin.shaders/*)

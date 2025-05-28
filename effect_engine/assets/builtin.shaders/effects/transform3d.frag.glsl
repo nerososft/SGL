@@ -12,5 +12,5 @@ layout (push_constant) uniform FrameInfo {
 layout (binding = 1) uniform sampler2D texSampler;
 
 void main() {
-    FragColor = texture(texSampler, uv) + vec4(color, 1.0);
+    FragColor = texture(texSampler, uv);
 }
