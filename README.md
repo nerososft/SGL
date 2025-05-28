@@ -1,6 +1,6 @@
-# EffectEngine
+# SpiristoneEngine
 
-基于Vulkan的高性能图像引擎 (High-Performance Graphics Engine Based on Vulkan)
+基于Vulkan的高性能GPU计算引擎 (High-Performance GPU Compute Engine Based on Vulkan)
 
 ## 特性 (Features)
 1. **计算管线/图形管线均支持**
@@ -10,6 +10,8 @@
 
 ## Env
 `effect_engine` 依赖：`vulkan`
+
+`ml_engine` 依赖 `vulkan`
 
 `render_engine` 依赖：`vulkan` `libglm-dev`
 
