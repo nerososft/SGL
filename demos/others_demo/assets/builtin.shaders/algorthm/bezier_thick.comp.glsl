@@ -70,6 +70,5 @@ void main() {
         pixelMap.pixels[uint(floor(xy[i].y)) * params.width + uint(floor(xy[i].x))] = packColor(vec4(1.0f, 0.0f, 0.0f, 1.0f));
         pixelMap.pixels[uint(floor(xy[i].y + (params.numPoints - idx) / 20.0f)) * params.width + uint(floor(xy[i].x))] = packColor(vec4(0.0f, 1.0f, 0.0f, 1.0f));
         pixelMap.pixels[uint(floor(xy[i].y - (params.numPoints - idx) / 20.0f)) * params.width + uint(floor(xy[i].x))] = packColor(vec4(0.0f, 0.0f, 1.0f, 1.0f));
-
     }
 }
