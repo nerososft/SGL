@@ -109,22 +109,10 @@ int main(int argc, char *argv[]) {
     std::cout << "mindmaster_demo" << std::endl;
 
     const std::vector<Point2D> points{
-        {
-            .x = 10.0f,
-            .y = 12.0f,
-        },
-        {
-            .x = 11.0f,
-            .y = 12.0f,
-        },
-        {
-            .x = 12.0f,
-            .y = 12.0f,
-        },
-        {
-            .x = 13.0f,
-            .y = 13.0f,
-        },
+        {.x = 10.0f, .y = 12.0f,},
+        {.x = 11.0f, .y = 12.0f,},
+        {.x = 12.0f, .y = 12.0f,},
+        {.x = 13.0f, .y = 13.0f,},
     };
     params.thickness = 5.0f;
     params.endThickness = 0.0f;
