@@ -12,16 +12,33 @@
 #include <gpu_engine/gpu/compute_graph/ComputeGraph.h>
 #include <gpu_engine/gpu/compute_graph/ComputePipelineNode.h>
 
+#include "gpu_engine/utils/ImageUtils.h"
+#include "gpu_engine/utils/TimeUtils.h"
+
 struct Point2D {
     float x;
     float y;
 };
 
-struct Params {
-    float thickness;
-    float endThickness;
-    float dz;
-} params = {};
+struct BezierParams {
+    uint lineNums;
+
+    uint numPoints; // 生成的点数量
+    float tStart; // 参数t的起始值
+    float tEnd; // 参数t的结束值
+
+    uint width;
+    uint height;
+} bezierParams = {};
+
+struct BezierLine {
+    Point2D points[4];
+    float beginWidth;
+    float endWidth;
+};
+
+std::vector<std::vector<Point2D> > thickline(std::vector<BezierLine> lines) {
+}
 
 Point2D *thickLine(const std::vector<Point2D> &points) {
     std::vector<const char *> extensions = {};
@@ -46,13 +63,16 @@ Point2D *thickLine(const std::vector<Point2D> &points) {
     inputBuffer->UploadData(points.data(), pointsSize);
 
     static const auto outputBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
-    outputBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED, pointsSize * 2);
+    outputBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED, bezierParams.numPoints * sizeof(Point2D));
 
-    const auto transformNode = std::make_shared<ComputePipelineNode>(gpuCtx, "thickline",
-                                                                     SHADER(thickline.comp.glsl.spv),
-                                                                     (points.size() + 255) / 256,
-                                                                     1,
-                                                                     1);
+    static const auto pixelBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
+    pixelBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED, bezierParams.numPoints * bezierParams.numPoints * 4);
+
+    const auto bezierNode = std::make_shared<ComputePipelineNode>(gpuCtx, "BezierThickLine",
+                                                                  SHADER(bezier_thick.comp.glsl.spv),
+                                                                  (bezierParams.numPoints + 255) / 256,
+                                                                  1,
+                                                                  1);
 
     std::vector<PipelineNodeBuffer> ppBuffers;
     PipelineNodeBuffer input;
@@ -71,9 +91,17 @@ Point2D *thickLine(const std::vector<Point2D> &points) {
         }
     });
 
+    ppBuffers.push_back({
+        .type = PIPELINE_NODE_BUFFER_STORAGE_WRITE,
+        .buf = {
+            .bufferSize = pixelBuffer->GetBufferSize(),
+            .buffer = pixelBuffer->GetBuffer()
+        }
+    });
+
     constexpr PushConstantInfo pushConstantInfo{
-        .size = sizeof(Params),
-        .data = &params,
+        .size = sizeof(BezierParams),
+        .data = &bezierParams,
     };
     const ComputeElement element = {
         .pushConstantInfo = pushConstantInfo,
@@ -81,20 +109,23 @@ Point2D *thickLine(const std::vector<Point2D> &points) {
         .customDrawFunc = nullptr
     };
 
-    transformNode->AddComputeElement(element);
+    bezierNode->AddComputeElement(element);
 
-    if (transformNode->CreateComputeGraphNode() != VK_SUCCESS) {
+    if (bezierNode->CreateComputeGraphNode() != VK_SUCCESS) {
         std::cerr << "Failed to create compute graph node!" << std::endl;
         return nullptr;
     }
 
-    computeSubGraph->AddComputeGraphNode(transformNode);
+    computeSubGraph->AddComputeGraphNode(bezierNode);
 
+    const uint64_t time = TimeUtils::GetCurrentMonoMs();
     VkResult ret = computeGraph->Compute();
     if (ret != VK_SUCCESS) {
         std::cerr << "Failed to compute graph!" << std::endl;
         return nullptr;
     }
+    const uint64_t elapsed = TimeUtils::GetCurrentMonoMs() - time;
+    std::cout << "TimeUsage: " << elapsed << "ms" << std::endl;
 
     ret = outputBuffer->MapBuffer();
     if (ret != VK_SUCCESS) {
@@ -102,28 +133,42 @@ Point2D *thickLine(const std::vector<Point2D> &points) {
         return nullptr;
     }
 
+    ret = pixelBuffer->MapBuffer();
+    if (ret != VK_SUCCESS) {
+        std::cerr << "Failed to map pixel buffer!" << std::endl;
+        return nullptr;
+    }
+    ImageUtils::WritePngFile("../../../demos/others_demo/line.png", bezierParams.numPoints, bezierParams.numPoints, 4,
+                             pixelBuffer->GetMappedAddr());
+
     return static_cast<Point2D *>(outputBuffer->GetMappedAddr());
 }
 
 int main(int argc, char *argv[]) {
     std::cout << "mindmaster_demo" << std::endl;
 
-    const std::vector<Point2D> points{
-        {.x = 10.0f, .y = 12.0f,},
-        {.x = 11.0f, .y = 12.0f,},
-        {.x = 12.0f, .y = 12.0f,},
-        {.x = 13.0f, .y = 13.0f,},
-    };
-    params.thickness = 5.0f;
-    params.endThickness = 0.0f;
-    params.dz = 0.1f;
+    std::vector<Point2D> points{};
+    for (uint32_t i = 0; i < 100; i++) {
+        points.push_back({.x = 0.0, .y = 100.0f + 8.0f * static_cast<float>(i)});
+        points.push_back({.x = 600.0, .y = -100.0});
+        points.push_back({.x = 400.0, .y = 1100.0});
+        points.push_back({.x = 1000.0, .y = 900.0});
+    }
+    bezierParams.lineNums = 100;
+
+    bezierParams.numPoints = 1000;
+    bezierParams.tStart = 0.0f;
+    bezierParams.tEnd = 1.0f;
+
+    bezierParams.width = 1000;
+    bezierParams.height = 1000;
     const Point2D *result = thickLine(points);
     if (result != nullptr) {
         for (const auto [x, y]: points) {
             std::cout << "[" << x << "," << y << "]";
         }
         std::cout << std::endl;
-        for (int i = 0; i < points.size() * 2; i++) {
+        for (int i = 0; i < bezierParams.numPoints; i++) {
             std::cout << "[" << result[i].x << "," << result[i].y << "]";
         }
         std::cout << std::endl;

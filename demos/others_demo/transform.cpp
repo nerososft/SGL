@@ -106,10 +106,7 @@ int main(int argc, char *argv[]) {
     std::cout << "mindmaster_demo" << std::endl;
 
     const std::vector<Point2D> points{
-        {
-            .x = 10.0f,
-            .y = 12.0f,
-        }
+        {.x = 10.0f, .y = 12.0f,}
     };
     trans = glm::translate(glm::mat4(1), glm::vec3(5, 8, 0));
 
