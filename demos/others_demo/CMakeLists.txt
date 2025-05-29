@@ -1,4 +1,4 @@
-add_executable(others_demo main.cpp)
+add_executable(transform_demo transform.cpp)
 add_executable(blender5_demo blender5.cpp)
 add_executable(thickline thickline.cpp)
 
@@ -24,6 +24,6 @@ endforeach ()
 message("Need: ${COMPILED_SHADERS}")
 add_custom_target(compile_others_shaders ALL DEPENDS ${COMPILED_SHADERS})
 
-target_link_libraries(others_demo gpu_engine)
+target_link_libraries(transform_demo gpu_engine)
 target_link_libraries(blender5_demo gpu_engine)
 target_link_libraries(thickline gpu_engine)
