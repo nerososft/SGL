@@ -73,41 +73,53 @@ void blender_demo(const std::shared_ptr<VkGPUContext> &gpuCtx) {
 
     std::vector<PipelineNodeBuffer> ppBuffers;
     ppBuffers.push_back({
-        .buffer = inputBuffer1->GetBuffer(),
         .type = PIPELINE_NODE_BUFFER_STORAGE_READ,
-        .bufferSize = inputBuffer1->GetBufferSize()
+        .buf = {
+            .bufferSize = inputBuffer1->GetBufferSize(),
+            .buffer = inputBuffer1->GetBuffer(),
+        }
     });
     ppBuffers.push_back({
-        .buffer = inputBuffer2->GetBuffer(),
         .type = PIPELINE_NODE_BUFFER_STORAGE_READ,
-        .bufferSize = inputBuffer2->GetBufferSize()
+        .buf = {
+            .bufferSize = inputBuffer2->GetBufferSize(),
+            .buffer = inputBuffer2->GetBuffer(),
+        }
     });
     ppBuffers.push_back({
-        .buffer = inputBuffer3->GetBuffer(),
         .type = PIPELINE_NODE_BUFFER_STORAGE_READ,
-        .bufferSize = inputBuffer3->GetBufferSize()
+        .buf = {
+            .bufferSize = inputBuffer3->GetBufferSize(),
+            .buffer = inputBuffer3->GetBuffer(),
+        }
     });
     ppBuffers.push_back({
-        .buffer = inputBuffer4->GetBuffer(),
         .type = PIPELINE_NODE_BUFFER_STORAGE_READ,
-        .bufferSize = inputBuffer4->GetBufferSize()
+        .buf = {
+            .bufferSize = inputBuffer4->GetBufferSize(),
+            .buffer = inputBuffer4->GetBuffer(),
+        }
     });
     ppBuffers.push_back({
-        .buffer = inputBuffer5->GetBuffer(),
         .type = PIPELINE_NODE_BUFFER_STORAGE_READ,
-        .bufferSize = inputBuffer5->GetBufferSize()
+        .buf = {
+            .bufferSize = inputBuffer5->GetBufferSize(),
+            .buffer = inputBuffer5->GetBuffer(),
+        }
     });
     ppBuffers.push_back({
-        .buffer = outputBuffer->GetBuffer(),
         .type = PIPELINE_NODE_BUFFER_STORAGE_WRITE,
-        .bufferSize = outputBuffer->GetBufferSize()
+        .buf = {
+            .bufferSize = outputBuffer->GetBufferSize(),
+            .buffer = outputBuffer->GetBuffer(),
+        }
     });
 
     const PushConstantInfo pushConstantInfo{};
     const ComputeElement element = {
-        .customDrawFunc = nullptr,
         .pushConstantInfo = pushConstantInfo,
         .buffers = ppBuffers,
+        .customDrawFunc = nullptr,
     };
 
     blendNode->AddComputeElement(element);

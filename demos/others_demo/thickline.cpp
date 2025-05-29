@@ -6,8 +6,6 @@
 #include <memory>
 #include <ostream>
 #include <vector>
-#include <glm/glm.hpp>
-#include <glm/ext/matrix_transform.hpp>
 #include <gpu_engine/config.h>
 #include <gpu_engine/gpu/VkGPUBuffer.h>
 #include <gpu_engine/gpu/VkGPUContext.h>
@@ -19,9 +17,13 @@ struct Point2D {
     float y;
 };
 
-auto trans = glm::mat4(1);
+struct Params {
+    float thickness;
+    float endThickness;
+    float dz;
+} params = {};
 
-Point2D *transform(const std::vector<Point2D> &points) {
+Point2D *thickLine(const std::vector<Point2D> &points) {
     std::vector<const char *> extensions = {};
     auto gpuCtx = std::make_shared<VkGPUContext>(extensions);
 
@@ -44,15 +46,16 @@ Point2D *transform(const std::vector<Point2D> &points) {
     inputBuffer->UploadData(points.data(), pointsSize);
 
     static const auto outputBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
-    outputBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED, pointsSize);
+    outputBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED, pointsSize * 2);
 
-    const auto transformNode = std::make_shared<ComputePipelineNode>(gpuCtx, "Transform",
-                                                                     SHADER(demo_transform.comp.glsl.spv),
+    const auto transformNode = std::make_shared<ComputePipelineNode>(gpuCtx, "thickline",
+                                                                     SHADER(thickline.comp.glsl.spv),
                                                                      (points.size() + 255) / 256,
                                                                      1,
                                                                      1);
 
     std::vector<PipelineNodeBuffer> ppBuffers;
+    PipelineNodeBuffer input;
     ppBuffers.push_back({
         .type = PIPELINE_NODE_BUFFER_STORAGE_READ,
         .buf = {
@@ -69,8 +72,8 @@ Point2D *transform(const std::vector<Point2D> &points) {
     });
 
     constexpr PushConstantInfo pushConstantInfo{
-        .size = sizeof(trans),
-        .data = &trans,
+        .size = sizeof(Params),
+        .data = &params,
     };
     const ComputeElement element = {
         .pushConstantInfo = pushConstantInfo,
@@ -109,16 +112,33 @@ int main(int argc, char *argv[]) {
         {
             .x = 10.0f,
             .y = 12.0f,
-        }
+        },
+        {
+            .x = 11.0f,
+            .y = 12.0f,
+        },
+        {
+            .x = 12.0f,
+            .y = 12.0f,
+        },
+        {
+            .x = 13.0f,
+            .y = 13.0f,
+        },
     };
-    trans = glm::translate(glm::mat4(1), glm::vec3(5, 8, 0));
-
-    const Point2D *result = transform(points);
+    params.thickness = 5.0f;
+    params.endThickness = 0.0f;
+    params.dz = 0.1f;
+    const Point2D *result = thickLine(points);
     if (result != nullptr) {
-        for (int i = 0; i < points.size(); i++) {
-            std::cout << "(" << points[i].x << ", " << points[i].y << ") -> (" << result[i].x << ", " << result[i].y <<
-                    ")" << std::endl;
+        for (const auto [x, y]: points) {
+            std::cout << "[" << x << "," << y << "]";
         }
+        std::cout << std::endl;
+        for (int i = 0; i < points.size() * 2; i++) {
+            std::cout << "[" << result[i].x << "," << result[i].y << "]";
+        }
+        std::cout << std::endl;
     }
     return 0;
 }
