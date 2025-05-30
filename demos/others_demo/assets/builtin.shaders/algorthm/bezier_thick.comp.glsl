@@ -53,18 +53,17 @@ uint packColor(vec4 color) {
 }
 
 void main() {
-    // 计算当前工作项对应的点索引
     uint idx = gl_GlobalInvocationID.x;
 
-    // 确保不越界
-    if (idx >= params.numPoints)
-    return;
+    if (idx >= params.numPoints){
+        return;
+    }
 
     // 计算参数t的值（在tStart和tEnd之间线性插值）
     float t = params.tStart + (params.tEnd - params.tStart) * float(idx) / float(params.numPoints - 1);
 
     vec2 xy[100];
-    for (uint i = 0; i< params.lineNums; i++) {
+    for (uint i = 0; i < params.lineNums; i++) {
         xy[i] = cubicBezier(i, t);
         curvePoints.points[idx] = xy[i];
         pixelMap.pixels[uint(floor(xy[i].y)) * params.width + uint(floor(xy[i].x))] = packColor(vec4(1.0f, 0.0f, 0.0f, 1.0f));

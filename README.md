@@ -27,3 +27,7 @@
 `renderer_demo` 依赖：`render_engine` `libpng-dev` `libglfw3-dev` `assimp`
 
 `inference_demo` 依赖 `ml_engine`
+
+## TODO:
+[] pipeline cache
+[] shader cache
