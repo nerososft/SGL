@@ -31,7 +31,7 @@ int main(int argc, char *argv[]) {
     BezierParams bezierParams{};
     bezierParams.lineNums = 1000;
     bezierParams.numPoints = 1024;
-    bezierParams.debugPixelMap = true;
+    bezierParams.debugPixelMap = false;
 
     GPUBezierThickLineGenerator utils;
     utils.SetParams(bezierParams);
