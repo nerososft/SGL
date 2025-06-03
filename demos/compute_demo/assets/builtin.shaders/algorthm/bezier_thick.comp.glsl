@@ -11,7 +11,6 @@ layout(set = 0, binding = 0) readonly buffer InputLines {
     BezierLine bezier[];
 } inputLines;
 
-// 存储生成的曲线点的缓冲区
 layout(set = 0, binding = 1) buffer ThinkLineOutputPoints {
     vec2 points[];
 } outputPoints;
@@ -20,14 +19,12 @@ layout(set = 0, binding = 2) buffer PixelMap {
     uint pixels[];
 } pixelMap;
 
-// 曲线采样参数
 layout(push_constant) uniform Params {
     uint lineNums;
     uint numPoints;// 生成的点数量
     bool debugPixelMap;
 } params;
 
-// 计算三次贝塞尔曲线在参数t处的值
 vec2 cubicBezier(uint line, float t) {
     // 三次贝塞尔曲线公式: B(t) = (1-t)³P₀ + 3(1-t)²tP₁ + 3(1-t)t²P₂ + t³P₃
     float u = 1.0 - t;
@@ -53,6 +50,8 @@ uint packColor(vec4 color) {
     );
 }
 
+#define MAX_LINE_NUM (1024)
+
 void main() {
     uint idx = gl_GlobalInvocationID.x;
 
@@ -62,9 +61,9 @@ void main() {
 
     float t =  float(idx) / float(params.numPoints);
 
-    vec2 point[1024];
-    vec2 pointUp[1024];
-    vec2 pointDown[1024];
+    vec2 point[MAX_LINE_NUM];
+    vec2 pointUp[MAX_LINE_NUM];
+    vec2 pointDown[MAX_LINE_NUM];
     for (uint lineIdx = 0; lineIdx < params.lineNums; lineIdx++) {
         point[lineIdx] = cubicBezier(lineIdx, t);
 

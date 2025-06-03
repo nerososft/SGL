@@ -13,22 +13,22 @@ int main(int argc, char *argv[]) {
     std::cout << "mindmaster_demo" << std::endl;
 
     std::vector<BezierLine> lines{};
-    for (uint32_t i = 0; i < 100; i++) {
+    for (uint32_t i = 0; i < 1000; i++) {
         BezierLine line{
             .points = {
-                {.x = 0.0, .y = 100.0f + 8.0f * static_cast<float>(i)},
+                {.x = 0.0, .y = 0.0f + 1.0f * static_cast<float>(i)},
                 {.x = 600.0, .y = -100.0},
                 {.x = 400.0, .y = 1100.0},
-                {.x = 1000.0, .y = 900.0},
+                {.x = 1000.0, .y = 500.0},
             },
             .beginWidth = 100.0f,
-            .endWidth = 10.0f,
+            .endWidth = 1.0f,
         };
         lines.push_back(line);
     }
 
     BezierParams bezierParams{};
-    bezierParams.lineNums = 100;
+    bezierParams.lineNums = 1000;
     bezierParams.numPoints = 1024;
     bezierParams.debugPixelMap = true;
 
