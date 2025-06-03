@@ -12,9 +12,9 @@ layout(set = 0, binding = 0) readonly buffer InputLines {
 } inputLines;
 
 // 存储生成的曲线点的缓冲区
-layout(set = 0, binding = 1) buffer ThinkLineOutputPoints1 {
+layout(set = 0, binding = 1) buffer ThinkLineOutputPoints {
     vec2 points[];
-} outputPoints1;
+} outputPoints;
 
 layout(set = 0, binding = 2) buffer PixelMap {
     uint pixels[];
@@ -61,20 +61,22 @@ void main() {
 
     float t =  float(idx) / float(params.numPoints);
 
-    vec2 point[100];
-    vec2 pointUp[100];
-    vec2 pointDown[100];
-    for (uint i = 0; i < params.lineNums; i++) {
-        point[i] = cubicBezier(i, t);
+    vec2 point[1024];
+    vec2 pointUp[1024];
+    vec2 pointDown[1024];
+    for (uint lineIdx = 0; lineIdx < params.lineNums; lineIdx++) {
+        point[lineIdx] = cubicBezier(lineIdx, t);
 
-        float thinkness = inputLines.bezier[i].beginWidth - (inputLines.bezier[i].beginWidth - inputLines.bezier[i].endWidth) * t;
-        pointUp[i] = vec2(point[i].x, point[i].y + thinkness);
-        pointDown[i] = vec2(point[i].x, point[i].y - thinkness);
+        float thinkness = inputLines.bezier[lineIdx].beginWidth - (inputLines.bezier[lineIdx].beginWidth - inputLines.bezier[lineIdx].endWidth) * t;
+        pointUp[lineIdx] = vec2(point[lineIdx].x, point[lineIdx].y + thinkness);
+        pointDown[lineIdx] = vec2(point[lineIdx].x, point[lineIdx].y - thinkness);
 
-        outputPoints1.points[idx] = point[i];
-        
-        pixelMap.pixels[uint(floor(point[i].y)) * params.numPoints + uint(floor(point[i].x))] = packColor(vec4(1.0f, 0.0f, 0.0f, 1.0f));
-        pixelMap.pixels[uint(floor(pointUp[i].y)) * params.numPoints + uint(floor(pointUp[i].x))] = packColor(vec4(0.0f, 1.0f, 0.0f, 1.0f));
-        pixelMap.pixels[uint(floor(pointDown[i].y)) * params.numPoints + uint(floor(pointDown[i].x))] = packColor(vec4(0.0f, 0.0f, 1.0f, 1.0f));
+        uint offset = lineIdx * params.numPoints * 2;
+        outputPoints.points[offset + lineIdx] = pointUp[lineIdx];
+        outputPoints.points[offset + params.numPoints + lineIdx] = pointDown[lineIdx];
+
+        pixelMap.pixels[uint(floor(point[lineIdx].y)) * params.numPoints + uint(floor(point[lineIdx].x))] = packColor(vec4(1.0f, 0.0f, 0.0f, 1.0f));
+        pixelMap.pixels[uint(floor(pointUp[lineIdx].y)) * params.numPoints + uint(floor(pointUp[lineIdx].x))] = packColor(vec4(0.0f, 1.0f, 0.0f, 1.0f));
+        pixelMap.pixels[uint(floor(pointDown[lineIdx].y)) * params.numPoints + uint(floor(pointDown[lineIdx].x))] = packColor(vec4(0.0f, 0.0f, 1.0f, 1.0f));
     }
 }
