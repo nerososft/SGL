@@ -24,6 +24,18 @@ GPUBezierThickLineGenerator::~GPUBezierThickLineGenerator() {
         this->inputBuffer->Destroy();
         this->inputBuffer = nullptr;
     }
+    if (bezierNode != nullptr) {
+        bezierNode->Destroy();
+        bezierNode = nullptr;
+    }
+    if (computeSubGraph != nullptr) {
+        computeSubGraph->Destroy();
+        computeSubGraph = nullptr;
+    }
+    if (computeGraph != nullptr) {
+        computeGraph->Destroy();
+        computeGraph = nullptr;
+    }
 }
 
 bool GPUBezierThickLineGenerator::InitializeGPUPipeline() {
@@ -91,9 +103,7 @@ bool GPUBezierThickLineGenerator::InitializeGPUPipeline() {
         .buffers = ppBuffers,
         .customDrawFunc = nullptr
     };
-
     bezierNode->AddComputeElement(element);
-
     if (bezierNode->CreateComputeGraphNode() != VK_SUCCESS) {
         Logger() << "Failed to create compute graph node!" << std::endl;
         return false;
