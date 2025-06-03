@@ -31,7 +31,7 @@ int main(int argc, char *argv[]) {
     BezierParams bezierParams{};
     bezierParams.lineNums = 1000;
     bezierParams.numPoints = 1024;
-    bezierParams.debugPixelMap = false;
+    bezierParams.debugPixelMap = true;
 
     GPUBezierThickLineGenerator utils;
     utils.SetParams(bezierParams);
@@ -53,6 +53,8 @@ int main(int argc, char *argv[]) {
         }
     }
     utils.UnMapOutputBuffer();
+
+    utils.GeneratePixelMap("../../../demos/compute_demo/line.png");
 
     now = TimeUtils::GetCurrentMonoMs();
     points = utils.GenerateThickLine(lines);

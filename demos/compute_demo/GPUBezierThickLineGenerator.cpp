@@ -115,20 +115,6 @@ Point2D *GPUBezierThickLineGenerator::GenerateThickLine(const std::vector<Bezier
     const uint64_t elapsed = TimeUtils::GetCurrentMonoMs() - time;
     Logger() << "TimeUsage: " << elapsed << "ms" << std::endl;
 
-    if (params.debugPixelMap) {
-        ret = pixelMapBuffer->MapBuffer();
-        if (ret != VK_SUCCESS) {
-            Logger() << "Failed to map pixel buffer!" << std::endl;
-            return nullptr;
-        }
-        ImageUtils::WritePngFile("../../../demos/compute_demo/line.png",
-                                 params.numPoints,
-                                 params.numPoints,
-                                 4,
-                                 pixelMapBuffer->GetMappedAddr());
-        pixelMapBuffer->UnMapBuffer();
-    }
-
     ret = outputBuffer->MapBuffer();
     if (ret != VK_SUCCESS) {
         Logger() << "Failed to map output buffer!" << std::endl;
@@ -136,4 +122,19 @@ Point2D *GPUBezierThickLineGenerator::GenerateThickLine(const std::vector<Bezier
     }
 
     return static_cast<Point2D *>(outputBuffer->GetMappedAddr());
+}
+
+void GPUBezierThickLineGenerator::GeneratePixelMap(const std::string &path) const {
+    if (params.debugPixelMap) {
+        if (const VkResult ret = pixelMapBuffer->MapBuffer(); ret != VK_SUCCESS) {
+            Logger() << "Failed to map pixel buffer!" << std::endl;
+            return;
+        }
+        ImageUtils::WritePngFile(path,
+                                 params.numPoints,
+                                 params.numPoints,
+                                 4,
+                                 pixelMapBuffer->GetMappedAddr());
+        pixelMapBuffer->UnMapBuffer();
+    }
 }

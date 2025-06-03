@@ -50,6 +50,8 @@ public:
 
     [[nodiscard]] Point2D *GenerateThickLine(const std::vector<BezierLine> &lines) const;
 
+    void GeneratePixelMap(const std::string &path) const;
+
     void SetParams(const BezierParams &params) {
         this->params = params;
     }
