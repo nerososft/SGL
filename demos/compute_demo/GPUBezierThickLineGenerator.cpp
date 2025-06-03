@@ -48,14 +48,16 @@ bool GPUBezierThickLineGenerator::InitializeGPUPipeline() {
                                                        1,
                                                        1);
     inputBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
-    inputBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED, MAX_LINE_NUMS * sizeof(BezierLine));
+    inputBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED,
+                                 MAX_LINE_NUMS * sizeof(BezierLine));
 
     outputBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
     outputBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED,
                                   MAX_LINE_NUMS * params.numPoints * sizeof(Point2D) * 2);
 
     pixelMapBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
-    pixelMapBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED, params.numPoints * params.numPoints * 4);
+    pixelMapBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED,
+                                    params.numPoints * params.numPoints * 4);
 
     std::vector<PipelineNodeBuffer> ppBuffers;
     ppBuffers.push_back({

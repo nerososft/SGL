@@ -53,7 +53,6 @@ int main(int argc, char *argv[]) {
         }
     }
     utils.UnMapOutputBuffer();
-
     utils.GeneratePixelMap("../../../demos/compute_demo/line.png");
 
     now = TimeUtils::GetCurrentMonoMs();
@@ -67,5 +66,7 @@ int main(int argc, char *argv[]) {
             Point2D down = points[offset * bezierParams.numPoints + pointIdx];
         }
     }
+    utils.GeneratePixelMap("../../../demos/compute_demo/line1.png");
+
     return 0;
 }
