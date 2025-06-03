@@ -24,6 +24,7 @@ layout(set = 0, binding = 2) buffer PixelMap {
 layout(push_constant) uniform Params {
     uint lineNums;
     uint numPoints;// 生成的点数量
+    bool debugPixelMap;
 } params;
 
 // 计算三次贝塞尔曲线在参数t处的值
@@ -75,8 +76,10 @@ void main() {
         outputPoints.points[offset + lineIdx] = pointUp[lineIdx];
         outputPoints.points[offset + params.numPoints + lineIdx] = pointDown[lineIdx];
 
-        pixelMap.pixels[uint(floor(point[lineIdx].y)) * params.numPoints + uint(floor(point[lineIdx].x))] = packColor(vec4(1.0f, 0.0f, 0.0f, 1.0f));
-        pixelMap.pixels[uint(floor(pointUp[lineIdx].y)) * params.numPoints + uint(floor(pointUp[lineIdx].x))] = packColor(vec4(0.0f, 1.0f, 0.0f, 1.0f));
-        pixelMap.pixels[uint(floor(pointDown[lineIdx].y)) * params.numPoints + uint(floor(pointDown[lineIdx].x))] = packColor(vec4(0.0f, 0.0f, 1.0f, 1.0f));
+        if (params.debugPixelMap) {
+            pixelMap.pixels[uint(floor(point[lineIdx].y)) * params.numPoints + uint(floor(point[lineIdx].x))] = packColor(vec4(1.0f, 0.0f, 0.0f, 1.0f));
+            pixelMap.pixels[uint(floor(pointUp[lineIdx].y)) * params.numPoints + uint(floor(pointUp[lineIdx].x))] = packColor(vec4(0.0f, 1.0f, 0.0f, 1.0f));
+            pixelMap.pixels[uint(floor(pointDown[lineIdx].y)) * params.numPoints + uint(floor(pointDown[lineIdx].x))] = packColor(vec4(0.0f, 0.0f, 1.0f, 1.0f));
+        }
     }
 }

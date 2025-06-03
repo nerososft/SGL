@@ -22,36 +22,36 @@ struct BezierLine {
     float endWidth;
 };
 
-struct GPUBezierLine {
-    BezierLine bezierLine;
-    std::shared_ptr<VkGPUBuffer> buffer;
-};
-
 struct BezierParams {
     uint lineNums;
     uint numPoints;
+    bool debugPixelMap;
 };
 
-class BezierThickLineUtils {
+class GPUBezierThickLineGenerator {
     std::shared_ptr<VkGPUContext> gpuCtx = nullptr;
     std::shared_ptr<ComputeGraph> computeGraph = nullptr;
     std::shared_ptr<SubComputeGraph> computeSubGraph = nullptr;
     std::shared_ptr<ComputePipelineNode> bezierNode = nullptr;
 
+    std::shared_ptr<VkGPUBuffer> inputBuffer = nullptr;
+    std::shared_ptr<VkGPUBuffer> outputBuffer = nullptr;
+    std::shared_ptr<VkGPUBuffer> pixelMapBuffer = nullptr;
+
     BezierParams params{};
-    std::map<BezierLine, GPUBezierLine> lines;
 
 public:
+    GPUBezierThickLineGenerator() = default;
+
+    ~GPUBezierThickLineGenerator();
+
     bool InitializeGPUPipeline();
 
-    std::vector<std::vector<Point2D> > GenerateThickLine(const std::vector<BezierLine> &lines);
-
-    void FreeGPUThinkLine(BezierLine line);
+    Point2D *GenerateThickLine(const std::vector<BezierLine> &lines);
 
     void SetParams(const BezierParams &params) {
         this->params = params;
-    };
+    }
 };
-
 
 #endif //BEZIERTHICKLINEUTILS_H

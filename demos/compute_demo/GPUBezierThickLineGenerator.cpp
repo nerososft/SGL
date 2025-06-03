@@ -2,7 +2,7 @@
 // Created by neo on 25-6-3.
 //
 
-#include "BezierThickLineUtils.h"
+#include "GPUBezierThickLineGenerator.h"
 
 #include "gpu_engine/gpu/compute_graph/ComputeGraph.h"
 #include "gpu_engine/gpu/compute_graph/ComputePipelineNode.h"
@@ -10,7 +10,23 @@
 #include "gpu_engine/utils/ImageUtils.h"
 #include "gpu_engine/utils/TimeUtils.h"
 
-bool BezierThickLineUtils::InitializeGPUPipeline() {
+GPUBezierThickLineGenerator::~GPUBezierThickLineGenerator() {
+    if (this->pixelMapBuffer != nullptr) {
+        this->pixelMapBuffer->Destroy();
+        this->pixelMapBuffer = nullptr;
+    }
+    if (this->outputBuffer != nullptr) {
+        this->outputBuffer->UnMapBuffer();
+        this->outputBuffer->Destroy();
+        this->outputBuffer = nullptr;
+    }
+    if (this->inputBuffer != nullptr) {
+        this->inputBuffer->Destroy();
+        this->inputBuffer = nullptr;
+    }
+}
+
+bool GPUBezierThickLineGenerator::InitializeGPUPipeline() {
     std::vector<const char *> extensions = {};
     gpuCtx = std::make_shared<VkGPUContext>(extensions);
 
@@ -36,18 +52,15 @@ bool BezierThickLineUtils::InitializeGPUPipeline() {
     return true;
 }
 
-std::vector<std::vector<Point2D> > BezierThickLineUtils::GenerateThickLine(const std::vector<BezierLine> &lines) {
+Point2D *GPUBezierThickLineGenerator::GenerateThickLine(const std::vector<BezierLine> &lines) {
     const VkDeviceSize pointsSize = lines.size() * sizeof(BezierLine);
-    const auto inputBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
+    inputBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
     inputBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED, pointsSize);
     inputBuffer->UploadData(lines.data(), pointsSize);
 
-
-    static const auto outputBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
-    outputBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED, params.numPoints * sizeof(Point2D));
-
-    static const auto pixelBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
-    pixelBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED, params.numPoints * params.numPoints * 4);
+    outputBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
+    outputBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED,
+                                  lines.size() * params.numPoints * sizeof(Point2D) * 2);
 
     std::vector<PipelineNodeBuffer> ppBuffers;
     ppBuffers.push_back({
@@ -65,13 +78,17 @@ std::vector<std::vector<Point2D> > BezierThickLineUtils::GenerateThickLine(const
         }
     });
 
-    ppBuffers.push_back({
-        .type = PIPELINE_NODE_BUFFER_STORAGE_WRITE,
-        .buf = {
-            .bufferSize = pixelBuffer->GetBufferSize(),
-            .buffer = pixelBuffer->GetBuffer()
-        }
-    });
+    if (params.debugPixelMap) {
+        pixelMapBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
+        pixelMapBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED, params.numPoints * params.numPoints * 4);
+        ppBuffers.push_back({
+            .type = PIPELINE_NODE_BUFFER_STORAGE_WRITE,
+            .buf = {
+                .bufferSize = pixelMapBuffer->GetBufferSize(),
+                .buffer = pixelMapBuffer->GetBuffer()
+            }
+        });
+    }
 
     const PushConstantInfo pushConstantInfo{
         .size = sizeof(BezierParams),
@@ -87,7 +104,7 @@ std::vector<std::vector<Point2D> > BezierThickLineUtils::GenerateThickLine(const
 
     if (bezierNode->CreateComputeGraphNode() != VK_SUCCESS) {
         std::cerr << "Failed to create compute graph node!" << std::endl;
-        return {};
+        return nullptr;
     }
 
     computeSubGraph->AddComputeGraphNode(bezierNode);
@@ -96,30 +113,30 @@ std::vector<std::vector<Point2D> > BezierThickLineUtils::GenerateThickLine(const
     VkResult ret = computeGraph->Compute();
     if (ret != VK_SUCCESS) {
         std::cerr << "Failed to compute graph!" << std::endl;
-        return {};
+        return nullptr;
     }
     const uint64_t elapsed = TimeUtils::GetCurrentMonoMs() - time;
     std::cout << "TimeUsage: " << elapsed << "ms" << std::endl;
 
+    if (params.debugPixelMap) {
+        ret = pixelMapBuffer->MapBuffer();
+        if (ret != VK_SUCCESS) {
+            std::cerr << "Failed to map pixel buffer!" << std::endl;
+            return nullptr;
+        }
+        ImageUtils::WritePngFile("../../../demos/compute_demo/line.png",
+                                 params.numPoints,
+                                 params.numPoints,
+                                 4,
+                                 pixelMapBuffer->GetMappedAddr());
+        pixelMapBuffer->UnMapBuffer();
+    }
+
     ret = outputBuffer->MapBuffer();
     if (ret != VK_SUCCESS) {
-        std::cerr << "Failed to map buffer!" << std::endl;
-        return {};
+        Logger() << "Failed to map output buffer!" << std::endl;
+        return nullptr;
     }
 
-    ret = pixelBuffer->MapBuffer();
-    if (ret != VK_SUCCESS) {
-        std::cerr << "Failed to map pixel buffer!" << std::endl;
-        return {};
-    }
-    ImageUtils::WritePngFile("../../../demos/compute_demo/line.png",
-                             params.numPoints,
-                             params.numPoints,
-                             4,
-                             pixelBuffer->GetMappedAddr());
-
-    return {};
-}
-
-void BezierThickLineUtils::FreeGPUThinkLine(BezierLine line) {
+    return static_cast<Point2D *>(outputBuffer->GetMappedAddr());
 }

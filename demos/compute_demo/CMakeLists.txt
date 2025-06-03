@@ -1,6 +1,6 @@
 add_executable(thickline thickline.cpp
-        BezierThickLineUtils.cpp
-        BezierThickLineUtils.h)
+        GPUBezierThickLineGenerator.cpp
+        GPUBezierThickLineGenerator.h)
 
 # compile builtin shaders
 set(BUILTIN_SHADER_DIR assets/builtin.shaders/*)
