@@ -4,7 +4,6 @@
 
 #ifndef BEZIERTHICKLINEUTILS_H
 #define BEZIERTHICKLINEUTILS_H
-#include <map>
 #include <vector>
 
 #include "gpu_engine/gpu/VkGPUBuffer.h"
@@ -59,7 +58,7 @@ public:
         if (outputBuffer != nullptr) {
             outputBuffer->UnMapBuffer();
         }
-    };
+    }
 };
 
 #endif //BEZIERTHICKLINEUTILS_H
