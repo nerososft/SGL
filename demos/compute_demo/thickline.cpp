@@ -14,10 +14,10 @@ int main(int argc, char *argv[]) {
     std::cout << "mindmaster_demo" << std::endl;
 
     std::vector<BezierLine> lines{};
-    for (uint32_t i = 0; i < 1000; i++) {
+    for (uint32_t i = 0; i < 4096; i++) {
         BezierLine line{
             .points = {
-                {.x = 0.0, .y = 0.0f + 1.0f * static_cast<float>(i)},
+                {.x = 0.0, .y = 0.0f + 0.3f * static_cast<float>(i)},
                 {.x = 600.0, .y = -100.0},
                 {.x = 400.0, .y = 1100.0},
                 {.x = 1000.0, .y = 500.0},
@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) {
     }
 
     BezierParams bezierParams{};
-    bezierParams.lineNums = 1000;
+    bezierParams.lineNums = 4096;
     bezierParams.numPoints = 1024;
     bezierParams.debugPixelMap = true;
 

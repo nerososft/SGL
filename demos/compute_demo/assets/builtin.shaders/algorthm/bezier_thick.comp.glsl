@@ -21,7 +21,7 @@ layout(set = 0, binding = 2) buffer PixelMap {
 
 layout(push_constant) uniform Params {
     uint lineNums;
-    uint numPoints;// 生成的点数量
+    uint numPoints;// 生成的点数量,采样精度
     bool debugPixelMap;
 } params;
 
@@ -50,7 +50,7 @@ uint packColor(vec4 color) {
     );
 }
 
-#define MAX_LINE_NUM (1024)
+#define MAX_LINE_NUM (4096)
 
 void main() {
     uint idx = gl_GlobalInvocationID.x;
