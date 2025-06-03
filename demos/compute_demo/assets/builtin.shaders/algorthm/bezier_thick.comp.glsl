@@ -61,15 +61,20 @@ void main() {
 
     float t =  float(idx) / float(params.numPoints);
 
-    vec2 xy[100];
+    vec2 point[100];
+    vec2 pointUp[100];
+    vec2 pointDown[100];
     for (uint i = 0; i < params.lineNums; i++) {
-        xy[i] = cubicBezier(i, t);
-        outputPoints1.points[idx] = xy[i];
+        point[i] = cubicBezier(i, t);
 
         float thinkness = inputLines.bezier[i].beginWidth - (inputLines.bezier[i].beginWidth - inputLines.bezier[i].endWidth) * t;
+        pointUp[i] = vec2(point[i].x, point[i].y + thinkness);
+        pointDown[i] = vec2(point[i].x, point[i].y - thinkness);
 
-        pixelMap.pixels[uint(floor(xy[i].y)) * params.numPoints + uint(floor(xy[i].x))] = packColor(vec4(1.0f, 0.0f, 0.0f, 1.0f));
-        pixelMap.pixels[uint(floor(xy[i].y + thinkness) * params.numPoints + uint(floor(xy[i].x)))] = packColor(vec4(0.0f, 1.0f, 0.0f, 1.0f));
-        pixelMap.pixels[uint(floor(xy[i].y - thinkness) * params.numPoints + uint(floor(xy[i].x)))] = packColor(vec4(0.0f, 0.0f, 1.0f, 1.0f));
+        outputPoints1.points[idx] = point[i];
+        
+        pixelMap.pixels[uint(floor(point[i].y)) * params.numPoints + uint(floor(point[i].x))] = packColor(vec4(1.0f, 0.0f, 0.0f, 1.0f));
+        pixelMap.pixels[uint(floor(pointUp[i].y)) * params.numPoints + uint(floor(pointUp[i].x))] = packColor(vec4(0.0f, 1.0f, 0.0f, 1.0f));
+        pixelMap.pixels[uint(floor(pointDown[i].y)) * params.numPoints + uint(floor(pointDown[i].x))] = packColor(vec4(0.0f, 0.0f, 1.0f, 1.0f));
     }
 }

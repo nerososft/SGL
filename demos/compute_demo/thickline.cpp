@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
     BezierThickLineUtils utils;
 
     BezierParams bezierParams{};
-    bezierParams.lineNums = 1;
+    bezierParams.lineNums = 100;
     bezierParams.numPoints = 1024;
 
     utils.SetParams(bezierParams);
