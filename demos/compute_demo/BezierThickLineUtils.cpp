@@ -50,7 +50,6 @@ std::vector<std::vector<Point2D> > BezierThickLineUtils::GenerateThickLine(const
     pixelBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED, params.numPoints * params.numPoints * 4);
 
     std::vector<PipelineNodeBuffer> ppBuffers;
-    PipelineNodeBuffer input;
     ppBuffers.push_back({
         .type = PIPELINE_NODE_BUFFER_STORAGE_READ,
         .buf = {
