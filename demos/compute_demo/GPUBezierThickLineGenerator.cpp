@@ -74,7 +74,6 @@ bool GPUBezierThickLineGenerator::InitializeGPUPipeline() {
             .buffer = outputBuffer->GetBuffer()
         }
     });
-
     ppBuffers.push_back({
         .type = PIPELINE_NODE_BUFFER_STORAGE_WRITE,
         .buf = {
@@ -122,7 +121,6 @@ Point2D *GPUBezierThickLineGenerator::GenerateThickLine(const std::vector<Bezier
         Logger() << "Failed to map output buffer!" << std::endl;
         return nullptr;
     }
-
     return static_cast<Point2D *>(outputBuffer->GetMappedAddr());
 }
 
