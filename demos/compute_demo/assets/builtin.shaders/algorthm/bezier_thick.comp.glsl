@@ -1,13 +1,23 @@
 #version 450
 layout(local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
 
+struct BezierLine {
+    vec2 points[4];
+    float beginWidth;
+    float endWidth;
+};
+
 layout(set = 0, binding = 0) readonly buffer ControlPoints {
-    vec2 bezier[100][4];
+    BezierLine bezier[];
 } controlPoints;
+
+struct OutputLine {
+    vec2 points[];
+};
 
 // 存储生成的曲线点的缓冲区
 layout(set = 0, binding = 1) buffer CurvePoints1 {
-    vec2 points[];
+    OutputLine lines[];
 } curvePoints;
 
 layout(set = 0, binding = 2) buffer PixelMap {
@@ -35,10 +45,10 @@ vec2 cubicBezier(uint line, float t) {
     float uuu = uu * u;
     float ttt = tt * t;
 
-    vec2 p = uuu * controlPoints.bezier[line][0];
-    p += 3.0 * uu * t * controlPoints.bezier[line][1];
-    p += 3.0 * u * tt * controlPoints.bezier[line][2];
-    p += ttt * controlPoints.bezier[line][3];
+    vec2 p = uuu * controlPoints.bezier[line].points[0];
+    p += 3.0 * uu * t * controlPoints.bezier[line].points[1];
+    p += 3.0 * u * tt * controlPoints.bezier[line].points[2];
+    p += ttt * controlPoints.bezier[line].points[3];
 
     return p;
 }
