@@ -11,6 +11,8 @@
 #include "gpu_engine/gpu/compute_graph/ComputeGraph.h"
 #include "gpu_engine/gpu/compute_graph/ComputePipelineNode.h"
 
+#define MAX_LINE_NUMS (1024)
+
 struct Point2D {
     float x;
     float y;
@@ -47,11 +49,17 @@ public:
 
     bool InitializeGPUPipeline();
 
-    Point2D *GenerateThickLine(const std::vector<BezierLine> &lines);
+    [[nodiscard]] Point2D *GenerateThickLine(const std::vector<BezierLine> &lines) const;
 
     void SetParams(const BezierParams &params) {
         this->params = params;
     }
+
+    void UnMapOutputBuffer() const {
+        if (outputBuffer != nullptr) {
+            outputBuffer->UnMapBuffer();
+        }
+    };
 };
 
 #endif //BEZIERTHICKLINEUTILS_H
