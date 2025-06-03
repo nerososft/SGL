@@ -36,7 +36,7 @@ bool BezierThickLineUtils::InitializeGPUPipeline() {
     return true;
 }
 
-std::vector<std::vector<Point2D> > BezierThickLineUtils::GenerateThickLine(std::vector<BezierLine> lines) {
+std::vector<std::vector<Point2D> > BezierThickLineUtils::GenerateThickLine(const std::vector<BezierLine> &lines) {
     const VkDeviceSize pointsSize = lines.size() * sizeof(BezierLine);
     const auto inputBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
     inputBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED, pointsSize);

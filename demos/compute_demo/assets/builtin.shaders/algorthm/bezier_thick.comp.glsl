@@ -7,9 +7,9 @@ struct BezierLine {
     float endWidth;
 };
 
-layout(set = 0, binding = 0) readonly buffer ControlPoints {
+layout(set = 0, binding = 0) readonly buffer InputLines {
     BezierLine bezier[];
-} controlPoints;
+} inputLines;
 
 struct OutputLine {
     vec2 points[];
@@ -45,10 +45,10 @@ vec2 cubicBezier(uint line, float t) {
     float uuu = uu * u;
     float ttt = tt * t;
 
-    vec2 p = uuu * controlPoints.bezier[line].points[0];
-    p += 3.0 * uu * t * controlPoints.bezier[line].points[1];
-    p += 3.0 * u * tt * controlPoints.bezier[line].points[2];
-    p += ttt * controlPoints.bezier[line].points[3];
+    vec2 p = uuu * inputLines.bezier[line].points[0];
+    p += 3.0 * uu * t * inputLines.bezier[line].points[1];
+    p += 3.0 * u * tt * inputLines.bezier[line].points[2];
+    p += ttt * inputLines.bezier[line].points[3];
 
     return p;
 }
@@ -76,8 +76,11 @@ void main() {
     for (uint i = 0; i < params.lineNums; i++) {
         xy[i] = cubicBezier(i, t);
         curvePoints.points[idx] = xy[i];
+
+        float thinkness = (((inputLines.bezier[i].beginWidth - inputLines.bezier[i].beginWidth - endWidth)) / params.numPoints) * (params.numPoints - idx);
+
         pixelMap.pixels[uint(floor(xy[i].y)) * params.width + uint(floor(xy[i].x))] = packColor(vec4(1.0f, 0.0f, 0.0f, 1.0f));
-        pixelMap.pixels[uint(floor(xy[i].y + (params.numPoints - idx) / 20.0f)) * params.width + uint(floor(xy[i].x))] = packColor(vec4(0.0f, 1.0f, 0.0f, 1.0f));
-        pixelMap.pixels[uint(floor(xy[i].y - (params.numPoints - idx) / 20.0f)) * params.width + uint(floor(xy[i].x))] = packColor(vec4(0.0f, 0.0f, 1.0f, 1.0f));
+        pixelMap.pixels[uint(floor(xy[i].y + thinkness * params.width) + uint(floor(xy[i].x)))] = packColor(vec4(0.0f, 1.0f, 0.0f, 1.0f));
+        pixelMap.pixels[uint(floor(xy[i].y - thinkness * params.width) + uint(floor(xy[i].x)))] = packColor(vec4(0.0f, 0.0f, 1.0f, 1.0f));
     }
 }

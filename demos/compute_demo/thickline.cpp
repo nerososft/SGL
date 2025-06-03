@@ -21,7 +21,7 @@ int main(int argc, char *argv[]) {
                 {.x = 400.0, .y = 1100.0},
                 {.x = 1000.0, .y = 900.0},
             },
-            .beginWidth = 1.0f,
+            .beginWidth = 20.0f,
             .endWidth = 0.0f,
         };
         lines.push_back(line);

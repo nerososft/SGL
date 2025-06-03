@@ -50,7 +50,7 @@ class BezierThickLineUtils {
 public:
     bool InitializeGPUPipeline();
 
-    std::vector<std::vector<Point2D> > GenerateThickLine(std::vector<BezierLine> lines);
+    std::vector<std::vector<Point2D> > GenerateThickLine(const std::vector<BezierLine> &lines);
 
     void FreeGPUThinkLine(BezierLine line);
 
