@@ -12,9 +12,9 @@ layout(set = 0, binding = 0) readonly buffer InputLines {
 } inputLines;
 
 // 存储生成的曲线点的缓冲区
-layout(set = 0, binding = 1) buffer CurvePoints1 {
+layout(set = 0, binding = 1) buffer ThinkLineOutputPoints1 {
     vec2 points[];
-} curvePoints;
+} outputPoints1;
 
 layout(set = 0, binding = 2) buffer PixelMap {
     uint pixels[];
@@ -23,9 +23,7 @@ layout(set = 0, binding = 2) buffer PixelMap {
 // 曲线采样参数
 layout(push_constant) uniform Params {
     uint lineNums;
-
     uint numPoints;// 生成的点数量
-
     uint width;
     uint height;
 } params;
@@ -63,14 +61,14 @@ void main() {
         return;
     }
 
-    float t =  1.0f * float(idx) / float(params.numPoints - 1);
+    float t =  float(idx) / float(params.numPoints);
 
     vec2 xy[100];
     for (uint i = 0; i < params.lineNums; i++) {
         xy[i] = cubicBezier(i, t);
-        curvePoints.points[idx] = xy[i];
+        outputPoints1.points[idx] = xy[i];
 
-        float thinkness = (((inputLines.bezier[i].beginWidth - inputLines.bezier[i].endWidth)) / params.numPoints) * (params.numPoints - idx);
+        float thinkness = inputLines.bezier[i].beginWidth - (inputLines.bezier[i].beginWidth - inputLines.bezier[i].endWidth) * t;
 
         pixelMap.pixels[uint(floor(xy[i].y)) * params.width + uint(floor(xy[i].x))] = packColor(vec4(1.0f, 0.0f, 0.0f, 1.0f));
         pixelMap.pixels[uint(floor(xy[i].y + thinkness) * params.width + uint(floor(xy[i].x)))] = packColor(vec4(0.0f, 1.0f, 0.0f, 1.0f));
