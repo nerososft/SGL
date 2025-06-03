@@ -2,8 +2,8 @@
 // Created by neo on 25-6-3.
 //
 
-#ifndef BEZIERTHICKLINEUTILS_H
-#define BEZIERTHICKLINEUTILS_H
+#ifndef BEZIER_THICK_LINE_UTILS_H
+#define BEZIER_THICK_LINE_UTILS_H
 #include <vector>
 
 #include "gpu_engine/gpu/VkGPUBuffer.h"
@@ -63,4 +63,4 @@ public:
     }
 };
 
-#endif //BEZIERTHICKLINEUTILS_H
+#endif //BEZIER_THICK_LINE_UTILS_H
