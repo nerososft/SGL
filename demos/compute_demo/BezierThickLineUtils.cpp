@@ -42,6 +42,7 @@ std::vector<std::vector<Point2D> > BezierThickLineUtils::GenerateThickLine(const
     inputBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED, pointsSize);
     inputBuffer->UploadData(lines.data(), pointsSize);
 
+
     static const auto outputBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
     outputBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED, params.numPoints * sizeof(Point2D));
 

@@ -29,11 +29,7 @@ struct GPUBezierLine {
 
 struct BezierParams {
     uint lineNums;
-
-    uint numPoints; // 生成的点数量
-    float tStart; // 参数t的起始值
-    float tEnd; // 参数t的结束值
-
+    uint numPoints;
     uint width;
     uint height;
 };

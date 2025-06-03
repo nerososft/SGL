@@ -32,8 +32,6 @@ int main(int argc, char *argv[]) {
     BezierParams bezierParams{};
     bezierParams.lineNums = 100;
     bezierParams.numPoints = 1000;
-    bezierParams.tStart = 0.0f;
-    bezierParams.tEnd = 1.0f;
 
     bezierParams.width = 1000;
     bezierParams.height = 1000;
