@@ -21,8 +21,8 @@ int main(int argc, char *argv[]) {
                 {.x = 400.0, .y = 1100.0},
                 {.x = 1000.0, .y = 900.0},
             },
-            .beginWidth = 200.0f,
-            .endWidth = 20.0f,
+            .beginWidth = 100.0f,
+            .endWidth = 10.0f,
         };
         lines.push_back(line);
     }
@@ -30,11 +30,8 @@ int main(int argc, char *argv[]) {
     BezierThickLineUtils utils;
 
     BezierParams bezierParams{};
-    bezierParams.lineNums = 100;
-    bezierParams.numPoints = 1000;
-
-    bezierParams.width = 1000;
-    bezierParams.height = 1000;
+    bezierParams.lineNums = 1;
+    bezierParams.numPoints = 1024;
 
     utils.SetParams(bezierParams);
 

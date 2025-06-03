@@ -30,8 +30,6 @@ struct GPUBezierLine {
 struct BezierParams {
     uint lineNums;
     uint numPoints;
-    uint width;
-    uint height;
 };
 
 class BezierThickLineUtils {
