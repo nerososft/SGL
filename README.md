@@ -28,6 +28,4 @@
 
 `inference_demo` 依赖 `ml_engine`
 
-## TODO:
-[] pipeline cache
-[] shader cache
+`compute_demo` 依赖 `gpu_engine`
