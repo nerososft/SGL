@@ -67,7 +67,12 @@ else ()
     target_link_libraries(gpu_engine png)
 endif ()
 
-target_link_libraries(gpu_engine vulkan)
+if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    target_link_libraries(gpu_engine vulkan-1)
+else ()
+    target_link_libraries(gpu_engine vulkan)
+endif ()
+
 if (CMAKE_SYSTEM_NAME MATCHES "OHOS")
     target_link_libraries(gpu_engine hilog_ndk.z)
 endif ()
