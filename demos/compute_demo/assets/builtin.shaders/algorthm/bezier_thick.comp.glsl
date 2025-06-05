@@ -52,6 +52,14 @@ uint packColor(vec4 color) {
 
 #define MAX_LINE_NUM (1024)
 
+vec2 rotate90(vec2 v) {
+    return vec2(-v.y, v.x);
+}
+
+vec2 rotateMinus90(vec2 v) {
+    return vec2(v.y, -v.x);
+}
+
 void main() {
     uint idx = gl_GlobalInvocationID.x;
 
@@ -59,24 +67,29 @@ void main() {
         return;
     }
 
-    float t =  float(idx) / float(params.numPoints);
+    float currentT =  float(idx) / float(params.numPoints);
+    float nextT =  float(idx + 1) / float(params.numPoints);
 
-    vec2 point[MAX_LINE_NUM];
+    vec2 pointCurrent[MAX_LINE_NUM];
+    vec2 pointNext[MAX_LINE_NUM];
     vec2 pointUp[MAX_LINE_NUM];
     vec2 pointDown[MAX_LINE_NUM];
     for (uint lineIdx = 0; lineIdx < params.lineNums; lineIdx++) {
-        point[lineIdx] = cubicBezier(lineIdx, t);
+        pointCurrent[lineIdx] = cubicBezier(lineIdx, currentT);
+        pointNext[lineIdx] = cubicBezier(lineIdx, nextT);
 
-        float thinkness = inputLines.bezier[lineIdx].beginWidth - (inputLines.bezier[lineIdx].beginWidth - inputLines.bezier[lineIdx].endWidth) * t;
-        pointUp[lineIdx] = vec2(point[lineIdx].x, point[lineIdx].y + thinkness);
-        pointDown[lineIdx] = vec2(point[lineIdx].x, point[lineIdx].y - thinkness);
+        vec2 dir = normalize(pointNext[lineIdx] - pointCurrent[lineIdx]);
+
+        float thinkness = inputLines.bezier[lineIdx].beginWidth - (inputLines.bezier[lineIdx].beginWidth - inputLines.bezier[lineIdx].endWidth) * currentT;
+        pointUp[lineIdx] = pointCurrent[lineIdx] + rotate90(thinkness * dir);
+        pointDown[lineIdx] = pointCurrent[lineIdx] + rotateMinus90(thinkness * dir);
 
         uint offset = lineIdx * params.numPoints * 2;
         outputPoints.points[offset + idx] = pointUp[lineIdx];
         outputPoints.points[offset + params.numPoints + idx] = pointDown[lineIdx];
 
         if (params.debugPixelMap) {
-            pixelMap.pixels[uint(floor(point[lineIdx].y)) * params.numPoints + uint(floor(point[lineIdx].x))] = packColor(vec4(1.0f, 0.0f, 0.0f, 1.0f));
+            pixelMap.pixels[uint(floor(pointCurrent[lineIdx].y)) * params.numPoints + uint(floor(pointCurrent[lineIdx].x))] = packColor(vec4(1.0f, 0.0f, 0.0f, 1.0f));
             pixelMap.pixels[uint(floor(pointUp[lineIdx].y)) * params.numPoints + uint(floor(pointUp[lineIdx].x))] = packColor(vec4(0.0f, 1.0f, 0.0f, 1.0f));
             pixelMap.pixels[uint(floor(pointDown[lineIdx].y)) * params.numPoints + uint(floor(pointDown[lineIdx].x))] = packColor(vec4(0.0f, 0.0f, 1.0f, 1.0f));
         }

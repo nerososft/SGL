@@ -49,12 +49,12 @@ int main(int argc, char *argv[]) {
     for (uint32_t lineIdx = 0; lineIdx < bezierParams.lineNums; lineIdx++) {
         for (uint32_t pointIdx = 0; pointIdx < bezierParams.numPoints; pointIdx++) {
             const uint32_t offset = lineIdx * bezierParams.numPoints * 2;
-            Point2D up = points[offset + pointIdx];
-            Point2D down = points[offset + bezierParams.numPoints + pointIdx];
-            std::cout << "(" << up.x << "," << up.y << ")";
-            std::cout << "(" << down.x << "," << down.y << ")";
+            const auto [upX, upY] = points[offset + pointIdx];
+            const auto [downX, downY] = points[offset + bezierParams.numPoints + pointIdx];
+            // std::cout << "(" << upX << "," << upY << ")";
+            // std::cout << "(" << downX << "," << downY << ")";
         }
-        std::cout << std::endl;
+        // std::cout << std::endl;
     }
     utils.GeneratePixelMap("../../../demos/compute_demo/line.png");
 
