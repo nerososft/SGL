@@ -24,8 +24,8 @@ struct BezierLine {
 };
 
 struct BezierParams {
-    uint lineNums;
-    uint numPoints;
+    uint32_t lineNums;
+    uint32_t numPoints;
     bool debugPixelMap;
 };
 
