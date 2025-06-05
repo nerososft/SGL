@@ -50,7 +50,7 @@ uint packColor(vec4 color) {
     );
 }
 
-#define MAX_LINE_NUM (4096)
+#define MAX_LINE_NUM (1024)
 
 void main() {
     uint idx = gl_GlobalInvocationID.x;
@@ -72,8 +72,8 @@ void main() {
         pointDown[lineIdx] = vec2(point[lineIdx].x, point[lineIdx].y - thinkness);
 
         uint offset = lineIdx * params.numPoints * 2;
-        outputPoints.points[offset + lineIdx] = pointUp[lineIdx];
-        outputPoints.points[offset + params.numPoints + lineIdx] = pointDown[lineIdx];
+        outputPoints.points[offset + idx] = pointUp[lineIdx];
+        outputPoints.points[offset + params.numPoints + idx] = pointDown[lineIdx];
 
         if (params.debugPixelMap) {
             pixelMap.pixels[uint(floor(point[lineIdx].y)) * params.numPoints + uint(floor(point[lineIdx].x))] = packColor(vec4(1.0f, 0.0f, 0.0f, 1.0f));

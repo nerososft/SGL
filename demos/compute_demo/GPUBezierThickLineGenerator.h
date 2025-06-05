@@ -10,7 +10,7 @@
 #include "gpu_engine/gpu/compute_graph/ComputeGraph.h"
 #include "gpu_engine/gpu/compute_graph/ComputePipelineNode.h"
 
-#define MAX_LINE_NUMS (4096)
+#define MAX_LINE_NUMS (1024)
 
 struct Point2D {
     float x;

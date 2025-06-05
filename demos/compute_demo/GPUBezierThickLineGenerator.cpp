@@ -42,14 +42,18 @@ bool GPUBezierThickLineGenerator::InitializeGPUPipeline() {
     std::vector<const char *> extensions = {};
     gpuCtx = std::make_shared<VkGPUContext>(extensions);
 
-    if (gpuCtx->Init() != VK_SUCCESS) {
+    VkResult result = VK_SUCCESS;
+
+    result = gpuCtx->Init();
+    if (result != VK_SUCCESS) {
         Logger() << "Failed to initialize GPU context!" << std::endl;
         return false;
     }
 
     computeGraph = std::make_shared<ComputeGraph>(gpuCtx);
     computeSubGraph = std::make_shared<SubComputeGraph>(gpuCtx);
-    if (computeSubGraph->Init() != VK_SUCCESS) {
+    result = computeSubGraph->Init();
+    if (result != VK_SUCCESS) {
         Logger() << "Failed to initialize sub graph!" << std::endl;
         return false;
     }
@@ -59,17 +63,30 @@ bool GPUBezierThickLineGenerator::InitializeGPUPipeline() {
                                                        (params.numPoints + 255) / 256,
                                                        1,
                                                        1);
+
     inputBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
-    inputBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED,
-                                 MAX_LINE_NUMS * sizeof(BezierLine));
+    result = inputBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED,
+                                          MAX_LINE_NUMS * sizeof(BezierLine));
+    if (result != VK_SUCCESS) {
+        Logger() << "Failed to allocate GPU buffer!" << std::endl;
+        return false;
+    }
 
     outputBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
-    outputBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED,
-                                  MAX_LINE_NUMS * params.numPoints * sizeof(Point2D) * 2);
+    result = outputBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED,
+                                           MAX_LINE_NUMS * params.numPoints * sizeof(Point2D) * 2);
+    if (result != VK_SUCCESS) {
+        Logger() << "Failed to allocate GPU buffer!" << std::endl;
+        return false;
+    }
 
     pixelMapBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
-    pixelMapBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED,
-                                    params.numPoints * params.numPoints * 4);
+    result = pixelMapBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED,
+                                             params.numPoints * params.numPoints * 4);
+    if (result != VK_SUCCESS) {
+        Logger() << "Failed to allocate GPU buffer!" << std::endl;
+        return false;
+    }
 
     std::vector<PipelineNodeBuffer> ppBuffers;
     ppBuffers.push_back({
@@ -104,7 +121,8 @@ bool GPUBezierThickLineGenerator::InitializeGPUPipeline() {
         .customDrawFunc = nullptr
     };
     bezierNode->AddComputeElement(element);
-    if (bezierNode->CreateComputeGraphNode() != VK_SUCCESS) {
+    result = bezierNode->CreateComputeGraphNode();
+    if (result != VK_SUCCESS) {
         Logger() << "Failed to create compute graph node!" << std::endl;
         return false;
     }
