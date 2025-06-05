@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) {
     }
 
     BezierParams bezierParams{};
-    bezierParams.lineNums = 1;
+    bezierParams.lineNums = 300;
     bezierParams.numPoints = 1024;
     bezierParams.debugPixelMap = true;
 
