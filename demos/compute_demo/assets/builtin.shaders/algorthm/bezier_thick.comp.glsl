@@ -50,7 +50,7 @@ uint packColor(vec4 color) {
     );
 }
 
-#define MAX_LINE_NUM (1024)
+#define MAX_LINE_NUM (10240)
 
 vec2 rotate90(vec2 v) {
     return vec2(-v.y, v.x);
@@ -78,11 +78,11 @@ void main() {
         pointCurrent[lineIdx] = cubicBezier(lineIdx, currentT);
         pointNext[lineIdx] = cubicBezier(lineIdx, nextT);
 
-        vec2 dir = normalize(pointNext[lineIdx] - pointCurrent[lineIdx]);
-
         float thinkness = inputLines.bezier[lineIdx].beginWidth - (inputLines.bezier[lineIdx].beginWidth - inputLines.bezier[lineIdx].endWidth) * currentT;
-        pointUp[lineIdx] = pointCurrent[lineIdx] + rotate90(thinkness * dir);
-        pointDown[lineIdx] = pointCurrent[lineIdx] + rotateMinus90(thinkness * dir);
+        vec2 dir = normalize(pointNext[lineIdx] - pointCurrent[lineIdx]) * thinkness;
+
+        pointUp[lineIdx] = pointCurrent[lineIdx] + rotate90(dir);
+        pointDown[lineIdx] = pointCurrent[lineIdx] + rotateMinus90(dir);
 
         uint offset = lineIdx * params.numPoints * 2;
         outputPoints.points[offset + idx] = pointUp[lineIdx];
