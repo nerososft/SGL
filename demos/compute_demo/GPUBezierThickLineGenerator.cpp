@@ -127,28 +127,27 @@ bool GPUBezierThickLineGenerator::InitializeGPUPipeline() {
         return false;
     }
 
+    result = outputBuffer->MapBuffer();
+    if (result != VK_SUCCESS) {
+        Logger() << "Failed to map output buffer!" << std::endl;
+        return false;
+    }
+
     computeSubGraph->AddComputeGraphNode(bezierNode);
     return true;
 }
 
 Point2D *GPUBezierThickLineGenerator::GenerateThickLine(const std::vector<BezierLine> &lines) const {
-    const VkDeviceSize pointsSize = lines.size() * sizeof(BezierLine);
-    inputBuffer->UploadData(lines.data(), pointsSize);
+    inputBuffer->UploadData(lines.data(), lines.size() * sizeof(BezierLine));
 
     const uint64_t time = TimeUtils::GetCurrentMonoMs();
-    VkResult ret = computeGraph->Compute();
-    if (ret != VK_SUCCESS) {
+    if (const VkResult ret = computeGraph->Compute(); ret != VK_SUCCESS) {
         Logger() << "Failed to compute graph!" << std::endl;
         return nullptr;
     }
     const uint64_t elapsed = TimeUtils::GetCurrentMonoMs() - time;
     Logger() << "TimeUsage: " << elapsed << "ms" << std::endl;
 
-    ret = outputBuffer->MapBuffer();
-    if (ret != VK_SUCCESS) {
-        Logger() << "Failed to map output buffer!" << std::endl;
-        return nullptr;
-    }
     return static_cast<Point2D *>(outputBuffer->GetMappedAddr());
 }
 
