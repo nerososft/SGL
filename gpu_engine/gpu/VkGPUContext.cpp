@@ -221,7 +221,12 @@ VkResult VkGPUContext::Init() {
                 maxComputeWorkGroupCount[2]
                 << std::endl
                 << "\tmaxComputeSharedMemorySize:" << this->physicalDevicesProperties[physicalDeviceIndex].limits.
-                maxComputeSharedMemorySize
+                maxComputeSharedMemorySize << std::endl
+                << "\tmaxStorageBufferRange:" << this->physicalDevicesProperties[physicalDeviceIndex].limits.
+                maxStorageBufferRange
+                << std::endl
+                << "\tmaxMemoryAllocationCount:" << this->physicalDevicesProperties[physicalDeviceIndex].limits.
+                maxMemoryAllocationCount
                 << std::endl;
 
         vkGetPhysicalDeviceFeatures(this->physicalDevices[physicalDeviceIndex],
