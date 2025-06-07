@@ -23,17 +23,17 @@ int main(int argc, char *argv[]) {
 
     std::vector<GaussianPoint3D> points{};
 
-    for (size_t i = 0; i < 100000; ++i) {
-        float x = -1.0f + 4.0f * rand_float();
-        float y = -1.0f + 4.0f * rand_float();
-        float z = -(5.0f * rand_float());
+    for (size_t i = 0; i < 100; ++i) {
+        float x = rand() % 1024;
+        float y = rand() % 1024;
+        float z = 0;
 
         float r = rand_float();
         float g = rand_float();
         float b = rand_float();
 
-        float sx = rand_float();
-        float sy = rand_float();
+        float sx = rand() % 50 + 20;
+        float sy = rand() % 50 + 20;
         float sz = rand_float();
 
         float rx = rand_float() * 360.f;
@@ -45,7 +45,7 @@ int main(int argc, char *argv[]) {
             .color = glm::vec4(r, g, b, 1.0f),
             .scale = glm::vec4(sx, sy, sz, 0),
             .rotate = glm::vec4(rx, ry, rz, 1),
-            .opacity = glm::vec4(rand_float(), 0, 0, 0)
+            .opacity = glm::vec4(rand_float(), 0, 0, 0),
         };
         points.push_back(point);
     }

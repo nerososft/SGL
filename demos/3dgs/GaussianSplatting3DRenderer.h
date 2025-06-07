@@ -14,8 +14,8 @@
 struct GaussianPoint3D {
     glm::vec4 pos;
     glm::vec4 color;
-    glm::vec4 scale;
-    glm::vec4 rotate;
+    glm::vec4 scale; // Covariance Matrix
+    glm::vec4 rotate; // Covariance Matrix
     glm::vec4 opacity;
 };
 
