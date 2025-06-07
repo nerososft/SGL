@@ -62,8 +62,10 @@ void main() {
             float factorY = abs(point.pos.y - y) / ry;
 
             if ((factorX <= sqrt(1 - factorY * factorY)) &&
-                (factorX >= -sqrt(1 - factorY * factorY))) {
-                float factor = sqrt(1.0f - (factorX*factorX) - (factorY*factorY));
+            (factorX >= -sqrt(1 - factorY * factorY))) {
+                float factor = sqrt(1.0f
+                - ((factorX * cos(30) - factorY * sin(30)) * (factorX * cos(30) - factorY * sin(30)))
+                - ((factorX * sin(30) + factorY * cos(30)) * (factorX * sin(30) + factorY * cos(30))));
                 pixelMap.pixels[uint(y * params.width + x)] = packColor(point.color * factor);
             } else {
                 continue;

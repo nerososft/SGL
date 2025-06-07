@@ -23,7 +23,7 @@ int main(int argc, char *argv[]) {
 
     std::vector<GaussianPoint3D> points{};
 
-    for (size_t i = 0; i < 100; ++i) {
+    for (size_t i = 0; i < 1000; ++i) {
         float x = rand() % 1024;
         float y = rand() % 1024;
         float z = 0;
