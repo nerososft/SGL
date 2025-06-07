@@ -14,13 +14,13 @@ int main(int argc, char *argv[]) {
     std::cout << "mindmaster_demo" << std::endl;
 
     std::vector<BezierLine> lines{};
-    for (uint32_t i = 0; i < 1024; i++) {
+    for (uint32_t i = 0; i < 4096; i++) {
         BezierLine line{
             .points = {
-                {.x = 0.0, .y = 0.0f + 0.3f * static_cast<float>(i)},
-                {.x = 600.0, .y = -100.0},
-                {.x = 400.0, .y = 1100.0},
-                {.x = 1000.0, .y = 500.0},
+                {.x = 0.0, .y = 0.0f + 0.2f * static_cast<float>(i)},
+                {.x = 300.0, .y = -100.0},
+                {.x = 600.0, .y = 800.0},
+                {.x = 1000.0, .y = 1100.0},
             },
             .beginWidth = 100.0f,
             .endWidth = 1.0f,
@@ -29,8 +29,8 @@ int main(int argc, char *argv[]) {
     }
 
     BezierParams bezierParams{};
-    bezierParams.lineNums = 1;
-    bezierParams.numPoints = 1024;
+    bezierParams.lineNums = 3581;
+    bezierParams.numPoints = 300;
     bezierParams.debugPixelMap = true;
 
     static GPUBezierThickLineGenerator utils;
@@ -47,12 +47,10 @@ int main(int argc, char *argv[]) {
 
     std::cout << "Totally Usage: " << last - now << " ms" << std::endl;
     for (uint32_t lineIdx = 0; lineIdx < bezierParams.lineNums; lineIdx++) {
-        for (uint32_t pointIdx = 0; pointIdx < bezierParams.numPoints; pointIdx++) {
+        for (uint32_t pointIdx = 0; pointIdx < bezierParams.numPoints * 2; pointIdx++) {
             const uint32_t offset = lineIdx * bezierParams.numPoints * 2;
-            const auto [upX, upY] = points[offset + pointIdx];
-            const auto [downX, downY] = points[offset + bezierParams.numPoints + pointIdx];
-            // std::cout << "(" << upX << "," << upY << ")";
-            // std::cout << "(" << downX << "," << downY << ")";
+            const auto [x, y] = points[offset + pointIdx];
+            // std::cout << "(" << x << "," << y << ")";
         }
         // std::cout << std::endl;
     }
