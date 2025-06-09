@@ -6,8 +6,8 @@
 #include <memory>
 #include <glm/ext/matrix_transform.hpp>
 
-#include "gpu_engine/log/Log.h"
-#include "render_engine/renderer/Renderer.h"
+#include "core/log/Log.h"
+#include "engine/renderer/renderer/Renderer.h"
 #include "scene/ModelLoader.h"
 
 int main(int argc, char *argv[]) {

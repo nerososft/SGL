@@ -4,7 +4,7 @@
 
 #include "GraphicsApp.h"
 
-#include "gpu_engine/log/Log.h"
+#include "core/log/Log.h"
 #include "scene/ModelLoader.h"
 #include "window/impl/GLFWWindowImpl.h"
 

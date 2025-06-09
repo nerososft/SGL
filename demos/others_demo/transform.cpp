@@ -8,11 +8,11 @@
 #include <vector>
 #include <glm/glm.hpp>
 #include <glm/ext/matrix_transform.hpp>
-#include <gpu_engine/config.h>
-#include <gpu_engine/gpu/VkGPUBuffer.h>
-#include <gpu_engine/gpu/VkGPUContext.h>
-#include <gpu_engine/gpu/compute_graph/ComputeGraph.h>
-#include <gpu_engine/gpu/compute_graph/ComputePipelineNode.h>
+#include <core/config.h>
+#include <core/gpu/VkGPUBuffer.h>
+#include <core/gpu/VkGPUContext.h>
+#include <core/gpu/compute_graph/ComputeGraph.h>
+#include <core/gpu/compute_graph/ComputePipelineNode.h>
 
 struct Point2D {
     float x;

@@ -6,8 +6,10 @@ elseif (CMAKE_SYSTEM_NAME MATCHES "OHOS")
     message(STATUS "Running on OH")
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     message(STATUS "Running on macOS")
-    link_directories("/opt/homebrew/Cellar/glfw/3.4/lib")
     include_directories("/opt/homebrew/Cellar/glfw/3.4/include")
+    include_directories("/opt/homebrew/Cellar/assimp/6.0.1/include")
+    link_directories("/opt/homebrew/Cellar/glfw/3.4/lib")
+    link_directories("/opt/homebrew/Cellar/assimp/6.0.1/lib")
 endif ()
 
 
@@ -46,7 +48,7 @@ add_executable(renderer_demo
         scene/ModelLoader.h
         scene/Scene.h
 )
-target_link_libraries(renderer_demo gpu_engine)
+target_link_libraries(renderer_demo core)
 target_link_libraries(renderer_demo render_engine)
 target_link_libraries(renderer_demo glfw)
 target_link_libraries(renderer_demo png)
@@ -57,7 +59,7 @@ add_executable(renderer_offscreen_demo
         scene/ModelLoader.h
         offscreen.cpp
 )
-target_link_libraries(renderer_offscreen_demo gpu_engine)
+target_link_libraries(renderer_offscreen_demo core)
 target_link_libraries(renderer_offscreen_demo render_engine)
 target_link_libraries(renderer_offscreen_demo png)
 target_link_libraries(renderer_offscreen_demo assimp)

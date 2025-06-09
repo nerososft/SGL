@@ -23,5 +23,5 @@ endforeach ()
 message("Need: ${COMPILED_SHADERS}")
 add_custom_target(compile_others_shaders ALL DEPENDS ${COMPILED_SHADERS})
 
-target_link_libraries(transform_demo gpu_engine)
-target_link_libraries(blender5_demo gpu_engine)
+target_link_libraries(transform_demo core)
+target_link_libraries(blender5_demo core)

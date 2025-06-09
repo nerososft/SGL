@@ -9,7 +9,7 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
-#include "gpu_engine/log/Log.h"
+#include "core/log/Log.h"
 
 aiMatrix4x4 ModelLoader::GetNodeTransform(const aiNode *node) {
     if (!node->mParent) {

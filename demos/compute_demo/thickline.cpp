@@ -5,10 +5,10 @@
 #include <iostream>
 #include <ostream>
 #include <vector>
-#include <gpu_engine/gpu/compute_graph/ComputeGraph.h>
+#include <core/gpu/compute_graph/ComputeGraph.h>
 
 #include "GPUBezierThickLineGenerator.h"
-#include "gpu_engine/utils/TimeUtils.h"
+#include "core/utils/TimeUtils.h"
 
 int main(int argc, char *argv[]) {
     std::cout << "mindmaster_demo" << std::endl;
@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
 
     BezierParams bezierParams{};
     bezierParams.lineNums = 3581;
-    bezierParams.numPoints = 300;
+    bezierParams.numPoints = 1024;
     bezierParams.debugPixelMap = true;
 
     static GPUBezierThickLineGenerator utils;

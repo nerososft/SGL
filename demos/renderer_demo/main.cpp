@@ -3,7 +3,7 @@
 //
 
 #include "GraphicsApp.h"
-#include "gpu_engine/log/Log.h"
+#include "core/log/Log.h"
 
 int main(int argc, char *argv[]) {
     Logger() << "Hello World!\n";

@@ -7,10 +7,10 @@
 #include <vector>
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
-#include <gpu_engine/gpu/compute_graph/ComputeGraph.h>
+#include <core/gpu/compute_graph/ComputeGraph.h>
 
 #include "GaussianSplatting3DRenderer.h"
-#include "gpu_engine/utils/TimeUtils.h"
+#include "core/utils/TimeUtils.h"
 
 float rand_float() {
     return static_cast<float>(rand()) / RAND_MAX;

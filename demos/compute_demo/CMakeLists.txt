@@ -24,4 +24,4 @@ endforeach ()
 message("Need: ${COMPILED_SHADERS}")
 add_custom_target(compile_compute_shaders ALL DEPENDS ${COMPILED_SHADERS})
 
-target_link_libraries(thickline gpu_engine)
+target_link_libraries(thickline core)

@@ -24,4 +24,4 @@ endforeach ()
 message("Need: ${COMPILED_SHADERS}")
 add_custom_target(compile_3dgs_shaders ALL DEPENDS ${COMPILED_SHADERS})
 
-target_link_libraries(3dgs gpu_engine)
+target_link_libraries(3dgs core)

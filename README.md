@@ -10,22 +10,22 @@
 
 ## Env
 ### GPU引擎
-`gpu_engine` 依赖：`vulkan`
+`core` 依赖：`vulkan`
 
 ### 图像效果引擎
-`effect_engine` 依赖：`gpu_engine`
+`engine/effect` 依赖：`core`
 
 ### 机器学习引擎
-`ml_engine` 依赖 `gpu_engine`
+`ml_engine` 依赖 `core`
 
 ### 渲染引擎
-`render_engine` 依赖：`gpu_engine` `libglm-dev`
+`render_engine` 依赖：`core` `libglm-dev`
 
 ### demo
-`effect_demo` 依赖 `effect_engine` `libpng-dev`
+`effect_demo` 依赖 `engine/effect` `libpng-dev`
 
 `renderer_demo` 依赖：`render_engine` `libpng-dev` `libglfw3-dev` `assimp`
 
 `inference_demo` 依赖 `ml_engine`
 
-`compute_demo` 依赖 `gpu_engine`
+`compute_demo` 依赖 `core`

@@ -5,13 +5,12 @@
 #include <iostream>
 #include <ostream>
 
-#include "effect_engine/EffectEngine.h"
-#include "gpu_engine/config.h"
-#include "gpu_engine/gpu/VkGPUBuffer.h"
-#include "gpu_engine/gpu/VkGPUContext.h"
-#include "gpu_engine/gpu/compute_graph/ComputeGraph.h"
-#include "gpu_engine/gpu/compute_graph/ComputePipelineNode.h"
-#include "gpu_engine/utils/TimeUtils.h"
+#include "core/config.h"
+#include "core/gpu/VkGPUBuffer.h"
+#include "core/gpu/VkGPUContext.h"
+#include "core/gpu/compute_graph/ComputeGraph.h"
+#include "core/gpu/compute_graph/ComputePipelineNode.h"
+#include "core/utils/TimeUtils.h"
 
 
 void cpu_gpu_mem_share_demo(const std::shared_ptr<VkGPUContext> &gpuCtx) {

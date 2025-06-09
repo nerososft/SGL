@@ -1,10 +1,7 @@
 #include <iostream>
-#include <ostream>
-#include <glm/fwd.hpp>
 
-#include "gpu_engine/log/Log.h"
-#include "ml_engine/MLEngine.h"
-#include "ml_engine/operators/IOperator.h"
+#include "core/log/Log.h"
+#include "engine/ml/MLEngine.h"
 //
 // Created by neo on 25-5-7.
 //
