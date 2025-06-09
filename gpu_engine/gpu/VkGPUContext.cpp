@@ -37,7 +37,7 @@ void VkGPUContext::AddDeviceEnabledExtension(const char *extensionName) {
     this->defaultDeviceEnableExtensions.push_back(extensionName);
 }
 
-void VkGPUContext::SelectCPU(const uint32_t gpuIndex) {
+void VkGPUContext::SelectGPU(const uint32_t gpuIndex) {
     if (gpuIndex >= this->physicalDeviceNums) {
         Logger() << "GPU index " << gpuIndex << " is out of bounds" << std::endl;
         return;
@@ -270,7 +270,7 @@ VkResult VkGPUContext::Init() {
         }
     }
 
-    this->SelectCPU(0);
+    this->SelectGPU(0); // TODO: select strongest GPU
 
     size_t currentDeviceQueueNums = 0;
     const PhysicalDeviceQueueFamilyProps currentQueueFamilyProps = this->queuesFamilyProps[this->selectedGPUIndex];

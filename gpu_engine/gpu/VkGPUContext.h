@@ -66,12 +66,12 @@ public:
 
     void AddDeviceEnabledExtension(const char *extensionName);
 
-    void SelectCPU(uint32_t gpuIndex);
+    void SelectGPU(uint32_t gpuIndex);
 
     VkResult CreateDevice(const std::vector<const char *> &deviceEnableLayers,
                           std::vector<const char *> deviceEnableExtensions);
 
-    std::vector<DeviceQueue> FindQueuesByQueueFlag(VkQueueFlags flag) const;
+    [[nodiscard]] std::vector<DeviceQueue> FindQueuesByQueueFlag(VkQueueFlags flag) const;
 
     DeviceQueue DispatchQueue(VkQueueFlags flag);
 
