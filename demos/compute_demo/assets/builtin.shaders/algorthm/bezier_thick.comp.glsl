@@ -65,8 +65,8 @@ void main() {
         return;
     }
 
-    float currentT =  float(idx) / float(params.numPoints);
-    float nextT =  float(idx + 1) / float(params.numPoints);
+    float currentT =  float(idx) / float(params.numPoints-1);
+    float nextT =  float(idx + 1) / float(params.numPoints-1);
 
     for (uint lineIdx = 0; lineIdx < params.lineNums; lineIdx++) {
         vec2 pointCurrent;
