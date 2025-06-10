@@ -404,7 +404,7 @@ VkResult Renderer::Present() const {
                                                   this->imageAvailableSemaphore,
                                                   this->renderFinishedFence,
                                                   &imageIndex);
-    if (result != VK_SUCCESS) {
+    if ((result != VK_SUCCESS) && (result != VK_SUBOPTIMAL_KHR)) {
         Logger() << Logger::ERROR << "Failed to acquire swap chain image, err=" << string_VkResult(result) << std::endl;
         return result;
     }
