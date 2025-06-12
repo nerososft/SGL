@@ -28,7 +28,7 @@ struct SpzFilePosition {
     uint8_t x[3];
     uint8_t y[3];
     uint8_t z[3];
-};
+} __attribute__((packed));
 
 struct SpzFileScale {
     uint8_t x;
@@ -52,18 +52,24 @@ struct SpzFileColor {
     uint8_t z;
 } __attribute__((packed));
 
-union SpzFileSphericalHarmonic {
-    struct {
-        uint8_t sh1n1_r;
-        uint8_t sh1n1_g;
-        uint8_t sh1n1_b;
-        uint8_t sh10_r;
-        uint8_t sh10_g;
-        uint8_t sh10_b;
-        uint8_t sh1p1_r;
-        uint8_t sh1p1_g;
-        uint8_t sh1p1_b;
-    } coefficients_9;
+struct SpzFileSphericalHarmonic9 {
+    uint8_t sh1n1_r;
+    uint8_t sh1n1_g;
+    uint8_t sh1n1_b;
+    uint8_t sh10_r;
+    uint8_t sh10_g;
+    uint8_t sh10_b;
+    uint8_t sh1p1_r;
+    uint8_t sh1p1_g;
+    uint8_t sh1p1_b;
+};
+
+struct SpzFileSphericalHarmonic24 {
+    // TODO:
+};
+
+struct SpzFileSphericalHarmonic45 {
+    // TODO:
 };
 
 struct SpzFile {
@@ -73,7 +79,10 @@ struct SpzFile {
     SpzFileRotation *rotations;
     SpzFileAlpha *alphas;
     SpzFileColor *colors;
-    SpzFileSphericalHarmonic *sphericalHarmonics;
+
+    union {
+        SpzFileSphericalHarmonic9 *sphericalHarmonics;
+    };
 };
 
 class SpzModel {
@@ -82,6 +91,10 @@ class SpzModel {
 
 public:
     bool loadModel(const char *str);
+
+    std::vector<GaussianPoint> getPoints() {
+        return gaussianPoints;
+    };
 };
 
 #endif //SPZFILELOADER_H

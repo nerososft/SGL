@@ -15,37 +15,15 @@
 
 int main(int argc, char *argv[]) {
     std::cout << "3dgs_demo" << std::endl;
-    // SpzModel model;
-    // bool loaded = model.loadModel("../../../demos/3dgs/assets/builtin.models/butterfly");
-    //
-    // return 0;
+    SpzModel model;
+    bool loaded = model.loadModel("../../../demos/3dgs/assets/builtin.models/butterfly");
 
-    std::vector<GaussianPoint> points{};
+    if (!loaded) {
+        std::cout << "Failed to load model" << std::endl;
+        return 1;
+    }
 
-    float x = 512;
-    float y = 512;
-    float z = 0;
-
-    float r = 1.0f;
-    float g = 0;
-    float b = 1.0f;
-
-    float sx = 100;
-    float sy = 100;
-    float sz = 100;
-
-    float rx = 45;
-    float ry = 45;
-    float rz = 45;
-
-    const GaussianPoint point{
-        .position = glm::vec4(x, y, z, 1.0f),
-        .color = glm::vec4(r, g, b, 1.0f),
-        .scale = glm::vec4(sx, sy, sz, 0),
-        .rotate = glm::vec4(rx, ry, rz, 1),
-        .opacity = glm::vec4(1.0f, 0, 0, 0),
-    };
-    points.push_back(point);
+    const std::vector<GaussianPoint> points = model.getPoints();
 
     GaussianSplatting3DParams gaussianSplatting3dParams{};
     gaussianSplatting3dParams.numPoints = points.size();
