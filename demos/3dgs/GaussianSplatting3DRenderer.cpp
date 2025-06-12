@@ -74,6 +74,14 @@ bool GaussianSplatting3DRenderer::InitializeGPUPipeline(size_t maxPoints) {
         return false;
     }
 
+    depthMapBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
+    result = depthMapBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED,
+                                             params.width * params.height * sizeof(float));
+    if (result != VK_SUCCESS) {
+        Logger() << "Failed to allocate GPU buffer!" << std::endl;
+        return false;
+    }
+
     std::vector<PipelineNodeBuffer> ppBuffers;
     ppBuffers.push_back({
         .type = PIPELINE_NODE_BUFFER_STORAGE_READ,
@@ -89,6 +97,13 @@ bool GaussianSplatting3DRenderer::InitializeGPUPipeline(size_t maxPoints) {
             .buffer = pixelMapBuffer->GetBuffer()
         }
     });
+    ppBuffers.push_back({
+       .type = PIPELINE_NODE_BUFFER_STORAGE_WRITE,
+       .buf = {
+           .bufferSize = depthMapBuffer->GetBufferSize(),
+           .buffer = depthMapBuffer->GetBuffer()
+       }
+   });
 
     const PushConstantInfo pushConstantInfo{
         .size = sizeof(GaussianSplatting3DParams),

@@ -16,14 +16,21 @@
 int main(int argc, char *argv[]) {
     std::cout << "3dgs_demo" << std::endl;
     SpzModel model;
-    bool loaded = model.loadModel("../../../demos/3dgs/assets/builtin.models/butterfly");
-
+    const bool loaded = model.loadModel("../../../demos/3dgs/assets/builtin.models/butterfly");
     if (!loaded) {
         std::cout << "Failed to load model" << std::endl;
         return 1;
     }
 
-    const std::vector<GaussianPoint> points = model.getPoints();
+    std::vector<GaussianPoint> points = model.getPoints();
+
+    points.push_back({
+        .position = {0, 0, 0, 1},
+        .scale = {100, 1, 1, 1},
+        .color = {1, 0, 0, 1},
+        .rotate = {0, 1, 0, 0},
+        .opacity = {0, 0, 0, 0}
+    });
 
     GaussianSplatting3DParams gaussianSplatting3dParams{};
     gaussianSplatting3dParams.numPoints = points.size();
@@ -31,7 +38,7 @@ int main(int argc, char *argv[]) {
     gaussianSplatting3dParams.height = 1024;
 
     gaussianSplatting3dParams.view = glm::lookAt(
-        glm::vec3(0.0f, 0.0f, 1.0f),
+        glm::vec3(0.0f, 0.0f, 6000.0f),
         glm::vec3(0.0f, 0.0f, 0.0f),
         glm::vec3(0.0f, 1.0f, 0.0f)
     );
@@ -39,7 +46,7 @@ int main(int argc, char *argv[]) {
     gaussianSplatting3dParams.proj = glm::perspective(
         glm::radians(60.0f),
         static_cast<float>(gaussianSplatting3dParams.width) / static_cast<float>(gaussianSplatting3dParams.height),
-        0.1f, 10.0f
+        0.1f, 10000.0f
     );
 
     gaussianSplatting3dParams.proj[1][1] *= -1;

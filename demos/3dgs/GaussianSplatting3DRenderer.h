@@ -28,6 +28,7 @@ class GaussianSplatting3DRenderer {
 
     std::shared_ptr<VkGPUBuffer> inputBuffer = nullptr;
     std::shared_ptr<VkGPUBuffer> pixelMapBuffer = nullptr;
+    std::shared_ptr<VkGPUBuffer> depthMapBuffer = nullptr;
 
     GaussianSplatting3DParams params{};
 
