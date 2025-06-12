@@ -3,52 +3,49 @@
 //
 
 #include <iostream>
-#include <ostream>
 #include <vector>
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
 #include <core/gpu/compute_graph/ComputeGraph.h>
 
 #include "GaussianSplatting3DRenderer.h"
+#include "SpzModel.h"
+#include "core/log/Log.h"
 #include "core/utils/TimeUtils.h"
-
-float rand_float() {
-    return static_cast<float>(rand()) / RAND_MAX;
-}
 
 int main(int argc, char *argv[]) {
     std::cout << "3dgs_demo" << std::endl;
+    // SpzModel model;
+    // bool loaded = model.loadModel("../../../demos/3dgs/assets/builtin.models/butterfly");
+    //
+    // return 0;
 
-    srand(time(nullptr));
+    std::vector<GaussianPoint> points{};
 
-    std::vector<GaussianPoint3D> points{};
+    float x = 512;
+    float y = 512;
+    float z = 0;
 
-    for (size_t i = 0; i < 1000; ++i) {
-        float x = rand() % 1024;
-        float y = rand() % 1024;
-        float z = 0;
+    float r = 1.0f;
+    float g = 0;
+    float b = 1.0f;
 
-        float r = rand_float();
-        float g = rand_float();
-        float b = rand_float();
+    float sx = 100;
+    float sy = 100;
+    float sz = 100;
 
-        float sx = rand() % 50 + 20;
-        float sy = rand() % 50 + 20;
-        float sz = rand_float();
+    float rx = 45;
+    float ry = 45;
+    float rz = 45;
 
-        float rx = rand_float() * 360.f;
-        float ry = rand_float() * 360.f;
-        float rz = rand_float() * 360.f;
-
-        const GaussianPoint3D point{
-            .pos = glm::vec4(x, y, z, 1.0f),
-            .color = glm::vec4(r, g, b, 1.0f),
-            .scale = glm::vec4(sx, sy, sz, 0),
-            .rotate = glm::vec4(rx, ry, rz, 1),
-            .opacity = glm::vec4(rand_float(), 0, 0, 0),
-        };
-        points.push_back(point);
-    }
+    const GaussianPoint point{
+        .position = glm::vec4(x, y, z, 1.0f),
+        .color = glm::vec4(r, g, b, 1.0f),
+        .scale = glm::vec4(sx, sy, sz, 0),
+        .rotate = glm::vec4(rx, ry, rz, 1),
+        .opacity = glm::vec4(1.0f, 0, 0, 0),
+    };
+    points.push_back(point);
 
     GaussianSplatting3DParams gaussianSplatting3dParams{};
     gaussianSplatting3dParams.numPoints = points.size();

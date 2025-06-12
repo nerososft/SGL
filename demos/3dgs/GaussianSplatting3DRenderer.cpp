@@ -60,7 +60,7 @@ bool GaussianSplatting3DRenderer::InitializeGPUPipeline(size_t maxPoints) {
                                                        1);
 
     inputBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
-    result = inputBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED, maxPoints * sizeof(GaussianPoint3D));
+    result = inputBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED, maxPoints * sizeof(GaussianPoint));
     if (result != VK_SUCCESS) {
         Logger() << "Failed to allocate GPU buffer!" << std::endl;
         return false;
@@ -110,8 +110,8 @@ bool GaussianSplatting3DRenderer::InitializeGPUPipeline(size_t maxPoints) {
     return true;
 }
 
-void GaussianSplatting3DRenderer::Render(const std::vector<GaussianPoint3D> &points) const {
-    inputBuffer->UploadData(points.data(), points.size() * sizeof(GaussianPoint3D));
+void GaussianSplatting3DRenderer::Render(const std::vector<GaussianPoint> &points) const {
+    inputBuffer->UploadData(points.data(), points.size() * sizeof(GaussianPoint));
 
     const uint64_t time = TimeUtils::GetCurrentMonoMs();
     if (const VkResult ret = computeGraph->Compute(); ret != VK_SUCCESS) {

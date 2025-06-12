@@ -1,6 +1,9 @@
 add_executable(3dgs 3dgs.cpp
         GaussianSplatting3DRenderer.cpp
-        GaussianSplatting3DRenderer.h)
+        GaussianSplatting3DRenderer.h
+        SpzModel.cpp
+        SpzModel.h
+        GuassianModel.h)
 
 # compile builtin shaders
 set(BUILTIN_SHADER_DIR assets/builtin.shaders/*)

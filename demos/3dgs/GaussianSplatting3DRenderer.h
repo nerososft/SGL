@@ -7,17 +7,10 @@
 #include <vector>
 #include <glm/glm.hpp>
 
+#include "GuassianModel.h"
 #include "core/gpu/VkGPUBuffer.h"
 #include "core/gpu/compute_graph/ComputeGraph.h"
 #include "core/gpu/compute_graph/ComputePipelineNode.h"
-
-struct GaussianPoint3D {
-    glm::vec4 pos;
-    glm::vec4 color;
-    glm::vec4 scale; // Covariance Matrix
-    glm::vec4 rotate; // Covariance Matrix
-    glm::vec4 opacity;
-};
 
 struct GaussianSplatting3DParams {
     glm::mat4 view;
@@ -45,7 +38,7 @@ public:
 
     bool InitializeGPUPipeline(size_t maxPoints);
 
-    void Render(const std::vector<GaussianPoint3D> &points) const;
+    void Render(const std::vector<GaussianPoint> &points) const;
 
     void GeneratePixelMap(const std::string &path) const;
 
