@@ -25,8 +25,9 @@ struct BezierLine {
 
 struct BezierParams {
     uint32_t lineNums;
-    uint32_t numPoints;
-    bool debugPixelMap;
+    uint32_t bodyPointsNums; // 生成的点数量,采样精度
+    uint32_t assPointsNums; // 生成的屁股点数量,越多越圆
+    uint32_t headPointsNums; // 生成的头点数量,越多越圆
 };
 
 class GPUBezierThickLineGenerator {
@@ -37,7 +38,6 @@ class GPUBezierThickLineGenerator {
 
     std::shared_ptr<VkGPUBuffer> inputBuffer = nullptr;
     std::shared_ptr<VkGPUBuffer> outputBuffer = nullptr;
-    std::shared_ptr<VkGPUBuffer> pixelMapBuffer = nullptr;
 
     BezierParams params{};
 
@@ -46,15 +46,9 @@ public:
 
     ~GPUBezierThickLineGenerator();
 
-    bool InitializeGPUPipeline();
+    bool InitializeGPUPipeline(const BezierParams &bezierParams);
 
-    [[nodiscard]] Point2D *GenerateThickLine(const std::vector<BezierLine> &lines) const;
-
-    void GeneratePixelMap(const std::string &path) const;
-
-    void SetParams(const BezierParams &params) {
-        this->params = params;
-    }
+    [[nodiscard]] Point2D *GenerateThickLine(const std::vector<BezierLine> &lines);
 
     void UnMapOutputBuffer() const {
         if (outputBuffer != nullptr) {

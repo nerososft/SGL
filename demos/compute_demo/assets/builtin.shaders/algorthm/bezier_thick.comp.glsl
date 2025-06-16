@@ -15,14 +15,11 @@ layout(set = 0, binding = 1) buffer ThinkLineOutputPoints {
     vec2 points[];
 } outputPoints;
 
-layout(set = 0, binding = 2) buffer PixelMap {
-    uint pixels[];
-} pixelMap;
-
 layout(push_constant) uniform Params {
     uint lineNums;
-    uint numPoints;// 生成的点数量,采样精度
-    bool debugPixelMap;
+    uint bodyPointsNums;
+    uint assPointsNums;
+    uint headPointsNums;
 } params;
 
 vec2 cubicBezier(uint line, float t) {
@@ -58,15 +55,29 @@ vec2 rotateMinus90(vec2 v) {
     return vec2(v.y, -v.x);
 }
 
+#define PI (3.1415926)
+vec2 rotateVector(vec2 v, float degrees) {
+    float angleInRadians = degrees * (PI / 180.0);
+    float c = cos(angleInRadians);
+    float s = sin(angleInRadians);
+    mat2 rotationMatrix = mat2(c, -s, s, c);
+    return rotationMatrix * v;
+}
+
+float assStepAngle = 180.0f / float(params.assPointsNums);
+float headStepAngle = 180.0f / float(params.headPointsNums);
+
 void main() {
     uint idx = gl_GlobalInvocationID.x;
 
-    if (idx >= params.numPoints){
+    if (idx >= params.bodyPointsNums){
         return;
     }
 
-    float currentT =  float(idx) / float(params.numPoints-1);
-    float nextT =  float(idx + 1) / float(params.numPoints-1);
+    float currentT =  float(idx) / float(params.bodyPointsNums - 1);
+    float nextT =  float(idx + 1) / float(params.bodyPointsNums - 1);
+
+    uint pointsNums = params.bodyPointsNums + params.assPointsNums + params.headPointsNums;
 
     for (uint lineIdx = 0; lineIdx < params.lineNums; lineIdx++) {
         vec2 pointCurrent;
@@ -82,15 +93,25 @@ void main() {
         pointUp = pointCurrent + rotate90(dir);
         pointDown = pointCurrent + rotateMinus90(dir);
 
-        uint upOffset = lineIdx * params.numPoints * 2;
-        uint downEnd = upOffset + 2 * params.numPoints;
-        outputPoints.points[upOffset + idx] = pointUp;
-        outputPoints.points[downEnd - idx - 1] = pointDown;
+        uint upOffset = lineIdx * pointsNums * 2;
+        uint downEnd = upOffset + 2 * pointsNums;
 
-        if (params.debugPixelMap) {
-            pixelMap.pixels[uint(floor(pointCurrent.y)) * params.numPoints + uint(floor(pointCurrent.x))] = packColor(vec4(1.0f, 0.0f, 0.0f, 1.0f));
-            pixelMap.pixels[uint(floor(pointUp.y)) * params.numPoints + uint(floor(pointUp.x))] = packColor(vec4(0.0f, 1.0f, 0.0f, 1.0f));
-            pixelMap.pixels[uint(floor(pointDown.y)) * params.numPoints + uint(floor(pointDown.x))] = packColor(vec4(0.0f, 0.0f, 1.0f, 1.0f));
+        if (idx == 0) {
+            for (uint assIndex = 0; assIndex < params.assPointsNums; assIndex++) {
+                vec2 pointAss = pointCurrent + rotateVector(dir, 90.0f + assIndex * assStepAngle);
+                outputPoints.points[upOffset + assIndex] = pointAss;
+            }
         }
+
+        if (idx == params.bodyPointsNums - 1) {
+            uint bodyHeadNums  = params.headPointsNums + params.bodyPointsNums;
+            for (uint headIndex = 0; headIndex < params.headPointsNums; headIndex++) {
+                vec2 pointHead = pointCurrent + rotateVector(dir, -90.0f + headIndex * headStepAngle);
+                outputPoints.points[downEnd - bodyHeadNums + headIndex] = pointHead;
+            }
+        }
+
+        outputPoints.points[upOffset + params.assPointsNums + idx] = pointUp;
+        outputPoints.points[downEnd - idx - 1] = pointDown;
     }
 }

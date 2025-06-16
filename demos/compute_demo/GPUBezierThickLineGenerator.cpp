@@ -11,10 +11,6 @@
 #include "core/utils/TimeUtils.h"
 
 GPUBezierThickLineGenerator::~GPUBezierThickLineGenerator() {
-    if (this->pixelMapBuffer != nullptr) {
-        this->pixelMapBuffer->Destroy();
-        this->pixelMapBuffer = nullptr;
-    }
     if (this->outputBuffer != nullptr) {
         this->outputBuffer->UnMapBuffer();
         this->outputBuffer->Destroy();
@@ -38,7 +34,8 @@ GPUBezierThickLineGenerator::~GPUBezierThickLineGenerator() {
     }
 }
 
-bool GPUBezierThickLineGenerator::InitializeGPUPipeline() {
+bool GPUBezierThickLineGenerator::InitializeGPUPipeline(const BezierParams &bezierParams) {
+    this->params = bezierParams;
     std::vector<const char *> extensions = {};
     gpuCtx = std::make_shared<VkGPUContext>(extensions);
 
@@ -60,7 +57,7 @@ bool GPUBezierThickLineGenerator::InitializeGPUPipeline() {
     computeGraph->AddSubGraph(computeSubGraph);
     bezierNode = std::make_shared<ComputePipelineNode>(gpuCtx, "BezierThickLine",
                                                        SHADER(bezier_thick.comp.glsl.spv),
-                                                       (params.numPoints + 255) / 256,
+                                                       (params.bodyPointsNums + 255) / 256,
                                                        1,
                                                        1);
 
@@ -72,17 +69,11 @@ bool GPUBezierThickLineGenerator::InitializeGPUPipeline() {
         return false;
     }
 
+    const size_t pointsNums = params.bodyPointsNums + params.assPointsNums + params.headPointsNums;
+
     outputBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
     result = outputBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED,
-                                           MAX_LINE_NUMS * params.numPoints * sizeof(Point2D) * 2);
-    if (result != VK_SUCCESS) {
-        Logger() << "Failed to allocate GPU buffer!" << std::endl;
-        return false;
-    }
-
-    pixelMapBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
-    result = pixelMapBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED,
-                                             params.numPoints * params.numPoints * 4);
+                                           MAX_LINE_NUMS * pointsNums * sizeof(Point2D) * 2);
     if (result != VK_SUCCESS) {
         Logger() << "Failed to allocate GPU buffer!" << std::endl;
         return false;
@@ -101,13 +92,6 @@ bool GPUBezierThickLineGenerator::InitializeGPUPipeline() {
         .buf = {
             .bufferSize = outputBuffer->GetBufferSize(),
             .buffer = outputBuffer->GetBuffer()
-        }
-    });
-    ppBuffers.push_back({
-        .type = PIPELINE_NODE_BUFFER_STORAGE_WRITE,
-        .buf = {
-            .bufferSize = pixelMapBuffer->GetBufferSize(),
-            .buffer = pixelMapBuffer->GetBuffer()
         }
     });
 
@@ -137,7 +121,8 @@ bool GPUBezierThickLineGenerator::InitializeGPUPipeline() {
     return true;
 }
 
-Point2D *GPUBezierThickLineGenerator::GenerateThickLine(const std::vector<BezierLine> &lines) const {
+Point2D *GPUBezierThickLineGenerator::GenerateThickLine(const std::vector<BezierLine> &lines) {
+    this->params.lineNums = lines.size();
     inputBuffer->UploadData(lines.data(), lines.size() * sizeof(BezierLine));
 
     const uint64_t time = TimeUtils::GetCurrentMonoMs();
@@ -149,19 +134,4 @@ Point2D *GPUBezierThickLineGenerator::GenerateThickLine(const std::vector<Bezier
     Logger() << "TimeUsage: " << elapsed << "ms" << std::endl;
 
     return static_cast<Point2D *>(outputBuffer->GetMappedAddr());
-}
-
-void GPUBezierThickLineGenerator::GeneratePixelMap(const std::string &path) const {
-    if (params.debugPixelMap) {
-        if (const VkResult ret = pixelMapBuffer->MapBuffer(); ret != VK_SUCCESS) {
-            Logger() << "Failed to map pixel buffer!" << std::endl;
-            return;
-        }
-        ImageUtils::WritePngFile(path,
-                                 params.numPoints,
-                                 params.numPoints,
-                                 4,
-                                 pixelMapBuffer->GetMappedAddr());
-        pixelMapBuffer->UnMapBuffer();
-    }
 }
