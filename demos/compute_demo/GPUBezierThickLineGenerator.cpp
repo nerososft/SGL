@@ -69,11 +69,11 @@ bool GPUBezierThickLineGenerator::InitializeGPUPipeline(const BezierParams &bezi
         return false;
     }
 
-    const size_t pointsNums = params.bodyPointsNums + params.assPointsNums + params.headPointsNums;
+    const size_t pointsNums = params.bodyPointsNums * 2 + params.assPointsNums + params.headPointsNums;
 
     outputBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
     result = outputBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED,
-                                           MAX_LINE_NUMS * pointsNums * sizeof(Point2D) * 2);
+                                           MAX_LINE_NUMS * pointsNums * sizeof(Point2D));
     if (result != VK_SUCCESS) {
         Logger() << "Failed to allocate GPU buffer!" << std::endl;
         return false;

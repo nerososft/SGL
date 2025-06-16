@@ -18,9 +18,9 @@ int main(int argc, char *argv[]) {
         BezierLine line{
             .points = {
                 {.x = 500, .y = 500},
-               {.x = 300.0, .y = 100.0},
-               {.x = 800.0, .y = 100.0},
-               {.x = 900.0, .y = 100.0},
+                {.x = 300.0, .y = 100.0},
+                {.x = 800.0, .y = 100.0},
+                {.x = 900.0, .y = 100.0},
             },
             .beginWidth = 100.0f,
             .endWidth = 1.0f,
@@ -29,9 +29,9 @@ int main(int argc, char *argv[]) {
     }
 
     BezierParams bezierParams{};
-    bezierParams.bodyPointsNums = 1024;
-    bezierParams.assPointsNums = 30;
-    bezierParams.headPointsNums = 10;
+    bezierParams.bodyPointsNums = 30;
+    bezierParams.assPointsNums = 10;
+    bezierParams.headPointsNums = 5;
 
     static GPUBezierThickLineGenerator utils;
 
@@ -44,11 +44,13 @@ int main(int argc, char *argv[]) {
     const Point2D *points = utils.GenerateThickLine(lines);
     const uint64_t last = TimeUtils::GetCurrentMonoMs();
 
-    const size_t pointsNums = bezierParams.bodyPointsNums + bezierParams.assPointsNums + bezierParams.headPointsNums;
+    const size_t pointsNums = 2 * bezierParams.bodyPointsNums
+                              + bezierParams.assPointsNums
+                              + bezierParams.headPointsNums;
     std::cout << "Totally Usage: " << last - now << " ms" << std::endl;
     for (uint32_t lineIdx = 0; lineIdx < bezierParams.lineNums; lineIdx++) {
-        for (uint32_t pointIdx = 0; pointIdx < pointsNums * 2; pointIdx++) {
-            const uint32_t offset = lineIdx * pointsNums * 2;
+        for (uint32_t pointIdx = 0; pointIdx < pointsNums; pointIdx++) {
+            const uint32_t offset = lineIdx * pointsNums;
             const auto [x, y] = points[offset + pointIdx];
             // std::cout << "(" << x << "," << y << ")";
         }

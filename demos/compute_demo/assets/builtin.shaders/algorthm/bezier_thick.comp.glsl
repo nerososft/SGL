@@ -66,7 +66,7 @@ vec2 rotateVector(vec2 v, float degrees) {
 
 float assStepAngle = 180.0f / float(params.assPointsNums);
 float headStepAngle = 180.0f / float(params.headPointsNums);
-
+uint allPointsNums = 2 * params.bodyPointsNums + params.assPointsNums + params.headPointsNums;
 void main() {
     uint idx = gl_GlobalInvocationID.x;
 
@@ -76,8 +76,6 @@ void main() {
 
     float currentT =  float(idx) / float(params.bodyPointsNums - 1);
     float nextT =  float(idx + 1) / float(params.bodyPointsNums - 1);
-
-    uint pointsNums = params.bodyPointsNums + params.assPointsNums + params.headPointsNums;
 
     for (uint lineIdx = 0; lineIdx < params.lineNums; lineIdx++) {
         vec2 pointCurrent;
@@ -93,8 +91,8 @@ void main() {
         pointUp = pointCurrent + rotate90(dir);
         pointDown = pointCurrent + rotateMinus90(dir);
 
-        uint upOffset = lineIdx * pointsNums * 2;
-        uint downEnd = upOffset + 2 * pointsNums;
+        uint upOffset = lineIdx * allPointsNums;
+        uint downEnd = upOffset + allPointsNums;
 
         if (idx == 0) {
             for (uint assIndex = 0; assIndex < params.assPointsNums; assIndex++) {
