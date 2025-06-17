@@ -12,6 +12,9 @@
 #include "core/utils/ImageUtils.h"
 
 bool Painter::Init(uint32_t width, uint32_t height) {
+    this->width = width;
+    this->height = height;
+
     std::vector<const char *> extensions;
     this->gpuCtx = std::make_shared<VkGPUContext>(extensions);
     this->gpuCtx->AddInstanceEnableLayer("VK_LAYER_KHRONOS_validation");
@@ -217,9 +220,7 @@ bool Painter::CreateGraphicsPipelines() {
     };
 
     std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
-    // descriptorSetLayoutBindings.push_back(
-        // VkGPUHelper::BuildDescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1,
-                                                     // VK_SHADER_STAGE_ALL_GRAPHICS));
+    // descriptorSetLayoutBindings.push_back(VkGPUHelper::BuildDescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_ALL_GRAPHICS));
     this->graphicsPipelineNode = std::make_shared<GraphicsPipelineNode>(this->gpuCtx,
                                                                         "mainGraphicsPipeline",
                                                                         this->mainRenderPassNode->GetRenderPass(),

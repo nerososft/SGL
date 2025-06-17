@@ -42,9 +42,6 @@ public:
 
     bool Init(uint32_t width, uint32_t height);
 
-    bool CreatePointPipeline();
-    bool CreateLinePipeline();
-    bool CreateTranglePipeline();
     bool CreateGraphicsPipelines();
 
     void drawRects(std::vector<Rectangle> rects);
