@@ -86,16 +86,38 @@ bool Renderer::ConstructMainGraphicsPipeline() {
         },
     };
 
+    std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
+    descriptorSetLayoutBindings.push_back(
+        VkGPUHelper::BuildDescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1,
+                                                     VK_SHADER_STAGE_ALL_GRAPHICS));
+    descriptorSetLayoutBindings.push_back(
+        VkGPUHelper::BuildDescriptorSetLayoutBinding(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1,
+                                                     VK_SHADER_STAGE_ALL_GRAPHICS));
+    descriptorSetLayoutBindings.push_back(
+        VkGPUHelper::BuildDescriptorSetLayoutBinding(2, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1,
+                                                     VK_SHADER_STAGE_ALL_GRAPHICS));
+    descriptorSetLayoutBindings.push_back(
+        VkGPUHelper::BuildDescriptorSetLayoutBinding(3, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1,
+                                                     VK_SHADER_STAGE_ALL_GRAPHICS));
+
     this->graphicsPipelineNode = std::make_shared<GraphicsPipelineNode>(this->gpuCtx,
                                                                         "mainGraphicsPipeline",
                                                                         this->mainRenderPassNode->GetRenderPass(),
                                                                         SHADER(rect.vert.glsl.spv),
                                                                         SHADER(rect.frag.glsl.spv),
+                                                                        sizeof(FrameInfo),
+                                                                        descriptorSetLayoutBindings,
                                                                         vertexInputBindingDescriptions,
                                                                         vertexInputAttributeDescriptions,
                                                                         this->width,
                                                                         this->height);
     if (this->graphicsPipelineNode == nullptr) {
+        Logger() << Logger::ERROR << "Failed to create graphics pipeline node!" << std::endl;
+        return false;
+    }
+
+    const VkResult ret = this->graphicsPipelineNode->CreateComputeGraphNode();
+    if (ret != VK_SUCCESS) {
         Logger() << Logger::ERROR << "Failed to create graphics pipeline node!" << std::endl;
         return false;
     }
@@ -106,12 +128,6 @@ bool Renderer::ConstructMainGraphicsPipeline() {
     }
     if (!onLoadScene(this)) {
         Logger() << Logger::ERROR << "Failed to load scene!" << std::endl;
-        return false;
-    }
-
-    const VkResult ret = this->graphicsPipelineNode->CreateComputeGraphNode();
-    if (ret != VK_SUCCESS) {
-        Logger() << Logger::ERROR << "Failed to create graphics pipeline node!" << std::endl;
         return false;
     }
 

@@ -25,6 +25,7 @@ class GraphicsPipelineNode final : public IComputeGraphNode {
     std::vector<VkVertexInputBindingDescription> vertexInputBindingDescriptions;
     std::vector<VkVertexInputAttributeDescription> vertexInputAttributeDescriptions;
 
+    uint32_t pushConstantSize = 0;
     std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
 
     float width = 1.0f;
@@ -43,6 +44,8 @@ public:
                          const std::shared_ptr<VkGPURenderPass> &renderPass,
                          const std::string &vertexShaderPath,
                          const std::string &fragmentShaderPath,
+                         const uint32_t pushConstantSize,
+                         const std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings,
                          const std::vector<VkVertexInputBindingDescription> &vertexInputBindingDescriptions,
                          const std::vector<VkVertexInputAttributeDescription> &vertexInputAttributeDescriptions,
                          float width,

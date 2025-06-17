@@ -19,6 +19,8 @@ GraphicsPipelineNode::GraphicsPipelineNode(const std::shared_ptr<VkGPUContext> &
                                            const std::shared_ptr<VkGPURenderPass> &renderPass,
                                            const std::string &vertexShaderPath,
                                            const std::string &fragmentShaderPath,
+                                           const uint32_t pushConstantSize,
+                                           const std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings,
                                            const std::vector<VkVertexInputBindingDescription> &
                                            vertexInputBindingDescriptions,
                                            const std::vector<VkVertexInputAttributeDescription> &
@@ -31,6 +33,8 @@ GraphicsPipelineNode::GraphicsPipelineNode(const std::shared_ptr<VkGPUContext> &
     this->renderPass = renderPass;
     this->vertexShaderPath = vertexShaderPath;
     this->fragmentShaderPath = fragmentShaderPath;
+    this->pushConstantSize = pushConstantSize;
+    this->descriptorSetLayoutBindings = descriptorSetLayoutBindings;
     this->vertexInputBindingDescriptions = vertexInputBindingDescriptions;
     this->vertexInputAttributeDescriptions = vertexInputAttributeDescriptions;
     this->width = width;
@@ -98,40 +102,14 @@ std::shared_ptr<VkGPUDescriptorSet> GraphicsPipelineNode::CreateDescriptorSet(
 
 void GraphicsPipelineNode::AddGraphicsElement(const GraphicsElement &graphicsElement) {
     this->graphicsElements.push_back(graphicsElement);
+    const std::shared_ptr<VkGPUDescriptorSet> descriptorSet = CreateDescriptorSet(graphicsElement);
+    pipelineDescriptorSets.push_back(descriptorSet);
 }
 
 VkResult GraphicsPipelineNode::CreateComputeGraphNode() {
     if (gpuCtx == nullptr) {
         Logger() << "gpuCtx is null" << std::endl;
         return VK_ERROR_INITIALIZATION_FAILED;
-    }
-
-    if (graphicsElements.empty()) {
-        Logger() << "no graphics element" << std::endl;
-        return VK_ERROR_INITIALIZATION_FAILED;
-    }
-
-    const auto [pushConstantInfo, buffers, customDrawFunc] = graphicsElements[0];
-    int binding = 0;
-    for (const auto &buffer: buffers) {
-        if (buffer.type == PIPELINE_NODE_BUFFER_VERTEX || buffer.type == PIPELINE_NODE_BUFFER_INDEX) {
-            continue;
-        }
-        VkDescriptorSetLayoutBinding bufferBinding;
-        bufferBinding.binding = binding;
-        if (buffer.type == PIPELINE_NODE_BUFFER_UNIFORM) {
-            bufferBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        } else if (buffer.type == PIPELINE_NODE_BUFFER_STORAGE_READ ||
-                   buffer.type == PIPELINE_NODE_BUFFER_STORAGE_WRITE) {
-            bufferBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-        } else if (buffer.type == PIPELINE_NODE_SAMPLER) {
-            bufferBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        }
-        bufferBinding.descriptorCount = 1;
-        bufferBinding.stageFlags = VK_SHADER_STAGE_ALL_GRAPHICS;
-        bufferBinding.pImmutableSamplers = nullptr;
-        descriptorSetLayoutBindings.push_back(bufferBinding);
-        binding++;
     }
 
     for (auto &layoutBinding: descriptorSetLayoutBindings) {
@@ -142,7 +120,7 @@ VkResult GraphicsPipelineNode::CreateComputeGraphNode() {
     std::vector<VkPushConstantRange> pushConstantRanges;
     VkPushConstantRange pushConstantRange;
     pushConstantRange.offset = 0;
-    pushConstantRange.size = pushConstantInfo.size;
+    pushConstantRange.size = this->pushConstantSize;
     pushConstantRange.stageFlags = VK_SHADER_STAGE_ALL_GRAPHICS;
     pushConstantRanges.push_back(pushConstantRange);
 
@@ -162,10 +140,6 @@ VkResult GraphicsPipelineNode::CreateComputeGraphNode() {
         return ret;
     }
 
-    for (const auto &graphicsElement: graphicsElements) {
-        const std::shared_ptr<VkGPUDescriptorSet> descriptorSet = CreateDescriptorSet(graphicsElement);
-        pipelineDescriptorSets.push_back(descriptorSet);
-    }
     return ret;
 }
 

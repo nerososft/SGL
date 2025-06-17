@@ -17,6 +17,19 @@
 #include "log/Log.h"
 #include "utils/IOUtils.h"
 
+VkDescriptorSetLayoutBinding VkGPUHelper::BuildDescriptorSetLayoutBinding(const uint32_t binding,
+                                                                          const VkDescriptorType descriptorType,
+                                                                          const uint32_t descriptorCount,
+                                                                          const VkShaderStageFlagBits shaderStageFlag) {
+    VkDescriptorSetLayoutBinding descriptorSetLayoutBinding;
+    descriptorSetLayoutBinding.binding = binding;
+    descriptorSetLayoutBinding.descriptorType = descriptorType;
+    descriptorSetLayoutBinding.descriptorCount = descriptorCount;
+    descriptorSetLayoutBinding.stageFlags = shaderStageFlag;
+    descriptorSetLayoutBinding.pImmutableSamplers = nullptr;
+    return descriptorSetLayoutBinding;
+}
+
 VkWriteDescriptorSet VkGPUHelper::BuildWriteSamplerDescriptorSet(const VkDescriptorSet descriptorSet,
                                                                  const uint32_t dstBinding,
                                                                  const VkDescriptorImageInfo *imageInfo) {

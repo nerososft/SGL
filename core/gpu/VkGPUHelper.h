@@ -14,6 +14,11 @@ public:
 
     ~VkGPUHelper() = default;
 
+    static VkDescriptorSetLayoutBinding BuildDescriptorSetLayoutBinding(uint32_t binding,
+                                                                        VkDescriptorType descriptorType,
+                                                                        uint32_t descriptorCount,
+                                                                        VkShaderStageFlagBits shaderStageFlag);
+
     static VkWriteDescriptorSet BuildWriteSamplerDescriptorSet(VkDescriptorSet descriptorSet,
                                                                uint32_t dstBinding,
                                                                const VkDescriptorImageInfo *imageInfo);
