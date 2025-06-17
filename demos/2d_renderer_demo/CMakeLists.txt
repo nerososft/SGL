@@ -33,6 +33,8 @@ add_custom_target(compile_2d_renderer_shaders ALL DEPENDS ${COMPILED_SHADERS})
 
 add_executable(2d_renderer_demo
         main.cpp
+        Painter.cpp
+        Painter.h
 )
 target_link_libraries(2d_renderer_demo core)
 target_link_libraries(2d_renderer_demo render_engine)
