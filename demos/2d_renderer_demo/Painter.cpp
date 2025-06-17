@@ -7,6 +7,7 @@
 #include <ostream>
 #include <glm/ext/matrix_transform.hpp>
 
+#include "core/gpu/VkGPUHelper.h"
 #include "core/log/Log.h"
 #include "core/utils/ImageUtils.h"
 
@@ -23,7 +24,6 @@ bool Painter::Init(uint32_t width, uint32_t height) {
         return false;
     }
     Logger() << Logger::INFO << "Initialized Renderer, version: " << VERSION << std::endl;
-
 
     std::vector<uint32_t> queueFamilies = {0};
     this->computeGraph = std::make_shared<ComputeGraph>(this->gpuCtx);
@@ -216,11 +216,17 @@ bool Painter::CreateGraphicsPipelines() {
         },
     };
 
+    std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
+    // descriptorSetLayoutBindings.push_back(
+        // VkGPUHelper::BuildDescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1,
+                                                     // VK_SHADER_STAGE_ALL_GRAPHICS));
     this->graphicsPipelineNode = std::make_shared<GraphicsPipelineNode>(this->gpuCtx,
                                                                         "mainGraphicsPipeline",
                                                                         this->mainRenderPassNode->GetRenderPass(),
                                                                         SHADER(rect.vert.glsl.spv),
                                                                         SHADER(rect.frag.glsl.spv),
+                                                                        sizeof(FrameInfo),
+                                                                        descriptorSetLayoutBindings,
                                                                         vertexInputBindingDescriptions,
                                                                         vertexInputAttributeDescriptions,
                                                                         this->width,
@@ -230,13 +236,13 @@ bool Painter::CreateGraphicsPipelines() {
         return false;
     }
 
-    // TODO: vertex data,  draw elemenet add
-
     const VkResult ret = this->graphicsPipelineNode->CreateComputeGraphNode();
     if (ret != VK_SUCCESS) {
         Logger() << Logger::ERROR << "Failed to create graphics pipeline node!" << std::endl;
         return false;
     }
+
+    // TODO: vertex data,  draw elemenet add
 
     this->mainRenderPassNode->AddDependenceNode(this->graphicsPipelineNode);
 
