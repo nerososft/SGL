@@ -11,6 +11,7 @@
 #include <vulkan/vk_enum_string_helper.h>
 #endif
 
+#include "core/gpu/VkGPUHelper.h"
 #include "core/gpu/compute_graph/BufferCopyNode.h"
 #include "core/gpu/compute_graph/ComputeGraph.h"
 #include "core/gpu/compute_graph/ComputePipelineNode.h"
@@ -67,21 +68,36 @@ VkResult BaseBlender::DoApply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     pipelineBuffers.push_back(pipelineNodeInput0);
     pipelineBuffers.push_back(pipelineNodeInput1);
     pipelineBuffers.push_back(pipelineNodeOutput);
+
+    std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
+    descriptorSetLayoutBindings.push_back(
+        VkGPUHelper::BuildDescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1,
+                                                     VK_SHADER_STAGE_COMPUTE_BIT));
+    descriptorSetLayoutBindings.push_back(
+        VkGPUHelper::BuildDescriptorSetLayoutBinding(1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1,
+                                                     VK_SHADER_STAGE_COMPUTE_BIT));
+    descriptorSetLayoutBindings.push_back(
+        VkGPUHelper::BuildDescriptorSetLayoutBinding(2, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1,
+                                                     VK_SHADER_STAGE_COMPUTE_BIT));
+
     const auto blendNode = std::make_shared<ComputePipelineNode>(gpuCtx,
                                                                  name,
                                                                  blenderParams.shaderPath,
+                                                                 pushConstantInfo.size,
+                                                                 descriptorSetLayoutBindings,
                                                                  workGroupX,
                                                                  workGroupY,
                                                                  workGroupZ);
-    blendNode->AddComputeElement({
-        .pushConstantInfo = pushConstantInfo,
-        .buffers = pipelineBuffers,
-    });
     ret = blendNode->CreateComputeGraphNode();
     if (ret != VK_SUCCESS) {
         Logger() << "Failed to create compute graph, err =" << string_VkResult(ret) << std::endl;
         return ret;
     }
+
+    blendNode->AddComputeElement({
+       .pushConstantInfo = pushConstantInfo,
+       .buffers = pipelineBuffers,
+   });
 
     blendNode->AddDependenceNode(copyBufferNode);
     computeSubGraph->AddComputeGraphNode(blendNode);

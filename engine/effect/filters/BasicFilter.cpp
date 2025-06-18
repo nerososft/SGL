@@ -13,6 +13,7 @@
 #endif
 
 #include "core/gpu/VkGPUComputePipeline.h"
+#include "core/gpu/VkGPUHelper.h"
 #include "core/gpu/compute_graph/ComputePipelineNode.h"
 #include "core/log/Log.h"
 
@@ -51,21 +52,33 @@ VkResult BasicFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     pipelineBuffers.push_back(pipelineNodeInput);
     pipelineBuffers.push_back(pipelineNodeOutput);
 
+    std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
+    descriptorSetLayoutBindings.push_back(
+        VkGPUHelper::BuildDescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1,
+                                                     VK_SHADER_STAGE_COMPUTE_BIT));
+    descriptorSetLayoutBindings.push_back(
+        VkGPUHelper::BuildDescriptorSetLayoutBinding(1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1,
+                                                     VK_SHADER_STAGE_COMPUTE_BIT));
+
     const auto node = std::make_shared<ComputePipelineNode>(gpuCtx,
                                                             name,
                                                             filterParams.shaderPath,
+                                                            pushConstantInfo.size,
+                                                            descriptorSetLayoutBindings,
                                                             workGroupX,
                                                             workGroupY,
                                                             workGroupZ);
-    node->AddComputeElement({
-        .pushConstantInfo = pushConstantInfo,
-        .buffers = pipelineBuffers
-    });
     ret = node->CreateComputeGraphNode();
     if (ret != VK_SUCCESS) {
         Logger() << "Failed to create compute graph, err =" << string_VkResult(ret) << std::endl;
         return ret;
     }
+
+    node->AddComputeElement({
+        .pushConstantInfo = pushConstantInfo,
+        .buffers = pipelineBuffers
+    });
+
     computeSubGraph->AddComputeGraphNode(node);
     computeGraph->AddSubGraph(this->computeSubGraph);
 

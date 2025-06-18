@@ -53,24 +53,35 @@ VkResult IrisBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     vPipelineBuffers.push_back(pipelineNodeTempInput);
     vPipelineBuffers.push_back(pipelineNodeOutput);
 
+    std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
+    descriptorSetLayoutBindings.push_back(
+        VkGPUHelper::BuildDescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1,
+                                                     VK_SHADER_STAGE_COMPUTE_BIT));
+    descriptorSetLayoutBindings.push_back(
+        VkGPUHelper::BuildDescriptorSetLayoutBinding(1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1,
+                                                     VK_SHADER_STAGE_COMPUTE_BIT));
+    descriptorSetLayoutBindings.push_back(
+        VkGPUHelper::BuildDescriptorSetLayoutBinding(2, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1,
+                                                     VK_SHADER_STAGE_COMPUTE_BIT));
+
     const auto kCalculateNode = std::make_shared<ComputePipelineNode>(gpuCtx,
                                                                       "irisblur",
                                                                       SHADER(irisblur.comp.glsl.spv),
+                                                                      pushConstantInfo.size,
+                                                                      descriptorSetLayoutBindings,
                                                                       (inputImageInfo[0].width + 31) / 32,
                                                                       (inputImageInfo[0].height + 31) / 32,
                                                                       1);
-
-
-    kCalculateNode->AddComputeElement({
-        .pushConstantInfo = pushConstantInfo,
-        .buffers = vPipelineBuffers
-    });
-
     ret = kCalculateNode->CreateComputeGraphNode();
     if (ret != VK_SUCCESS) {
         Logger() << "Failed to create compute graph, err =" << string_VkResult(ret) << std::endl;
         return ret;
     }
+
+    kCalculateNode->AddComputeElement({
+        .pushConstantInfo = pushConstantInfo,
+        .buffers = vPipelineBuffers
+    });
 
     computeSubGraph->AddComputeGraphNode(kCalculateNode);
     computeGraph->AddSubGraph(computeSubGraph);

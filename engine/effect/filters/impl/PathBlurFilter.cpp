@@ -100,24 +100,46 @@ VkResult pathBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     vecPipelineBuffers.push_back(vecpipelineNodeEvInput);
     vecPipelineBuffers.push_back(vecpipelineNodeOutput);
 
+    std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
+    descriptorSetLayoutBindings.push_back(
+        VkGPUHelper::BuildDescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1,
+                                                     VK_SHADER_STAGE_COMPUTE_BIT));
+    descriptorSetLayoutBindings.push_back(
+        VkGPUHelper::BuildDescriptorSetLayoutBinding(1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1,
+                                                     VK_SHADER_STAGE_COMPUTE_BIT));
+    descriptorSetLayoutBindings.push_back(
+        VkGPUHelper::BuildDescriptorSetLayoutBinding(2, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1,
+                                                     VK_SHADER_STAGE_COMPUTE_BIT));
+    descriptorSetLayoutBindings.push_back(
+        VkGPUHelper::BuildDescriptorSetLayoutBinding(3, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1,
+                                                     VK_SHADER_STAGE_COMPUTE_BIT));
+    descriptorSetLayoutBindings.push_back(
+        VkGPUHelper::BuildDescriptorSetLayoutBinding(4, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1,
+                                                     VK_SHADER_STAGE_COMPUTE_BIT));
+    descriptorSetLayoutBindings.push_back(
+        VkGPUHelper::BuildDescriptorSetLayoutBinding(5, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1,
+                                                     VK_SHADER_STAGE_COMPUTE_BIT));
+
     const auto vecCalculateNode = std::make_shared<ComputePipelineNode>(gpuCtx,
                                                                         "vecpathblurCalculate",
                                                                         SHADER(vecpathblur.comp.glsl.spv),
+                                                                        pushConstantInfo.size,
+                                                                        descriptorSetLayoutBindings,
                                                                         (inputImageInfo[0].width + 31) / 32,
                                                                         (inputImageInfo[0].height + 31) / 32,
                                                                         1);
-
-    vecCalculateNode->AddComputeElement({
-        .pushConstantInfo = pushConstantInfo,
-        .buffers = vecPipelineBuffers
-    });
 
     ret = vecCalculateNode->CreateComputeGraphNode();
     if (ret != VK_SUCCESS) {
         Logger() << "Failed to create compute graph, err =" << string_VkResult(ret) << std::endl;
         return ret;
     }
-    //
+
+    vecCalculateNode->AddComputeElement({
+        .pushConstantInfo = pushConstantInfo,
+        .buffers = vecPipelineBuffers
+    });
+
     PipelineNodeBuffer pipelineNodeInput;
     pipelineNodeInput.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
     pipelineNodeInput.buf.buffer = inputImageInfo[0].storageBuffer;
@@ -138,24 +160,35 @@ VkResult pathBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     vPipelineBuffers.push_back(pipelineNodeKInput);
     vPipelineBuffers.push_back(pipelineNodeOutput);
 
+    std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings2;
+    descriptorSetLayoutBindings2.push_back(
+        VkGPUHelper::BuildDescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1,
+                                                     VK_SHADER_STAGE_COMPUTE_BIT));
+    descriptorSetLayoutBindings2.push_back(
+        VkGPUHelper::BuildDescriptorSetLayoutBinding(1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1,
+                                                     VK_SHADER_STAGE_COMPUTE_BIT));
+    descriptorSetLayoutBindings2.push_back(
+        VkGPUHelper::BuildDescriptorSetLayoutBinding(2, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1,
+                                                     VK_SHADER_STAGE_COMPUTE_BIT));
+
     const auto kCalculateNode = std::make_shared<ComputePipelineNode>(gpuCtx,
                                                                       "pathblur",
                                                                       SHADER(pathblur.comp.glsl.spv),
+                                                                      pushConstantInfo.size,
+                                                                      descriptorSetLayoutBindings2,
                                                                       (inputImageInfo[0].width + 31) / 32,
                                                                       (inputImageInfo[0].height + 31) / 32,
                                                                       1);
-
-
-    kCalculateNode->AddComputeElement({
-        .pushConstantInfo = pushConstantInfo,
-        .buffers = vPipelineBuffers
-    });
-
     ret = kCalculateNode->CreateComputeGraphNode();
     if (ret != VK_SUCCESS) {
         Logger() << "Failed to create compute graph, err =" << string_VkResult(ret) << std::endl;
         return ret;
     }
+
+    kCalculateNode->AddComputeElement({
+        .pushConstantInfo = pushConstantInfo,
+        .buffers = vPipelineBuffers
+    });
 
     kCalculateNode->AddDependenceNode(vecCalculateNode);
     computeSubGraph->AddComputeGraphNode(kCalculateNode);

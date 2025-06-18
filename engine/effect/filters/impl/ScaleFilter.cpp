@@ -14,6 +14,7 @@
 #include <vulkan/vk_enum_string_helper.h>
 #endif
 
+#include "core/gpu/VkGPUHelper.h"
 #include "core/log/Log.h"
 
 VkResult ScaleFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
@@ -55,23 +56,33 @@ VkResult ScaleFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     vPipelineBuffers.push_back(pipelineNodeInput);
     vPipelineBuffers.push_back(pipelineNodeOutput);
 
+    std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
+    descriptorSetLayoutBindings.push_back(
+        VkGPUHelper::BuildDescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1,
+                                                     VK_SHADER_STAGE_COMPUTE_BIT));
+    descriptorSetLayoutBindings.push_back(
+        VkGPUHelper::BuildDescriptorSetLayoutBinding(1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1,
+                                                     VK_SHADER_STAGE_COMPUTE_BIT));
+
     const auto kCalculateNode = std::make_shared<ComputePipelineNode>(gpuCtx,
                                                                       "scaleImage",
                                                                       SHADER(scale.comp.glsl.spv),
+                                                                      pushConstantInfo.size,
+                                                                      descriptorSetLayoutBindings,
                                                                       (outputImageInfo[0].width + 31) / 32,
                                                                       (outputImageInfo[0].height + 31) / 32,
                                                                       1);
-
-    kCalculateNode->AddComputeElement({
-        .pushConstantInfo = pushConstantInfo,
-        .buffers = vPipelineBuffers
-    });
 
     ret = kCalculateNode->CreateComputeGraphNode();
     if (ret != VK_SUCCESS) {
         Logger() << "Failed to create compute graph, err =" << string_VkResult(ret) << std::endl;
         return ret;
     }
+
+    kCalculateNode->AddComputeElement({
+        .pushConstantInfo = pushConstantInfo,
+        .buffers = vPipelineBuffers
+    });
 
     computeSubGraph->AddComputeGraphNode(kCalculateNode);
     computeGraph->AddSubGraph(computeSubGraph);

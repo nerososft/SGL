@@ -26,9 +26,11 @@ class ComputePipelineNode final : public IComputeGraphNode {
     uint32_t workGroupCountY = 1;
     uint32_t workGroupCountZ = 1;
 
+    uint32_t pushConstantSize = 0;
+    std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
+
     std::shared_ptr<VkGPUContext> gpuCtx = nullptr;
     std::shared_ptr<VkGPUComputePipeline> computePipeline = nullptr;
-    std::vector<VkDescriptorBufferInfo> pipelineDescriptorBufferInfos;
     std::vector<std::shared_ptr<VkGPUDescriptorSet> > pipelineDescriptorSets;
 
     std::vector<ComputeElement> computeElements;
@@ -37,9 +39,13 @@ public:
     ComputePipelineNode(const std::shared_ptr<VkGPUContext> &gpuCtx,
                         const std::string &name,
                         const std::string &shaderPath,
+                        uint32_t pushConstantSize,
+                        const std::vector<VkDescriptorSetLayoutBinding> &descriptorSetLayoutBindings,
                         uint32_t workGroupCountX,
                         uint32_t workGroupCountY,
                         uint32_t workGroupCountZ);
+
+    [[nodiscard]] std::shared_ptr<VkGPUDescriptorSet> CreateDescriptorSet(const ComputeElement &computeElement) const;
 
     void AddComputeElement(const ComputeElement &computeElement);
 

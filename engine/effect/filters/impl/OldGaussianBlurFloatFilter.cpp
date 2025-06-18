@@ -51,23 +51,33 @@ VkResult OldGaussianBlurFloatFilter::Apply(const std::shared_ptr<VkGPUContext> &
     vPipelineBuffers.push_back(vPipelineNodeInput);
     vPipelineBuffers.push_back(vPipelineNodeOutput);
 
+    std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
+    descriptorSetLayoutBindings.push_back(
+        VkGPUHelper::BuildDescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1,
+                                                     VK_SHADER_STAGE_COMPUTE_BIT));
+    descriptorSetLayoutBindings.push_back(
+        VkGPUHelper::BuildDescriptorSetLayoutBinding(1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1,
+                                                     VK_SHADER_STAGE_COMPUTE_BIT));
+
     const auto gaussianVerticalNode = std::make_shared<ComputePipelineNode>(gpuCtx,
                                                                             "OldGaussianVerticalBlurFloat",
                                                                             SHADER(
                                                                                 vertical_blur_old_float.comp.glsl.spv),
+                                                                            pushConstantInfo.size,
+                                                                            descriptorSetLayoutBindings,
                                                                             (inputImageInfo[0].width + 31) / 32,
                                                                             (inputImageInfo[0].height + 31) / 32,
                                                                             1);
-    gaussianVerticalNode->AddComputeElement({
-        .pushConstantInfo = pushConstantInfo,
-        .buffers = vPipelineBuffers
-    });
-
     ret = gaussianVerticalNode->CreateComputeGraphNode();
     if (ret != VK_SUCCESS) {
         Logger() << "Failed to create compute graph, err =" << string_VkResult(ret) << std::endl;
         return ret;
     }
+
+    gaussianVerticalNode->AddComputeElement({
+        .pushConstantInfo = pushConstantInfo,
+        .buffers = vPipelineBuffers
+    });
 
     PipelineNodeBuffer hPipelineNodeInput;
     hPipelineNodeInput.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
@@ -85,20 +95,25 @@ VkResult OldGaussianBlurFloatFilter::Apply(const std::shared_ptr<VkGPUContext> &
 
     const auto gaussianHorizontalNode = std::make_shared<ComputePipelineNode>(gpuCtx,
                                                                               "OldGaussianHorizontalBlurFloat",
-                                                                              SHADER(horizontal_blur_old_float.comp.glsl.spv),
+                                                                              SHADER(
+                                                                                  horizontal_blur_old_float.comp.glsl.
+                                                                                  spv),
+                                                                              pushConstantInfo.size,
+                                                                              descriptorSetLayoutBindings,
                                                                               (inputImageInfo[0].width + 31) / 32,
                                                                               (inputImageInfo[0].height + 31) / 32,
                                                                               1);
-    gaussianHorizontalNode->AddComputeElement({
-        .pushConstantInfo = pushConstantInfo,
-        .buffers = hPipelineBuffers
-    });
 
     ret = gaussianHorizontalNode->CreateComputeGraphNode();
     if (ret != VK_SUCCESS) {
         Logger() << "Failed to create compute graph, err =" << string_VkResult(ret) << std::endl;
         return ret;
     }
+
+    gaussianHorizontalNode->AddComputeElement({
+        .pushConstantInfo = pushConstantInfo,
+        .buffers = hPipelineBuffers
+    });
 
     BufferCopyNodeBufferInfo srcBufferInfo;
     srcBufferInfo.buffer = inputImageInfo[0].storageBuffer;

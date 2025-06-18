@@ -16,6 +16,7 @@
 #include <vulkan/vk_enum_string_helper.h>
 #endif
 
+#include "core/gpu/VkGPUHelper.h"
 #include "core/gpu/compute_graph/ComputePipelineNode.h"
 #include "core/log/Log.h"
 
@@ -50,23 +51,33 @@ std::shared_ptr<SubComputeGraph> MedianFilter::CreateParallelSubGraph(const size
     pipelineBuffers.push_back(pipelineNodeInput);
     pipelineBuffers.push_back(pipelineNodeOutput);
 
+    std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
+    descriptorSetLayoutBindings.push_back(
+        VkGPUHelper::BuildDescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1,
+                                                     VK_SHADER_STAGE_COMPUTE_BIT));
+    descriptorSetLayoutBindings.push_back(
+        VkGPUHelper::BuildDescriptorSetLayoutBinding(1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1,
+                                                     VK_SHADER_STAGE_COMPUTE_BIT));
+
     const auto node = std::make_shared<ComputePipelineNode>(gpuCtx,
                                                             "MedianFilter",
                                                             SHADER(midvalue.comp.glsl.spv),
+                                                            pushConstantInfo.size,
+                                                            descriptorSetLayoutBindings,
                                                             (this->medianFilterParams[parallelIndex].imageSize.width +
                                                              31) / 32,
                                                             (this->medianFilterParams[parallelIndex].imageSize.height +
                                                              31) / 32,
                                                             1);
-    node->AddComputeElement({
-        .pushConstantInfo = pushConstantInfo,
-        .buffers = pipelineBuffers
-    });
     ret = node->CreateComputeGraphNode();
     if (ret != VK_SUCCESS) {
         Logger() << "Failed to create compute graph, err =" << string_VkResult(ret) << std::endl;
         return nullptr;
     }
+    node->AddComputeElement({
+        .pushConstantInfo = pushConstantInfo,
+        .buffers = pipelineBuffers
+    });
     computeSubGraph->AddComputeGraphNode(node);
     return computeSubGraph;
 }

@@ -5,7 +5,6 @@
 #include "Transform3DFilter.h"
 
 #include <glm/ext/matrix_clip_space.hpp>
-#include <glm/ext/matrix_transform.hpp>
 
 #include "core/config.h"
 #include "core/gpu/VkGPUHelper.h"
@@ -207,11 +206,21 @@ VkResult Transform3DFilter::ConstructMainGraphicsPipeline(const FilterImageInfo 
         },
     };
 
+    std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
+    descriptorSetLayoutBindings.push_back(
+        VkGPUHelper::BuildDescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1,
+                                                     VK_SHADER_STAGE_COMPUTE_BIT));
+    descriptorSetLayoutBindings.push_back(
+        VkGPUHelper::BuildDescriptorSetLayoutBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1,
+                                                     VK_SHADER_STAGE_COMPUTE_BIT));
+
     this->graphicsPipelineNode = std::make_shared<GraphicsPipelineNode>(this->gpuCtx,
                                                                         "mainGraphicsPipeline",
                                                                         this->mainRenderPassNode->GetRenderPass(),
                                                                         SHADER(transform3d.vert.glsl.spv),
                                                                         SHADER(transform3d.frag.glsl.spv),
+                                                                        64,
+                                                                        descriptorSetLayoutBindings,
                                                                         vertexInputBindingDescriptions,
                                                                         vertexInputAttributeDescriptions,
                                                                         this->width,
@@ -219,6 +228,12 @@ VkResult Transform3DFilter::ConstructMainGraphicsPipeline(const FilterImageInfo 
     if (this->graphicsPipelineNode == nullptr) {
         Logger() << Logger::ERROR << "Failed to create graphics pipeline node!" << std::endl;
         return VK_ERROR_INITIALIZATION_FAILED;
+    }
+
+    VkResult ret = this->graphicsPipelineNode->CreateComputeGraphNode();
+    if (ret != VK_SUCCESS) {
+        Logger() << Logger::ERROR << "Failed to create graphics pipeline node!" << std::endl;
+        return ret;
     }
 
     const std::vector<Vertex> vertices = {
@@ -255,15 +270,9 @@ VkResult Transform3DFilter::ConstructMainGraphicsPipeline(const FilterImageInfo 
     };
     const std::vector<uint32_t> indices = {0, 1, 2, 3, 4, 5};
 
-    VkResult ret = this->AddDrawElement(vertices, indices, this->transformFilterParams.transformMatrix, imageInfo);
+    ret = this->AddDrawElement(vertices, indices, this->transformFilterParams.transformMatrix, imageInfo);
     if (ret != VK_SUCCESS) {
         Logger() << "draw mash add failed" << std::endl;
-        return ret;
-    }
-
-    ret = this->graphicsPipelineNode->CreateComputeGraphNode();
-    if (ret != VK_SUCCESS) {
-        Logger() << Logger::ERROR << "Failed to create graphics pipeline node!" << std::endl;
         return ret;
     }
 

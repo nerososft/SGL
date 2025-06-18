@@ -12,6 +12,7 @@
 
 #include "ScaleFilter.h"
 #include "core/gpu/VkGPUBuffer.h"
+#include "core/gpu/VkGPUHelper.h"
 #include "core/gpu/compute_graph/BufferCopyNode.h"
 #include "core/gpu/compute_graph/ComputePipelineNode.h"
 #include "core/log/Log.h"
@@ -42,22 +43,31 @@ std::shared_ptr<IComputeGraphNode> FastGaussianBlurFilter::CreateScaleDownNode(
     scaleDownPipelineBuffers.push_back(scaleDownPipelineNodeInput);
     scaleDownPipelineBuffers.push_back(scaleDownPipelineNodeOutput);
 
+    std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
+    descriptorSetLayoutBindings.push_back(
+        VkGPUHelper::BuildDescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1,
+                                                     VK_SHADER_STAGE_COMPUTE_BIT));
+    descriptorSetLayoutBindings.push_back(
+        VkGPUHelper::BuildDescriptorSetLayoutBinding(1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1,
+                                                     VK_SHADER_STAGE_COMPUTE_BIT));
+
     const auto node = std::make_shared<ComputePipelineNode>(gpuCtx,
                                                             "ScaleDown",
                                                             SHADER(scale.comp.glsl.spv),
+                                                            scaleDownPushConstantInfo.size,
+                                                            descriptorSetLayoutBindings,
                                                             (targetWidth + 31) / 32,
                                                             (targetHeight + 31) / 32,
                                                             1);
-    node->AddComputeElement({
-        .pushConstantInfo = scaleDownPushConstantInfo,
-        .buffers = scaleDownPipelineBuffers
-    });
-
     const VkResult ret = node->CreateComputeGraphNode();
     if (ret != VK_SUCCESS) {
         Logger() << "Failed to create compute graph, err =" << string_VkResult(ret) << std::endl;
         return nullptr;
     }
+    node->AddComputeElement({
+        .pushConstantInfo = scaleDownPushConstantInfo,
+        .buffers = scaleDownPipelineBuffers
+    });
     return node;
 }
 
@@ -84,24 +94,33 @@ std::shared_ptr<IComputeGraphNode> FastGaussianBlurFilter::CreateVBlurNode(const
     vPipelineBuffers.push_back(vPipelineNodeInput);
     vPipelineBuffers.push_back(vPipelineNodeOutput);
 
+    std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
+    descriptorSetLayoutBindings.push_back(
+        VkGPUHelper::BuildDescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1,
+                                                     VK_SHADER_STAGE_COMPUTE_BIT));
+    descriptorSetLayoutBindings.push_back(
+        VkGPUHelper::BuildDescriptorSetLayoutBinding(1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1,
+                                                     VK_SHADER_STAGE_COMPUTE_BIT));
+
     const auto gaussianVerticalNode = std::make_shared<ComputePipelineNode>(gpuCtx,
                                                                             "OldGaussianVerticalBlur",
                                                                             SHADER(vertical_blur_old.comp.glsl.spv),
+                                                                            blurPushConstantInfo.size,
+                                                                            descriptorSetLayoutBindings,
                                                                             (this->blurFilterParams.imageSize.width +
                                                                              31) / 32,
                                                                             (this->blurFilterParams.imageSize.height +
                                                                              31) / 32,
                                                                             1);
-    gaussianVerticalNode->AddComputeElement({
-        .pushConstantInfo = blurPushConstantInfo,
-        .buffers = vPipelineBuffers
-    });
-
     const VkResult ret = gaussianVerticalNode->CreateComputeGraphNode();
     if (ret != VK_SUCCESS) {
         Logger() << "Failed to create compute graph, err =" << string_VkResult(ret) << std::endl;
         return nullptr;
     }
+    gaussianVerticalNode->AddComputeElement({
+        .pushConstantInfo = blurPushConstantInfo,
+        .buffers = vPipelineBuffers
+    });
     return gaussianVerticalNode;
 }
 
@@ -128,24 +147,33 @@ std::shared_ptr<IComputeGraphNode> FastGaussianBlurFilter::CreateHBlurNode(const
     hPipelineBuffers.push_back(hPipelineNodeInput);
     hPipelineBuffers.push_back(hPipelineNodeOutput);
 
+    std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
+    descriptorSetLayoutBindings.push_back(
+        VkGPUHelper::BuildDescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1,
+                                                     VK_SHADER_STAGE_COMPUTE_BIT));
+    descriptorSetLayoutBindings.push_back(
+        VkGPUHelper::BuildDescriptorSetLayoutBinding(1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1,
+                                                     VK_SHADER_STAGE_COMPUTE_BIT));
+
     const auto gaussianHorizontalNode = std::make_shared<ComputePipelineNode>(gpuCtx,
                                                                               "OldGaussianHorizontalBlur",
                                                                               SHADER(horizontal_blur_old.comp.glsl.spv),
+                                                                              blurPushConstantInfo.size,
+                                                                              descriptorSetLayoutBindings,
                                                                               (this->blurFilterParams.imageSize.width +
                                                                                31) / 32,
                                                                               (this->blurFilterParams.imageSize.height +
                                                                                31) / 32,
                                                                               1);
-    gaussianHorizontalNode->AddComputeElement({
-        .pushConstantInfo = blurPushConstantInfo,
-        .buffers = hPipelineBuffers
-    });
-
     const VkResult ret = gaussianHorizontalNode->CreateComputeGraphNode();
     if (ret != VK_SUCCESS) {
         Logger() << "Failed to create compute graph, err =" << string_VkResult(ret) << std::endl;
         return nullptr;
     }
+    gaussianHorizontalNode->AddComputeElement({
+        .pushConstantInfo = blurPushConstantInfo,
+        .buffers = hPipelineBuffers
+    });
     return gaussianHorizontalNode;
 }
 
@@ -175,22 +203,31 @@ std::shared_ptr<IComputeGraphNode> FastGaussianBlurFilter::CreateScaleUpNode(
     scaleUpPipelineBuffers.push_back(scaleUpPipelineNodeInput);
     scaleUpPipelineBuffers.push_back(scaleUpPipelineNodeOutput);
 
+    std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
+    descriptorSetLayoutBindings.push_back(
+        VkGPUHelper::BuildDescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1,
+                                                     VK_SHADER_STAGE_COMPUTE_BIT));
+    descriptorSetLayoutBindings.push_back(
+        VkGPUHelper::BuildDescriptorSetLayoutBinding(1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1,
+                                                     VK_SHADER_STAGE_COMPUTE_BIT));
+
     const auto node = std::make_shared<ComputePipelineNode>(gpuCtx,
                                                             "ScaleUp",
                                                             SHADER(scale.comp.glsl.spv),
+                                                            scaleUpPushConstantInfo.size,
+                                                            descriptorSetLayoutBindings,
                                                             (targetWidth + 31) / 32,
                                                             (targetHeight + 31) / 32,
                                                             1);
-    node->AddComputeElement({
-        .pushConstantInfo = scaleUpPushConstantInfo,
-        .buffers = scaleUpPipelineBuffers
-    });
-
     const VkResult ret = node->CreateComputeGraphNode();
     if (ret != VK_SUCCESS) {
         Logger() << "Failed to create compute graph, err =" << string_VkResult(ret) << std::endl;
         return nullptr;
     }
+    node->AddComputeElement({
+        .pushConstantInfo = scaleUpPushConstantInfo,
+        .buffers = scaleUpPipelineBuffers
+    });
     return node;
 }
 
