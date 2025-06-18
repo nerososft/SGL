@@ -27,7 +27,7 @@
 #include "engine/effect/filters/impl/ScaleFilter.h"
 #include "engine/effect/filters/impl/SurfaceBlurFilter.h"
 #include "engine/effect/filters/impl/ThresholdSplitFilter.h"
-#include "engine/effect/filters/impl/Transform3DFilter.h"
+#include "engine/effect/filters/impl/TransformFilter.h"
 #include "engine/effect/filters/impl/VibranceFilter.h"
 #include "engine/effect/filters/impl/VoronoiFilter.h"
 #include "core/log/Log.h"
@@ -182,21 +182,18 @@ void effect_engine_main() {
     // filter->SetRadius(50);
     // effectEngine.Process("../../../demos/effect_demo/images/test.png", "../../../demos/effect_demo/images/test_median.png", filter);
 
-    const auto filter = std::make_shared<Transform3DFilter>();
-    auto transform = glm::mat4(1.0f);
-    transform = glm::rotate(transform, glm::radians(5.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    transform = glm::rotate(transform, glm::radians(5.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-    transform = glm::rotate(transform, glm::radians(10.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-
-    const glm::mat4 projection = glm::perspective(glm::radians(90.0f),
-                                                  1.0f,
-                                                  0.0f, 1000.0f);
-
-    const glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 0.0f, 1.0f),
-                                       glm::vec3(0.0f, 0.0f, 0.0f),
-                                       glm::vec3(0.0f, 1.0f, 0.0f));
-    transform = projection * view * transform;
-    filter->SetTransformMatrix(transform);
+    const auto filter = std::make_shared<TransformFilter>();
+    std::vector<glm::vec3> from;
+    from.push_back(glm::vec3(100.0f, 100.0f, 0.0f));
+    from.push_back(glm::vec3(300.0f, 100.0f, 0.0f));
+    from.push_back(glm::vec3(100.0f, 300.0f, 0.0f));
+    from.push_back(glm::vec3(300.0f, 300.0f, 0.0f));
+    std::vector<glm::vec3> to;
+    to.push_back(glm::vec3(100.0f, 100.0f, 0.0f));
+    to.push_back(glm::vec3(300.0f, 100.0f, 0.0f));
+    to.push_back(glm::vec3(100.0f, 300.0f, 0.0f));
+    to.push_back(glm::vec3(500.0f, 500.0f, 0.0f));
+    filter->SetTransform(from, to);
     effectEngine.Process("../../../demos/effect_demo/images/girl.png",
                          "../../../demos/effect_demo/images/girl_transform.png", filter);
 }
