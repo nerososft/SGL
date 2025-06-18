@@ -4,6 +4,7 @@
 
 #include "GPUBezierThickLineGenerator.h"
 
+#include "core/gpu/VkGPUHelper.h"
 #include "core/gpu/compute_graph/ComputeGraph.h"
 #include "core/gpu/compute_graph/ComputePipelineNode.h"
 #include "core/log/Log.h"
@@ -55,11 +56,25 @@ bool GPUBezierThickLineGenerator::InitializeGPUPipeline(const BezierParams &bezi
         return false;
     }
     computeGraph->AddSubGraph(computeSubGraph);
+    std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
+    descriptorSetLayoutBindings.push_back(
+        VkGPUHelper::BuildDescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1,
+                                                     VK_SHADER_STAGE_COMPUTE_BIT));
+    descriptorSetLayoutBindings.push_back(
+        VkGPUHelper::BuildDescriptorSetLayoutBinding(1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1,
+                                                     VK_SHADER_STAGE_COMPUTE_BIT));
     bezierNode = std::make_shared<ComputePipelineNode>(gpuCtx, "BezierThickLine",
                                                        SHADER(bezier_thick.comp.glsl.spv),
+                                                       sizeof(BezierParams),
+                                                       descriptorSetLayoutBindings,
                                                        (params.bodyPointsNums + 255) / 256,
                                                        1,
                                                        1);
+    result = bezierNode->CreateComputeGraphNode();
+    if (result != VK_SUCCESS) {
+        Logger() << "Failed to create compute graph node!" << std::endl;
+        return false;
+    }
 
     inputBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
     result = inputBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED,
@@ -105,11 +120,6 @@ bool GPUBezierThickLineGenerator::InitializeGPUPipeline(const BezierParams &bezi
         .customDrawFunc = nullptr
     };
     bezierNode->AddComputeElement(element);
-    result = bezierNode->CreateComputeGraphNode();
-    if (result != VK_SUCCESS) {
-        Logger() << "Failed to create compute graph node!" << std::endl;
-        return false;
-    }
 
     result = outputBuffer->MapBuffer();
     if (result != VK_SUCCESS) {
