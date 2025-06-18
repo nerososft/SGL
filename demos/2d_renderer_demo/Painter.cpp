@@ -243,11 +243,21 @@ bool Painter::CreateGraphicsPipelines() {
         return false;
     }
 
-    // TODO: vertex data,  draw elemenet add
-
     this->mainRenderPassNode->AddDependenceNode(this->graphicsPipelineNode);
 
     return true;
+}
+
+void Painter::drawRects(std::vector<Rectangle> rects) {
+    // TODO: vertex data,  draw element add
+}
+
+void Painter::drawLines(std::vector<Line> lines) {
+    // TODO: vertex data,  draw element add
+}
+
+void Painter::drawPoints(std::vector<Point> points) {
+    // TODO: vertex data,  draw element add
 }
 
 void Painter::toImage(const std::string &path) const {
