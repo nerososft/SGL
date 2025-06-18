@@ -176,7 +176,6 @@ VkResult Transform3DFilter::AddDrawElement(const std::vector<Vertex> &vertexData
     return VK_SUCCESS;
 }
 
-
 VkResult Transform3DFilter::ConstructMainGraphicsPipeline(const FilterImageInfo &imageInfo) {
     std::vector<VkVertexInputBindingDescription> vertexInputBindingDescriptions = {
         {
