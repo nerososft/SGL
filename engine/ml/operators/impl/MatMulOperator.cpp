@@ -5,6 +5,7 @@
 #include "MatMulOperator.h"
 
 #include "core/config.h"
+#include "core/gpu/VkGPUHelper.h"
 #include "core/gpu/compute_graph/ComputePipelineNode.h"
 #include "core/log/Log.h"
 
@@ -16,13 +17,29 @@ MatMulOperator::MatMulOperator(const std::shared_ptr<VkGPUContext> &gpuCtx,
 }
 
 std::shared_ptr<IComputeGraphNode> MatMulOperator::CreateComputeGraphNode() {
+    std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
+    descriptorSetLayoutBindings.push_back(
+        VkGPUHelper::BuildDescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1,
+                                                     VK_SHADER_STAGE_COMPUTE_BIT));
+    descriptorSetLayoutBindings.push_back(
+        VkGPUHelper::BuildDescriptorSetLayoutBinding(1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1,
+                                                     VK_SHADER_STAGE_COMPUTE_BIT));
+    descriptorSetLayoutBindings.push_back(
+        VkGPUHelper::BuildDescriptorSetLayoutBinding(2, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1,
+                                                     VK_SHADER_STAGE_COMPUTE_BIT));
     auto gemmNode = std::make_shared<ComputePipelineNode>(this->gpuCtx,
                                                           "MatMul",
                                                           SHADER(matmul.comp.glsl.spv),
+                                                          sizeof(MatMulOperatorParams),
+                                                          descriptorSetLayoutBindings,
                                                           (this->params.width1 + 31) / 32,
                                                           (this->params.height1 + 31) / 32, // FIXME: maye not correct
                                                           1);
-
+    const VkResult ret = gemmNode->CreateComputeGraphNode();
+    if (ret != VK_SUCCESS) {
+        Logger() << "Error creating gemm node." << std::endl;
+        return nullptr;
+    }
     std::vector<PipelineNodeBuffer> buffers;
     buffers.push_back({
         .type = PIPELINE_NODE_BUFFER_STORAGE_READ,
@@ -56,12 +73,6 @@ std::shared_ptr<IComputeGraphNode> MatMulOperator::CreateComputeGraphNode() {
         .customDrawFunc = nullptr,
     };
     gemmNode->AddComputeElement(computeElem);
-
-    const VkResult ret = gemmNode->CreateComputeGraphNode();
-    if (ret != VK_SUCCESS) {
-        Logger() << "Error creating gemm node." << std::endl;
-        return nullptr;
-    }
     return gemmNode;
 }
 

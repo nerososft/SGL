@@ -5,6 +5,7 @@
 #include "GELUOperator.h"
 
 #include "core/config.h"
+#include "core/gpu/VkGPUHelper.h"
 #include "core/gpu/compute_graph/ComputePipelineNode.h"
 #include "core/log/Log.h"
 
@@ -18,13 +19,27 @@ GELUOperator::~GELUOperator() {
 }
 
 std::shared_ptr<IComputeGraphNode> GELUOperator::CreateComputeGraphNode() {
+    std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
+    descriptorSetLayoutBindings.push_back(
+        VkGPUHelper::BuildDescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1,
+                                                     VK_SHADER_STAGE_COMPUTE_BIT));
+    descriptorSetLayoutBindings.push_back(
+        VkGPUHelper::BuildDescriptorSetLayoutBinding(1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1,
+                                                     VK_SHADER_STAGE_COMPUTE_BIT));
     const size_t nums = outputBuffer->GetBufferSize() / sizeof(float);
     auto geluNode = std::make_shared<ComputePipelineNode>(this->gpuCtx,
                                                           "GELU",
                                                           SHADER(gelu.comp.glsl.spv),
+                                                          0,
+                                                          descriptorSetLayoutBindings,
                                                           (nums + 255) / 256,
                                                           1,
                                                           1);
+    const VkResult ret = geluNode->CreateComputeGraphNode();
+    if (ret != VK_SUCCESS) {
+        Logger() << "Error creating gelu node." << std::endl;
+        return nullptr;
+    }
     std::vector<PipelineNodeBuffer> buffers;
     buffers.push_back({
         .type = PIPELINE_NODE_BUFFER_STORAGE_READ,
@@ -49,11 +64,6 @@ std::shared_ptr<IComputeGraphNode> GELUOperator::CreateComputeGraphNode() {
     };
     geluNode->AddComputeElement(computeElem);
 
-    const VkResult ret = geluNode->CreateComputeGraphNode();
-    if (ret != VK_SUCCESS) {
-        Logger() << "Error creating gelu node." << std::endl;
-        return nullptr;
-    }
     return geluNode;
 }
 

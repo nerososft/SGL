@@ -5,6 +5,7 @@
 #include "ReLUOperator.h"
 
 #include "core/config.h"
+#include "core/gpu/VkGPUHelper.h"
 #include "core/gpu/compute_graph/ComputePipelineNode.h"
 #include "core/log/Log.h"
 
@@ -18,13 +19,27 @@ ReLUOperator::~ReLUOperator() {
 }
 
 std::shared_ptr<IComputeGraphNode> ReLUOperator::CreateComputeGraphNode() {
+    std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
+    descriptorSetLayoutBindings.push_back(
+        VkGPUHelper::BuildDescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1,
+                                                     VK_SHADER_STAGE_COMPUTE_BIT));
+    descriptorSetLayoutBindings.push_back(
+        VkGPUHelper::BuildDescriptorSetLayoutBinding(1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1,
+                                                     VK_SHADER_STAGE_COMPUTE_BIT));
     const size_t nums = outputBuffer->GetBufferSize() / sizeof(float);
     auto reluNode = std::make_shared<ComputePipelineNode>(this->gpuCtx,
                                                           "ReLU",
                                                           SHADER(relu.comp.glsl.spv),
+                                                          0,
+                                                          descriptorSetLayoutBindings,
                                                           (nums + 255) / 256,
                                                           1,
                                                           1);
+    const VkResult ret = reluNode->CreateComputeGraphNode();
+    if (ret != VK_SUCCESS) {
+        Logger() << "Error creating relu node." << std::endl;
+        return nullptr;
+    }
     std::vector<PipelineNodeBuffer> buffers;
     buffers.push_back({
         .type = PIPELINE_NODE_BUFFER_STORAGE_READ,
@@ -48,12 +63,6 @@ std::shared_ptr<IComputeGraphNode> ReLUOperator::CreateComputeGraphNode() {
         .customDrawFunc = nullptr,
     };
     reluNode->AddComputeElement(computeElem);
-
-    const VkResult ret = reluNode->CreateComputeGraphNode();
-    if (ret != VK_SUCCESS) {
-        Logger() << "Error creating relu node." << std::endl;
-        return nullptr;
-    }
     return reluNode;
 }
 
