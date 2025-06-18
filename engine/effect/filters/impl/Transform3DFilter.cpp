@@ -209,10 +209,10 @@ VkResult Transform3DFilter::ConstructMainGraphicsPipeline(const FilterImageInfo 
     std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
     descriptorSetLayoutBindings.push_back(
         VkGPUHelper::BuildDescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1,
-                                                     VK_SHADER_STAGE_COMPUTE_BIT));
+                                                     VK_SHADER_STAGE_ALL_GRAPHICS));
     descriptorSetLayoutBindings.push_back(
         VkGPUHelper::BuildDescriptorSetLayoutBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1,
-                                                     VK_SHADER_STAGE_COMPUTE_BIT));
+                                                     VK_SHADER_STAGE_ALL_GRAPHICS));
 
     this->graphicsPipelineNode = std::make_shared<GraphicsPipelineNode>(this->gpuCtx,
                                                                         "mainGraphicsPipeline",
