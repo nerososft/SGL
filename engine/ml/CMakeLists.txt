@@ -48,8 +48,8 @@ add_library(ml_engine
         operators/impl/SoftmaxOperator.h
         operators/impl/GELUOperator.cpp
         operators/impl/GELUOperator.h
-        operators/impl/RSMNormOperator.cpp
-        operators/impl/RSMNormOperator.h
+        operators/impl/RMSNormOperator.cpp
+        operators/impl/RMSNormOperator.h
         Matrix.h
         Matrix.cpp
         MLEngine.h

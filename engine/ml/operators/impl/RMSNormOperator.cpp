@@ -2,22 +2,22 @@
 // Created by neo on 25-6-19.
 //
 
-#include "RSMNormOperator.h"
+#include "RMSNormOperator.h"
 
 #include "core/gpu/VkGPUHelper.h"
 #include "core/gpu/compute_graph/ComputePipelineNode.h"
 #include "core/log/Log.h"
 
-RSMNormOperator::RSMNormOperator(const std::shared_ptr<VkGPUContext> &gpuCtx,
+RMSNormOperator::RMSNormOperator(const std::shared_ptr<VkGPUContext> &gpuCtx,
                                  const std::shared_ptr<VkGPUBuffer> &inputBuffer,
                                  const std::shared_ptr<VkGPUBuffer> &outputBuffer)
     : UnaryOperator(gpuCtx, inputBuffer, outputBuffer) {
 }
 
-RSMNormOperator::~RSMNormOperator() {
+RMSNormOperator::~RMSNormOperator() {
 }
 
-std::shared_ptr<IComputeGraphNode> RSMNormOperator::CreateComputeGraphNode() {
+std::shared_ptr<IComputeGraphNode> RMSNormOperator::CreateComputeGraphNode() {
     std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
     descriptorSetLayoutBindings.push_back(
         VkGPUHelper::BuildDescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1,
@@ -26,15 +26,15 @@ std::shared_ptr<IComputeGraphNode> RSMNormOperator::CreateComputeGraphNode() {
         VkGPUHelper::BuildDescriptorSetLayoutBinding(1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1,
                                                      VK_SHADER_STAGE_COMPUTE_BIT));
     const size_t nums = outputBuffer->GetBufferSize() / sizeof(float);
-    auto rsmNormNode = std::make_shared<ComputePipelineNode>(this->gpuCtx,
+    auto rmsNormNode = std::make_shared<ComputePipelineNode>(this->gpuCtx,
                                                              "RSMNorm",
-                                                             SHADER(rsm_norm.comp.glsl.spv),
+                                                             SHADER(rms_norm.comp.glsl.spv),
                                                              0,
                                                              descriptorSetLayoutBindings,
                                                              (nums + 255) / 256,
                                                              1,
                                                              1);
-    const VkResult ret = rsmNormNode->CreateComputeGraphNode();
+    const VkResult ret = rmsNormNode->CreateComputeGraphNode();
     if (ret != VK_SUCCESS) {
         Logger() << "Error creating RSMNorm node." << std::endl;
         return nullptr;
@@ -56,7 +56,7 @@ std::shared_ptr<IComputeGraphNode> RSMNormOperator::CreateComputeGraphNode() {
     });
 
     const PushConstantInfo pushConstantInfo{
-        .size = sizeof(RSMNormOperatorParams),
+        .size = sizeof(RMSNormOperatorParams),
         .data = &this->params
     };
     const ComputeElement computeElem{
@@ -64,11 +64,11 @@ std::shared_ptr<IComputeGraphNode> RSMNormOperator::CreateComputeGraphNode() {
         .buffers = buffers,
         .customDrawFunc = nullptr,
     };
-    rsmNormNode->AddComputeElement(computeElem);
+    rmsNormNode->AddComputeElement(computeElem);
 
-    return rsmNormNode;
+    return rmsNormNode;
 }
 
-void RSMNormOperator::Destroy() {
+void RMSNormOperator::Destroy() {
     UnaryOperator::Destroy();
 }

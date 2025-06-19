@@ -11,7 +11,7 @@ layout (std430, binding = 1) buffer OutputStorageBuffer {
 } outputBuffer;
 
 layout (push_constant) uniform Params {
-    float rsm;
+    float rms;
     float scale;
 } params;
 
@@ -20,5 +20,5 @@ void main() {
     if (coord.x >= inputBuffer.data.length()) {
         return;
     }
-    outputBuffer.data[coord.x] = params.scale * (inputBuffer.data[coord.x] / params.rsm);
+    outputBuffer.data[coord.x] = params.scale * (inputBuffer.data[coord.x] / params.rms);
 }
