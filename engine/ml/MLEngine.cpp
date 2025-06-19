@@ -273,11 +273,11 @@ float MLEngine::RMS(const std::shared_ptr<Matrix> &vectorInput, const float bias
     float sum = 0.0f;
     const size_t nums = inputBuffer->GetBufferSize() / sizeof(float);
     for (size_t i = 0; i < nums; i++) {
-        sum += powf(static_cast<float *>(inputBuffer->GetMappedAddr())[i], 2.0f);
+        sum += pow(static_cast<float *>(inputBuffer->GetMappedAddr())[i], 2.0f);
     }
     inputBuffer->UnMapBuffer();
 
-    return sqrtf(sum / nums + bias);
+    return sqrt(sum / nums + bias);
 }
 
 void MLEngine::RMSNorm(const std::shared_ptr<Matrix> &vectorInput,
