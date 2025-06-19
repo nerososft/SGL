@@ -54,5 +54,7 @@ add_library(ml_engine
         Matrix.cpp
         MLEngine.h
         MLEngine.cpp
+        operators/impl/LayerNormOperator.cpp
+        operators/impl/LayerNormOperator.h
 )
 target_link_libraries(ml_engine core)

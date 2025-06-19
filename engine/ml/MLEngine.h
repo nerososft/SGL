@@ -23,11 +23,26 @@ public:
 
     bool Init();
 
-    std::shared_ptr<Matrix> CreateMatrix(uint32_t width, uint32_t height);
+    std::shared_ptr<Matrix> CreateMatrix(uint32_t width,
+                                         uint32_t height);
 
-    std::shared_ptr<Matrix> CreateMatrix(uint32_t width, uint32_t height, std::shared_ptr<VkGPUBuffer> &buffer);
+    std::shared_ptr<Matrix> CreateMatrix(uint32_t width,
+                                         uint32_t height,
+                                         std::shared_ptr<VkGPUBuffer> &buffer);
 
-    std::shared_ptr<Matrix> CreateMatrix(uint32_t width, uint32_t height, const std::vector<float> &data);
+    std::shared_ptr<Matrix> CreateMatrix(uint32_t width,
+                                         uint32_t height,
+                                         const std::vector<float> &data);
+
+    float SUM(const std::shared_ptr<Matrix> &vectorInput);
+
+    static float RMS(const std::shared_ptr<Matrix> &vectorInput,
+                     float bias);
+
+    float Avg(const std::shared_ptr<Matrix> &vectorInput);
+
+    float Variance(const std::shared_ptr<Matrix> &vectorInput,
+                   float avg);
 
     void ReLU(const std::shared_ptr<Matrix> &input,
               const std::shared_ptr<Matrix> &output);
@@ -55,14 +70,17 @@ public:
                        const std::shared_ptr<Matrix> &V,
                        const std::shared_ptr<Matrix> &vMulOutput);
 
-    static float RMS(const std::shared_ptr<Matrix> &vectorInput,
-                     float bias);
-
     void RMSNorm(const std::shared_ptr<Matrix> &vectorInput,
                  float scale,
+                 float epsilon,
                  float bias,
                  const std::shared_ptr<Matrix> &vectorOutput);
 
+    void LayerNorm(const std::shared_ptr<Matrix> &vectorInput,
+                   float scale,
+                   float epsilon,
+                   float bias,
+                   const std::shared_ptr<Matrix> &vectorOutput);
 
     ~MLEngine() = default;
 

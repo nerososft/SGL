@@ -9,6 +9,7 @@
 struct RMSNormOperatorParams {
     float rms;
     float scale;
+    float epsilon;
 };
 
 class RMSNormOperator final : public UnaryOperator {
@@ -24,6 +25,8 @@ public:
     void SetScale(const float scale) { this->params.scale = scale; }
 
     void SetRMS(const float rms) { this->params.rms = rms; }
+
+    void SetEpsilon(const float epsilon) { this->params.epsilon = epsilon; }
 
     std::shared_ptr<IComputeGraphNode> CreateComputeGraphNode() override;
 

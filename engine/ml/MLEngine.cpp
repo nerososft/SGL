@@ -6,6 +6,7 @@
 
 #include "core/log/Log.h"
 #include "operators/impl/GELUOperator.h"
+#include "operators/impl/LayerNormOperator.h"
 #include "operators/impl/MatMulOperator.h"
 #include "operators/impl/ReLUOperator.h"
 #include "operators/impl/RMSNormOperator.h"
@@ -96,6 +97,72 @@ std::shared_ptr<Matrix> MLEngine::CreateMatrix(uint32_t width,
     return matrix;
 }
 
+// TODO: this should be CPU Compute Node
+float MLEngine::SUM(const std::shared_ptr<Matrix> &vectorInput) {
+    const auto inputBuffer = vectorInput->GetBuffer();
+    if (inputBuffer->MapBuffer(inputBuffer->GetBufferSize()) != VK_SUCCESS) {
+        Logger() << Logger::ERROR << "Failed to map buffer!" << std::endl;
+        return 0.0f;
+    }
+    float sum = 0.0f;
+    for (size_t i = 0; i < inputBuffer->GetBufferSize() / sizeof(float); i++) {
+        sum += static_cast<float *>(inputBuffer->GetMappedAddr())[i];
+    }
+    inputBuffer->UnMapBuffer();
+    return sum;
+}
+
+// TODO: this should be CPU Compute Node
+float MLEngine::RMS(const std::shared_ptr<Matrix> &vectorInput, const float bias) {
+    const auto inputBuffer = vectorInput->GetBuffer();
+    if (inputBuffer->MapBuffer(inputBuffer->GetBufferSize()) != VK_SUCCESS) {
+        Logger() << Logger::ERROR << "Failed to map buffer!" << std::endl;
+        return 0.0f;
+    }
+    float sum = 0.0f;
+    const size_t nums = inputBuffer->GetBufferSize() / sizeof(float);
+    for (size_t i = 0; i < nums; i++) {
+        sum += pow(static_cast<float *>(inputBuffer->GetMappedAddr())[i], 2.0f);
+    }
+    inputBuffer->UnMapBuffer();
+
+    return sqrt(sum / nums + bias);
+}
+
+// TODO: this should be CPU Compute Node
+float MLEngine::Avg(const std::shared_ptr<Matrix> &vectorInput) {
+    const auto inputBuffer = vectorInput->GetBuffer();
+    if (inputBuffer->MapBuffer(inputBuffer->GetBufferSize()) != VK_SUCCESS) {
+        Logger() << Logger::ERROR << "Failed to map buffer!" << std::endl;
+        return 0.0f;
+    }
+    float sum = 0.0f;
+    const size_t nums = inputBuffer->GetBufferSize() / sizeof(float);
+    for (size_t i = 0; i < nums; i++) {
+        sum += static_cast<float *>(inputBuffer->GetMappedAddr())[i];
+    }
+    inputBuffer->UnMapBuffer();
+
+    return sqrt(sum / nums);
+}
+
+// TODO: this should be CPU Compute Node
+float MLEngine::Variance(const std::shared_ptr<Matrix> &vectorInput, const float avg) {
+    const auto inputBuffer = vectorInput->GetBuffer();
+    if (inputBuffer->MapBuffer(inputBuffer->GetBufferSize()) != VK_SUCCESS) {
+        Logger() << Logger::ERROR << "Failed to map buffer!" << std::endl;
+        return 0.0f;
+    }
+    float sum = 0.0f;
+    const size_t nums = inputBuffer->GetBufferSize() / sizeof(float);
+    for (size_t i = 0; i < nums; i++) {
+        sum += pow(static_cast<float *>(inputBuffer->GetMappedAddr())[i] - avg, 2.0);
+    }
+    inputBuffer->UnMapBuffer();
+
+    return sqrt(sum / nums);
+}
+
 void MLEngine::ReLU(const std::shared_ptr<Matrix> &input,
                     const std::shared_ptr<Matrix> &output) {
     const auto reluOp = std::make_shared<ReLUOperator>(this->gpuCtx,
@@ -138,19 +205,10 @@ void MLEngine::Tanh(const std::shared_ptr<Matrix> &input,
 
 void MLEngine::Softmax(const std::shared_ptr<Matrix> &input,
                        const std::shared_ptr<Matrix> &output) {
-    const auto inputBuffer = input->GetBuffer();
-    if (inputBuffer->MapBuffer(inputBuffer->GetBufferSize()) != VK_SUCCESS) {
-        Logger() << Logger::ERROR << "Failed to map buffer!" << std::endl;
-        return;
-    }
-    float sum = 0.0f;
-    for (size_t i = 0; i < inputBuffer->GetBufferSize() / sizeof(float); i++) {
-        sum += static_cast<float *>(inputBuffer->GetMappedAddr())[i];
-    }
-    inputBuffer->UnMapBuffer();
     const auto softmaxOp = std::make_shared<SoftmaxOperator>(this->gpuCtx,
                                                              input->GetBuffer(),
                                                              output->GetBuffer());
+    const float sum = SUM(input);
     softmaxOp->SetSum(sum);
     const auto node = softmaxOp->CreateComputeGraphNode();
     if (node == nullptr) {
@@ -229,16 +287,7 @@ void MLEngine::SelfAttention(const std::shared_ptr<Matrix> &Q,
     const auto softmaxOp = std::make_shared<SoftmaxOperator>(this->gpuCtx,
                                                              qkMulOutput->GetBuffer(),
                                                              softmaxOutput->GetBuffer());
-    const auto inputBuffer = qkMulOutput->GetBuffer();
-    if (inputBuffer->MapBuffer(inputBuffer->GetBufferSize()) != VK_SUCCESS) {
-        Logger() << Logger::ERROR << "Failed to map buffer!" << std::endl;
-        return;
-    }
-    float sum = 0.0f;
-    for (size_t i = 0; i < inputBuffer->GetBufferSize() / sizeof(float); i++) {
-        sum += static_cast<float *>(inputBuffer->GetMappedAddr())[i];
-    }
-    inputBuffer->UnMapBuffer();
+    const float sum = SUM(qkMulOutput);
     softmaxOp->SetSum(sum);
     const auto softmaxNode = softmaxOp->CreateComputeGraphNode();
     if (softmaxNode == nullptr) {
@@ -264,25 +313,10 @@ void MLEngine::SelfAttention(const std::shared_ptr<Matrix> &Q,
     this->mainSubGraph->AddComputeGraphNode(vMulNode);
 }
 
-float MLEngine::RMS(const std::shared_ptr<Matrix> &vectorInput, const float bias) {
-    const auto inputBuffer = vectorInput->GetBuffer();
-    if (inputBuffer->MapBuffer(inputBuffer->GetBufferSize()) != VK_SUCCESS) {
-        Logger() << Logger::ERROR << "Failed to map buffer!" << std::endl;
-        return 0.0f;
-    }
-    float sum = 0.0f;
-    const size_t nums = inputBuffer->GetBufferSize() / sizeof(float);
-    for (size_t i = 0; i < nums; i++) {
-        sum += pow(static_cast<float *>(inputBuffer->GetMappedAddr())[i], 2.0f);
-    }
-    inputBuffer->UnMapBuffer();
-
-    return sqrt(sum / nums + bias);
-}
-
 void MLEngine::RMSNorm(const std::shared_ptr<Matrix> &vectorInput,
                        const float scale,
                        const float bias,
+                       const float epsilon,
                        const std::shared_ptr<Matrix> &vectorOutput) {
     const float rms = RMS(vectorInput, bias);
     const auto rmsNormOp = std::make_shared<RMSNormOperator>(this->gpuCtx,
@@ -290,7 +324,31 @@ void MLEngine::RMSNorm(const std::shared_ptr<Matrix> &vectorInput,
                                                              vectorOutput->GetBuffer());
     rmsNormOp->SetRMS(rms);
     rmsNormOp->SetScale(scale);
+    rmsNormOp->SetEpsilon(epsilon);
     const auto node = rmsNormOp->CreateComputeGraphNode();
+    if (node == nullptr) {
+        Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
+        throw std::runtime_error("Failed to create compute graph node!");
+    }
+    this->mainSubGraph->AddComputeGraphNode(node);
+}
+
+void MLEngine::LayerNorm(const std::shared_ptr<Matrix> &vectorInput,
+                         float scale,
+                         float epsilon,
+                         float bias,
+                         const std::shared_ptr<Matrix> &vectorOutput) {
+    float avg = Avg(vectorInput);
+    float variance = Variance(vectorInput, avg);
+    const auto layerNormOp = std::make_shared<LayerNormOperator>(this->gpuCtx,
+                                                                 vectorInput->GetBuffer(),
+                                                                 vectorOutput->GetBuffer());
+    layerNormOp->SetAvg(avg);
+    layerNormOp->SetVariance(variance);
+    layerNormOp->SetScale(scale);
+    layerNormOp->SetEpsilon(epsilon);
+    layerNormOp->SetBias(bias);
+    const auto node = layerNormOp->CreateComputeGraphNode();
     if (node == nullptr) {
         Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
         throw std::runtime_error("Failed to create compute graph node!");

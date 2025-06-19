@@ -11,9 +11,11 @@ layout (std430, binding = 1) buffer OutputStorageBuffer {
 } outputBuffer;
 
 layout (push_constant) uniform Params {
-    float rms;
+    float avg;
+    float variance;
     float scale;
     float epsilon;
+    float bias;
 } params;
 
 void main() {
@@ -22,7 +24,5 @@ void main() {
         return;
     }
 
-    float safeRMS = max(params.rms, params.epsilon);
-
-    outputBuffer.data[coord.x] = params.scale * (inputBuffer.data[coord.x] / safeRMS);
+    outputBuffer.data[coord.x] = params.scale * ((inputBuffer.data[coord.x] - params.avg) / sqrt(params.variance + params.epsilon)) + params.bias;
 }
