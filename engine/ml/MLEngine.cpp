@@ -8,6 +8,7 @@
 #include "operators/impl/GELUOperator.h"
 #include "operators/impl/MatMulOperator.h"
 #include "operators/impl/ReLUOperator.h"
+#include "operators/impl/RSMNormOperator.h"
 #include "operators/impl/SigmoidOperator.h"
 #include "operators/impl/SoftmaxOperator.h"
 #include "operators/impl/TanhOperator.h"
@@ -261,6 +262,40 @@ void MLEngine::SelfAttention(const std::shared_ptr<Matrix> &Q,
     // TODO: scale and mask node
     vMulNode->AddDependenceNode(softmaxNode);
     this->mainSubGraph->AddComputeGraphNode(vMulNode);
+}
+
+float MLEngine::RSM(const std::shared_ptr<Matrix> &vectorInput, const float bias) {
+    const auto inputBuffer = vectorInput->GetBuffer();
+    if (inputBuffer->MapBuffer(inputBuffer->GetBufferSize()) != VK_SUCCESS) {
+        Logger() << Logger::ERROR << "Failed to map buffer!" << std::endl;
+        return 0.0f;
+    }
+    float sum = 0.0f;
+    const size_t nums = inputBuffer->GetBufferSize() / sizeof(float);
+    for (size_t i = 0; i < nums; i++) {
+        sum += powf(static_cast<float *>(inputBuffer->GetMappedAddr())[i], 2.0f);
+    }
+    inputBuffer->UnMapBuffer();
+
+    return sqrtf(sum / nums + bias);
+}
+
+void MLEngine::RSMNorm(const std::shared_ptr<Matrix> &vectorInput,
+                       const float scale,
+                       const float bias,
+                       const std::shared_ptr<Matrix> &vectorOutput) {
+    const float rsm = RSM(vectorInput, bias);
+    const auto rsmNormOp = std::make_shared<RSMNormOperator>(this->gpuCtx,
+                                                             vectorInput->GetBuffer(),
+                                                             vectorOutput->GetBuffer());
+    rsmNormOp->SetRSM(rsm);
+    rsmNormOp->SetScale(scale);
+    const auto node = rsmNormOp->CreateComputeGraphNode();
+    if (node == nullptr) {
+        Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
+        throw std::runtime_error("Failed to create compute graph node!");
+    }
+    this->mainSubGraph->AddComputeGraphNode(node);
 }
 
 void MLEngine::Compute() const {

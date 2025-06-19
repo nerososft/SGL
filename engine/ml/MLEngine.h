@@ -55,6 +55,14 @@ public:
                        const std::shared_ptr<Matrix> &V,
                        const std::shared_ptr<Matrix> &vMulOutput);
 
+    static float RSM(const std::shared_ptr<Matrix> &vectorInput,
+                     float bias);
+
+    void RSMNorm(const std::shared_ptr<Matrix> &vectorInput,
+                 float scale,
+                 float bias,
+                 const std::shared_ptr<Matrix> &vectorOutput);
+
 
     ~MLEngine() = default;
 
