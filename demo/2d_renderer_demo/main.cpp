@@ -10,6 +10,6 @@ int main(int argc, char *argv[]) {
     Painter painter;
     painter.Init(1024,768);
 
-    painter.toImage("../../../demos/2d_renderer_demo/painter.png");
+    painter.toImage("../../../demo/2d_renderer_demo/painter.png");
     return 0;
 }

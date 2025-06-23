@@ -197,8 +197,8 @@ void effect_engine_main() {
     to.emplace_back(100.0f, 300.0f, 0.0f);
     to.emplace_back(500.0f, 500.0f, 0.0f);
     filter->SetTransformMatrix(TransformUtils::Transform(from, to));
-    effectEngine.Process("../../../demos/effect_demo/images/girl.png",
-                         "../../../demos/effect_demo/images/girl_transform.png", filter);
+    effectEngine.Process("../../../demo/effect_demo/images/girl.png",
+                         "../../../demo/effect_demo/images/girl_transform.png", filter);
 }
 
 int main(int argc, char *argv[]) {

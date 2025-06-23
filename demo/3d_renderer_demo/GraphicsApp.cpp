@@ -24,7 +24,7 @@ void GraphicsApp::Init() {
 
     renderer->SetOnLoadScene([](Renderer *rdr) -> bool {
             const std::vector<std::shared_ptr<Mesh> > models = ModelLoader::LoadModel(
-                "../../../demos/3d_renderer_demo/assets/builtin.models/Helmet/DamagedHelmet.gltf");
+                "../../../demo/3d_renderer_demo/assets/builtin.models/Helmet/DamagedHelmet.gltf");
             for (auto &mesh: models) {
                 if (!rdr->AddDrawElement(mesh->vertexData, mesh->indicesData, mesh->material, mesh->transform)) {
                     Logger() << "draw mesh add failed" << std::endl;

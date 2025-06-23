@@ -17,7 +17,7 @@ int main(int argc, char *argv[]) {
 
     renderer->SetOnLoadScene([](Renderer *rdr) -> bool {
             const std::vector<std::shared_ptr<Mesh> > models = ModelLoader::LoadModel(
-                "../../../demos/3d_renderer_demo/assets/builtin.models/Helmet/DamagedHelmet.gltf");
+                "../../../demo/3d_renderer_demo/assets/builtin.models/Helmet/DamagedHelmet.gltf");
 
             for (auto &mesh: models) {
                 if (!rdr->AddDrawElement(mesh->vertexData, mesh->indicesData, mesh->material, mesh->transform)) {
@@ -39,6 +39,6 @@ int main(int argc, char *argv[]) {
     if (!renderer->Init()) {
         Logger() << "Failed to initialize renderer" << std::endl;
     }
-    renderer->RenderFrameOffScreen("../../../demos/3d_renderer_demo/render_offscreen1.png");
+    renderer->RenderFrameOffScreen("../../../demo/3d_renderer_demo/render_offscreen1.png");
     return 0;
 }
