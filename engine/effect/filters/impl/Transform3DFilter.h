@@ -2,8 +2,8 @@
 // Created by 1234 on 2025/3/6.
 //
 
-#ifndef TRANSFORMFILTER_H
-#define TRANSFORMFILTER_H
+#ifndef TRANSFORM3DFILTER_H
+#define TRANSFORM3DFILTER_H
 #include <vulkan/vulkan_core.h>
 #include <glm/glm.hpp>
 
@@ -20,13 +20,13 @@ struct Vertex {
     glm::vec2 texCoords;
 };
 
-struct TransformFilterParams {
+struct TransformFilter3DParams {
     BasicFilterParam imageSize;
     glm::mat4 transformMatrix;
 };
 
 class Transform3DFilter final : public BasicFilter {
-    TransformFilterParams transformFilterParams{};
+    TransformFilter3DParams transformFilterParams{};
 
     uint32_t width = 768;
     uint32_t height = 768;
@@ -80,4 +80,4 @@ public:
 };
 
 
-#endif //TRANSFORMFILTER_H
+#endif //TRANSFORM3DFILTER_H

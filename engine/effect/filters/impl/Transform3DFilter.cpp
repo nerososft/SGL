@@ -167,7 +167,10 @@ VkResult Transform3DFilter::AddDrawElement(const std::vector<Vertex> &vertexData
     buffers.push_back(GetTransformMatrixBufferNode()); // uniform 0
     buffers.push_back(GetTextureBufferNode(imageInfo.storageBuffer, imageInfo.storageBufferMemory)); // sampler 1
     const GraphicsElement element{
-        .pushConstantInfo = {},
+        .pushConstantInfo = {
+            .size = sizeof(TransformFilter3DParams),
+            .data = &this->transformFilterParams
+        },
         .buffers = buffers,
         .customDrawFunc = nullptr,
     };

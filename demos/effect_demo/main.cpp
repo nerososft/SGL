@@ -185,16 +185,17 @@ void effect_engine_main() {
     // effectEngine.Process("../../../demos/effect_demo/images/test.png", "../../../demos/effect_demo/images/test_median.png", filter);
 
     const auto filter = std::make_shared<TransformFilter>();
+    // const auto filter = std::make_shared<Transform3DFilter>();
     std::vector<glm::vec3> from;
-    from.push_back(glm::vec3(100.0f, 100.0f, 0.0f));
-    from.push_back(glm::vec3(300.0f, 100.0f, 0.0f));
-    from.push_back(glm::vec3(100.0f, 300.0f, 0.0f));
-    from.push_back(glm::vec3(300.0f, 300.0f, 0.0f));
+    from.emplace_back(100.0f, 100.0f, 0.0f);
+    from.emplace_back(300.0f, 100.0f, 0.0f);
+    from.emplace_back(100.0f, 300.0f, 0.0f);
+    from.emplace_back(300.0f, 300.0f, 0.0f);
     std::vector<glm::vec3> to;
-    to.push_back(glm::vec3(100.0f, 100.0f, 0.0f));
-    to.push_back(glm::vec3(300.0f, 100.0f, 0.0f));
-    to.push_back(glm::vec3(100.0f, 300.0f, 0.0f));
-    to.push_back(glm::vec3(500.0f, 500.0f, 0.0f));
+    to.emplace_back(100.0f, 100.0f, 0.0f);
+    to.emplace_back(300.0f, 100.0f, 0.0f);
+    to.emplace_back(100.0f, 300.0f, 0.0f);
+    to.emplace_back(500.0f, 500.0f, 0.0f);
     filter->SetTransformMatrix(TransformUtils::Transform(from, to));
     effectEngine.Process("../../../demos/effect_demo/images/girl.png",
                          "../../../demos/effect_demo/images/girl_transform.png", filter);
