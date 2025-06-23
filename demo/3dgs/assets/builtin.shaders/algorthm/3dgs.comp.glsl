@@ -47,20 +47,81 @@ vec4 unpackColor(uint color) {
     );
 }
 
-// 计算旋转矩阵（使用四元数）
-mat3 quaternionToMatrix(vec4 q) {
-    // 归一化四元数以确保数值稳定性
-    float len = length(q);
-    if (len < 0.0001) return mat3(1.0);  // 单位矩阵
-    q /= len;
-
-    float qx = q.x, qy = q.y, qz = q.z, qw = q.w;
-    float qx2 = qx * qx, qy2 = qy * qy, qz2 = qz * qz;
+// 四元数转旋转矩阵
+mat3 quatToMat3(vec4 q) {
+    float qxx = q.x * q.x;
+    float qyy = q.y * q.y;
+    float qzz = q.z * q.z;
+    float qxy = q.x * q.y;
+    float qxz = q.x * q.z;
+    float qyz = q.y * q.z;
+    float qwx = q.w * q.x;
+    float qwy = q.w * q.y;
+    float qwz = q.w * q.z;
 
     return mat3(
-    1.0 - 2.0 * (qy2 + qz2), 2.0 * (qx * qy - qw * qz), 2.0 * (qx * qz + qw * qy),
-    2.0 * (qx * qy + qw * qz), 1.0 - 2.0 * (qx2 + qz2), 2.0 * (qy * qz - qw * qx),
-    2.0 * (qx * qz - qw * qy), 2.0 * (qy * qz + qw * qx), 1.0 - 2.0 * (qx2 + qy2)
+    1.0 - 2.0 * (qyy + qzz),
+    2.0 * (qxy + qwz),
+    2.0 * (qxz - qwy),
+    2.0 * (qxy - qwz),
+    1.0 - 2.0 * (qxx + qzz),
+    2.0 * (qyz + qwx),
+    2.0 * (qxz + qwy),
+    2.0 * (qyz - qwx),
+    1.0 - 2.0 * (qxx + qyy)
+    );
+}
+
+// 从缩放和旋转计算协方差矩阵
+mat3 computeCovarianceMatrix(vec4 scale, vec4 rotate) {
+    // 提取缩放值
+    vec3 s = scale.xyz;
+
+    // 缩放矩阵
+    mat3 S = mat3(
+    s.x * s.x, 0.0, 0.0,
+    0.0, s.y * s.y, 0.0,
+    0.0, 0.0, s.z * s.z
+    );
+
+    // 旋转矩阵
+    mat3 R = quatToMat3(rotate);
+
+    // 计算协方差矩阵: Sigma = R * S * R^T
+    mat3 R_transposed = transpose(R);
+    mat3 covariance = R * S * R_transposed;
+
+    return covariance;
+}
+
+// 计算2D高斯分布值（投影到屏幕空间）
+float gaussian2D(vec2 x, vec2 mu, mat2 sigma) {
+    // 计算协方差矩阵的行列式
+    float det = determinant(sigma);
+
+    // 计算协方差矩阵的逆
+    mat2 sigmaInv = inverse(sigma);
+
+    // 计算x - mu
+    vec2 diff = x - mu;
+
+    // 计算 (x - mu)^T * Sigma^-1 * (x - mu)
+    float exponent = dot(diff, sigmaInv * diff);
+
+    // 计算完整的高斯公式（2D版本）
+    float coefficient = 1.0 / (2.0 * 3.14159265358979323846 * sqrt(det));
+    float result = coefficient * exp(-0.5 * exponent);
+
+    return result;
+}
+
+// 从3D协方差矩阵计算2D投影的协方差矩阵
+mat2 computeProjectedCovariance(mat3 cov3D, vec3 viewDir) {
+    // 提取协方差矩阵的前两行（忽略z分量）
+    // 这是一个简化的近似，实际实现中应该更精确地处理投影
+    return mat2(
+    cov3D[0][0], cov3D[0][1],
+    cov3D[1][0], cov3D[1][1]
     );
 }
 
@@ -71,106 +132,93 @@ void main() {
     GaussianPoint3D point = inputPoints.points[idx];
     vec3 position = point.position.xyz;
     vec4 color = point.color;
-    vec3 scale = point.scale.xyz;
+    vec4 scale = point.scale;
     vec4 rotation = point.rotate;
     float opacity = point.opacity.x;
 
-    if (any(isnan(position)) || any(isinf(position)) ||
-    any(isnan(scale)) || any(isinf(scale)) ||
-    any(isnan(rotation)) || any(isinf(rotation)) ||
-    isnan(opacity) || isinf(opacity)) {
+    if (any(isnan(position))
+    || any(isinf(position))
+    || any(isnan(scale))
+    || any(isinf(scale))
+    || any(isnan(rotation))
+    || any(isinf(rotation))
+    || isnan(opacity)
+    || isinf(opacity)) {
         return;
     }
 
-    // 应用视图和投影变换
+    // 应用视图变换
     vec4 viewPos = params.view * vec4(position, 1.0);
 
     // 检查点是否在相机前方
-    if (viewPos.z >= 0.0) return;  // 在相机后方，不可见
+    if (viewPos.z >= 0.0) {
+        return; // 在相机后方，不可见
+    }
 
+    // 应用投影变换
     vec4 clipPos = params.proj * viewPos;
 
     // 透视除法得到NDC坐标
     vec3 ndcPos = clipPos.xyz / clipPos.w;
 
     // 检查点是否在视锥体内
-    if (abs(ndcPos.x) > 1.0 || abs(ndcPos.y) > 1.0 || abs(ndcPos.z) > 1.0)
-    return;
+    if (abs(ndcPos.x) > 1.0 || abs(ndcPos.y) > 1.0 || abs(ndcPos.z) > 1.0) {
+        return;
+    }
 
-    // 转换到屏幕空间坐标
+    // 转换到屏幕空间坐标 (注意：+0.5 是为了对齐像素中心)
     vec2 screenPos = vec2(
-    (ndcPos.x + 1.0) * 0.5 * float(params.width),
-    (1.0 - (ndcPos.y + 1.0) * 0.5) * float(params.height)
+    (ndcPos.x * 0.5 + 0.5) * float(params.width - 1) + 0.5,
+    (1.0 - (ndcPos.y * 0.5 + 0.5)) * float(params.height - 1) + 0.5
     );
 
-    // 创建旋转矩阵
-    mat3 rotationMatrix = quaternionToMatrix(rotation);
+    // 计算3D协方差矩阵
+    mat3 cov3D = computeCovarianceMatrix(scale, rotation);
 
-    // 计算点在屏幕上的影响半径（增加缩放系数）
-    float baseRadius = max(scale.x, max(scale.y, scale.z)) * 30.0 / (-viewPos.z);
+    // 计算2D投影的协方差矩阵（简化版本）
+    mat2 cov2D = computeProjectedCovariance(cov3D, normalize(-viewPos.xyz));
 
-    // 确保半径在有效范围内
-    baseRadius = clamp(baseRadius, 2.0, 400.0);  // 增大最小半径
+    // 计算影响半径（基于协方差矩阵的特征值）
+    float det = determinant(cov2D);
+    float trace = cov2D[0][0] + cov2D[1][1];
+    float radius  = 8.0 * sqrt(trace); // 简化计算，使用迹作为方差的估计
 
-    // 计算变换后的尺度（用于各向异性高斯）
-    vec3 transformedScale = rotationMatrix * scale;
+    // 确保半径至少为1像素
+    radius = max(radius, 1.0);
 
-    // 计算x和y方向的实际半径（调整比例计算）
-    float radiusX = baseRadius * (scale.x / max(scale.x, max(scale.y, scale.z)));
-    float radiusY = baseRadius * (scale.y / max(scale.x, max(scale.y, scale.z)));
+    // 计算要处理的像素范围
+    ivec2 minPixel = ivec2(max(floor(screenPos - radius), vec2(0.0)));
+    ivec2 maxPixel = ivec2(min(ceil(screenPos + radius), vec2(params.width - 1, params.height - 1)));
 
-    // 计算旋转后的方向向量（用于椭圆形状）
-    vec2 dirX = normalize(vec2(rotationMatrix[0][0], rotationMatrix[1][0]));
-    vec2 dirY = normalize(vec2(rotationMatrix[0][1], rotationMatrix[1][1]));
+    // 获取当前点的深度值
+    float pointDepth = -viewPos.z; // 使用负z是因为viewPos的z是负值（相机朝向-z）
 
-    // 预计算变换矩阵（更精确的椭圆计算）
-    mat2 invScale = mat2(
-    1.0 / radiusX, 0.0,
-    0.0, 1.0 / radiusY
-    );
+    // 处理影响范围内的像素
+    for (int y = minPixel.y; y <= maxPixel.y; y++) {
+        for (int x = minPixel.x; x <= maxPixel.x; x++) {
+            uint pixelIdx = y * params.width + x;
 
-    mat2 rot = mat2(
-    dirX.x, dirY.x,
-    dirX.y, dirY.y
-    );
+            // 计算像素中心到高斯点中心的距离
+            vec2 pixelCenter = vec2(x + 0.5, y + 0.5);
 
-    mat2 transform = rot * invScale;
+            // 计算2D高斯权重
+            float weight = gaussian2D(pixelCenter, screenPos, cov2D);
 
-    // 确定要处理的像素范围（扩大搜索范围）
-    float searchRadius = max(radiusX, radiusY) * 4.0;  // 增大搜索范围
-    ivec2 minCoord = ivec2(max(0, int(floor(screenPos.x - searchRadius))),
-    max(0, int(floor(screenPos.y - searchRadius))));
-    ivec2 maxCoord = ivec2(min(params.width - 1, int(ceil(screenPos.x + searchRadius))),
-    min(params.height - 1, int(ceil(screenPos.y + searchRadius))));
+            // 如果权重太小，跳过此像素以提高性能
+            if (weight < 0.001) continue;
 
-    // 对每个受影响的像素应用高斯混合
-    for (int y = minCoord.y; y <= maxCoord.y; y++) {
-        for (int x = minCoord.x; x <= maxCoord.x; x++) {
-            // 计算像素到点中心的距离向量
-            vec2 pixelOffset = vec2(x, y) - screenPos;
+            // 透明度混合
+            vec4 pixelColor = unpackColor(pixelMap.pixels[pixelIdx]);
+            float pixelDepth = depthMap.depth[pixelIdx];
 
-            // 应用变换（椭圆形状）
-            vec2 transformedOffset = transform * pixelOffset;
+            // 深度测试
+            if (pointDepth < pixelDepth) {
+                // 计算混合后的颜色
+                vec4 blendedColor = mix(pixelColor, color * opacity, weight);
 
-            // 计算椭圆距离
-            float distanceSquared = dot(transformedOffset, transformedOffset);
-
-            // 应用高斯权重（减小衰减系数，使影响范围更广）
-            float gaussianWeight = exp(-distanceSquared * 2.0);
-
-            // 应用不透明度
-            float alpha = gaussianWeight * opacity;
-
-            // 降低阈值，使边缘更柔和
-            if (alpha > 0.0001) {
-                uint pixelIdx = y * params.width + x;
-                vec4 pixelColor = unpackColor(pixelMap.pixels[pixelIdx]);
-
-                // Alpha混合
-                vec4 newColor = mix(pixelColor, color * alpha, alpha);
-                newColor.a = clamp(pixelColor.a + alpha * (1.0 - pixelColor.a), 0.0, 1.0);
-
-                pixelMap.pixels[pixelIdx] = packColor(newColor);
+                // 更新像素颜色和深度
+                pixelMap.pixels[pixelIdx] = packColor(blendedColor);
+                depthMap.depth[pixelIdx] = pointDepth;
             }
         }
     }
