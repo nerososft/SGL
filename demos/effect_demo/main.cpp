@@ -28,9 +28,11 @@
 #include "engine/effect/filters/impl/SurfaceBlurFilter.h"
 #include "engine/effect/filters/impl/ThresholdSplitFilter.h"
 #include "engine/effect/filters/impl/TransformFilter.h"
+#include "engine/effect/filters/impl/Transform3DFilter.h"
 #include "engine/effect/filters/impl/VibranceFilter.h"
 #include "engine/effect/filters/impl/VoronoiFilter.h"
 #include "core/log/Log.h"
+#include "engine/effect/utils/TransformUtils.h"
 
 void effect_engine_main() {
     EffectEngine effectEngine;
@@ -193,7 +195,7 @@ void effect_engine_main() {
     to.push_back(glm::vec3(300.0f, 100.0f, 0.0f));
     to.push_back(glm::vec3(100.0f, 300.0f, 0.0f));
     to.push_back(glm::vec3(500.0f, 500.0f, 0.0f));
-    filter->SetTransform(from, to);
+    filter->SetTransformMatrix(TransformUtils::Transform(from, to));
     effectEngine.Process("../../../demos/effect_demo/images/girl.png",
                          "../../../demos/effect_demo/images/girl_transform.png", filter);
 }

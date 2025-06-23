@@ -22,8 +22,6 @@ public:
 
     ~TransformFilter() override = default;
 
-    void SetTransform(const std::vector<glm::vec3> &from, const std::vector<glm::vec3> &to);
-
     void SetTransformMatrix(const glm::mat4 &transformMatrix) {
         this->transformFilterParams.transformMatrix = transformMatrix;
     }

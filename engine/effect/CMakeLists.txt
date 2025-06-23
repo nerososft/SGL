@@ -3,7 +3,6 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     message(STATUS "Running on Windows")
     include_directories("../../..")
-    include_directories("../../core/gpu2")
     #include_directories("D:/vcpkg_install/vcpkg/installed/x64-windows/include/libpng16")
     #link_directories("$D:/vcpkg_install/vcpkg/installed/x64-windows/lib")
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
@@ -13,7 +12,6 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 elseif (CMAKE_SYSTEM_NAME MATCHES "OHOS")
     message(STATUS "Running on OHOS")
     include_directories("../../..")
-    include_directories("../../core/gpu2")
     #include_directories("D:/OHOS/glm")
 endif ()
 add_definitions(-DGLM_FORCE_DEPTH_ZERO_TO_ONE=1)
@@ -44,6 +42,8 @@ set(ENGINE_SOURCE EffectEngine.cpp
         EffectEngine.h
         c_api.cpp
         c_api.h
+        utils/TransformUtils.cpp
+        utils/TransformUtils.h
         blenders/IBlender.h
         blenders/BaseBlender.cpp
         blenders/BaseBlender.h
