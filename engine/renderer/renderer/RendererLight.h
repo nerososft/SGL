@@ -6,7 +6,7 @@
 #define RENDERERLIGHT_H
 #include <glm/vec4.hpp>
 
-#include "demos/3d_renderer_demo/scene/Scene.h"
+#include "demo/3d_renderer_demo/scene/Scene.h"
 #include "core/gpu/VkGPUBuffer.h"
 #include "core/gpu/compute_graph/IComputeGraphNode.h"
 
