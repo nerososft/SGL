@@ -22,6 +22,28 @@
 // "model.layers.0.mlp.gate_proj.weight": 3072, 1024
 // "model.layers.0.mlp.down_proj.weight": 1024,3072
 
+// x [batch, seq_len, 1024]
+//   ↓
+// LayerNorm
+//   ↓
+// Self-Attention:
+//   q_proj: [1024→2048] → 分割为16个头 [128]
+//   k_proj: [1024→1024] → 分割为16个头 [128]
+//   v_proj: [1024→1024] → 分割为16个头 [128]
+//   注意力计算 → 合并头 [2048]
+//   o_proj: [2048→1024]
+//   残差连接 → [1024]
+//   ↓
+// LayerNorm
+//   ↓
+// Gated MLP:
+//   gate_proj: [1024→3072]
+//   up_proj: [1024→3072]
+//   门控乘法 → [3072]
+//   down_proj: [3072→1024]
+//   残差连接 → [1024]
+//   ↓
+// output [batch, seq_len, 1024]
 
 class TransformerBlock {
     uint64_t layerIndex = 0;
