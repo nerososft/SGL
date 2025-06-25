@@ -62,7 +62,7 @@ bool SafeTensor::LoadBF16EmbeddingMatrix(const std::vector<char> &safeTensorData
 }
 
 bool SafeTensor::LoadFromFile(const std::string &tensorFilePath) {
-    const std::vector<char> bytes = IOUtils::ReadFile(tensorFilePath);
+    const std::vector<char> bytes = IOUtils::ReadFile(tensorFilePath); // TODO: mmap should be better for large file
     if (bytes.empty()) {
         Logger() << "Failed '" << tensorFilePath << "' is empty" << std::endl;
     }
