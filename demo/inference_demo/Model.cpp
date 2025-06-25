@@ -16,6 +16,11 @@ bool Model::Init(const std::shared_ptr<Config> &config, const std::shared_ptr<Sa
     const uint64_t layerNums = this->config->GetHiddenLayerNums();
     std::cout << "layerNums: " << layerNums << std::endl;
 
+    this->blocks.resize(layerNums);
+    for (uint64_t i = 0; i < layerNums; i++) {
+        blocks[i] = std::make_shared<TransformerBlock>(i);
+    }
+
     // TODO: init transformer blocks
 
     return true;

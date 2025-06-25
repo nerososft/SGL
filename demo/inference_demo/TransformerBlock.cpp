@@ -3,3 +3,7 @@
 //
 
 #include "TransformerBlock.h"
+
+TransformerBlock::TransformerBlock(uint64_t layerIdx) {
+    this->layerIndex = layerIdx;
+}
