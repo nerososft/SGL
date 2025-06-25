@@ -14,6 +14,8 @@ class Model {
     std::shared_ptr<Config> config = nullptr;
     std::shared_ptr<SafeTensor> safeTensor = nullptr;
 
+    // normal
+
 public:
     explicit Model();
 
