@@ -48,13 +48,16 @@ add_library(ml_engine
         operators/impl/SoftmaxOperator.h
         operators/impl/GELUOperator.cpp
         operators/impl/GELUOperator.h
+        operators/impl/SiLUOperator.cpp
+        operators/impl/SiLUOperator.h
         operators/impl/RMSNormOperator.cpp
         operators/impl/RMSNormOperator.h
+        operators/impl/LayerNormOperator.cpp
+        operators/impl/LayerNormOperator.h
         Matrix.h
         Matrix.cpp
         MLEngine.h
         MLEngine.cpp
-        operators/impl/LayerNormOperator.cpp
-        operators/impl/LayerNormOperator.h
+
 )
 target_link_libraries(ml_engine core)

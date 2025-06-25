@@ -11,6 +11,7 @@
 #include "operators/impl/ReLUOperator.h"
 #include "operators/impl/RMSNormOperator.h"
 #include "operators/impl/SigmoidOperator.h"
+#include "operators/impl/SiLUOperator.h"
 #include "operators/impl/SoftmaxOperator.h"
 #include "operators/impl/TanhOperator.h"
 
@@ -224,6 +225,19 @@ void MLEngine::GELU(const std::shared_ptr<Matrix> &input,
                                                        input->GetBuffer(),
                                                        output->GetBuffer());
     const auto node = geluOp->CreateComputeGraphNode();
+    if (node == nullptr) {
+        Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
+        throw std::runtime_error("Failed to create compute graph node!");
+    }
+    this->mainSubGraph->AddComputeGraphNode(node);
+}
+
+void MLEngine::SiLU(const std::shared_ptr<Matrix> &input,
+                    const std::shared_ptr<Matrix> &output) {
+    const auto siluOp = std::make_shared<SiLUOperator>(this->gpuCtx,
+                                                       input->GetBuffer(),
+                                                       output->GetBuffer());
+    const auto node = siluOp->CreateComputeGraphNode();
     if (node == nullptr) {
         Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
         throw std::runtime_error("Failed to create compute graph node!");
