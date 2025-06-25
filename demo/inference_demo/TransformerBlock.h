@@ -11,16 +11,17 @@
 #include "engine/ml/Matrix.h"
 
 // "model.layers.0.input_layernorm.weight": 1024
-// "model.layers.0.mlp.down_proj.weight": 1024,3072
-// "model.layers.0.mlp.gate_proj.weight": 3072, 1024
-// "model.layers.0.mlp.up_proj.weight": 3072, 1024
-// "model.layers.0.post_attention_layernorm.weight": 1024
 // "model.layers.0.self_attn.k_norm.weight": 128
 // "model.layers.0.self_attn.k_proj.weight": 1024, 1024
 // "model.layers.0.self_attn.o_proj.weight": 1024, 2048
 // "model.layers.0.self_attn.q_norm.weight": 128
 // "model.layers.0.self_attn.q_proj.weight": 2048, 1024
 // "model.layers.0.self_attn.v_proj.weight": 1024, 1024
+// "model.layers.0.post_attention_layernorm.weight": 1024
+// "model.layers.0.mlp.up_proj.weight": 3072, 1024
+// "model.layers.0.mlp.gate_proj.weight": 3072, 1024
+// "model.layers.0.mlp.down_proj.weight": 1024,3072
+
 
 class TransformerBlock {
     uint64_t layerIndex = 0;
