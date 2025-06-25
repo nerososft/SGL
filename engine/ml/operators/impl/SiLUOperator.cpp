@@ -37,7 +37,7 @@ std::shared_ptr<IComputeGraphNode> SiLUOperator::CreateComputeGraphNode() {
                                                           1);
     const VkResult ret = siluNode->CreateComputeGraphNode();
     if (ret != VK_SUCCESS) {
-        Logger() << "Error creating gelu node." << std::endl;
+        Logger() << "Error creating silu node." << std::endl;
         return nullptr;
     }
     std::vector<PipelineNodeBuffer> buffers;
