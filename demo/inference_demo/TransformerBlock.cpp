@@ -7,3 +7,7 @@
 TransformerBlock::TransformerBlock(uint64_t layerIdx) {
     this->layerIndex = layerIdx;
 }
+
+bool TransformerBlock::Init(const std::shared_ptr<SafeTensor> &safeTensor) {
+
+}

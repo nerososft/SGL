@@ -19,9 +19,8 @@ bool Model::Init(const std::shared_ptr<Config> &config, const std::shared_ptr<Sa
     this->blocks.resize(layerNums);
     for (uint64_t i = 0; i < layerNums; i++) {
         blocks[i] = std::make_shared<TransformerBlock>(i);
+        blocks[i]->Init(safeTensor);
     }
-
-    // TODO: init transformer blocks
 
     return true;
 }
