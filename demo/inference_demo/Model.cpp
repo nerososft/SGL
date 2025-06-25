@@ -4,8 +4,19 @@
 
 #include "Model.h"
 
-Model::Model(std::shared_ptr<SafeTensor> safeTensor) {
+#include <iostream>
+
+Model::Model() {
 }
 
-void Model::Forward() {
+bool Model::Init(const std::shared_ptr<Config> &config, const std::shared_ptr<SafeTensor> &safeTensor) {
+    this->safeTensor = safeTensor;
+    this->config = config;
+
+    const uint64_t layerNums = this->config->GetHiddenLayerNums();
+    std::cout << "layerNums: " << layerNums << std::endl;
+
+    // TODO: init transformer blocks
+
+    return true;
 }

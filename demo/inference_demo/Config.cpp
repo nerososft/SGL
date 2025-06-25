@@ -14,5 +14,11 @@ bool Config::LoadFromFile(const std::string &configFilePath) {
     for (auto it = config.begin(); it != config.end(); ++it) {
         std::cout << it.key() << ": " << it.value() << std::endl;
     }
+
+    this->properties.num_hidden_layers = config["num_hidden_layers"];
     return true;
+}
+
+uint64_t Config::GetHiddenLayerNums() const {
+    return this->properties.num_hidden_layers;
 }

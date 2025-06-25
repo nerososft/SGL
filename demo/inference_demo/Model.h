@@ -9,16 +9,17 @@
 #include "SafeTensor.h"
 #include "TransformerBlock.h"
 
-
 class Model {
     std::vector<std::shared_ptr<TransformerBlock> > blocks;
+    std::shared_ptr<Config> config = nullptr;
+    std::shared_ptr<SafeTensor> safeTensor = nullptr;
 
 public:
-    explicit Model(std::shared_ptr<SafeTensor> safeTensor);
+    explicit Model();
 
     ~Model() = default;
 
-    void Forward();
+    bool Init(const std::shared_ptr<Config> &config, const std::shared_ptr<SafeTensor> &safeTensor);
 };
 
 

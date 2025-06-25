@@ -28,6 +28,13 @@ void Infer::Init() {
         Logger() << "Failed to load safetensors";
         return;
     }
+
+    this->model = std::make_shared<Model>();
+    ok = model->Init(this->config, this->safeTensor);
+    if (!ok) {
+        Logger() << "Failed to init model";
+        return;
+    }
 }
 
 void Infer::Run(const std::string &prompt) const {
@@ -39,7 +46,7 @@ void Infer::Run(const std::string &prompt) const {
     for (const auto &token: result) {
         std::vector<float> embedding = this->safeTensor->EmbeddingToken(token);
         std::cout << "Token: " << token << std::endl;
-        std::cout << "Embedding("<<embedding.size()<<"): [";
+        std::cout << "Embedding(" << embedding.size() << "): [";
         for (int i = 0; i < embedding.size(); i++) {
             std::cout << embedding[i] << " ";
         }

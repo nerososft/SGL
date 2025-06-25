@@ -45,6 +45,8 @@ public:
     ~Config() = default;
 
     bool LoadFromFile(const std::string &path);
+
+    uint64_t GetHiddenLayerNums() const;
 };
 
 #endif //MODEL_CONFIG_H
