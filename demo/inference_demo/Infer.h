@@ -24,6 +24,8 @@ public:
     ~Infer() = default;
 
     void Init();
+
+    void Run(const std::string &prompt) const;
 };
 
 

@@ -5,9 +5,11 @@
 #ifndef TOKENIZER_H
 #define TOKENIZER_H
 #include <memory>
+#include <unordered_map>
 #include <vector>
 
 #include "SafeTensor.h"
+#include "vendor/json.hpp"
 
 class Tokenizer {
     int bosTokenId = -1;

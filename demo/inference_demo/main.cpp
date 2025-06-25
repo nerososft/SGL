@@ -13,6 +13,7 @@ int main(int argc, char *argv[]) {
 
     Infer infer;
     infer.Init();
+    infer.Run("Hello, World!");
 
     return 0;
 

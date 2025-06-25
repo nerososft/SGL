@@ -15,16 +15,6 @@ void Infer::Init() {
         return;
     }
 
-    const uint64_t decodeTimeStart = TimeUtils::GetCurrentMonoMs();
-    const auto result = tokenizer->Encode("hello world");
-    const uint64_t decodeTimeEnd = TimeUtils::GetCurrentMonoMs();
-    std::cout << "Decode time: " << decodeTimeEnd - decodeTimeStart << std::endl;
-
-    for (const auto &token: result) {
-        std::cout << token << " ";
-    }
-    std::cout << std::endl;
-
     this->config = std::make_shared<Config>();
     ok = config->LoadFromFile("../../../demo/inference_demo/models/Qwen3_0_6B/config.json");
     if (!ok) {
@@ -38,6 +28,23 @@ void Infer::Init() {
         Logger() << "Failed to load safetensors";
         return;
     }
+}
 
-    return;
+void Infer::Run(const std::string &prompt) const {
+    const uint64_t decodeTimeStart = TimeUtils::GetCurrentMonoMs();
+    const auto result = tokenizer->Encode(prompt);
+    const uint64_t decodeTimeEnd = TimeUtils::GetCurrentMonoMs();
+    std::cout << "Decode time: " << decodeTimeEnd - decodeTimeStart << std::endl;
+
+    for (const auto &token: result) {
+        std::vector<float> embedding = this->safeTensor->EmbeddingToken(token);
+        std::cout << "Token: " << token << std::endl;
+        std::cout << "Embedding("<<embedding.size()<<"): [";
+        for (int i = 0; i < embedding.size(); i++) {
+            std::cout << embedding[i] << " ";
+        }
+        std::cout << "]" << std::endl;
+    }
+
+    std::cout << std::endl;
 }

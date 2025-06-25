@@ -14,4 +14,5 @@ bool Config::LoadFromFile(const std::string &configFilePath) {
     for (auto it = config.begin(); it != config.end(); ++it) {
         std::cout << it.key() << ": " << it.value() << std::endl;
     }
+    return true;
 }

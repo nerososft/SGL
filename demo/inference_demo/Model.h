@@ -4,6 +4,8 @@
 
 #ifndef MODEL_H
 #define MODEL_H
+#include <vector>
+
 #include "SafeTensor.h"
 #include "TransformerBlock.h"
 
