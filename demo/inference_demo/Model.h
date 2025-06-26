@@ -11,10 +11,10 @@
 #include "engine/ml/MLEngine.h"
 
 class Model {
-    std::vector<std::shared_ptr<TransformerBlock> > blocks;
     std::shared_ptr<Config> config = nullptr;
     std::shared_ptr<SafeTensor> safeTensor = nullptr;
 
+    std::vector<std::shared_ptr<TransformerBlock> > blocks;
     // normal
 
 public:

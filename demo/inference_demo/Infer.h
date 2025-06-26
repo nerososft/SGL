@@ -14,11 +14,13 @@
 
 
 class Infer {
+    std::shared_ptr<MLEngine> mle = nullptr;
+
     std::shared_ptr<Config> config = nullptr;
     std::shared_ptr<SafeTensor> safeTensor = nullptr;
+
     std::shared_ptr<Tokenizer> tokenizer = nullptr;
     std::shared_ptr<Model> model = nullptr;
-    std::shared_ptr<MLEngine> mle = nullptr;
 
 public:
     Infer() = default;

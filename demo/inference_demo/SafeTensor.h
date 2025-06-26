@@ -32,6 +32,7 @@ struct Weight {
 
 class SafeTensor {
     std::shared_ptr<Config> config = nullptr;
+
     std::vector<std::vector<float> > embeddingMatrix;
     std::vector<std::unordered_map<std::string, Weight> > weights;
 
