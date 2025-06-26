@@ -15,7 +15,10 @@ class Model {
     std::shared_ptr<SafeTensor> safeTensor = nullptr;
 
     std::vector<std::shared_ptr<TransformerBlock> > blocks;
-    // normal
+
+    std::shared_ptr<Matrix> inputMatrix = nullptr;
+
+    std::shared_ptr<Matrix> normMatrix = nullptr;
 
 public:
     explicit Model(const std::shared_ptr<Config> &config,

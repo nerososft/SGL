@@ -50,6 +50,9 @@ class TransformerBlock {
     uint64_t layerIndex = 0;
     std::shared_ptr<MLEngine> mle = nullptr;
 
+    std::shared_ptr<Matrix> inputMatrix = nullptr;
+    std::shared_ptr<Matrix> outputMatrix = nullptr;
+
     std::shared_ptr<Matrix> inputLayerNorm = nullptr; // 1024
     std::shared_ptr<Matrix> selfAttnKNorm = nullptr; // 128
     std::shared_ptr<Matrix> selfAttnKProj = nullptr; // 1024, 1024
@@ -87,12 +90,18 @@ public:
     explicit TransformerBlock(const std::shared_ptr<MLEngine> &mle,
                               uint64_t layerIdx);
 
-    std::shared_ptr<Matrix> InitWeightMatrix(const std::shared_ptr<SafeTensor> &safeTensor, const Weight &weight) const;
+    [[nodiscard]] std::shared_ptr<Matrix> InitWeightMatrix(const std::shared_ptr<SafeTensor> &safeTensor,
+                                                           const Weight &weight) const;
+
+    std::shared_ptr<Matrix> InitOutputMatrix(const Weight &weight) const;
 
     bool Init(const std::shared_ptr<SafeTensor> &safeTensor);
 
     ~TransformerBlock() = default;
-};
 
+    void SetInputMatrix(const std::shared_ptr<Matrix> &input);
+
+    std::shared_ptr<Matrix> &GetOutputMatrix();
+};
 
 #endif //TRANSFORMERBLOCK_H
