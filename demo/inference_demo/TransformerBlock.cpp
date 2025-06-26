@@ -4,10 +4,30 @@
 
 #include "TransformerBlock.h"
 
+#include "core/log/Log.h"
+
 TransformerBlock::TransformerBlock(const std::shared_ptr<MLEngine> &mle,
                                    uint64_t layerIdx) {
     this->mle = mle;
     this->layerIndex = layerIdx;
+}
+
+std::shared_ptr<Matrix> TransformerBlock::InitWeightMatrix(const std::shared_ptr<SafeTensor> &safeTensor,
+                                                           const Weight &weight) const {
+    std::shared_ptr<Matrix> weightMatrix = mle->CreateMatrix(weight.shape.width, weight.shape.height);
+    const std::shared_ptr<VkGPUBuffer> matrixBuffer = weightMatrix->GetBuffer();
+    if (matrixBuffer == nullptr) {
+        Logger() << "matrixBuffer is null!";
+        return nullptr;
+    }
+    const std::vector<float> weightData = safeTensor->GetLayerWeightData(weight);
+    const VkResult result = matrixBuffer->UploadData(weightData.data(),
+                                                     weightData.size() * sizeof(float));
+    if (result != VK_SUCCESS) {
+        Logger() << "matrixBuffer->UploadData failed!";
+        return nullptr;
+    }
+    return weightMatrix;
 }
 
 bool TransformerBlock::Init(const std::shared_ptr<SafeTensor> &safeTensor) {
@@ -23,19 +43,29 @@ bool TransformerBlock::Init(const std::shared_ptr<SafeTensor> &safeTensor) {
     Weight mlpGateProjWeight = safeTensor->GetLayerWeight(this->layerIndex, "mlp.gate_proj");
     Weight mlpDownProjWeight = safeTensor->GetLayerWeight(this->layerIndex, "mlp.down_proj");
 
-    inputLayerNorm = mle->CreateMatrix(inputLayerNormWeight.shape.width, inputLayerNormWeight.shape.height); // 1024
-    selfAttnKNorm = mle->CreateMatrix(selfAttnKNormWeight.shape.width, selfAttnKNormWeight.shape.height); // 128
-    selfAttnKProj = mle->CreateMatrix(selfAttnKProjWeight.shape.width, selfAttnKProjWeight.shape.height); // 1024, 1024
-    selfAttnOProj = mle->CreateMatrix(selfAttnOProjWeight.shape.width, selfAttnOProjWeight.shape.height); // 1024, 2048
-    selfAttnQNorm = mle->CreateMatrix(selfAttnQNormWeight.shape.width, selfAttnQNormWeight.shape.height); // 128
-    selfAttnQProj = mle->CreateMatrix(selfAttnQProjWeight.shape.width, selfAttnQProjWeight.shape.height); // 2048, 1024
-    selfAttnVProj = mle->CreateMatrix(selfAttnVProjWeight.shape.width, selfAttnVProjWeight.shape.height); // 1024, 1024
-    postAttentionLayerNorm = mle->CreateMatrix(postAttentionLayerNormWeight.shape.width,
-                                               postAttentionLayerNormWeight.shape.height); // 1024
-    mlpUpProj = mle->CreateMatrix(mlpUpProjWeight.shape.width, mlpUpProjWeight.shape.height); // 3072, 1024
-    mlpGateProj = mle->CreateMatrix(mlpGateProjWeight.shape.width, mlpGateProjWeight.shape.height); // 3072, 1024
-    mlpDownProj = mle->CreateMatrix(mlpDownProjWeight.shape.width, mlpDownProjWeight.shape.height); // 1024,3072
+    inputLayerNorm = InitWeightMatrix(safeTensor, inputLayerNormWeight);
+    assert(inputLayerNorm != nullptr);
+    selfAttnKNorm = InitWeightMatrix(safeTensor, selfAttnKNormWeight);
+    assert(selfAttnKNorm != nullptr);
+    selfAttnKProj = InitWeightMatrix(safeTensor, selfAttnKProjWeight);
+    assert(selfAttnKProj != nullptr);
+    selfAttnOProj = InitWeightMatrix(safeTensor, selfAttnOProjWeight);
+    assert(selfAttnOProj != nullptr);
+    selfAttnQNorm = InitWeightMatrix(safeTensor, selfAttnQNormWeight);
+    assert(selfAttnQNorm != nullptr);
+    selfAttnQProj = InitWeightMatrix(safeTensor, selfAttnQProjWeight);
+    assert(selfAttnQProj != nullptr);
+    selfAttnVProj = InitWeightMatrix(safeTensor, selfAttnVProjWeight);
+    assert(selfAttnVProj != nullptr);
+    postAttentionLayerNorm = InitWeightMatrix(safeTensor, postAttentionLayerNormWeight);
+    assert(postAttentionLayerNorm != nullptr);
+    mlpUpProj = InitWeightMatrix(safeTensor, mlpUpProjWeight);
+    assert(mlpUpProj != nullptr);
+    mlpGateProj = InitWeightMatrix(safeTensor, mlpGateProjWeight);
+    assert(mlpGateProj != nullptr);
+    mlpDownProj = InitWeightMatrix(safeTensor, mlpDownProjWeight);
+    assert(mlpDownProj != nullptr);
 
-    // TODO: Upload Data from Weight
+    // TODO: construct transformer block compute graph
     return true;
 }

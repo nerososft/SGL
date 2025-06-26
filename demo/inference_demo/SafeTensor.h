@@ -33,6 +33,8 @@ struct Weight {
 class SafeTensor {
     std::shared_ptr<Config> config = nullptr;
 
+    std::vector<char> dataBytes;
+
     std::vector<std::vector<float> > embeddingMatrix;
     std::vector<std::unordered_map<std::string, Weight> > weights;
 
@@ -55,6 +57,8 @@ public:
     std::vector<float> EmbeddingToken(int token);
 
     Weight GetLayerWeight(size_t layerIndex, const std::string &name);
+
+    std::vector<float> GetLayerWeightData(const Weight &weight);
 };
 
 #endif //SAFETENSORDATA_H

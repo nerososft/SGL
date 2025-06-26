@@ -87,6 +87,8 @@ public:
     explicit TransformerBlock(const std::shared_ptr<MLEngine> &mle,
                               uint64_t layerIdx);
 
+    std::shared_ptr<Matrix> InitWeightMatrix(const std::shared_ptr<SafeTensor> &safeTensor, const Weight &weight) const;
+
     bool Init(const std::shared_ptr<SafeTensor> &safeTensor);
 
     ~TransformerBlock() = default;

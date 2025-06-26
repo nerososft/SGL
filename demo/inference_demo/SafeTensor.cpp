@@ -132,11 +132,11 @@ bool SafeTensor::LoadBF16EmbeddingMatrix(const std::vector<char> &safeTensorData
 }
 
 bool SafeTensor::LoadFromFile(const std::string &tensorFilePath) {
-    const std::vector<char> bytes = IOUtils::ReadFile(tensorFilePath); // TODO: mmap should be better for large file
-    if (bytes.empty()) {
+    this->dataBytes = IOUtils::ReadFile(tensorFilePath); // TODO: mmap should be better for large file
+    if (dataBytes.empty()) {
         Logger(Logger::DEBUG) << "Failed '" << tensorFilePath << "' is empty" << std::endl;
     }
-    const char *data = bytes.data();
+    const char *data = dataBytes.data();
     if (data == nullptr) {
         Logger(Logger::DEBUG) << "Failed '" << tensorFilePath << "' is empty" << std::endl;
         return false;
@@ -147,13 +147,13 @@ bool SafeTensor::LoadFromFile(const std::string &tensorFilePath) {
     auto headerJsonStr = std::string(data + 8, headSize);
     const nlohmann::json header = nlohmann::json::parse(headerJsonStr);
 
-    bool ok = LoadBF16EmbeddingMatrix(bytes, header);
+    bool ok = LoadBF16EmbeddingMatrix(dataBytes, header);
     if (!ok) {
         Logger(Logger::DEBUG) << "Failed to load embedding matrix" << std::endl;
         return false;
     }
 
-    ok = LoadWeights(bytes, header);
+    ok = LoadWeights(dataBytes, header);
     if (!ok) {
         Logger(Logger::DEBUG) << "Failed to load weights" << std::endl;
         return false;
@@ -183,4 +183,15 @@ Weight SafeTensor::GetLayerWeight(const size_t layerIndex,
     }
 
     return it->second;
+}
+
+std::vector<float> SafeTensor::GetLayerWeightData(const Weight &weight) {
+    std::vector<float> result;
+    const uint16_t *pf16Data = reinterpret_cast<uint16_t *>(this->dataBytes.data() + weight.dataOffsets.start);
+    const size_t dataNums = weight.shape.width * weight.shape.height;
+    result.resize(dataNums);
+    for (uint64_t i = 0; i < dataNums; i++) {
+        result[i] = BF16ToFP32(pf16Data[i]);
+    }
+    return result;
 }
