@@ -104,6 +104,8 @@ public:
     void SetInputMatrix(const std::shared_ptr<Matrix> &input);
 
     std::shared_ptr<Matrix> &GetOutputMatrix();
+
+    void Dump() const;
 };
 
 #endif //TRANSFORMERBLOCK_H

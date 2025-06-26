@@ -51,6 +51,7 @@ typedef struct {
 } PipelineNodeBuffer;
 
 typedef enum {
+    COMPUTE_GRAPH_NODE_CPU,
     COMPUTE_GRAPH_NODE_COMPUTE,
     COMPUTE_GRAPH_NODE_GRAPHICS,
     COMPUTE_GRAPH_NODE_BUF_2_BUF_COPY,

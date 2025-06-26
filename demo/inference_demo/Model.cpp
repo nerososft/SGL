@@ -77,6 +77,13 @@ bool Model::Init() {
     return true;
 }
 
+void Model::Dump() const {
+    blocks[0]->Dump();
+    // for (auto &block: this->blocks) {
+        // block->Dump();
+    // }
+}
+
 std::vector<float> Model::Forward(const std::vector<float> &input) const {
     const auto inputBuffer = this->inputMatrix->GetBuffer();
     const VkResult result = inputBuffer->UploadData(input.data(), input.size() * sizeof(float));
@@ -86,6 +93,8 @@ std::vector<float> Model::Forward(const std::vector<float> &input) const {
     }
 
     mle->Compute();
+
+    Dump();
 
     std::vector<float> output;
     output.resize(1024); // TODO: read from config

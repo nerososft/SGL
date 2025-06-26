@@ -39,11 +39,6 @@ public:
     static float RMS(const std::shared_ptr<Matrix> &vectorInput,
                      float bias);
 
-    float Avg(const std::shared_ptr<Matrix> &vectorInput);
-
-    float Variance(const std::shared_ptr<Matrix> &vectorInput,
-                   float avg);
-
     void ReLU(const std::shared_ptr<Matrix> &input,
               const std::shared_ptr<Matrix> &output);
 
@@ -83,7 +78,7 @@ public:
                    const std::shared_ptr<Matrix> &weightInput,
                    const std::shared_ptr<Matrix> &biasInput,
                    float epsilon,
-                   float weightEnable,
+                   bool weightEnable,
                    bool biasEnable,
                    const std::shared_ptr<Matrix> &vectorOutput);
 

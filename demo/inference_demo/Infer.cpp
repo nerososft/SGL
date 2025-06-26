@@ -51,22 +51,24 @@ void Infer::Run(const std::string &prompt) const {
     Logger(Logger::DEBUG) << "Decode time: " << decodeTimeEnd - decodeTimeStart << std::endl;
 
     for (const auto &token: result) {
-        std::vector<float> embedding = this->safeTensor->EmbeddingToken(token);
+        const std::vector<float> embedding = this->safeTensor->EmbeddingToken(token);
         Logger(Logger::DEBUG) << "Token: " << token << std::endl;
         Logger(Logger::DEBUG) << "Embedding(" << embedding.size() << "): [";
-        for (int i = 0; i < embedding.size(); i++) {
-            std::cout << embedding[i] << " ";
+        for (const float i : embedding) {
+            std::cout << i << " ";
         }
         std::cout << "]" << std::endl;
 
         // Let's transform
-        std::vector<float> output = model->Forward(embedding);
+        const std::vector<float> output = model->Forward(embedding);
 
         Logger(Logger::DEBUG) << "Output(" << output.size() << "): [";
-        for (int i = 0; i < output.size(); i++) {
-            std::cout << output[i] << " ";
+        for (const float i : output) {
+            std::cout << i << " ";
         }
         std::cout << "]" << std::endl << std::endl;
+
+        break;
     }
 
     Logger(Logger::DEBUG) << std::endl;

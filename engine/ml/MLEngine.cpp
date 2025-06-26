@@ -14,6 +14,8 @@
 #include "operators/impl/SiLUOperator.h"
 #include "operators/impl/SoftmaxOperator.h"
 #include "operators/impl/TanhOperator.h"
+#include "operators/impl/cpu/AvgOperator.h"
+#include "operators/impl/cpu/VarianceOperator.h"
 
 bool MLEngine::Init() {
     std::vector<const char *> requiredExtensions;
@@ -128,40 +130,6 @@ float MLEngine::RMS(const std::shared_ptr<Matrix> &vectorInput, const float bias
     inputBuffer->UnMapBuffer();
 
     return sqrt(sum / nums + bias);
-}
-
-// TODO: this should be CPU Compute Node
-float MLEngine::Avg(const std::shared_ptr<Matrix> &vectorInput) {
-    const auto inputBuffer = vectorInput->GetBuffer();
-    if (inputBuffer->MapBuffer(inputBuffer->GetBufferSize()) != VK_SUCCESS) {
-        Logger() << Logger::ERROR << "Failed to map buffer!" << std::endl;
-        return 0.0f;
-    }
-    float sum = 0.0f;
-    const size_t nums = inputBuffer->GetBufferSize() / sizeof(float);
-    for (size_t i = 0; i < nums; i++) {
-        sum += static_cast<float *>(inputBuffer->GetMappedAddr())[i];
-    }
-    inputBuffer->UnMapBuffer();
-
-    return sqrt(sum / nums);
-}
-
-// TODO: this should be CPU Compute Node
-float MLEngine::Variance(const std::shared_ptr<Matrix> &vectorInput, const float avg) {
-    const auto inputBuffer = vectorInput->GetBuffer();
-    if (inputBuffer->MapBuffer(inputBuffer->GetBufferSize()) != VK_SUCCESS) {
-        Logger() << Logger::ERROR << "Failed to map buffer!" << std::endl;
-        return 0.0f;
-    }
-    float sum = 0.0f;
-    const size_t nums = inputBuffer->GetBufferSize() / sizeof(float);
-    for (size_t i = 0; i < nums; i++) {
-        sum += pow(static_cast<float *>(inputBuffer->GetMappedAddr())[i] - avg, 2.0);
-    }
-    inputBuffer->UnMapBuffer();
-
-    return sqrt(sum / nums);
 }
 
 void MLEngine::ReLU(const std::shared_ptr<Matrix> &input,
@@ -351,18 +319,30 @@ void MLEngine::LayerNorm(const std::shared_ptr<Matrix> &vectorInput,
                          const std::shared_ptr<Matrix> &weightInput,
                          const std::shared_ptr<Matrix> &biasInput,
                          const float epsilon,
-                         const float weightEnable,
+                         const bool weightEnable,
                          const bool biasEnable,
                          const std::shared_ptr<Matrix> &vectorOutput) {
-    const float avg = Avg(vectorInput);
-    const float variance = Variance(vectorInput, avg);
+    const auto avgOp = std::make_shared<AvgOperator>(vectorInput->GetBuffer());
+    const auto avgNode = avgOp->CreateComputeGraphNode();
+    if (avgNode == nullptr) {
+        Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
+        throw std::runtime_error("Failed to create compute graph node!");
+    }
+
+    const auto varianceOp = std::make_shared<VarianceOperator>(vectorInput->GetBuffer(), avgOp->GetAvg());
+    const auto varianceNode = varianceOp->CreateComputeGraphNode();
+    if (varianceNode == nullptr) {
+        Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
+        throw std::runtime_error("Failed to create compute graph node!");
+    }
+
     const auto layerNormOp = std::make_shared<LayerNormOperator>(this->gpuCtx,
                                                                  vectorInput->GetBuffer(),
                                                                  weightInput->GetBuffer(),
                                                                  biasInput->GetBuffer(),
                                                                  vectorOutput->GetBuffer());
-    layerNormOp->SetAvg(avg);
-    layerNormOp->SetVariance(variance);
+    layerNormOp->SetAvg(*avgOp->GetAvg()); // FIXME: pass address, cause used at compute
+    layerNormOp->SetVariance(*varianceOp->GetVariance()); // FIXME: pass address, cause used at compute
     layerNormOp->SetBiasEnable(biasEnable);
     layerNormOp->SetEpsilon(epsilon);
     layerNormOp->SetWeightEnable(weightEnable);
@@ -371,6 +351,9 @@ void MLEngine::LayerNorm(const std::shared_ptr<Matrix> &vectorInput,
         Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
         throw std::runtime_error("Failed to create compute graph node!");
     }
+
+    varianceNode->AddDependenceNode(avgNode);
+    node->AddDependenceNode(varianceNode);
     this->mainSubGraph->AddComputeGraphNode(node);
 }
 

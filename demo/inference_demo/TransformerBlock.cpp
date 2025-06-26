@@ -96,3 +96,12 @@ void TransformerBlock::SetInputMatrix(const std::shared_ptr<Matrix> &input) {
 std::shared_ptr<Matrix> &TransformerBlock::GetOutputMatrix() {
     return this->outputMatrix;
 }
+
+void TransformerBlock::Dump() const {
+    Logger() << "inputMatrix: ";
+    inputMatrix->Print();
+    Logger() << "inputLayerNorm: ";
+    inputLayerNorm->Print();
+    Logger() << "inputLayerNormOutput: ";
+    inputLayerNormOutput->Print();
+}

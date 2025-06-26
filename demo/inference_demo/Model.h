@@ -34,6 +34,8 @@ public:
 
     bool Init();
 
+    void Dump() const;
+
     std::vector<float> Forward(const std::vector<float> &input) const;
 };
 

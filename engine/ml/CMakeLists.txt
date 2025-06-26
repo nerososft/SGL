@@ -54,10 +54,13 @@ add_library(ml_engine
         operators/impl/RMSNormOperator.h
         operators/impl/LayerNormOperator.cpp
         operators/impl/LayerNormOperator.h
+        operators/impl/cpu/AvgOperator.cpp
+        operators/impl/cpu/AvgOperator.h
+        operators/impl/cpu/VarianceOperator.cpp
+        operators/impl/cpu/VarianceOperator.h
         Matrix.h
         Matrix.cpp
         MLEngine.h
         MLEngine.cpp
-
 )
 target_link_libraries(ml_engine core)
