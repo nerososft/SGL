@@ -55,9 +55,16 @@ void Infer::Run(const std::string &prompt) const {
         Logger(Logger::DEBUG) << "Token: " << token << std::endl;
         Logger(Logger::DEBUG) << "Embedding(" << embedding.size() << "): [";
         for (int i = 0; i < embedding.size(); i++) {
-            Logger(Logger::DEBUG) << embedding[i] << " ";
+            std::cout << embedding[i] << " ";
         }
-        Logger(Logger::DEBUG) << "]" << std::endl;
+        std::cout << "]" << std::endl;
+
+        std::vector<float> output = model->Forward(embedding);
+        Logger(Logger::DEBUG) << "Output(" << output.size() << "): [";
+        for (int i = 0; i < output.size(); i++) {
+            std::cout << output[i] << " ";
+        }
+        std::cout << "]" << std::endl << std::endl;
     }
 
     // TODO: let's transform

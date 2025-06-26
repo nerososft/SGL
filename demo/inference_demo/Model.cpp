@@ -28,3 +28,8 @@ bool Model::Init(const std::shared_ptr<MLEngine> &mle,
 
     return true;
 }
+
+std::vector<float> Model::Forward(const std::vector<float> &input) {
+    // TODO: do compute
+    return {};
+}

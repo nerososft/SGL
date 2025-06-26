@@ -25,6 +25,8 @@ public:
     bool Init(const std::shared_ptr<MLEngine> &mle,
               const std::shared_ptr<Config> &config,
               const std::shared_ptr<SafeTensor> &safeTensor);
+
+    std::vector<float> Forward(const std::vector<float> &input);
 };
 
 
