@@ -60,5 +60,7 @@ void Infer::Run(const std::string &prompt) const {
         std::cout << "]" << std::endl;
     }
 
+    // TODO: let's transform
+
     std::cout << std::endl;
 }
