@@ -52,7 +52,7 @@ bool SafeTensor::LoadWeight(const std::string &weightName, nlohmann::json::const
         }
     }
 
-    // TODO: Optmize this shit
+    // TODO: Optimize this shit
     for (size_t i = 0; i < this->weights.size(); i++) {
         std::string prefix = "model.layers." + std::to_string(i) + ".";
         if (weightName.find(prefix) != std::string::npos) {
