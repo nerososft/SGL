@@ -7,34 +7,41 @@
 #include "core/log/Log.h"
 #include "core/utils/TimeUtils.h"
 
-void Infer::Init() {
+bool Infer::Init() {
+    mle = std::make_shared<MLEngine>();
+    if (!mle->Init()) {
+        std::cerr << "Failed to initialize engine" << std::endl;
+        return false;
+    }
+
     this->tokenizer = std::make_shared<Tokenizer>();
     bool ok = tokenizer->LoadFromFile("../../../demo/inference_demo/models/Qwen3_0_6B/tokenizer.json");
     if (!ok) {
         Logger() << "Failed to load tokenizer.json";
-        return;
+        return false;
     }
 
     this->config = std::make_shared<Config>();
     ok = config->LoadFromFile("../../../demo/inference_demo/models/Qwen3_0_6B/config.json");
     if (!ok) {
         Logger() << "Failed to load config.json";
-        return;
+        return false;
     }
 
     this->safeTensor = std::make_shared<SafeTensor>();
     ok = safeTensor->LoadFromFile("../../../demo/inference_demo/models/Qwen3_0_6B/model.safetensors");
     if (!ok) {
         Logger() << "Failed to load safetensors";
-        return;
+        return false;
     }
 
     this->model = std::make_shared<Model>();
-    ok = model->Init(this->config, this->safeTensor);
+    ok = model->Init(this->mle, this->config, this->safeTensor);
     if (!ok) {
         Logger() << "Failed to init model";
-        return;
+        return false;
     }
+    return true;
 }
 
 void Infer::Run(const std::string &prompt) const {

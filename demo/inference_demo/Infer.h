@@ -10,20 +10,22 @@
 #include "Model.h"
 #include "SafeTensor.h"
 #include "Tokenizer.h"
+#include "engine/ml/MLEngine.h"
 
 
 class Infer {
-    std::shared_ptr<Config> config;
-    std::shared_ptr<SafeTensor> safeTensor;
-    std::shared_ptr<Tokenizer> tokenizer;
-    std::shared_ptr<Model> model;
+    std::shared_ptr<Config> config = nullptr;
+    std::shared_ptr<SafeTensor> safeTensor = nullptr;
+    std::shared_ptr<Tokenizer> tokenizer = nullptr;
+    std::shared_ptr<Model> model = nullptr;
+    std::shared_ptr<MLEngine> mle = nullptr;
 
 public:
     Infer() = default;
 
     ~Infer() = default;
 
-    void Init();
+    bool Init();
 
     void Run(const std::string &prompt) const;
 };

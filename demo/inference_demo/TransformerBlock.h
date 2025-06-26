@@ -9,6 +9,7 @@
 
 #include "SafeTensor.h"
 #include "engine/ml/Matrix.h"
+#include "engine/ml/MLEngine.h"
 
 // "model.layers.0.input_layernorm.weight": 1024
 // "model.layers.0.self_attn.k_norm.weight": 128
@@ -47,6 +48,19 @@
 
 class TransformerBlock {
     uint64_t layerIndex = 0;
+    std::shared_ptr<MLEngine> mle = nullptr;
+
+    std::shared_ptr<Matrix> inputLayerNorm = nullptr; // 1024
+    std::shared_ptr<Matrix> selfAttnKNorm = nullptr; // 128
+    std::shared_ptr<Matrix> selfAttnKProj = nullptr; // 1024, 1024
+    std::shared_ptr<Matrix> selfAttnOProj = nullptr; // 1024, 2048
+    std::shared_ptr<Matrix> selfAttnQNorm = nullptr; // 128
+    std::shared_ptr<Matrix> selfAttnQProj = nullptr; // 2048, 1024
+    std::shared_ptr<Matrix> selfAttnVProj = nullptr; // 1024, 1024
+    std::shared_ptr<Matrix> postAttentionLayerNorm = nullptr; // 1024
+    std::shared_ptr<Matrix> mlpUpProj = nullptr; // 3072, 1024
+    std::shared_ptr<Matrix> mlpGateProj = nullptr; // 3072, 1024
+    std::shared_ptr<Matrix> mlpDownProj = nullptr; // 1024,3072
 
     // Multi-head attention
     const std::shared_ptr<Matrix> Q = nullptr;
@@ -70,7 +84,8 @@ class TransformerBlock {
     const std::shared_ptr<Matrix> layerNormal2Output = nullptr;
 
 public:
-    explicit TransformerBlock(uint64_t layerIdx);
+    explicit TransformerBlock(const std::shared_ptr<MLEngine> &mle,
+                              uint64_t layerIdx);
 
     bool Init(const std::shared_ptr<SafeTensor> &safeTensor);
 

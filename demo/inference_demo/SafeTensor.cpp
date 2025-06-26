@@ -88,9 +88,20 @@ bool SafeTensor::LoadFromFile(const std::string &tensorFilePath) {
         Logger() << "Failed to load embedding matrix" << std::endl;
         return false;
     }
+
+    // TODO: loadWeight
+
     return true;
 }
 
 std::vector<float> SafeTensor::EmbeddingToken(const int token) {
     return this->embeddingMatrix[token];
+}
+
+Weight SafeTensor::GetLayerWeight(const size_t layerIndex,
+                                  const std::string &name) {
+    const std::string layerName = "model.layers." + std::to_string(layerIndex) + "." + name + ".weight";
+    Logger() << "Loading layer weight: " << layerName << std::endl;
+    // TODO: read from safetensor
+    return {.shape = {100, 100}};
 }

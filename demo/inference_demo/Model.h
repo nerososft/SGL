@@ -8,6 +8,7 @@
 
 #include "SafeTensor.h"
 #include "TransformerBlock.h"
+#include "engine/ml/MLEngine.h"
 
 class Model {
     std::vector<std::shared_ptr<TransformerBlock> > blocks;
@@ -21,7 +22,9 @@ public:
 
     ~Model() = default;
 
-    bool Init(const std::shared_ptr<Config> &config, const std::shared_ptr<SafeTensor> &safeTensor);
+    bool Init(const std::shared_ptr<MLEngine> &mle,
+              const std::shared_ptr<Config> &config,
+              const std::shared_ptr<SafeTensor> &safeTensor);
 };
 
 
