@@ -11,17 +11,17 @@ TransformerBlock::TransformerBlock(const std::shared_ptr<MLEngine> &mle,
 }
 
 bool TransformerBlock::Init(const std::shared_ptr<SafeTensor> &safeTensor) {
-    Weight inputLayerNormWeight = safeTensor->GetLayerWeight(0, "input_layernorm");
-    Weight selfAttnKNormWeight = safeTensor->GetLayerWeight(0, "self_attn.k_norm");
-    Weight selfAttnKProjWeight = safeTensor->GetLayerWeight(0, "self_attn.k_proj");
-    Weight selfAttnOProjWeight = safeTensor->GetLayerWeight(0, "self_attn.o_proj");
-    Weight selfAttnQNormWeight = safeTensor->GetLayerWeight(0, "self_attn.q_norm");
-    Weight selfAttnQProjWeight = safeTensor->GetLayerWeight(0, "self_attn.q_proj");
-    Weight selfAttnVProjWeight = safeTensor->GetLayerWeight(0, "self_attn.v_proj");
-    Weight postAttentionLayerNormWeight = safeTensor->GetLayerWeight(0, "post_attention_layernorm");
-    Weight mlpUpProjWeight = safeTensor->GetLayerWeight(0, "mlp.up_proj");
-    Weight mlpGateProjWeight = safeTensor->GetLayerWeight(0, "mlp.gate_proj");
-    Weight mlpDownProjWeight = safeTensor->GetLayerWeight(0, "mlp.down_proj");
+    Weight inputLayerNormWeight = safeTensor->GetLayerWeight(this->layerIndex, "input_layernorm");
+    Weight selfAttnKNormWeight = safeTensor->GetLayerWeight(this->layerIndex, "self_attn.k_norm");
+    Weight selfAttnKProjWeight = safeTensor->GetLayerWeight(this->layerIndex, "self_attn.k_proj");
+    Weight selfAttnOProjWeight = safeTensor->GetLayerWeight(this->layerIndex, "self_attn.o_proj");
+    Weight selfAttnQNormWeight = safeTensor->GetLayerWeight(this->layerIndex, "self_attn.q_norm");
+    Weight selfAttnQProjWeight = safeTensor->GetLayerWeight(this->layerIndex, "self_attn.q_proj");
+    Weight selfAttnVProjWeight = safeTensor->GetLayerWeight(this->layerIndex, "self_attn.v_proj");
+    Weight postAttentionLayerNormWeight = safeTensor->GetLayerWeight(this->layerIndex, "post_attention_layernorm");
+    Weight mlpUpProjWeight = safeTensor->GetLayerWeight(this->layerIndex, "mlp.up_proj");
+    Weight mlpGateProjWeight = safeTensor->GetLayerWeight(this->layerIndex, "mlp.gate_proj");
+    Weight mlpDownProjWeight = safeTensor->GetLayerWeight(this->layerIndex, "mlp.down_proj");
 
     inputLayerNorm = mle->CreateMatrix(inputLayerNormWeight.shape.width, inputLayerNormWeight.shape.height); // 1024
     selfAttnKNorm = mle->CreateMatrix(selfAttnKNormWeight.shape.width, selfAttnKNormWeight.shape.height); // 128
@@ -37,4 +37,5 @@ bool TransformerBlock::Init(const std::shared_ptr<SafeTensor> &safeTensor) {
     mlpDownProj = mle->CreateMatrix(mlpDownProjWeight.shape.width, mlpDownProjWeight.shape.height); // 1024,3072
 
     // TODO: Upload Data from Weight
+    return true;
 }

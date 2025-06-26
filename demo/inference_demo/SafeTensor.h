@@ -14,13 +14,18 @@ enum DataType {
     BF16,
 };
 
+struct DataOffset {
+    size_t start;
+    size_t end;
+};
+
 struct Shape2D {
     size_t width;
     size_t height;
 };
 
 struct Weight {
-    size_t dataOffsets[2];
+    DataOffset dataOffsets;
     std::string dtype;
     Shape2D shape;
 };
@@ -28,15 +33,21 @@ struct Weight {
 class SafeTensor {
     std::shared_ptr<Config> config = nullptr;
     std::vector<std::vector<float> > embeddingMatrix;
-    std::vector<std::vector<std::unordered_map<std::string, Weight> > > weights;
+    std::vector<std::unordered_map<std::string, Weight> > weights;
 
 public:
-    SafeTensor() = default;
+    explicit SafeTensor(const std::shared_ptr<Config> &config);
 
     ~SafeTensor() = default;
 
+    bool LoadWeight(const std::string &weightName,
+                    nlohmann::json::const_reference weightData);
+
+    bool LoadWeights(const std::vector<char> &safeTensorData,
+                     nlohmann::json::const_reference header);
+
     bool LoadBF16EmbeddingMatrix(const std::vector<char> &safeTensorData,
-                                 nlohmann::json::const_reference embeddingMatrixObj);
+                                 nlohmann::json::const_reference header);
 
     bool LoadFromFile(const std::string &tensorFilePath);
 

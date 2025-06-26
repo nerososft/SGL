@@ -28,7 +28,7 @@ bool Infer::Init() {
         return false;
     }
 
-    this->safeTensor = std::make_shared<SafeTensor>();
+    this->safeTensor = std::make_shared<SafeTensor>(this->config);
     ok = safeTensor->LoadFromFile("../../../demo/inference_demo/models/Qwen3_0_6B/model.safetensors");
     if (!ok) {
         Logger() << "Failed to load safetensors";
