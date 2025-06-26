@@ -36,7 +36,7 @@ class SafeTensor {
     std::vector<char> dataBytes;
 
     std::vector<std::vector<float> > embeddingMatrix;
-    std::vector<std::unordered_map<std::string, Weight> > weights;
+    std::unordered_map<std::string, Weight> weights;
 
 public:
     explicit SafeTensor(const std::shared_ptr<Config> &config);
@@ -55,6 +55,8 @@ public:
     bool LoadFromFile(const std::string &tensorFilePath);
 
     std::vector<float> EmbeddingToken(int token);
+
+    Weight GetWeight(const std::string &name);
 
     Weight GetLayerWeight(size_t layerIndex, const std::string &name);
 

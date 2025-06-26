@@ -348,20 +348,24 @@ void MLEngine::RMSNorm(const std::shared_ptr<Matrix> &vectorInput,
 }
 
 void MLEngine::LayerNorm(const std::shared_ptr<Matrix> &vectorInput,
-                         float scale,
-                         float epsilon,
-                         float bias,
+                         const std::shared_ptr<Matrix> &weightInput,
+                         const std::shared_ptr<Matrix> &biasInput,
+                         const float epsilon,
+                         const float weightEnable,
+                         const bool biasEnable,
                          const std::shared_ptr<Matrix> &vectorOutput) {
-    float avg = Avg(vectorInput);
-    float variance = Variance(vectorInput, avg);
+    const float avg = Avg(vectorInput);
+    const float variance = Variance(vectorInput, avg);
     const auto layerNormOp = std::make_shared<LayerNormOperator>(this->gpuCtx,
                                                                  vectorInput->GetBuffer(),
+                                                                 weightInput->GetBuffer(),
+                                                                 biasInput->GetBuffer(),
                                                                  vectorOutput->GetBuffer());
     layerNormOp->SetAvg(avg);
     layerNormOp->SetVariance(variance);
-    layerNormOp->SetScale(scale);
+    layerNormOp->SetBiasEnable(biasEnable);
     layerNormOp->SetEpsilon(epsilon);
-    layerNormOp->SetBias(bias);
+    layerNormOp->SetWeightEnable(weightEnable);
     const auto node = layerNormOp->CreateComputeGraphNode();
     if (node == nullptr) {
         Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;

@@ -28,6 +28,8 @@ public:
                    const std::shared_ptr<Config> &config,
                    const std::shared_ptr<SafeTensor> &safeTensor);
 
+    std::shared_ptr<Matrix> InitWeightMatrix(const std::shared_ptr<SafeTensor> &safeTensor, const Weight &weight) const;
+
     ~Model() = default;
 
     bool Init();

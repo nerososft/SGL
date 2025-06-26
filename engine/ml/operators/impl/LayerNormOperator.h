@@ -9,22 +9,25 @@
 struct LayerNormOperatorParams {
     float avg;
     float variance;
-    float scale;
     float epsilon;
-    float bias;
+    bool weightEnable;
+    bool biasEnable;
 };
 
 class LayerNormOperator final : public UnaryOperator {
     LayerNormOperatorParams params{};
 
+    std::shared_ptr<VkGPUBuffer> weightBuffer = nullptr;
+    std::shared_ptr<VkGPUBuffer> biasBuffer = nullptr;
+
 public:
     LayerNormOperator(const std::shared_ptr<VkGPUContext> &gpuCtx,
                       const std::shared_ptr<VkGPUBuffer> &inputBuffer,
+                      const std::shared_ptr<VkGPUBuffer> &weightBuffer,
+                      const std::shared_ptr<VkGPUBuffer> &biasBuffer,
                       const std::shared_ptr<VkGPUBuffer> &outputBuffer);
 
     ~LayerNormOperator() override;
-
-    void SetScale(const float scale) { this->params.scale = scale; }
 
     void SetAvg(const float avg) { this->params.avg = avg; }
 
@@ -32,7 +35,9 @@ public:
 
     void SetEpsilon(const float epsilon) { this->params.epsilon = epsilon; }
 
-    void SetBias(const float bias) { this->params.bias = bias; }
+    void SetWeightEnable(const bool weightEnable) { this->params.weightEnable = weightEnable; }
+
+    void SetBiasEnable(const bool biasEnable) { this->params.biasEnable = biasEnable; }
 
     std::shared_ptr<IComputeGraphNode> CreateComputeGraphNode() override;
 

@@ -16,6 +16,24 @@ Model::Model(const std::shared_ptr<MLEngine> &mle,
     this->mle = mle;
 }
 
+std::shared_ptr<Matrix> Model::InitWeightMatrix(const std::shared_ptr<SafeTensor> &safeTensor,
+                                                const Weight &weight) const {
+    std::shared_ptr<Matrix> weightMatrix = mle->CreateMatrix(weight.shape.width, weight.shape.height);
+    const std::shared_ptr<VkGPUBuffer> matrixBuffer = weightMatrix->GetBuffer();
+    if (matrixBuffer == nullptr) {
+        Logger() << "matrixBuffer is null!";
+        return nullptr;
+    }
+    const std::vector<float> weightData = safeTensor->GetLayerWeightData(weight);
+    const VkResult result = matrixBuffer->UploadData(weightData.data(),
+                                                     weightData.size() * sizeof(float));
+    if (result != VK_SUCCESS) {
+        Logger() << "matrixBuffer->UploadData failed!";
+        return nullptr;
+    }
+    return weightMatrix;
+}
+
 bool Model::Init() {
     const uint64_t layerNums = this->config->GetHiddenLayerNums();
     Logger(Logger::DEBUG) << "layerNums: " << layerNums << std::endl;
@@ -26,6 +44,10 @@ bool Model::Init() {
         return false;
     }
 
+    const Weight normWeight = safeTensor->GetWeight("model.norm.weight");
+    normMatrix = InitWeightMatrix(safeTensor, normWeight);
+    assert(normMatrix != nullptr);
+
     this->outputMatrix = mle->CreateMatrix(1024, 1); // FIXME: input shape should read from some config
     if (this->outputMatrix == nullptr) {
         Logger() << "Failed to create output matrix" << std::endl;
@@ -35,15 +57,22 @@ bool Model::Init() {
     this->blocks.resize(layerNums);
     for (uint64_t i = 0; i < layerNums; i++) {
         blocks[i] = std::make_shared<TransformerBlock>(mle, i);
-        blocks[i]->Init(safeTensor);
         if (i == 0) {
             blocks[i]->SetInputMatrix(this->inputMatrix);
         } else {
             blocks[i]->SetInputMatrix(blocks[i - 1]->GetOutputMatrix());
         }
+        blocks[i]->Init(safeTensor);
     }
 
-    mle->LayerNorm(blocks[layerNums - 1]->GetOutputMatrix(), 0, 0, 0, this->outputMatrix);
+    const auto placeholderMatrix = mle->CreateMatrix(32, 32);
+    mle->LayerNorm(blocks[layerNums - 1]->GetOutputMatrix(),
+                   this->normMatrix,
+                   placeholderMatrix,
+                   1e-06,
+                   true,
+                   false,
+                   this->outputMatrix);
 
     return true;
 }

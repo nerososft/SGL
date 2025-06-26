@@ -60,7 +60,7 @@ public:
               const std::shared_ptr<Matrix> &output);
 
     void SiLU(const std::shared_ptr<Matrix> &input,
-             const std::shared_ptr<Matrix> &output);
+              const std::shared_ptr<Matrix> &output);
 
     void MatMul(const std::shared_ptr<Matrix> &mat1,
                 const std::shared_ptr<Matrix> &mat2,
@@ -80,9 +80,11 @@ public:
                  const std::shared_ptr<Matrix> &vectorOutput);
 
     void LayerNorm(const std::shared_ptr<Matrix> &vectorInput,
-                   float scale,
+                   const std::shared_ptr<Matrix> &weightInput,
+                   const std::shared_ptr<Matrix> &biasInput,
                    float epsilon,
-                   float bias,
+                   float weightEnable,
+                   bool biasEnable,
                    const std::shared_ptr<Matrix> &vectorOutput);
 
     ~MLEngine() = default;

@@ -6,16 +6,24 @@ layout (std430, binding = 0) buffer InputStorageBuffer {
     float data[];
 } inputBuffer;
 
-layout (std430, binding = 1) buffer OutputStorageBuffer {
+layout (std430, binding = 1) buffer WeightStorageBuffer {
+    float data[];
+} weightBuffer;
+
+layout (std430, binding = 2) buffer BiasStorageBuffer {
+    float data[];
+} biasBuffer;
+
+layout (std430, binding = 3) buffer OutputStorageBuffer {
     float data[];
 } outputBuffer;
 
 layout (push_constant) uniform Params {
     float avg;
     float variance;
-    float scale;
     float epsilon;
-    float bias;
+    bool weightEnable;
+    bool biasEnable;
 } params;
 
 void main() {
@@ -24,5 +32,8 @@ void main() {
         return;
     }
 
-    outputBuffer.data[coord.x] = params.scale * ((inputBuffer.data[coord.x] - params.avg) / sqrt(params.variance + params.epsilon)) + params.bias;
+    float weight =  params.weightEnable ? weightBuffer.data[coord.x] : 1.0f;
+    float bias = params.biasEnable ? biasBuffer.data[coord.x] : 0.0f;
+
+    outputBuffer.data[coord.x] = weight * ((inputBuffer.data[coord.x] - params.avg) / sqrt(params.variance + params.epsilon)) + bias;
 }

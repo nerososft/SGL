@@ -30,7 +30,7 @@ std::shared_ptr<Matrix> TransformerBlock::InitWeightMatrix(const std::shared_ptr
     return weightMatrix;
 }
 
-std::shared_ptr<Matrix> TransformerBlock::InitOutputMatrix(const Weight &weight) const {
+std::shared_ptr<Matrix> TransformerBlock::InitMatrix(const Weight &weight) const {
     return mle->CreateMatrix(weight.shape.width, weight.shape.height);
 }
 
@@ -47,11 +47,14 @@ bool TransformerBlock::Init(const std::shared_ptr<SafeTensor> &safeTensor) {
     Weight mlpGateProjWeight = safeTensor->GetLayerWeight(this->layerIndex, "mlp.gate_proj");
     Weight mlpDownProjWeight = safeTensor->GetLayerWeight(this->layerIndex, "mlp.down_proj");
 
-    outputMatrix = InitOutputMatrix(inputLayerNormWeight);
+    outputMatrix = InitMatrix(inputLayerNormWeight);
     assert(outputMatrix != nullptr);
 
     inputLayerNorm = InitWeightMatrix(safeTensor, inputLayerNormWeight);
     assert(inputLayerNorm != nullptr);
+    inputLayerNormOutput = InitMatrix(inputLayerNormWeight);
+    assert(inputLayerNorm != nullptr);
+
     selfAttnKNorm = InitWeightMatrix(safeTensor, selfAttnKNormWeight);
     assert(selfAttnKNorm != nullptr);
     selfAttnKProj = InitWeightMatrix(safeTensor, selfAttnKProjWeight);
@@ -72,6 +75,15 @@ bool TransformerBlock::Init(const std::shared_ptr<SafeTensor> &safeTensor) {
     assert(mlpGateProj != nullptr);
     mlpDownProj = InitWeightMatrix(safeTensor, mlpDownProjWeight);
     assert(mlpDownProj != nullptr);
+
+    auto placeholderMatrix = mle->CreateMatrix(32, 32);
+    mle->LayerNorm(this->inputMatrix,
+                   this->inputLayerNorm,
+                   placeholderMatrix,
+                   1e-06,
+                   true,
+                   false,
+                   inputLayerNormOutput);
 
     // TODO: construct transformer block compute graph
     return true;

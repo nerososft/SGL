@@ -11,8 +11,12 @@
 
 LayerNormOperator::LayerNormOperator(const std::shared_ptr<VkGPUContext> &gpuCtx,
                                      const std::shared_ptr<VkGPUBuffer> &inputBuffer,
+                                     const std::shared_ptr<VkGPUBuffer> &weightBuffer,
+                                     const std::shared_ptr<VkGPUBuffer> &biasBuffer,
                                      const std::shared_ptr<VkGPUBuffer> &outputBuffer)
     : UnaryOperator(gpuCtx, inputBuffer, outputBuffer) {
+    this->weightBuffer = weightBuffer;
+    this->biasBuffer = biasBuffer;
 }
 
 LayerNormOperator::~LayerNormOperator() {
@@ -25,6 +29,12 @@ std::shared_ptr<IComputeGraphNode> LayerNormOperator::CreateComputeGraphNode() {
                                                      VK_SHADER_STAGE_COMPUTE_BIT));
     descriptorSetLayoutBindings.push_back(
         VkGPUHelper::BuildDescriptorSetLayoutBinding(1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1,
+                                                     VK_SHADER_STAGE_COMPUTE_BIT));
+    descriptorSetLayoutBindings.push_back(
+        VkGPUHelper::BuildDescriptorSetLayoutBinding(2, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1,
+                                                     VK_SHADER_STAGE_COMPUTE_BIT));
+    descriptorSetLayoutBindings.push_back(
+        VkGPUHelper::BuildDescriptorSetLayoutBinding(3, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1,
                                                      VK_SHADER_STAGE_COMPUTE_BIT));
     const size_t nums = outputBuffer->GetBufferSize() / sizeof(float);
     auto layerNormNode = std::make_shared<ComputePipelineNode>(this->gpuCtx,
@@ -46,6 +56,20 @@ std::shared_ptr<IComputeGraphNode> LayerNormOperator::CreateComputeGraphNode() {
         .buf = {
             .bufferSize = this->inputBuffer->GetBufferSize(),
             .buffer = this->inputBuffer->GetBuffer(),
+        }
+    });
+    buffers.push_back({
+        .type = PIPELINE_NODE_BUFFER_STORAGE_READ,
+        .buf = {
+            .bufferSize = this->weightBuffer->GetBufferSize(),
+            .buffer = this->weightBuffer->GetBuffer(),
+        }
+    });
+    buffers.push_back({
+        .type = PIPELINE_NODE_BUFFER_STORAGE_READ,
+        .buf = {
+            .bufferSize = this->biasBuffer->GetBufferSize(),
+            .buffer = this->biasBuffer->GetBuffer(),
         }
     });
     buffers.push_back({

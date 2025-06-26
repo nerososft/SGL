@@ -24,8 +24,6 @@ float BF16ToFP32(const uint16_t bf16) {
 
 SafeTensor::SafeTensor(const std::shared_ptr<Config> &config) {
     this->config = config;
-
-    this->weights.resize(config->GetHiddenLayerNums());
 }
 
 bool SafeTensor::LoadWeight(const std::string &weightName, nlohmann::json::const_reference weightData) {
@@ -58,15 +56,8 @@ bool SafeTensor::LoadWeight(const std::string &weightName, nlohmann::json::const
         return false;
     }
 
-    // TODO: Optimize this shit
-    for (size_t i = 0; i < this->weights.size(); i++) {
-        std::string prefix = "model.layers." + std::to_string(i) + ".";
-        if (weightName.find(prefix) != std::string::npos) {
-            this->weights[i].emplace(std::make_pair(weightName, weight));
-        }
-    }
+    this->weights.emplace(std::make_pair(weightName, weight));
 
-    Logger(Logger::DEBUG) << "Loading weight " << weightName << " done" << std::endl;
     return true;
 }
 
@@ -172,6 +163,15 @@ std::vector<float> SafeTensor::EmbeddingToken(const int token) {
     return this->embeddingMatrix[token];
 }
 
+Weight SafeTensor::GetWeight(const std::string &name) {
+    const auto it = this->weights.find(name);
+    if (it == this->weights.end()) {
+        Logger(Logger::ERROR) << "Not found '" << name << "' from weights" << std::endl;
+        exit(-1);
+    }
+    return it->second;
+}
+
 Weight SafeTensor::GetLayerWeight(const size_t layerIndex,
                                   const std::string &name) {
     if (layerIndex >= this->weights.size()) {
@@ -182,13 +182,7 @@ Weight SafeTensor::GetLayerWeight(const size_t layerIndex,
     const std::string layerName = "model.layers." + std::to_string(layerIndex) + "." + name + ".weight";
     Logger(Logger::DEBUG) << "Loading layer weight: " << layerName << std::endl;
 
-    const auto it = this->weights[layerIndex].find(layerName);
-    if (it == this->weights[layerIndex].end()) {
-        Logger(Logger::ERROR) << "Not found '" << layerName << "' from weights" << std::endl;
-        exit(-1);
-    }
-
-    return it->second;
+    return GetWeight(layerName);
 }
 
 std::vector<float> SafeTensor::GetLayerWeightData(const Weight &weight) {
