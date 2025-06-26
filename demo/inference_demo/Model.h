@@ -13,6 +13,7 @@
 class Model {
     std::shared_ptr<Config> config = nullptr;
     std::shared_ptr<SafeTensor> safeTensor = nullptr;
+    std::shared_ptr<MLEngine> mle = nullptr;
 
     std::vector<std::shared_ptr<TransformerBlock> > blocks;
 
@@ -20,15 +21,18 @@ class Model {
 
     std::shared_ptr<Matrix> normMatrix = nullptr;
 
+    std::shared_ptr<Matrix> outputMatrix = nullptr;
+
 public:
-    explicit Model(const std::shared_ptr<Config> &config,
+    explicit Model(const std::shared_ptr<MLEngine> &mle,
+                   const std::shared_ptr<Config> &config,
                    const std::shared_ptr<SafeTensor> &safeTensor);
 
     ~Model() = default;
 
-    bool Init(const std::shared_ptr<MLEngine> &mle);
+    bool Init();
 
-    std::vector<float> Forward(const std::vector<float> &input);
+    std::vector<float> Forward(const std::vector<float> &input) const;
 };
 
 

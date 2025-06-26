@@ -35,8 +35,8 @@ bool Infer::Init() {
         return false;
     }
 
-    this->model = std::make_shared<Model>(this->config, this->safeTensor);
-    ok = model->Init(this->mle);
+    this->model = std::make_shared<Model>(this->mle, this->config, this->safeTensor);
+    ok = model->Init();
     if (!ok) {
         Logger() << "Failed to init model";
         return false;
@@ -59,15 +59,15 @@ void Infer::Run(const std::string &prompt) const {
         }
         std::cout << "]" << std::endl;
 
+        // Let's transform
         std::vector<float> output = model->Forward(embedding);
+
         Logger(Logger::DEBUG) << "Output(" << output.size() << "): [";
         for (int i = 0; i < output.size(); i++) {
             std::cout << output[i] << " ";
         }
         std::cout << "]" << std::endl << std::endl;
     }
-
-    // TODO: let's transform
 
     Logger(Logger::DEBUG) << std::endl;
 }

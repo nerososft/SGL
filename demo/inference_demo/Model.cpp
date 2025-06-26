@@ -8,19 +8,27 @@
 
 #include "core/log/Log.h"
 
-Model::Model(const std::shared_ptr<Config> &config,
+Model::Model(const std::shared_ptr<MLEngine> &mle,
+             const std::shared_ptr<Config> &config,
              const std::shared_ptr<SafeTensor> &safeTensor) {
     this->safeTensor = safeTensor;
     this->config = config;
+    this->mle = mle;
 }
 
-bool Model::Init(const std::shared_ptr<MLEngine> &mle) {
+bool Model::Init() {
     const uint64_t layerNums = this->config->GetHiddenLayerNums();
     Logger(Logger::DEBUG) << "layerNums: " << layerNums << std::endl;
 
     this->inputMatrix = mle->CreateMatrix(1024, 1); // FIXME: input shape should read from some config
     if (this->inputMatrix == nullptr) {
         Logger() << "Failed to create input matrix" << std::endl;
+        return false;
+    }
+
+    this->outputMatrix = mle->CreateMatrix(1024, 1); // FIXME: input shape should read from some config
+    if (this->outputMatrix == nullptr) {
+        Logger() << "Failed to create output matrix" << std::endl;
         return false;
     }
 
@@ -35,10 +43,12 @@ bool Model::Init(const std::shared_ptr<MLEngine> &mle) {
         }
     }
 
+    mle->LayerNorm(blocks[layerNums - 1]->GetOutputMatrix(), 0, 0, 0, this->outputMatrix);
+
     return true;
 }
 
-std::vector<float> Model::Forward(const std::vector<float> &input) {
+std::vector<float> Model::Forward(const std::vector<float> &input) const {
     const auto inputBuffer = this->inputMatrix->GetBuffer();
     const VkResult result = inputBuffer->UploadData(input.data(), input.size() * sizeof(float));
     if (result != VK_SUCCESS) {
@@ -46,6 +56,16 @@ std::vector<float> Model::Forward(const std::vector<float> &input) {
         return {};
     }
 
-    // TODO: do compute
-    return {};
+    mle->Compute();
+
+    std::vector<float> output;
+    output.resize(1024); // TODO: read from config
+
+    float *data = output.data();
+    this->outputMatrix->GetBuffer()->DownloadData(data, 1024 * sizeof(float));
+    for (size_t i = 0; i < 1024; i++) {
+        output[i] = data[i];
+    }
+
+    return output;
 }
