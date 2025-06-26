@@ -36,24 +36,24 @@ add_library(ml_engine
         operators/UnaryOperator.cpp
         operators/BinaryOperator.h
         operators/BinaryOperator.cpp
-        operators/impl/ReLUOperator.h
-        operators/impl/ReLUOperator.cpp
-        operators/impl/MatMulOperator.cpp
-        operators/impl/MatMulOperator.h
-        operators/impl/SigmoidOperator.cpp
-        operators/impl/SigmoidOperator.h
-        operators/impl/TanhOperator.cpp
-        operators/impl/TanhOperator.h
-        operators/impl/SoftmaxOperator.cpp
-        operators/impl/SoftmaxOperator.h
-        operators/impl/GELUOperator.cpp
-        operators/impl/GELUOperator.h
-        operators/impl/SiLUOperator.cpp
-        operators/impl/SiLUOperator.h
-        operators/impl/RMSNormOperator.cpp
-        operators/impl/RMSNormOperator.h
-        operators/impl/LayerNormOperator.cpp
-        operators/impl/LayerNormOperator.h
+        operators/impl/gpu/ReLUOperator.h
+        operators/impl/gpu/ReLUOperator.cpp
+        operators/impl/gpu/MatMulOperator.cpp
+        operators/impl/gpu/MatMulOperator.h
+        operators/impl/gpu/SigmoidOperator.cpp
+        operators/impl/gpu/SigmoidOperator.h
+        operators/impl/gpu/TanhOperator.cpp
+        operators/impl/gpu/TanhOperator.h
+        operators/impl/gpu/SoftmaxOperator.cpp
+        operators/impl/gpu/SoftmaxOperator.h
+        operators/impl/gpu/GELUOperator.cpp
+        operators/impl/gpu/GELUOperator.h
+        operators/impl/gpu/SiLUOperator.cpp
+        operators/impl/gpu/SiLUOperator.h
+        operators/impl/gpu/RMSNormOperator.cpp
+        operators/impl/gpu/RMSNormOperator.h
+        operators/impl/gpu/LayerNormOperator.cpp
+        operators/impl/gpu/LayerNormOperator.h
         operators/impl/cpu/AvgOperator.cpp
         operators/impl/cpu/AvgOperator.h
         operators/impl/cpu/VarianceOperator.cpp
