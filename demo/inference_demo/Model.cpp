@@ -8,15 +8,13 @@
 
 #include "core/log/Log.h"
 
-Model::Model() {
-}
-
-bool Model::Init(const std::shared_ptr<MLEngine> &mle,
-                 const std::shared_ptr<Config> &config,
-                 const std::shared_ptr<SafeTensor> &safeTensor) {
+Model::Model(const std::shared_ptr<Config> &config,
+             const std::shared_ptr<SafeTensor> &safeTensor) {
     this->safeTensor = safeTensor;
     this->config = config;
+}
 
+bool Model::Init(const std::shared_ptr<MLEngine> &mle) {
     const uint64_t layerNums = this->config->GetHiddenLayerNums();
     Logger(Logger::DEBUG) << "layerNums: " << layerNums << std::endl;
 

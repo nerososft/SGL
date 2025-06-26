@@ -18,13 +18,12 @@ class Model {
     // normal
 
 public:
-    explicit Model();
+    explicit Model(const std::shared_ptr<Config> &config,
+                   const std::shared_ptr<SafeTensor> &safeTensor);
 
     ~Model() = default;
 
-    bool Init(const std::shared_ptr<MLEngine> &mle,
-              const std::shared_ptr<Config> &config,
-              const std::shared_ptr<SafeTensor> &safeTensor);
+    bool Init(const std::shared_ptr<MLEngine> &mle);
 
     std::vector<float> Forward(const std::vector<float> &input);
 };

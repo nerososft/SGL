@@ -35,8 +35,8 @@ bool Infer::Init() {
         return false;
     }
 
-    this->model = std::make_shared<Model>();
-    ok = model->Init(this->mle, this->config, this->safeTensor);
+    this->model = std::make_shared<Model>(this->config, this->safeTensor);
+    ok = model->Init(this->mle);
     if (!ok) {
         Logger() << "Failed to init model";
         return false;
