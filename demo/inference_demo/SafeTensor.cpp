@@ -36,10 +36,14 @@ bool SafeTensor::LoadWeight(const std::string &weightName, nlohmann::json::const
         if (weightData["dtype"] == "BF16") {
             weight.dtype = BF16;
         }
+    } else {
+        return false;
     }
     if (weightData["data_offsets"].is_array()) {
         weight.dataOffsets.start = weightData["data_offsets"][0];
         weight.dataOffsets.end = weightData["data_offsets"][1];
+    } else {
+        return false;
     }
     if (weightData["shape"].is_array()) {
         if (weightData["shape"].size() == 1) {
@@ -50,6 +54,8 @@ bool SafeTensor::LoadWeight(const std::string &weightName, nlohmann::json::const
             weight.shape.width = weightData["shape"][0];
             weight.shape.height = weightData["shape"][1];
         }
+    } else {
+        return false;
     }
 
     // TODO: Optimize this shit

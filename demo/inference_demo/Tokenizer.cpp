@@ -16,7 +16,7 @@ bool Tokenizer::LoadVocabularyFromJsonObject(nlohmann::json::const_reference arr
         Logger() << "Not an object" << std::endl;
         return false;
     }
-    std::cout << "Loading vocabulary from json object, size: " << array.size() << std::endl;
+    Logger(Logger::DEBUG) << "Loading vocabulary from json object, size: " << array.size() << std::endl;
     for (auto &item: array.items()) {
         this->vocab[item.key()] = item.value();
     }
@@ -33,7 +33,7 @@ bool Tokenizer::LoadMergesFromJsonArray(nlohmann::json::const_reference array) {
         Logger() << "Not an array" << std::endl;
         return false;
     }
-    std::cout << "Loading merge from json array, size: " << array.size() << std::endl;
+    Logger(Logger::DEBUG) << "Loading merge from json array, size: " << array.size() << std::endl;
     this->merges.resize(array.size());
     for (auto &pair: array) {
         this->merges.emplace_back(std::make_pair(pair[0], pair[1]));

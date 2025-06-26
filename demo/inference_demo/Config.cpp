@@ -12,7 +12,7 @@ bool Config::LoadFromFile(const std::string &configFilePath) {
     std::ifstream f(configFilePath);
     nlohmann::json::const_reference config = nlohmann::json::parse(f);
     for (auto it = config.begin(); it != config.end(); ++it) {
-        std::cout << it.key() << ": " << it.value() << std::endl;
+        Logger(Logger::DEBUG) << it.key() << ": " << it.value() << std::endl;
     }
 
     this->properties.num_hidden_layers = config["num_hidden_layers"];

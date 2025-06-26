@@ -48,19 +48,19 @@ void Infer::Run(const std::string &prompt) const {
     const uint64_t decodeTimeStart = TimeUtils::GetCurrentMonoMs();
     const auto result = tokenizer->Encode(prompt);
     const uint64_t decodeTimeEnd = TimeUtils::GetCurrentMonoMs();
-    std::cout << "Decode time: " << decodeTimeEnd - decodeTimeStart << std::endl;
+    Logger(Logger::DEBUG) << "Decode time: " << decodeTimeEnd - decodeTimeStart << std::endl;
 
     for (const auto &token: result) {
         std::vector<float> embedding = this->safeTensor->EmbeddingToken(token);
-        std::cout << "Token: " << token << std::endl;
-        std::cout << "Embedding(" << embedding.size() << "): [";
+        Logger(Logger::DEBUG) << "Token: " << token << std::endl;
+        Logger(Logger::DEBUG) << "Embedding(" << embedding.size() << "): [";
         for (int i = 0; i < embedding.size(); i++) {
-            std::cout << embedding[i] << " ";
+            Logger(Logger::DEBUG) << embedding[i] << " ";
         }
-        std::cout << "]" << std::endl;
+        Logger(Logger::DEBUG) << "]" << std::endl;
     }
 
     // TODO: let's transform
 
-    std::cout << std::endl;
+    Logger(Logger::DEBUG) << std::endl;
 }

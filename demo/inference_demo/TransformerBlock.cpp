@@ -7,7 +7,7 @@
 #include "core/log/Log.h"
 
 TransformerBlock::TransformerBlock(const std::shared_ptr<MLEngine> &mle,
-                                   uint64_t layerIdx) {
+                                   const uint64_t layerIdx) {
     this->mle = mle;
     this->layerIndex = layerIdx;
 }

@@ -6,6 +6,8 @@
 
 #include <iostream>
 
+#include "core/log/Log.h"
+
 Model::Model() {
 }
 
@@ -16,7 +18,7 @@ bool Model::Init(const std::shared_ptr<MLEngine> &mle,
     this->config = config;
 
     const uint64_t layerNums = this->config->GetHiddenLayerNums();
-    std::cout << "layerNums: " << layerNums << std::endl;
+    Logger(Logger::DEBUG) << "layerNums: " << layerNums << std::endl;
 
     this->blocks.resize(layerNums);
     for (uint64_t i = 0; i < layerNums; i++) {
