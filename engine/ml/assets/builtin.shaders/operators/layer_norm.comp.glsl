@@ -32,8 +32,14 @@ void main() {
         return;
     }
 
-    float weight =  params.weightEnable ? weightBuffer.data[coord.x] : 1.0f;
-    float bias = params.biasEnable ? biasBuffer.data[coord.x] : 0.0f;
+    float weight =  1.0f;
+    if (params.weightEnable) {
+        weight = weightBuffer.data[coord.x];
+    }
+    float bias = 0.0f;
+    if (params.biasEnable) {
+        bias = biasBuffer.data[coord.x];
+    }
 
     outputBuffer.data[coord.x] = weight * ((inputBuffer.data[coord.x] - params.avg) / sqrt(params.variance + params.epsilon)) + bias;
 }
