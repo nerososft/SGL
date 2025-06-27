@@ -85,6 +85,8 @@ bool TransformerBlock::Init(const std::shared_ptr<SafeTensor> &safeTensor) {
                    false,
                    inputLayerNormOutput);
 
+    // KQV multi- head normalize
+
     // TODO: construct transformer block compute graph
     return true;
 }
