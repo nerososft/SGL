@@ -10,6 +10,7 @@
 #include "core/gpu/VkGPUBuffer.h"
 #include "core/gpu/VkGPUContext.h"
 #include "core/gpu/compute_graph/ComputeGraph.h"
+#include "operators/IOperator.h"
 
 class MLEngine {
     std::shared_ptr<VkGPUContext> gpuCtx = nullptr;
@@ -17,6 +18,7 @@ class MLEngine {
     std::shared_ptr<SubComputeGraph> mainSubGraph = nullptr;
 
     std::vector<std::shared_ptr<VkGPUBuffer> > buffers;
+    std::vector<std::shared_ptr<IOperator> > operators;
 
 public:
     MLEngine() = default;

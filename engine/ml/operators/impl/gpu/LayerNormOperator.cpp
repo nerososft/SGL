@@ -88,16 +88,12 @@ std::shared_ptr<IComputeGraphNode> LayerNormOperator::CreateComputeGraphNode() {
         .buffers = buffers,
         .customDrawFunc = nullptr,
         .preCompute = [=] {
-            if (this->avg == nullptr || this->variance == nullptr) {
-                Logger() << "avd == null || variance == null" << std::endl;
-                return;
-            }
+            assert(this->avg != nullptr);
+            assert(this->variance != nullptr);
             this->params.avg = *this->avg;
+            std::cout << this->params.avg << std::endl;
             this->params.variance = *this->variance;
-            layerNormNode->GetComputeElements()[0].pushConstantInfo = {
-                .size = sizeof(LayerNormOperatorParams),
-                .data = &this->params,
-            };
+            std::cout << this->params.variance  << std::endl;
         },
     };
     layerNormNode->AddComputeElement(computeElem);

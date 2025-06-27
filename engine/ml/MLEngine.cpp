@@ -341,6 +341,8 @@ void MLEngine::LayerNorm(const std::shared_ptr<Matrix> &vectorInput,
                                                                  weightInput->GetBuffer(),
                                                                  biasInput->GetBuffer(),
                                                                  vectorOutput->GetBuffer());
+    this->operators.push_back(layerNormOp);
+    // avoid to optimize  out, because avg and variance will be use in layerNorm node precompute
     layerNormOp->SetAvg(avgOp->GetAvg());
     layerNormOp->SetVariance(varianceOp->GetVariance());
 
