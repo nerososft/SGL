@@ -17,6 +17,7 @@ struct ComputeElement {
     PushConstantInfo pushConstantInfo;
     const std::vector<PipelineNodeBuffer> buffers;
     std::function<void(VkCommandBuffer commandBuffer)> customDrawFunc;
+    std::function<void()> preCompute;
 };
 
 class ComputePipelineNode final : public IComputeGraphNode {
@@ -48,6 +49,8 @@ public:
     [[nodiscard]] std::shared_ptr<VkGPUDescriptorSet> CreateDescriptorSet(const ComputeElement &computeElement) const;
 
     void AddComputeElement(const ComputeElement &computeElement);
+
+    [[nodiscard]] std::vector<ComputeElement> GetComputeElements() const { return computeElements; }
 
     ~ComputePipelineNode() override = default;
 

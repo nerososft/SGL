@@ -116,9 +116,15 @@ void ComputePipelineNode::Compute(const VkCommandBuffer commandBuffer) {
             dependence->Compute(commandBuffer);
         }
     }
+
     Logger() << "Executing Compute Node: " << name << std::endl;
     computePipeline->GPUCmdBindPipeline(commandBuffer);
     for (size_t i = 0; i < computeElements.size(); ++i) {
+        if (computeElements[i].preCompute != nullptr) {
+            Logger() << "Executing PreCompute" << std::endl;
+            computeElements[i].preCompute();
+        }
+
         pipelineDescriptorSets[i]->GPUCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE);
         VkGPUHelper::GPUCmdPushConstant(commandBuffer,
                                         computePipeline->GetPipelineLayout(),

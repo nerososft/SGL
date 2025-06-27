@@ -19,8 +19,7 @@ LayerNormOperator::LayerNormOperator(const std::shared_ptr<VkGPUContext> &gpuCtx
     this->biasBuffer = biasBuffer;
 }
 
-LayerNormOperator::~LayerNormOperator() {
-}
+LayerNormOperator::~LayerNormOperator() = default;
 
 std::shared_ptr<IComputeGraphNode> LayerNormOperator::CreateComputeGraphNode() {
     std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
@@ -88,6 +87,18 @@ std::shared_ptr<IComputeGraphNode> LayerNormOperator::CreateComputeGraphNode() {
         .pushConstantInfo = pushConstantInfo,
         .buffers = buffers,
         .customDrawFunc = nullptr,
+        .preCompute = [=] {
+            if (this->avg == nullptr || this->variance == nullptr) {
+                Logger() << "avd == null || variance == null" << std::endl;
+                return;
+            }
+            this->params.avg = *this->avg;
+            this->params.variance = *this->variance;
+            layerNormNode->GetComputeElements()[0].pushConstantInfo = {
+                .size = sizeof(LayerNormOperatorParams),
+                .data = &this->params,
+            };
+        },
     };
     layerNormNode->AddComputeElement(computeElem);
 

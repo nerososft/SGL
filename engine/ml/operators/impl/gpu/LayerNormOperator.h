@@ -20,6 +20,9 @@ class LayerNormOperator final : public UnaryOperator {
     std::shared_ptr<VkGPUBuffer> weightBuffer = nullptr;
     std::shared_ptr<VkGPUBuffer> biasBuffer = nullptr;
 
+    float *avg = nullptr;
+    float *variance = nullptr;
+
 public:
     LayerNormOperator(const std::shared_ptr<VkGPUContext> &gpuCtx,
                       const std::shared_ptr<VkGPUBuffer> &inputBuffer,
@@ -29,9 +32,9 @@ public:
 
     ~LayerNormOperator() override;
 
-    void SetAvg(const float avg) { this->params.avg = avg; }
+    void SetAvg(float *avg) { this->avg = avg; }
 
-    void SetVariance(const float variance) { this->params.variance = variance; }
+    void SetVariance(float *variance) { this->variance = variance; }
 
     void SetEpsilon(const float epsilon) { this->params.epsilon = epsilon; }
 
