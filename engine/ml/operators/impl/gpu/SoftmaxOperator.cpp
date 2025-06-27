@@ -4,6 +4,8 @@
 
 #include "SoftmaxOperator.h"
 
+#include <cassert>
+
 #include "core/config.h"
 #include "core/gpu/VkGPUHelper.h"
 #include "core/gpu/compute_graph/ComputePipelineNode.h"
@@ -15,8 +17,7 @@ SoftmaxOperator::SoftmaxOperator(const std::shared_ptr<VkGPUContext> &gpuCtx,
     : UnaryOperator(gpuCtx, inputBuffer, outputBuffer) {
 }
 
-SoftmaxOperator::~SoftmaxOperator() {
-}
+SoftmaxOperator::~SoftmaxOperator() = default;
 
 std::shared_ptr<IComputeGraphNode> SoftmaxOperator::CreateComputeGraphNode() {
     std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
@@ -64,6 +65,11 @@ std::shared_ptr<IComputeGraphNode> SoftmaxOperator::CreateComputeGraphNode() {
         .pushConstantInfo = pushConstantInfo,
         .buffers = buffers,
         .customDrawFunc = nullptr,
+        .preCompute = [=] {
+            assert(this != nullptr); // if null, means optimized out
+            assert(this->sum != nullptr);
+            this->params.sum = *this->sum;
+        }
     };
     softmaxNode->AddComputeElement(computeElem);
     return softmaxNode;

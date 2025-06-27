@@ -64,5 +64,9 @@ add_library(ml_engine
         Matrix.cpp
         MLEngine.h
         MLEngine.cpp
+        operators/impl/cpu/SumOperator.cpp
+        operators/impl/cpu/SumOperator.h
+        operators/impl/cpu/RMSOperator.cpp
+        operators/impl/cpu/RMSOperator.h
 )
 target_link_libraries(ml_engine core)

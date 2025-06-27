@@ -32,7 +32,7 @@ void CPUAvgNode::Compute(const VkCommandBuffer commandBuffer) {
 }
 
 void CPUAvgNode::Destroy() {
-    IComputeGraphNode::Destroy();
+    CPUComputeNode::Destroy();
 }
 
 AvgOperator::AvgOperator(const std::shared_ptr<VkGPUBuffer> &inputBuffer) {

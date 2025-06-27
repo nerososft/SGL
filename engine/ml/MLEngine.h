@@ -36,11 +36,6 @@ public:
                                          uint32_t height,
                                          const std::vector<float> &data);
 
-    float SUM(const std::shared_ptr<Matrix> &vectorInput);
-
-    static float RMS(const std::shared_ptr<Matrix> &vectorInput,
-                     float bias);
-
     void ReLU(const std::shared_ptr<Matrix> &input,
               const std::shared_ptr<Matrix> &output);
 
@@ -70,10 +65,21 @@ public:
                        const std::shared_ptr<Matrix> &V,
                        const std::shared_ptr<Matrix> &vMulOutput);
 
+    // void MultiHeadAttention(const std::shared_ptr<Matrix> &input,
+    //                         const std::shared_ptr<Matrix> &qProjWeight,
+    //                         const std::shared_ptr<Matrix> &qBias,
+    //                         const std::shared_ptr<Matrix> &kProjWeight,
+    //                         const std::shared_ptr<Matrix> &kBias,
+    //                         const std::shared_ptr<Matrix> &vProjWeight,
+    //                         size_t dim,
+    //                         const std::shared_ptr<Matrix> &qNormWeight,
+    //                         const std::shared_ptr<Matrix> &kvNormWeight,
+    //                         const std::shared_ptr<Matrix> &oProjWeight);
+
     void RMSNorm(const std::shared_ptr<Matrix> &vectorInput,
                  float scale,
-                 float epsilon,
                  float bias,
+                 float epsilon,
                  const std::shared_ptr<Matrix> &vectorOutput);
 
     void LayerNorm(const std::shared_ptr<Matrix> &vectorInput,

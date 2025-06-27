@@ -37,7 +37,7 @@ void CPUVarianceNode::Compute(VkCommandBuffer commandBuffer) {
 }
 
 void CPUVarianceNode::Destroy() {
-    IComputeGraphNode::Destroy();
+    CPUComputeNode::Destroy();
 }
 
 VarianceOperator::VarianceOperator(const std::shared_ptr<VkGPUBuffer> &inputBuffer, float *avg) {

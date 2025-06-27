@@ -15,6 +15,8 @@ struct RMSNormOperatorParams {
 class RMSNormOperator final : public UnaryOperator {
     RMSNormOperatorParams params{};
 
+    float *rms = nullptr;
+
 public:
     RMSNormOperator(const std::shared_ptr<VkGPUContext> &gpuCtx,
                     const std::shared_ptr<VkGPUBuffer> &inputBuffer,
@@ -24,7 +26,7 @@ public:
 
     void SetScale(const float scale) { this->params.scale = scale; }
 
-    void SetRMS(const float rms) { this->params.rms = rms; }
+    void SetRMS(float *rms) { this->rms = rms; }
 
     void SetEpsilon(const float epsilon) { this->params.epsilon = epsilon; }
 

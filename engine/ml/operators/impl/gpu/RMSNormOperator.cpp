@@ -4,6 +4,8 @@
 
 #include "RMSNormOperator.h"
 
+#include <cassert>
+
 #include "core/gpu/VkGPUHelper.h"
 #include "core/gpu/compute_graph/ComputePipelineNode.h"
 #include "core/log/Log.h"
@@ -63,6 +65,11 @@ std::shared_ptr<IComputeGraphNode> RMSNormOperator::CreateComputeGraphNode() {
         .pushConstantInfo = pushConstantInfo,
         .buffers = buffers,
         .customDrawFunc = nullptr,
+        .preCompute = [=] {
+            assert(this != nullptr); // if null, means optimized out
+            assert(this->rms != nullptr);
+            this->params.rms = *this->rms;
+        }
     };
     rmsNormNode->AddComputeElement(computeElem);
 

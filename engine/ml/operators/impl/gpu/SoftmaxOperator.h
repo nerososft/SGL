@@ -14,6 +14,8 @@ struct SoftmaxOperatorParams {
 class SoftmaxOperator final : public UnaryOperator {
     SoftmaxOperatorParams params{};
 
+    float *sum = nullptr;
+
 public:
     SoftmaxOperator(const std::shared_ptr<VkGPUContext> &gpuCtx,
                     const std::shared_ptr<VkGPUBuffer> &inputBuffer,
@@ -23,7 +25,7 @@ public:
 
     std::shared_ptr<IComputeGraphNode> CreateComputeGraphNode() override;
 
-    void SetSum(const float sum) { this->params.sum = sum; }
+    void SetSum(float *sum) { this->sum = sum; }
 
     void Destroy() override;
 };
