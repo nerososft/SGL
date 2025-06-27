@@ -341,8 +341,8 @@ void MLEngine::LayerNorm(const std::shared_ptr<Matrix> &vectorInput,
                                                                  weightInput->GetBuffer(),
                                                                  biasInput->GetBuffer(),
                                                                  vectorOutput->GetBuffer());
-    layerNormOp->SetAvg(*avgOp->GetAvg()); // FIXME: pass address, cause used at compute
-    layerNormOp->SetVariance(*varianceOp->GetVariance()); // FIXME: pass address, cause used at compute
+    layerNormOp->SetAvg(*avgOp->GetAvg()); // FIXME: pass address, do this in PreCompute
+    layerNormOp->SetVariance(*varianceOp->GetVariance()); // FIXME: pass address, do this in PreCompute
     layerNormOp->SetBiasEnable(biasEnable);
     layerNormOp->SetEpsilon(epsilon);
     layerNormOp->SetWeightEnable(weightEnable);
