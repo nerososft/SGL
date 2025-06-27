@@ -28,7 +28,7 @@ void CPUAvgNode::Compute(const VkCommandBuffer commandBuffer) {
         sum += static_cast<float *>(inputBuffer->GetMappedAddr())[i];
     }
     inputBuffer->UnMapBuffer();
-    *avg = sqrt(sum / static_cast<float>(nums));
+    *avg = sum / static_cast<float>(nums);
 }
 
 void CPUAvgNode::Destroy() {

@@ -33,7 +33,7 @@ void CPUVarianceNode::Compute(VkCommandBuffer commandBuffer) {
     }
     inputBuffer->UnMapBuffer();
 
-    *variance = sqrt(sum / static_cast<float>(nums));
+    *variance = sum / static_cast<float>(nums);
 }
 
 void CPUVarianceNode::Destroy() {

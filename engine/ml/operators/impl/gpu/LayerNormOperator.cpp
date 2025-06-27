@@ -91,9 +91,7 @@ std::shared_ptr<IComputeGraphNode> LayerNormOperator::CreateComputeGraphNode() {
             assert(this->avg != nullptr);
             assert(this->variance != nullptr);
             this->params.avg = *this->avg;
-            std::cout << this->params.avg << std::endl;
             this->params.variance = *this->variance;
-            std::cout << this->params.variance  << std::endl;
         },
     };
     layerNormNode->AddComputeElement(computeElem);
