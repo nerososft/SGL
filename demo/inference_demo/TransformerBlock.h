@@ -21,11 +21,11 @@
 
 // "model.layers.0.self_attn.o_proj.weight": 1024, 2048
 
-// "model.layers.0.post_attention_layernorm.weight": 1024
-
 // "model.layers.0.mlp.up_proj.weight": 3072, 1024
 // "model.layers.0.mlp.gate_proj.weight": 3072, 1024
 // "model.layers.0.mlp.down_proj.weight": 1024,3072
+
+// "model.layers.0.post_attention_layernorm.weight": 1024
 
 // x [batch, seq_len, 1024]
 //   ↓
@@ -58,7 +58,9 @@ class TransformerBlock {
     std::shared_ptr<Matrix> outputMatrix = nullptr;
 
     std::shared_ptr<Matrix> inputLayerNorm = nullptr; // 1024
-    std::shared_ptr<Matrix> inputLayerNormOutput = nullptr;
+    std::shared_ptr<Matrix> inputLayerNormOutput = nullptr; // 1024
+
+    std::shared_ptr<Matrix> qProjOutput = nullptr; //2048
 
     std::shared_ptr<Matrix> selfAttnKNorm = nullptr; // 128
     std::shared_ptr<Matrix> selfAttnKProj = nullptr; // 1024, 1024

@@ -65,16 +65,15 @@ public:
                        const std::shared_ptr<Matrix> &V,
                        const std::shared_ptr<Matrix> &vMulOutput);
 
-    // void MultiHeadAttention(const std::shared_ptr<Matrix> &input,
-    //                         const std::shared_ptr<Matrix> &qProjWeight,
-    //                         const std::shared_ptr<Matrix> &qBias,
-    //                         const std::shared_ptr<Matrix> &kProjWeight,
-    //                         const std::shared_ptr<Matrix> &kBias,
-    //                         const std::shared_ptr<Matrix> &vProjWeight,
-    //                         size_t dim,
-    //                         const std::shared_ptr<Matrix> &qNormWeight,
-    //                         const std::shared_ptr<Matrix> &kvNormWeight,
-    //                         const std::shared_ptr<Matrix> &oProjWeight);
+    // void Projection(const std::shared_ptr<Matrix> &input,
+    //                 const std::shared_ptr<Matrix> &weight,
+    //                 const std::shared_ptr<Matrix> &bias,
+    //                 const std::shared_ptr<Matrix> &output);
+    //
+    // void MultiHead(const std::shared_ptr<Matrix> &input,
+    //                size_t dim,
+    //                const std::vector<std::shared_ptr<Matrix> > &normWeight,
+    //                const std::shared_ptr<Matrix> &output);
 
     void RMSNorm(const std::shared_ptr<Matrix> &vectorInput,
                  float scale,

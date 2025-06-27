@@ -47,14 +47,6 @@ bool TransformerBlock::Init(const std::shared_ptr<SafeTensor> &safeTensor) {
     Weight mlpGateProjWeight = safeTensor->GetLayerWeight(this->layerIndex, "mlp.gate_proj");
     Weight mlpDownProjWeight = safeTensor->GetLayerWeight(this->layerIndex, "mlp.down_proj");
 
-    outputMatrix = InitMatrix(inputLayerNormWeight);
-    assert(outputMatrix != nullptr);
-
-    inputLayerNorm = InitWeightMatrix(safeTensor, inputLayerNormWeight);
-    assert(inputLayerNorm != nullptr);
-    inputLayerNormOutput = InitMatrix(inputLayerNormWeight);
-    assert(inputLayerNorm != nullptr);
-
     selfAttnKNorm = InitWeightMatrix(safeTensor, selfAttnKNormWeight);
     assert(selfAttnKNorm != nullptr);
     selfAttnKProj = InitWeightMatrix(safeTensor, selfAttnKProjWeight);
@@ -76,6 +68,14 @@ bool TransformerBlock::Init(const std::shared_ptr<SafeTensor> &safeTensor) {
     mlpDownProj = InitWeightMatrix(safeTensor, mlpDownProjWeight);
     assert(mlpDownProj != nullptr);
 
+    outputMatrix = InitMatrix(inputLayerNormWeight);
+    assert(outputMatrix != nullptr);
+
+    inputLayerNorm = InitWeightMatrix(safeTensor, inputLayerNormWeight);
+    assert(inputLayerNorm != nullptr);
+
+    inputLayerNormOutput = InitMatrix(inputLayerNormWeight);
+    assert(inputLayerNorm != nullptr);
     auto placeholderMatrix = mle->CreateMatrix(32, 32);
     mle->LayerNorm(this->inputMatrix,
                    this->inputLayerNorm,
@@ -85,7 +85,9 @@ bool TransformerBlock::Init(const std::shared_ptr<SafeTensor> &safeTensor) {
                    false,
                    inputLayerNormOutput);
 
-    // KQV multi- head normalize
+    qProjOutput = mle->CreateMatrix(selfAttnQProjWeight.shape.width, 1);
+    mle->MatMul(inputLayerNormOutput, selfAttnQProj, qProjOutput);
+    // KQV multi-head normalize
 
     // TODO: construct transformer block compute graph
     return true;
@@ -106,4 +108,6 @@ void TransformerBlock::Dump() const {
     inputLayerNorm->Print();
     Logger() << "inputLayerNormOutput: ";
     inputLayerNormOutput->Print();
+    Logger() << "qProjOutput: ";
+    qProjOutput->Print();
 }
