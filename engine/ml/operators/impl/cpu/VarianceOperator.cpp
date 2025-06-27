@@ -4,6 +4,7 @@
 
 #include "VarianceOperator.h"
 
+#include "CPUComputeNode.h"
 #include "core/log/Log.h"
 
 CPUVarianceNode::CPUVarianceNode() {
@@ -16,6 +17,7 @@ VkResult CPUVarianceNode::CreateComputeGraphNode() {
 }
 
 void CPUVarianceNode::Compute(VkCommandBuffer commandBuffer) {
+    CPUComputeNode::Compute(commandBuffer);
     if (avg == nullptr) {
         Logger() << "avg == nullptr";
         return;

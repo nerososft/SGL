@@ -4,6 +4,7 @@
 
 #ifndef LAYERNORMOPERATOR_H
 #define LAYERNORMOPERATOR_H
+#include <cassert>
 #include <engine/ml/operators/UnaryOperator.h>
 
 struct LayerNormOperatorParams {
@@ -32,9 +33,13 @@ public:
 
     ~LayerNormOperator() override;
 
-    void SetAvg(float *avg) { this->avg = avg; }
+    void SetAvg(float *avg) {
+        this->avg = avg;
+    }
 
-    void SetVariance(float *variance) { this->variance = variance; }
+    void SetVariance(float *variance) {
+        this->variance = variance;
+    }
 
     void SetEpsilon(const float epsilon) { this->params.epsilon = epsilon; }
 

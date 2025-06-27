@@ -4,11 +4,12 @@
 
 #ifndef VARIANCEOPERATOR_H
 #define VARIANCEOPERATOR_H
+#include "CPUComputeNode.h"
 #include "core/gpu/VkGPUBuffer.h"
 #include "engine/ml/operators/IOperator.h"
 
 
-class CPUVarianceNode final : public IComputeGraphNode {
+class CPUVarianceNode final : public CPUComputeNode {
     std::shared_ptr<VkGPUBuffer> inputBuffer = nullptr;
     float *variance = nullptr;
     float *avg = nullptr;

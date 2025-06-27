@@ -54,6 +54,8 @@ add_library(ml_engine
         operators/impl/gpu/RMSNormOperator.h
         operators/impl/gpu/LayerNormOperator.cpp
         operators/impl/gpu/LayerNormOperator.h
+        operators/impl/cpu/CPUComputeNode.cpp
+        operators/impl/cpu/CPUComputeNode.h
         operators/impl/cpu/AvgOperator.cpp
         operators/impl/cpu/AvgOperator.h
         operators/impl/cpu/VarianceOperator.cpp

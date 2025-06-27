@@ -15,7 +15,9 @@ VkResult CPUAvgNode::CreateComputeGraphNode() {
     return VK_SUCCESS;
 }
 
-void CPUAvgNode::Compute(VkCommandBuffer commandBuffer) {
+void CPUAvgNode::Compute(const VkCommandBuffer commandBuffer) {
+    CPUComputeNode::Compute(commandBuffer);
+
     if (inputBuffer->MapBuffer(inputBuffer->GetBufferSize()) != VK_SUCCESS) {
         Logger() << Logger::ERROR << "Failed to map buffer!" << std::endl;
         *avg = 0.0f;
@@ -40,7 +42,7 @@ AvgOperator::AvgOperator(const std::shared_ptr<VkGPUBuffer> &inputBuffer) {
 std::shared_ptr<IComputeGraphNode> AvgOperator::CreateComputeGraphNode() {
     auto node = std::make_shared<CPUAvgNode>();
     node->SetInputBuffer(inputBuffer);
-    node->setAvg(&avg);
+    node->SetAvg(&avg);
     return node;
 }
 

@@ -4,10 +4,11 @@
 
 #ifndef AVGOPERATOR_H
 #define AVGOPERATOR_H
+#include "CPUComputeNode.h"
 #include "core/gpu/VkGPUBuffer.h"
 #include "engine/ml/operators/IOperator.h"
 
-class CPUAvgNode final : public IComputeGraphNode {
+class CPUAvgNode final : public CPUComputeNode {
     std::shared_ptr<VkGPUBuffer> inputBuffer = nullptr;
     float *avg = nullptr;
 
@@ -24,7 +25,7 @@ public:
 
     void SetInputBuffer(const std::shared_ptr<VkGPUBuffer> &inputBuffer) { this->inputBuffer = inputBuffer; }
 
-    void setAvg(float *avg) { this->avg = avg; }
+    void SetAvg(float *avg) { this->avg = avg; }
 };
 
 
