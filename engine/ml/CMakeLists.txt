@@ -68,5 +68,9 @@ add_library(ml_engine
         operators/impl/cpu/SumOperator.h
         operators/impl/cpu/RMSOperator.cpp
         operators/impl/cpu/RMSOperator.h
+        operators/impl/gpu/SplitOperator.cpp
+        operators/impl/gpu/SplitOperator.h
+        operators/Operator.cpp
+        operators/Operator.h
 )
 target_link_libraries(ml_engine core)

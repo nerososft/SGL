@@ -142,7 +142,7 @@ void TransformerBlock::Dump() const {
     inputLayerNormOutput->Print();
     Logger() << "qProjOutput: ";
     qProjOutput->Print();
-    // for (int i = 0; i < 16; i++) {
-    //     qHeadLayerNormOutputs[i]->Print();
-    // }
+    for (int i = 0; i < 16; i++) {
+        qHeadLayerNormOutputs[i]->Print();
+    }
 }

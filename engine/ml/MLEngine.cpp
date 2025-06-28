@@ -18,6 +18,7 @@
 #include "operators/impl/cpu/RMSOperator.h"
 #include "operators/impl/cpu/SumOperator.h"
 #include "operators/impl/cpu/VarianceOperator.h"
+#include "operators/impl/gpu/SplitOperator.h"
 
 bool MLEngine::Init() {
     std::vector<const char *> requiredExtensions;
@@ -364,7 +365,24 @@ void MLEngine::Compute() const {
 }
 
 void MLEngine::Split(const std::shared_ptr<Matrix> &vectorInput,
-                     uint64_t nums,
+                     const uint64_t nums,
                      const std::vector<std::shared_ptr<Matrix> > &results) {
-    // TODO: impl me
+    std::vector<std::shared_ptr<VkGPUBuffer> > resultsVector;
+    for (auto &mat: results) {
+        resultsVector.push_back(mat->GetBuffer());
+    }
+    const auto splitOp = std::make_shared<SplitOperator>(this->gpuCtx,
+                                                         vectorInput->GetBuffer(),
+                                                         resultsVector);
+    this->operators.push_back(splitOp);
+    // avoid to optimize  out, because avg and variance will be use in layerNorm node precompute
+    splitOp->SetDim(vectorInput->GetWidth() / nums);
+    splitOp->SetNums(nums);
+    const auto node = splitOp->CreateComputeGraphNode();
+    if (node == nullptr) {
+        Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
+        throw std::runtime_error("Failed to create compute graph node!");
+    }
+
+    this->mainSubGraph->AddComputeGraphNode(node);
 }
