@@ -87,14 +87,21 @@ bool TransformerBlock::Init(const std::shared_ptr<SafeTensor> &safeTensor,
                    inputLayerNormOutput);
 
     qProjOutput = mle->CreateMatrix(selfAttnQProjWeight.shape.width, 1);
+    assert(qProjOutput != nullptr);
     mle->MatMul(inputLayerNormOutput, selfAttnQProj, qProjOutput);
 
-    Logger() << "dimHead:" << config->GetHeadDim() << std::endl;
+    kProjOutput = mle->CreateMatrix(selfAttnKProjWeight.shape.width, 1);
+    assert(kProjOutput != nullptr);
+    mle->MatMul(inputLayerNormOutput, selfAttnKProj, kProjOutput);
 
-    size_t headNums = qProjOutput->GetWidth() / config->GetHeadDim();
-    qHeads.resize(headNums);
-    qHeadLayerNormOutputs.resize(headNums);
-    for (int i = 0; i < headNums; i++) {
+    vProjOutput = mle->CreateMatrix(selfAttnVProjWeight.shape.width, 1);
+    assert(vProjOutput != nullptr);
+    mle->MatMul(inputLayerNormOutput, selfAttnVProj, vProjOutput);
+
+    size_t queryHeadNums = qProjOutput->GetWidth() / config->GetHeadDim();
+    qHeads.resize(queryHeadNums);
+    qHeadLayerNormOutputs.resize(queryHeadNums);
+    for (int i = 0; i < queryHeadNums; i++) {
         auto mat = mle->CreateMatrix(config->GetHeadDim(), 1);
         if (mat == nullptr) {
             Logger() << "failed to create qHead matrix" << std::endl;
@@ -111,15 +118,69 @@ bool TransformerBlock::Init(const std::shared_ptr<SafeTensor> &safeTensor,
     }
 
     // do MultiHead split for Q
-    mle->Split(qProjOutput, headNums, qHeads);
-    for (int i = 0; i < headNums; i++) {
+    mle->Split(qProjOutput, queryHeadNums, qHeads);
+    for (int i = 0; i < queryHeadNums; i++) {
         mle->LayerNorm(qHeads[i], selfAttnQNorm, placeholderMatrix, 1e-06,
                        true,
                        false,
                        qHeadLayerNormOutputs[i]);
     }
 
-    // KQV multi-head normalize
+    size_t keyHeadNums = kProjOutput->GetWidth() / config->GetHeadDim();
+    kHeads.resize(keyHeadNums);
+    kHeadLayerNormOutputs.resize(keyHeadNums);
+    for (int i = 0; i < keyHeadNums; i++) {
+        auto mat = mle->CreateMatrix(config->GetHeadDim(), 1);
+        if (mat == nullptr) {
+            Logger() << "failed to create kHead matrix" << std::endl;
+            return false;
+        }
+        kHeads[i] = mat;
+
+        auto matLayerNorm = mle->CreateMatrix(config->GetHeadDim(), 1);
+        if (matLayerNorm == nullptr) {
+            Logger() << "failed to create kHead layerNorm matrix" << std::endl;
+            return false;
+        }
+        kHeadLayerNormOutputs[i] = matLayerNorm;
+    }
+
+    // do MultiHead split for K
+    mle->Split(kProjOutput, keyHeadNums, kHeads);
+    for (int i = 0; i < keyHeadNums; i++) {
+        mle->LayerNorm(kHeads[i], selfAttnKNorm, placeholderMatrix, 1e-06,
+                       true,
+                       false,
+                       kHeadLayerNormOutputs[i]);
+    }
+
+    size_t valueHeadNums = vProjOutput->GetWidth() / config->GetHeadDim();
+    vHeads.resize(valueHeadNums);
+    vHeadLayerNormOutputs.resize(valueHeadNums);
+    for (int i = 0; i < valueHeadNums; i++) {
+        auto mat = mle->CreateMatrix(config->GetHeadDim(), 1);
+        if (mat == nullptr) {
+            Logger() << "failed to create vHead matrix" << std::endl;
+            return false;
+        }
+        vHeads[i] = mat;
+
+        auto matLayerNorm = mle->CreateMatrix(config->GetHeadDim(), 1);
+        if (matLayerNorm == nullptr) {
+            Logger() << "failed to create vHead layerNorm matrix" << std::endl;
+            return false;
+        }
+        vHeadLayerNormOutputs[i] = matLayerNorm;
+    }
+
+    // do MultiHead split for V
+    mle->Split(vProjOutput, valueHeadNums, vHeads);
+    for (int i = 0; i < valueHeadNums; i++) {
+        mle->LayerNorm(vHeads[i], selfAttnKNorm, placeholderMatrix, 1e-06,
+                       true,
+                       false,
+                       vHeadLayerNormOutputs[i]);
+    }
 
     // TODO: construct transformer block compute graph
     return true;
@@ -144,5 +205,11 @@ void TransformerBlock::Dump() const {
     qProjOutput->Print();
     for (int i = 0; i < 16; i++) {
         qHeadLayerNormOutputs[i]->Print();
+    }
+    for (int i = 0; i < 8; i++) {
+        kHeadLayerNormOutputs[i]->Print();
+    }
+    for (int i = 0; i < 8; i++) {
+        vHeadLayerNormOutputs[i]->Print();
     }
 }

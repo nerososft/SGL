@@ -311,17 +311,17 @@ VkResult VkGPUContext::Init() {
     std::vector<VkDescriptorPoolSize> descriptorPoolSizes;
     VkDescriptorPoolSize storageBufferDescriptorPoolSize;
     storageBufferDescriptorPoolSize.type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-    storageBufferDescriptorPoolSize.descriptorCount = 4096;
+    storageBufferDescriptorPoolSize.descriptorCount = 8192;
     descriptorPoolSizes.push_back(storageBufferDescriptorPoolSize);
 
     VkDescriptorPoolSize uniformBufferDescriptorPoolSize;
     uniformBufferDescriptorPoolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    uniformBufferDescriptorPoolSize.descriptorCount = 4096;
+    uniformBufferDescriptorPoolSize.descriptorCount = 1024;
     descriptorPoolSizes.push_back(uniformBufferDescriptorPoolSize);
 
     VkDescriptorPoolSize samplerDescriptorPoolSize;
     samplerDescriptorPoolSize.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-    samplerDescriptorPoolSize.descriptorCount = 4096;
+    samplerDescriptorPoolSize.descriptorCount = 1024;
     descriptorPoolSizes.push_back(samplerDescriptorPoolSize);
 
     VkDescriptorPoolCreateInfo descriptorPoolCreateInfo;

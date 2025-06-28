@@ -29,9 +29,14 @@ std::shared_ptr<IComputeGraphNode> SplitOperator::CreateComputeGraphNode() {
                                                          VK_SHADER_STAGE_COMPUTE_BIT));
     }
 
+    std::string shaderSpv = SHADER(split16.comp.glsl.spv);
+    if (params.nums == 8) {
+        shaderSpv = SHADER(split8.comp.glsl.spv);
+    }
+
     const auto splitNode = std::make_shared<ComputePipelineNode>(this->gpuCtx,
                                                                  "Split",
-                                                                 SHADER(split.comp.glsl.spv),
+                                                                 shaderSpv,
                                                                  0,
                                                                  descriptorSetLayoutBindings,
                                                                  (this->params.dim + 255) / 256,
