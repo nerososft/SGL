@@ -32,8 +32,8 @@ std::shared_ptr<IComputeGraphNode> MatMulOperator::CreateComputeGraphNode() {
                                                           SHADER(matmul.comp.glsl.spv),
                                                           sizeof(MatMulOperatorParams),
                                                           descriptorSetLayoutBindings,
-                                                          (this->params.width1 + 31) / 32,
-                                                          (this->params.height1 + 31) / 32, // FIXME: maye not correct
+                                                          (this->params.height1 + 31) / 32,
+                                                          (this->params.width2 + 31) / 32,
                                                           1);
     const VkResult ret = gemmNode->CreateComputeGraphNode();
     if (ret != VK_SUCCESS) {

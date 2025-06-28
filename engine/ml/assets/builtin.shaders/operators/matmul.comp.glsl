@@ -24,7 +24,13 @@ layout (push_constant) uniform Params {
 
 void main() {
     uvec2 coord = gl_GlobalInvocationID.xy;
-    if (coord.x >= params.height1 || coord.y >= params.width2) return;
+
+    if (params.height2 != params.width1) {
+        outputBuffer.data[0] = 0xDE;
+        outputBuffer.data[1] = 0xAD;
+        return;
+    }
+    if (coord.x >= params.height1 || coord.y >= params.width2) { return; }
 
     float sum = 0.0;
     for (uint k = 0; k < params.width1; ++k) {

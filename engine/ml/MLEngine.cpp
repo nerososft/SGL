@@ -203,6 +203,7 @@ void MLEngine::MatMul(const std::shared_ptr<Matrix> &mat1,
     const auto matMulOp = std::make_shared<MatMulOperator>(this->gpuCtx, mat1->GetBuffer(),
                                                            mat2->GetBuffer(),
                                                            output->GetBuffer());
+    operators.push_back(matMulOp);
     matMulOp->SetMat1Size(mat1->GetWidth(), mat1->GetHeight());
     matMulOp->SetMat2Size(mat2->GetWidth(), mat2->GetHeight());
     const auto node = matMulOp->CreateComputeGraphNode();
