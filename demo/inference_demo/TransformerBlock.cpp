@@ -34,7 +34,8 @@ std::shared_ptr<Matrix> TransformerBlock::InitMatrix(const Weight &weight) const
     return mle->CreateMatrix(weight.shape.width, weight.shape.height);
 }
 
-bool TransformerBlock::Init(const std::shared_ptr<SafeTensor> &safeTensor) {
+bool TransformerBlock::Init(const std::shared_ptr<SafeTensor> &safeTensor,
+                            const std::shared_ptr<Config> &config) {
     Weight inputLayerNormWeight = safeTensor->GetLayerWeight(this->layerIndex, "input_layernorm");
     Weight selfAttnKNormWeight = safeTensor->GetLayerWeight(this->layerIndex, "self_attn.k_norm");
     Weight selfAttnKProjWeight = safeTensor->GetLayerWeight(this->layerIndex, "self_attn.k_proj");
@@ -87,6 +88,22 @@ bool TransformerBlock::Init(const std::shared_ptr<SafeTensor> &safeTensor) {
 
     qProjOutput = mle->CreateMatrix(selfAttnQProjWeight.shape.width, 1);
     mle->MatMul(inputLayerNormOutput, selfAttnQProj, qProjOutput);
+
+    Logger() << "dimHead:" << config->GetHeadDim() << std::endl;
+
+    qHeads.resize(config->GetHeadDim());
+    for (int i = 0; i < config->GetHeadDim(); i++) {
+        auto mat = mle->CreateMatrix(qProjOutput->GetWidth() / config->GetHeadDim(), 1);
+        if (mat == nullptr) {
+            Logger() << "failed to create qHead matrix" << std::endl;
+            return false;
+        }
+        qHeads[i] = mat;
+    }
+
+    // do MultiHead split for Q
+    mle->Split(qProjOutput, config->GetHeadDim(), qHeads);
+
     // KQV multi-head normalize
 
     // TODO: construct transformer block compute graph

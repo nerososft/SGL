@@ -362,3 +362,9 @@ void MLEngine::Compute() const {
         Logger() << Logger::ERROR << "Failed to compute graph!" << std::endl;
     }
 }
+
+void MLEngine::Split(const std::shared_ptr<Matrix> &vectorInput,
+                     uint64_t nums,
+                     const std::vector<std::shared_ptr<Matrix> > &results) {
+    // TODO: impl me
+}

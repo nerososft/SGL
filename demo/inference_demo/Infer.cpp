@@ -8,6 +8,8 @@
 #include "core/utils/TimeUtils.h"
 
 bool Infer::Init() {
+    Logger(Logger::DEBUG) << "Infer Init......" << std::endl;
+    uint64_t initTimeStart = TimeUtils::GetCurrentMonoMs();
     mle = std::make_shared<MLEngine>();
     if (!mle->Init()) {
         std::cerr << "Failed to initialize engine" << std::endl;
@@ -41,6 +43,8 @@ bool Infer::Init() {
         Logger() << "Failed to init model";
         return false;
     }
+    const uint64_t initTimeEnd = TimeUtils::GetCurrentMonoMs();
+    Logger(Logger::DEBUG) << "Infer Init done! time: " << initTimeEnd - initTimeStart << std::endl << std::endl;
     return true;
 }
 
@@ -50,11 +54,12 @@ void Infer::Run(const std::string &prompt) const {
     const uint64_t decodeTimeEnd = TimeUtils::GetCurrentMonoMs();
     Logger(Logger::DEBUG) << "Decode time: " << decodeTimeEnd - decodeTimeStart << std::endl;
 
+    const uint64_t inferTimeStart = TimeUtils::GetCurrentMonoMs();
     for (const auto &token: result) {
         const std::vector<float> embedding = this->safeTensor->EmbeddingToken(token);
         Logger(Logger::DEBUG) << "Token: " << token << std::endl;
         Logger(Logger::DEBUG) << "Embedding(" << embedding.size() << "): [";
-        for (const float i : embedding) {
+        for (const float i: embedding) {
             std::cout << i << " ";
         }
         std::cout << "]" << std::endl;
@@ -63,13 +68,15 @@ void Infer::Run(const std::string &prompt) const {
         const std::vector<float> output = model->Forward(embedding);
 
         Logger(Logger::DEBUG) << "Output(" << output.size() << "): [";
-        for (const float i : output) {
+        for (const float i: output) {
             std::cout << i << " ";
         }
         std::cout << "]" << std::endl << std::endl;
 
         break;
     }
+    const uint64_t inferTimeEnd = TimeUtils::GetCurrentMonoMs();
+    Logger() << "Infer time: " << inferTimeEnd - inferTimeStart << std::endl;
 
     Logger(Logger::DEBUG) << std::endl;
 }

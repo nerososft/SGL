@@ -62,7 +62,7 @@ bool Model::Init() {
         } else {
             blocks[i]->SetInputMatrix(blocks[i - 1]->GetOutputMatrix());
         }
-        blocks[i]->Init(safeTensor);
+        blocks[i]->Init(safeTensor, config);
     }
 
     const auto placeholderMatrix = mle->CreateMatrix(32, 32);

@@ -61,6 +61,7 @@ class TransformerBlock {
     std::shared_ptr<Matrix> inputLayerNormOutput = nullptr; // 1024
 
     std::shared_ptr<Matrix> qProjOutput = nullptr; //2048
+    std::vector<std::shared_ptr<Matrix> > qHeads;
 
     std::shared_ptr<Matrix> selfAttnKNorm = nullptr; // 128
     std::shared_ptr<Matrix> selfAttnKProj = nullptr; // 1024, 1024
@@ -103,7 +104,8 @@ public:
 
     [[nodiscard]] std::shared_ptr<Matrix> InitMatrix(const Weight &weight) const;
 
-    bool Init(const std::shared_ptr<SafeTensor> &safeTensor);
+    bool Init(const std::shared_ptr<SafeTensor> &safeTensor,
+              const std::shared_ptr<Config> &config);
 
     ~TransformerBlock() = default;
 

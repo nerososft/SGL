@@ -46,7 +46,9 @@ public:
 
     bool LoadFromFile(const std::string &path);
 
-    uint64_t GetHiddenLayerNums() const;
+    [[nodiscard]] uint64_t GetHiddenLayerNums() const;
+
+    [[nodiscard]] uint64_t GetHeadDim() const;
 };
 
 #endif //MODEL_CONFIG_H

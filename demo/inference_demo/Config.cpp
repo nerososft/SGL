@@ -16,9 +16,14 @@ bool Config::LoadFromFile(const std::string &configFilePath) {
     }
 
     this->properties.num_hidden_layers = config["num_hidden_layers"];
+    this->properties.head_dim = config["head_dim"];
     return true;
 }
 
 uint64_t Config::GetHiddenLayerNums() const {
     return this->properties.num_hidden_layers;
+}
+
+uint64_t Config::GetHeadDim() const {
+    return this->properties.head_dim;
 }
