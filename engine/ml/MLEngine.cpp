@@ -18,6 +18,7 @@
 #include "operators/impl/cpu/RMSOperator.h"
 #include "operators/impl/cpu/SumOperator.h"
 #include "operators/impl/cpu/VarianceOperator.h"
+#include "operators/impl/gpu/ConcatOperator.h"
 #include "operators/impl/gpu/SplitOperator.h"
 
 bool MLEngine::Init() {
@@ -379,6 +380,35 @@ void MLEngine::Split(const std::shared_ptr<Matrix> &vectorInput,
     splitOp->SetDim(vectorInput->GetWidth() / nums);
     splitOp->SetNums(nums);
     const auto node = splitOp->CreateComputeGraphNode();
+    if (node == nullptr) {
+        Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
+        throw std::runtime_error("Failed to create compute graph node!");
+    }
+
+    this->mainSubGraph->AddComputeGraphNode(node);
+}
+
+void MLEngine::Concat(const std::vector<std::shared_ptr<Matrix> > &inputVectors,
+                      const std::shared_ptr<Matrix> &vectorOutput) {
+    this->DupConcat(inputVectors, 1, vectorOutput);
+}
+
+void MLEngine::DupConcat(const std::vector<std::shared_ptr<Matrix> > &inputVectors,
+                         const size_t dup,
+                         const std::shared_ptr<Matrix> &vectorOutput) {
+    std::vector<std::shared_ptr<VkGPUBuffer> > inputBufferVector;
+    for (auto &mat: inputVectors) {
+        inputBufferVector.push_back(mat->GetBuffer());
+    }
+    const auto concatOp = std::make_shared<ConcatOperator>(this->gpuCtx,
+                                                           inputBufferVector,
+                                                           vectorOutput->GetBuffer());
+    this->operators.push_back(concatOp);
+    // avoid to optimize  out, because avg and variance will be use in layerNorm node precompute
+    concatOp->SetDim(inputVectors[0]->GetWidth());
+    concatOp->SetNums(inputVectors.size());
+    concatOp->SetDup(dup);
+    const auto node = concatOp->CreateComputeGraphNode();
     if (node == nullptr) {
         Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
         throw std::runtime_error("Failed to create compute graph node!");

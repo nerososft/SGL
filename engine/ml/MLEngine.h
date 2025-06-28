@@ -23,7 +23,11 @@ class MLEngine {
 public:
     MLEngine() = default;
 
+    ~MLEngine() = default;
+
     bool Init();
+
+    void Compute() const;
 
     std::shared_ptr<Matrix> CreateMatrix(uint32_t width,
                                          uint32_t height);
@@ -89,13 +93,16 @@ public:
                    bool biasEnable,
                    const std::shared_ptr<Matrix> &vectorOutput);
 
-    ~MLEngine() = default;
-
-    void Compute() const;
-
     void Split(const std::shared_ptr<Matrix> &vectorInput,
                uint64_t nums,
                const std::vector<std::shared_ptr<Matrix> > &results);
+
+    void Concat(const std::vector<std::shared_ptr<Matrix> > &inputVectors,
+                const std::shared_ptr<Matrix> &vectorOutput);
+
+    void DupConcat(const std::vector<std::shared_ptr<Matrix> > &inputVectors,
+                   size_t dup,
+                   const std::shared_ptr<Matrix> &vectorOutput);
 };
 
 

@@ -60,49 +60,38 @@ class TransformerBlock {
     std::shared_ptr<Matrix> inputLayerNorm = nullptr; // 1024
     std::shared_ptr<Matrix> inputLayerNormOutput = nullptr; // 1024
 
+    std::shared_ptr<Matrix> selfAttnQProj = nullptr; // 2048, 1024
     std::shared_ptr<Matrix> qProjOutput = nullptr; //2048
     std::vector<std::shared_ptr<Matrix> > qHeads;
+    std::shared_ptr<Matrix> selfAttnQNorm = nullptr; // 128
     std::vector<std::shared_ptr<Matrix> > qHeadLayerNormOutputs;
+    std::shared_ptr<Matrix> qHeadLayerNormConcatOutput = nullptr; // 2048
+    std::shared_ptr<Matrix> qLastProjOutput = nullptr; // 1024
 
+
+    std::shared_ptr<Matrix> selfAttnKProj = nullptr; // 1024, 1024
     std::shared_ptr<Matrix> kProjOutput = nullptr; //1024
     std::vector<std::shared_ptr<Matrix> > kHeads;
+    std::shared_ptr<Matrix> selfAttnKNorm = nullptr; // 128
     std::vector<std::shared_ptr<Matrix> > kHeadLayerNormOutputs;
+    std::shared_ptr<Matrix> kHeadLayerNormConcatOutput = nullptr; // 2048
+    std::shared_ptr<Matrix> kLastProjOutput = nullptr; // 1024
 
+    std::shared_ptr<Matrix> selfAttnVProj = nullptr; // 1024, 1024
     std::shared_ptr<Matrix> vProjOutput = nullptr; //1024
     std::vector<std::shared_ptr<Matrix> > vHeads;
     std::vector<std::shared_ptr<Matrix> > vHeadLayerNormOutputs;
+    std::shared_ptr<Matrix> vHeadLayerNormConcatOutput = nullptr; // 2048
+    std::shared_ptr<Matrix> vLastProjOutput = nullptr; // 1024
 
-    std::shared_ptr<Matrix> selfAttnKNorm = nullptr; // 128
-    std::shared_ptr<Matrix> selfAttnKProj = nullptr; // 1024, 1024
     std::shared_ptr<Matrix> selfAttnOProj = nullptr; // 1024, 2048
-    std::shared_ptr<Matrix> selfAttnQNorm = nullptr; // 128
-    std::shared_ptr<Matrix> selfAttnQProj = nullptr; // 2048, 1024
-    std::shared_ptr<Matrix> selfAttnVProj = nullptr; // 1024, 1024
+
+    const std::shared_ptr<Matrix> add1Output = nullptr; // multi head attention 残差连接
     std::shared_ptr<Matrix> postAttentionLayerNorm = nullptr; // 1024
+
     std::shared_ptr<Matrix> mlpUpProj = nullptr; // 3072, 1024
     std::shared_ptr<Matrix> mlpGateProj = nullptr; // 3072, 1024
     std::shared_ptr<Matrix> mlpDownProj = nullptr; // 1024,3072
-
-    // Multi-head attention
-    const std::shared_ptr<Matrix> Q = nullptr;
-    const std::shared_ptr<Matrix> K = nullptr;
-    const std::shared_ptr<Matrix> qkMulOutput = nullptr;
-    const std::shared_ptr<Matrix> softmaxOutput = nullptr;
-    const std::shared_ptr<Matrix> V = nullptr;
-    const std::shared_ptr<Matrix> vMulOutput = nullptr;
-
-    const std::shared_ptr<Matrix> add1Output = nullptr; // multi head attention 残差连接
-
-    const std::shared_ptr<Matrix> layerNormal1Output = nullptr;
-
-    // ffn
-    const std::shared_ptr<Matrix> linearLayer1Output = nullptr;
-    const std::shared_ptr<Matrix> siluOutput = nullptr;
-    const std::shared_ptr<Matrix> linearLayer2Output = nullptr;
-
-    const std::shared_ptr<Matrix> add2Output = nullptr; // FFN 残差连接
-
-    const std::shared_ptr<Matrix> layerNormal2Output = nullptr;
 
 public:
     explicit TransformerBlock(const std::shared_ptr<MLEngine> &mle,

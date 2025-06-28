@@ -182,7 +182,28 @@ bool TransformerBlock::Init(const std::shared_ptr<SafeTensor> &safeTensor,
                        vHeadLayerNormOutputs[i]);
     }
 
-    // TODO: construct transformer block compute graph
+    qHeadLayerNormConcatOutput = mle->CreateMatrix(selfAttnOProj->GetHeight(), 1);
+    assert(qHeadLayerNormConcatOutput != nullptr);
+    kHeadLayerNormConcatOutput = mle->CreateMatrix(selfAttnOProj->GetHeight(), 1);
+    assert(kHeadLayerNormConcatOutput != nullptr);
+    vHeadLayerNormConcatOutput = mle->CreateMatrix(selfAttnOProj->GetHeight(), 1);
+    assert(vHeadLayerNormConcatOutput != nullptr);
+    mle->Concat(qHeadLayerNormOutputs, qHeadLayerNormConcatOutput);
+    mle->DupConcat(kHeadLayerNormOutputs, 2, kHeadLayerNormConcatOutput);
+    mle->DupConcat(vHeadLayerNormOutputs, 2, vHeadLayerNormConcatOutput);
+
+    qLastProjOutput = mle->CreateMatrix(selfAttnOProj->GetWidth(), 1);
+    assert(qLastProjOutput != nullptr);
+    kLastProjOutput = mle->CreateMatrix(selfAttnOProj->GetWidth(), 1);
+    assert(kLastProjOutput != nullptr);
+    vLastProjOutput = mle->CreateMatrix(selfAttnOProj->GetWidth(), 1);
+    assert(vLastProjOutput != nullptr);
+
+    mle->MatMul(qHeadLayerNormConcatOutput, selfAttnOProj, qLastProjOutput);
+    mle->MatMul(kHeadLayerNormConcatOutput, selfAttnOProj, kLastProjOutput);
+    mle->MatMul(vHeadLayerNormConcatOutput, selfAttnOProj, vLastProjOutput);
+
+    // TODO: MLP/FFN
     return true;
 }
 
@@ -212,4 +233,10 @@ void TransformerBlock::Dump() const {
     for (int i = 0; i < 8; i++) {
         vHeadLayerNormOutputs[i]->Print();
     }
+    Logger() << "qLastProjOutput: ";
+    qLastProjOutput->Print();
+    Logger() << "kLastProjOutput: ";
+    kLastProjOutput->Print();
+    Logger() << "vLastProjOutput: ";
+    vLastProjOutput->Print();
 }

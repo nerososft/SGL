@@ -72,5 +72,7 @@ add_library(ml_engine
         operators/impl/gpu/SplitOperator.h
         operators/Operator.cpp
         operators/Operator.h
+        operators/impl/gpu/ConcatOperator.cpp
+        operators/impl/gpu/ConcatOperator.h
 )
 target_link_libraries(ml_engine core)
