@@ -91,18 +91,33 @@ bool TransformerBlock::Init(const std::shared_ptr<SafeTensor> &safeTensor,
 
     Logger() << "dimHead:" << config->GetHeadDim() << std::endl;
 
-    qHeads.resize(config->GetHeadDim());
-    for (int i = 0; i < config->GetHeadDim(); i++) {
-        auto mat = mle->CreateMatrix(qProjOutput->GetWidth() / config->GetHeadDim(), 1);
+    size_t headNums = qProjOutput->GetWidth() / config->GetHeadDim();
+    qHeads.resize(headNums);
+    qHeadLayerNormOutputs.resize(headNums);
+    for (int i = 0; i < headNums; i++) {
+        auto mat = mle->CreateMatrix(config->GetHeadDim(), 1);
         if (mat == nullptr) {
             Logger() << "failed to create qHead matrix" << std::endl;
             return false;
         }
         qHeads[i] = mat;
+
+        auto matLayerNorm = mle->CreateMatrix(config->GetHeadDim(), 1);
+        if (matLayerNorm == nullptr) {
+            Logger() << "failed to create qHead layerNorm matrix" << std::endl;
+            return false;
+        }
+        qHeadLayerNormOutputs[i] = matLayerNorm;
     }
 
     // do MultiHead split for Q
-    mle->Split(qProjOutput, config->GetHeadDim(), qHeads);
+    mle->Split(qProjOutput, headNums, qHeads);
+    for (int i = 0; i < headNums; i++) {
+        mle->LayerNorm(qHeads[i], selfAttnQNorm, placeholderMatrix, 1e-06,
+                       true,
+                       false,
+                       qHeadLayerNormOutputs[i]);
+    }
 
     // KQV multi-head normalize
 
@@ -127,4 +142,7 @@ void TransformerBlock::Dump() const {
     inputLayerNormOutput->Print();
     Logger() << "qProjOutput: ";
     qProjOutput->Print();
+    // for (int i = 0; i < 16; i++) {
+    //     qHeadLayerNormOutputs[i]->Print();
+    // }
 }

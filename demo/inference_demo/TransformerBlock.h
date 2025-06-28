@@ -62,6 +62,7 @@ class TransformerBlock {
 
     std::shared_ptr<Matrix> qProjOutput = nullptr; //2048
     std::vector<std::shared_ptr<Matrix> > qHeads;
+    std::vector<std::shared_ptr<Matrix> > qHeadLayerNormOutputs;
 
     std::shared_ptr<Matrix> selfAttnKNorm = nullptr; // 128
     std::shared_ptr<Matrix> selfAttnKProj = nullptr; // 1024, 1024
