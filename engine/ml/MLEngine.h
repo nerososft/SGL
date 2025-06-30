@@ -11,6 +11,10 @@
 #include "core/gpu/VkGPUContext.h"
 #include "core/gpu/compute_graph/ComputeGraph.h"
 #include "operators/IOperator.h"
+#include "operators/impl/cpu/AvgOperator.h"
+#include "operators/impl/cpu/RMSOperator.h"
+#include "operators/impl/cpu/SumOperator.h"
+#include "operators/impl/cpu/VarianceOperator.h"
 
 class MLEngine {
     std::shared_ptr<VkGPUContext> gpuCtx = nullptr;
@@ -18,7 +22,13 @@ class MLEngine {
     std::shared_ptr<SubComputeGraph> mainSubGraph = nullptr;
 
     std::vector<std::shared_ptr<VkGPUBuffer> > buffers;
+
+    // for lifecycle control
     std::vector<std::shared_ptr<IOperator> > operators;
+    std::vector<std::shared_ptr<AvgOperator> > avgOperators;
+    std::vector<std::shared_ptr<VarianceOperator> > variancesOperators;
+    std::vector<std::shared_ptr<SumOperator> > sumOperators;
+    std::vector<std::shared_ptr<RMSOperator> > rmsOperators;
 
 public:
     MLEngine() = default;

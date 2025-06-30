@@ -111,6 +111,7 @@ void MLEngine::ReLU(const std::shared_ptr<Matrix> &input,
     const auto reluOp = std::make_shared<ReLUOperator>(this->gpuCtx,
                                                        input->GetBuffer(),
                                                        output->GetBuffer());
+    operators.push_back(reluOp);
     const auto node = reluOp->CreateComputeGraphNode();
     if (node == nullptr) {
         Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
@@ -125,6 +126,7 @@ void MLEngine::Sigmoid(const std::shared_ptr<Matrix> &input,
     const auto sigmoidOp = std::make_shared<SigmoidOperator>(this->gpuCtx,
                                                              input->GetBuffer(),
                                                              output->GetBuffer());
+    operators.push_back(sigmoidOp);
     const auto node = sigmoidOp->CreateComputeGraphNode();
     if (node == nullptr) {
         Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
@@ -138,6 +140,7 @@ void MLEngine::Tanh(const std::shared_ptr<Matrix> &input,
     const auto tanhOp = std::make_shared<TanhOperator>(this->gpuCtx,
                                                        input->GetBuffer(),
                                                        output->GetBuffer());
+    operators.push_back(tanhOp);
     const auto node = tanhOp->CreateComputeGraphNode();
     if (node == nullptr) {
         Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
@@ -149,6 +152,7 @@ void MLEngine::Tanh(const std::shared_ptr<Matrix> &input,
 void MLEngine::Softmax(const std::shared_ptr<Matrix> &input,
                        const std::shared_ptr<Matrix> &output) {
     const auto sumOp = std::make_shared<SumOperator>(input->GetBuffer());
+    sumOperators.push_back(sumOp);
     const auto sumNode = sumOp->CreateComputeGraphNode();
     if (sumNode == nullptr) {
         Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
@@ -174,6 +178,7 @@ void MLEngine::GELU(const std::shared_ptr<Matrix> &input,
     const auto geluOp = std::make_shared<GELUOperator>(this->gpuCtx,
                                                        input->GetBuffer(),
                                                        output->GetBuffer());
+    operators.push_back(geluOp);
     const auto node = geluOp->CreateComputeGraphNode();
     if (node == nullptr) {
         Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
@@ -187,6 +192,7 @@ void MLEngine::SiLU(const std::shared_ptr<Matrix> &input,
     const auto siluOp = std::make_shared<SiLUOperator>(this->gpuCtx,
                                                        input->GetBuffer(),
                                                        output->GetBuffer());
+    operators.push_back(siluOp);
     const auto node = siluOp->CreateComputeGraphNode();
     if (node == nullptr) {
         Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
@@ -229,6 +235,7 @@ void MLEngine::ScaledDotProductAttention(const std::shared_ptr<Matrix> &Q,
                                                                Q->GetBuffer(),
                                                                K->GetBuffer(),
                                                                qkDotProdOutput->GetBuffer());
+    operators.push_back(qkDotProdOp);
     const auto qkDotProdNode = qkDotProdOp->CreateComputeGraphNode();
     if (qkDotProdNode == nullptr) {
         Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
@@ -239,6 +246,7 @@ void MLEngine::ScaledDotProductAttention(const std::shared_ptr<Matrix> &Q,
     const auto scaleOp = std::make_shared<ScaleOperator>(this->gpuCtx,
                                                          qkDotProdOutput->GetBuffer(),
                                                          qkDotProdScaleOutput->GetBuffer());
+    operators.push_back(scaleOp);
     scaleOp->SetDelta(K->GetHeight() * K->GetWidth());
     const auto scaleNode = scaleOp->CreateComputeGraphNode();
     if (qkDotProdNode == nullptr) {
@@ -248,6 +256,7 @@ void MLEngine::ScaledDotProductAttention(const std::shared_ptr<Matrix> &Q,
 
     // Softmax
     const auto sumOp = std::make_shared<SumOperator>(qkDotProdScaleOutput->GetBuffer());
+    sumOperators.push_back(sumOp);
     const auto sumNode = sumOp->CreateComputeGraphNode();
     if (sumNode == nullptr) {
         Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
@@ -269,8 +278,9 @@ void MLEngine::ScaledDotProductAttention(const std::shared_ptr<Matrix> &Q,
                                                          softmaxOutput->GetBuffer(),
                                                          V->GetBuffer(),
                                                          vMulOutput->GetBuffer());
+    operators.push_back(vMulOp);
     vMulOp->SetMat1Size(softmaxOutput->GetWidth(), softmaxOutput->GetHeight());
-    vMulOp->SetMat2Size(V->GetWidth(), V->GetHeight());
+    vMulOp->SetMat2Size(V->GetHeight(), V->GetWidth()); // Transpose
     const auto vMulNode = vMulOp->CreateComputeGraphNode();
     if (vMulNode == nullptr) {
         Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
@@ -290,6 +300,7 @@ void MLEngine::RMSNorm(const std::shared_ptr<Matrix> &vectorInput,
                        const float epsilon,
                        const std::shared_ptr<Matrix> &vectorOutput) {
     const auto rmsOp = std::make_shared<RMSOperator>(vectorInput->GetBuffer());
+    rmsOperators.push_back(rmsOp);
     rmsOp->SetBias(bias);
     const auto rmsNode = rmsOp->CreateComputeGraphNode();
     if (rmsNode == nullptr) {
@@ -321,6 +332,7 @@ void MLEngine::LayerNorm(const std::shared_ptr<Matrix> &vectorInput,
                          const bool biasEnable,
                          const std::shared_ptr<Matrix> &vectorOutput) {
     const auto avgOp = std::make_shared<AvgOperator>(vectorInput->GetBuffer());
+    avgOperators.push_back(avgOp);
     const auto avgNode = avgOp->CreateComputeGraphNode();
     if (avgNode == nullptr) {
         Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
@@ -328,6 +340,7 @@ void MLEngine::LayerNorm(const std::shared_ptr<Matrix> &vectorInput,
     }
 
     const auto varianceOp = std::make_shared<VarianceOperator>(vectorInput->GetBuffer(), avgOp->GetAvg());
+    variancesOperators.push_back(varianceOp);
     const auto varianceNode = varianceOp->CreateComputeGraphNode();
     if (varianceNode == nullptr) {
         Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
