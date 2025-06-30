@@ -94,8 +94,6 @@ std::vector<float> Model::Forward(const std::vector<float> &input) const {
 
     mle->Compute();
 
-    Dump();
-
     std::vector<float> output;
     output.resize(1024); // TODO: read from config
 

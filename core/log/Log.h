@@ -18,7 +18,7 @@ static std::ofstream g_log_file;
 
 class Logger {
 public:
-    enum Level { DEBUG, INFO, WARNING, ERROR };
+    enum Level { DEBUG = 0, INFO, WARNING, ERROR };
 
     std::ostringstream *buffer = nullptr;
     std::streambuf *stdoutBuffer = std::cout.rdbuf();
@@ -64,9 +64,9 @@ private:
 
     void output() const {
         if (buffer == nullptr) return;
-        if (buffer->tellp() > 0) {
+        if (buffer->tellp() > 0 && level >= LOG_SHOW_LEVEL) {
 #ifdef OS_OPEN_HARMONY
-            OH_LOG_Print(LOG_APP, LOG_INFO, 0xFF00, "[EffectEngine]", "%{public}s", buffer->str().c_str());
+                OH_LOG_Print(LOG_APP, LOG_INFO, 0xFF00, "[EffectEngine]", "%{public}s", buffer->str().c_str());
 #else
             std::cout << getLevelStr() << buffer->str();
 #endif /* OS_OPEN_HARMONY */

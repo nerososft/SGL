@@ -920,7 +920,8 @@ VkResult VkGPUHelper::CreateStorageBufferAndBindMem(const VkDevice device,
         Logger() << "vkAllocateMemory failed, err=" << string_VkResult(ret) << std::endl;
         return ret;
     }
-    Logger() << "VkMemory Allocate " << allocInfo.allocationSize << " bytes, need: " << size << " bytes, align " <<
+    Logger() << Logger::DEBUG << "VkMemory Allocate " << allocInfo.allocationSize << " bytes, need: " << size <<
+            " bytes, align " <<
             memRequirements.alignment << std::endl;
     ret = vkBindBufferMemory(device, *storageBuffer, *storageBufferMemory, 0);
     if (ret != VK_SUCCESS) {
@@ -972,7 +973,7 @@ VkResult VkGPUHelper::CreateImageAndBindMem(const VkDevice device,
         Logger() << "vkAllocateMemory failed, err=" << string_VkResult(ret) << std::endl;
         return ret;
     }
-    Logger() << "VkMemory Allocate " << allocInfo.allocationSize
+    Logger() << Logger::DEBUG << "VkMemory Allocate " << allocInfo.allocationSize
             << " bytes, need: " << static_cast<uint32_t>(width) * static_cast<uint32_t>(height) * 4
             << " bytes, align " << memRequirements.alignment << std::endl;
     ret = vkBindImageMemory(device, *image, *imageMemory, 0);

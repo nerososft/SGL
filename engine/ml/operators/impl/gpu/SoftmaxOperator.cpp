@@ -65,10 +65,9 @@ std::shared_ptr<IComputeGraphNode> SoftmaxOperator::CreateComputeGraphNode() {
         .pushConstantInfo = pushConstantInfo,
         .buffers = buffers,
         .customDrawFunc = nullptr,
-        .preCompute = [=] {
+        .preCompute = [this] {
             assert(this != nullptr); // if null, means optimized out
             assert(this->sum != nullptr);
-            Logger() << "Sum: " << *this->sum << std::endl;
             this->params.sum = *this->sum;
         }
     };

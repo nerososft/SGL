@@ -52,13 +52,13 @@ void Infer::Run(const std::string &prompt) const {
     const uint64_t decodeTimeStart = TimeUtils::GetCurrentMonoMs();
     const auto result = tokenizer->Encode(prompt);
     const uint64_t decodeTimeEnd = TimeUtils::GetCurrentMonoMs();
-    Logger(Logger::DEBUG) << "Decode time: " << decodeTimeEnd - decodeTimeStart << std::endl;
+    Logger() << "Decode time: " << decodeTimeEnd - decodeTimeStart << std::endl;
 
     const uint64_t inferTimeStart = TimeUtils::GetCurrentMonoMs();
     for (const auto &token: result) {
         const std::vector<float> embedding = this->safeTensor->EmbeddingToken(token);
-        Logger(Logger::DEBUG) << "Token: " << token << std::endl;
-        Logger(Logger::DEBUG) << "Embedding(" << embedding.size() << "): [";
+        Logger() << "Token: " << token << std::endl;
+        Logger() << "Embedding(" << embedding.size() << "): [";
         for (const float i: embedding) {
             std::cout << i << " ";
         }
@@ -67,16 +67,16 @@ void Infer::Run(const std::string &prompt) const {
         // Let's transform
         const std::vector<float> output = model->Forward(embedding);
 
-        Logger(Logger::DEBUG) << "Output(" << output.size() << "): [";
+        Logger() << "Output(" << output.size() << "): [";
         for (const float i: output) {
             std::cout << i << " ";
         }
-        std::cout << "]" << std::endl << std::endl;
+        std::cout << "]" << std::endl;
 
-        break;
+        break; // TODO: remove after debug ok
     }
     const uint64_t inferTimeEnd = TimeUtils::GetCurrentMonoMs();
-    Logger() << "Infer time: " << inferTimeEnd - inferTimeStart << std::endl;
+    Logger() << "Infer time: " << inferTimeEnd - inferTimeStart << std::endl << std::endl;
 
-    Logger(Logger::DEBUG) << std::endl;
+    this->model->Dump();
 }
