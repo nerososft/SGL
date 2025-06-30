@@ -9,7 +9,7 @@
 
 bool Infer::Init() {
     Logger(Logger::DEBUG) << "Infer Init......" << std::endl;
-    uint64_t initTimeStart = TimeUtils::GetCurrentMonoMs();
+    const uint64_t initTimeStart = TimeUtils::GetCurrentMonoMs();
     mle = std::make_shared<MLEngine>();
     if (!mle->Init()) {
         std::cerr << "Failed to initialize engine" << std::endl;
