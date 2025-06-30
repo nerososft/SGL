@@ -28,6 +28,11 @@ void main() {
     if (params.height2 != params.width1) {
         outputBuffer.data[0] = 0xDE;
         outputBuffer.data[1] = 0xAD;
+        outputBuffer.data[2] = 0x2; // for mat
+        outputBuffer.data[3] = params.height1;
+        outputBuffer.data[4] = params.width1;
+        outputBuffer.data[5] = params.height2;
+        outputBuffer.data[6] = params.width2;
         return;
     }
     if (coord.x >= params.height1 || coord.y >= params.width2) { return; }

@@ -25,6 +25,9 @@ void main() {
     if (inputBuffer.data.length() != inputBuffer2.data.length()) {
         outputBuffer.data[0] = 0xDE;
         outputBuffer.data[1] = 0xAD;
+        outputBuffer.data[2] = 0x1;// for vec
+        outputBuffer.data[3] = inputBuffer.data.length();
+        outputBuffer.data[4] = inputBuffer2.data.length();
         return;
     }
     if (coord.x >= inputBuffer.data.length()) {
