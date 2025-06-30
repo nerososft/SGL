@@ -19,6 +19,8 @@
 #include "operators/impl/cpu/SumOperator.h"
 #include "operators/impl/cpu/VarianceOperator.h"
 #include "operators/impl/gpu/ConcatOperator.h"
+#include "operators/impl/gpu/DotProdOperator.h"
+#include "operators/impl/gpu/ScaleOperator.h"
 #include "operators/impl/gpu/SplitOperator.h"
 
 bool MLEngine::Init() {
@@ -216,46 +218,44 @@ void MLEngine::MatMul(const std::shared_ptr<Matrix> &mat1,
     this->mainSubGraph->AddComputeGraphNode(node);
 }
 
-void MLEngine::SelfAttention(const std::shared_ptr<Matrix> &Q,
-                             const std::shared_ptr<Matrix> &K,
-                             const std::shared_ptr<Matrix> &qkMulOutput,
-                             const std::shared_ptr<Matrix> &softmaxOutput,
-                             const std::shared_ptr<Matrix> &V,
-                             const std::shared_ptr<Matrix> &vMulOutput) {
-    if (Q->GetWidth() != V->GetHeight()) {
-        Logger() << "can not mul"
-                << " mat with size (" << Q->GetWidth() << "," << Q->GetHeight() << ")"
-                << " and mat with size (" << V->GetWidth() << "," << V->GetHeight() << ")!" << std::endl;
-        return;
-    }
-    if (qkMulOutput == nullptr) {
-        Logger() << Logger::ERROR << "Failed to create Q K mul result matrix!" << std::endl;
-        return;
-    }
-
-    const auto qkMulOp = std::make_shared<MatMulOperator>(this->gpuCtx,
-                                                          Q->GetBuffer(),
-                                                          K->GetBuffer(),
-                                                          qkMulOutput->GetBuffer());
-    qkMulOp->SetMat1Size(Q->GetWidth(), Q->GetHeight());
-    qkMulOp->SetMat2Size(K->GetWidth(), K->GetHeight());
-    const auto qkMulNode = qkMulOp->CreateComputeGraphNode();
-    if (qkMulNode == nullptr) {
+void MLEngine::ScaledDotProductAttention(const std::shared_ptr<Matrix> &Q,
+                                         const std::shared_ptr<Matrix> &K,
+                                         const std::shared_ptr<Matrix> &qkDotProdOutput,
+                                         const std::shared_ptr<Matrix> &qkDotProdScaleOutput,
+                                         const std::shared_ptr<Matrix> &softmaxOutput,
+                                         const std::shared_ptr<Matrix> &V,
+                                         const std::shared_ptr<Matrix> &vMulOutput) {
+    const auto qkDotProdOp = std::make_shared<DotProdOperator>(this->gpuCtx,
+                                                               Q->GetBuffer(),
+                                                               K->GetBuffer(),
+                                                               qkDotProdOutput->GetBuffer());
+    const auto qkDotProdNode = qkDotProdOp->CreateComputeGraphNode();
+    if (qkDotProdNode == nullptr) {
         Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
         throw std::runtime_error("Failed to create compute graph node!");
     }
 
-    const auto sumOp = std::make_shared<SumOperator>(qkMulOutput->GetBuffer());
+    // Scale
+    const auto scaleOp = std::make_shared<ScaleOperator>(this->gpuCtx,
+                                                         qkDotProdOutput->GetBuffer(),
+                                                         qkDotProdScaleOutput->GetBuffer());
+    scaleOp->SetDelta(K->GetHeight() * K->GetWidth());
+    const auto scaleNode = scaleOp->CreateComputeGraphNode();
+    if (qkDotProdNode == nullptr) {
+        Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
+        throw std::runtime_error("Failed to create compute graph node!");
+    }
+
+    // Softmax
+    const auto sumOp = std::make_shared<SumOperator>(qkDotProdScaleOutput->GetBuffer());
     const auto sumNode = sumOp->CreateComputeGraphNode();
     if (sumNode == nullptr) {
         Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
         throw std::runtime_error("Failed to create compute graph node!");
     }
 
-    // TODO: scale qkMatMulOutput
-    // TODO: mask qkMatMulOutput
     const auto softmaxOp = std::make_shared<SoftmaxOperator>(this->gpuCtx,
-                                                             qkMulOutput->GetBuffer(),
+                                                             qkDotProdScaleOutput->GetBuffer(),
                                                              softmaxOutput->GetBuffer());
     operators.push_back(softmaxOp);
     softmaxOp->SetSum(sumOp->GetSum());
@@ -277,9 +277,9 @@ void MLEngine::SelfAttention(const std::shared_ptr<Matrix> &Q,
         throw std::runtime_error("Failed to create compute graph node!");
     }
 
-    sumNode->AddDependenceNode(qkMulNode);
+    scaleNode->AddDependenceNode(qkDotProdNode);
+    sumNode->AddDependenceNode(scaleNode);
     softmaxNode->AddDependenceNode(sumNode);
-    // TODO: scale and mask node
     vMulNode->AddDependenceNode(softmaxNode);
     this->mainSubGraph->AddComputeGraphNode(vMulNode);
 }
@@ -369,6 +369,7 @@ void MLEngine::Split(const std::shared_ptr<Matrix> &vectorInput,
                      const uint64_t nums,
                      const std::vector<std::shared_ptr<Matrix> > &results) {
     std::vector<std::shared_ptr<VkGPUBuffer> > resultsVector;
+    resultsVector.reserve(results.size());
     for (auto &mat: results) {
         resultsVector.push_back(mat->GetBuffer());
     }
@@ -397,6 +398,7 @@ void MLEngine::DupConcat(const std::vector<std::shared_ptr<Matrix> > &inputVecto
                          const size_t dup,
                          const std::shared_ptr<Matrix> &vectorOutput) {
     std::vector<std::shared_ptr<VkGPUBuffer> > inputBufferVector;
+    inputBufferVector.reserve(inputVectors.size());
     for (auto &mat: inputVectors) {
         inputBufferVector.push_back(mat->GetBuffer());
     }

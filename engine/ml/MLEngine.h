@@ -62,22 +62,16 @@ public:
                 const std::shared_ptr<Matrix> &mat2,
                 const std::shared_ptr<Matrix> &output);
 
-    void SelfAttention(const std::shared_ptr<Matrix> &Q,
-                       const std::shared_ptr<Matrix> &K,
-                       const std::shared_ptr<Matrix> &qkMulOutput,
-                       const std::shared_ptr<Matrix> &softmaxOutput,
-                       const std::shared_ptr<Matrix> &V,
-                       const std::shared_ptr<Matrix> &vMulOutput);
-
-    // void Projection(const std::shared_ptr<Matrix> &input,
-    //                 const std::shared_ptr<Matrix> &weight,
-    //                 const std::shared_ptr<Matrix> &bias,
-    //                 const std::shared_ptr<Matrix> &output);
-    //
-    // void MultiHead(const std::shared_ptr<Matrix> &input,
-    //                size_t dim,
-    //                const std::vector<std::shared_ptr<Matrix> > &normWeight,
-    //                const std::shared_ptr<Matrix> &output);
+    /*
+     * Attention(Q, K, V) = softmax(Q·K^T/√d)·V
+     */
+    void ScaledDotProductAttention(const std::shared_ptr<Matrix> &Q,
+                                   const std::shared_ptr<Matrix> &K,
+                                   const std::shared_ptr<Matrix> &qkDotProdOutput,
+                                   const std::shared_ptr<Matrix> &qkDotProdScaleOutput,
+                                   const std::shared_ptr<Matrix> &softmaxOutput,
+                                   const std::shared_ptr<Matrix> &V,
+                                   const std::shared_ptr<Matrix> &vMulOutput);
 
     void RMSNorm(const std::shared_ptr<Matrix> &vectorInput,
                  float scale,

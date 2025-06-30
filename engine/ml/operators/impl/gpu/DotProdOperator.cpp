@@ -1,24 +1,24 @@
 //
-// Created by neo on 25-6-19.
+// Created by neo on 25-6-30.
 //
 
-#include "RMSNormOperator.h"
+#include "DotProdOperator.h"
 
-#include <cassert>
-
+#include "core/config.h"
 #include "core/gpu/VkGPUHelper.h"
 #include "core/gpu/compute_graph/ComputePipelineNode.h"
 #include "core/log/Log.h"
 
-RMSNormOperator::RMSNormOperator(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                                 const std::shared_ptr<VkGPUBuffer> &inputBuffer,
+DotProdOperator::DotProdOperator(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                                 const std::shared_ptr<VkGPUBuffer> &inputBuffer1,
+                                 const std::shared_ptr<VkGPUBuffer> &inputBuffer2,
                                  const std::shared_ptr<VkGPUBuffer> &outputBuffer)
-    : UnaryOperator(gpuCtx, inputBuffer, outputBuffer) {
+    : BinaryOperator(gpuCtx, inputBuffer1, inputBuffer2, outputBuffer) {
 }
 
-RMSNormOperator::~RMSNormOperator() = default;
+DotProdOperator::~DotProdOperator() = default;
 
-std::shared_ptr<IComputeGraphNode> RMSNormOperator::CreateComputeGraphNode() {
+std::shared_ptr<IComputeGraphNode> DotProdOperator::CreateComputeGraphNode() {
     std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
     descriptorSetLayoutBindings.push_back(
         VkGPUHelper::BuildDescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1,
@@ -26,26 +26,36 @@ std::shared_ptr<IComputeGraphNode> RMSNormOperator::CreateComputeGraphNode() {
     descriptorSetLayoutBindings.push_back(
         VkGPUHelper::BuildDescriptorSetLayoutBinding(1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1,
                                                      VK_SHADER_STAGE_COMPUTE_BIT));
+    descriptorSetLayoutBindings.push_back(
+        VkGPUHelper::BuildDescriptorSetLayoutBinding(2, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1,
+                                                     VK_SHADER_STAGE_COMPUTE_BIT));
     const size_t nums = outputBuffer->GetBufferSize() / sizeof(float);
-    auto rmsNormNode = std::make_shared<ComputePipelineNode>(this->gpuCtx,
-                                                             "RSMNorm",
-                                                             SHADER(rms_norm.comp.glsl.spv),
+    auto dotProdNode = std::make_shared<ComputePipelineNode>(this->gpuCtx,
+                                                             "DotProd",
+                                                             SHADER(dotprod.comp.glsl.spv),
                                                              0,
                                                              descriptorSetLayoutBindings,
                                                              (nums + 255) / 256,
                                                              1,
                                                              1);
-    const VkResult ret = rmsNormNode->CreateComputeGraphNode();
+    const VkResult ret = dotProdNode->CreateComputeGraphNode();
     if (ret != VK_SUCCESS) {
-        Logger() << "Error creating RSMNorm node." << std::endl;
+        Logger() << "Error creating dot-product node." << std::endl;
         return nullptr;
     }
     std::vector<PipelineNodeBuffer> buffers;
     buffers.push_back({
         .type = PIPELINE_NODE_BUFFER_STORAGE_READ,
         .buf = {
-            .bufferSize = this->inputBuffer->GetBufferSize(),
-            .buffer = this->inputBuffer->GetBuffer(),
+            .bufferSize = this->inputBuffer1->GetBufferSize(),
+            .buffer = this->inputBuffer1->GetBuffer(),
+        }
+    });
+    buffers.push_back({
+        .type = PIPELINE_NODE_BUFFER_STORAGE_READ,
+        .buf = {
+            .bufferSize = this->inputBuffer2->GetBufferSize(),
+            .buffer = this->inputBuffer2->GetBuffer(),
         }
     });
     buffers.push_back({
@@ -56,25 +66,17 @@ std::shared_ptr<IComputeGraphNode> RMSNormOperator::CreateComputeGraphNode() {
         }
     });
 
-    const PushConstantInfo pushConstantInfo{
-        .size = sizeof(RMSNormOperatorParams),
-        .data = &this->params
-    };
+    const PushConstantInfo pushConstantInfo{};
     const ComputeElement computeElem{
         .pushConstantInfo = pushConstantInfo,
         .buffers = buffers,
         .customDrawFunc = nullptr,
-        .preCompute = [this] {
-            assert(this != nullptr); // if null, means optimized out
-            assert(this->rms != nullptr);
-            this->params.rms = *this->rms;
-        }
     };
-    rmsNormNode->AddComputeElement(computeElem);
+    dotProdNode->AddComputeElement(computeElem);
 
-    return rmsNormNode;
+    return dotProdNode;
 }
 
-void RMSNormOperator::Destroy() {
-    UnaryOperator::Destroy();
+void DotProdOperator::Destroy() {
+    BinaryOperator::Destroy();
 }

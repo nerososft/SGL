@@ -15,8 +15,7 @@ SigmoidOperator::SigmoidOperator(const std::shared_ptr<VkGPUContext> &gpuCtx,
     : UnaryOperator(gpuCtx, inputBuffer, outputBuffer) {
 }
 
-SigmoidOperator::~SigmoidOperator() {
-}
+SigmoidOperator::~SigmoidOperator() = default;
 
 std::shared_ptr<IComputeGraphNode> SigmoidOperator::CreateComputeGraphNode() {
     const size_t nums = outputBuffer->GetBufferSize() / sizeof(float);

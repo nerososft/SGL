@@ -15,8 +15,7 @@ GELUOperator::GELUOperator(const std::shared_ptr<VkGPUContext> &gpuCtx,
     : UnaryOperator(gpuCtx, inputBuffer, outputBuffer) {
 }
 
-GELUOperator::~GELUOperator() {
-}
+GELUOperator::~GELUOperator() = default;
 
 std::shared_ptr<IComputeGraphNode> GELUOperator::CreateComputeGraphNode() {
     std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;

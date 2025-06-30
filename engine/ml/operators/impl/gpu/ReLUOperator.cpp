@@ -15,8 +15,7 @@ ReLUOperator::ReLUOperator(const std::shared_ptr<VkGPUContext> &gpuCtx,
     : UnaryOperator(gpuCtx, inputBuffer, outputBuffer) {
 }
 
-ReLUOperator::~ReLUOperator() {
-}
+ReLUOperator::~ReLUOperator() = default;
 
 std::shared_ptr<IComputeGraphNode> ReLUOperator::CreateComputeGraphNode() {
     std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;

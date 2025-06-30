@@ -15,8 +15,7 @@ SplitOperator::SplitOperator(const std::shared_ptr<VkGPUContext> &gpuCtx,
     this->outputBuffers = outputBuffers;
 }
 
-SplitOperator::~SplitOperator() {
-}
+SplitOperator::~SplitOperator() = default;
 
 std::shared_ptr<IComputeGraphNode> SplitOperator::CreateComputeGraphNode() {
     std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;

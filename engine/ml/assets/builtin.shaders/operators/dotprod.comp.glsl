@@ -1,0 +1,36 @@
+#version 450
+
+layout (local_size_x = 32, local_size_y = 32, local_size_z = 1) in;
+
+layout (std430, binding = 0) buffer InputStorageBuffer {
+    float data[];
+} inputBuffer;
+
+layout (std430, binding = 1) buffer InputStorageBuffer2 {
+    float data[];
+} inputBuffer2;
+
+layout (std430, binding = 2) buffer OutputStorageBuffer {
+    float data[];
+} outputBuffer;
+
+layout (push_constant) uniform Params {
+    uint len1;
+    uint len2;
+} params;
+
+void main() {
+    uvec2 coord = gl_GlobalInvocationID.xy;
+
+    if (inputBuffer.data.length() != inputBuffer2.data.length()) {
+        outputBuffer.data[0] = 0xDE;
+        outputBuffer.data[1] = 0xAD;
+        return;
+    }
+    if (coord.x >= inputBuffer.data.length()) {
+        return;
+    }
+    float x1 = inputBuffer.data[coord.x];
+    float x2 = inputBuffer2.data[coord.x];
+    outputBuffer.data[coord.x] = x1 * x2;
+}

@@ -77,10 +77,10 @@ bool TransformerBlock::Init(const std::shared_ptr<SafeTensor> &safeTensor,
 
     inputLayerNormOutput = InitMatrix(inputLayerNormWeight);
     assert(inputLayerNorm != nullptr);
-    auto placeholderMatrix = mle->CreateMatrix(32, 32);
+    biasMatrix = mle->CreateMatrix(32, 32);
     mle->LayerNorm(this->inputMatrix,
                    this->inputLayerNorm,
-                   placeholderMatrix,
+                   biasMatrix,
                    1e-06,
                    true,
                    false,
@@ -120,7 +120,7 @@ bool TransformerBlock::Init(const std::shared_ptr<SafeTensor> &safeTensor,
     // do MultiHead split for Q
     mle->Split(qProjOutput, queryHeadNums, qHeads);
     for (int i = 0; i < queryHeadNums; i++) {
-        mle->LayerNorm(qHeads[i], selfAttnQNorm, placeholderMatrix, 1e-06,
+        mle->LayerNorm(qHeads[i], selfAttnQNorm, biasMatrix, 1e-06,
                        true,
                        false,
                        qHeadLayerNormOutputs[i]);
@@ -148,7 +148,7 @@ bool TransformerBlock::Init(const std::shared_ptr<SafeTensor> &safeTensor,
     // do MultiHead split for K
     mle->Split(kProjOutput, keyHeadNums, kHeads);
     for (int i = 0; i < keyHeadNums; i++) {
-        mle->LayerNorm(kHeads[i], selfAttnKNorm, placeholderMatrix, 1e-06,
+        mle->LayerNorm(kHeads[i], selfAttnKNorm, biasMatrix, 1e-06,
                        true,
                        false,
                        kHeadLayerNormOutputs[i]);
@@ -176,11 +176,13 @@ bool TransformerBlock::Init(const std::shared_ptr<SafeTensor> &safeTensor,
     // do MultiHead split for V
     mle->Split(vProjOutput, valueHeadNums, vHeads);
     for (int i = 0; i < valueHeadNums; i++) {
-        mle->LayerNorm(vHeads[i], selfAttnKNorm, placeholderMatrix, 1e-06,
+        mle->LayerNorm(vHeads[i], selfAttnKNorm, biasMatrix, 1e-06,
                        true,
                        false,
                        vHeadLayerNormOutputs[i]);
     }
+
+    // Scaled Dot-Product Attention
 
     qHeadLayerNormConcatOutput = mle->CreateMatrix(selfAttnOProj->GetHeight(), 1);
     assert(qHeadLayerNormConcatOutput != nullptr);

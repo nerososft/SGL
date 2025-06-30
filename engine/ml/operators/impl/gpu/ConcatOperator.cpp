@@ -16,8 +16,7 @@ ConcatOperator::ConcatOperator(const std::shared_ptr<VkGPUContext> &gpuCtx,
     this->outBuffer = outBuffer;
 }
 
-ConcatOperator::~ConcatOperator() {
-}
+ConcatOperator::~ConcatOperator() = default;
 
 std::shared_ptr<IComputeGraphNode> ConcatOperator::CreateComputeGraphNode() {
     std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;

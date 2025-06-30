@@ -15,8 +15,7 @@ TanhOperator::TanhOperator(const std::shared_ptr<VkGPUContext> &gpuCtx,
     : UnaryOperator(gpuCtx, inputBuffer, outputBuffer) {
 }
 
-TanhOperator::~TanhOperator() {
-}
+TanhOperator::~TanhOperator() = default;
 
 std::shared_ptr<IComputeGraphNode> TanhOperator::CreateComputeGraphNode() {
     std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;

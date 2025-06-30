@@ -57,6 +57,8 @@ class TransformerBlock {
     std::shared_ptr<Matrix> inputMatrix = nullptr;
     std::shared_ptr<Matrix> outputMatrix = nullptr;
 
+    std::shared_ptr<Matrix> biasMatrix = nullptr;
+
     std::shared_ptr<Matrix> inputLayerNorm = nullptr; // 1024
     std::shared_ptr<Matrix> inputLayerNormOutput = nullptr; // 1024
 
@@ -67,7 +69,6 @@ class TransformerBlock {
     std::vector<std::shared_ptr<Matrix> > qHeadLayerNormOutputs;
     std::shared_ptr<Matrix> qHeadLayerNormConcatOutput = nullptr; // 2048
     std::shared_ptr<Matrix> qLastProjOutput = nullptr; // 1024
-
 
     std::shared_ptr<Matrix> selfAttnKProj = nullptr; // 1024, 1024
     std::shared_ptr<Matrix> kProjOutput = nullptr; //1024

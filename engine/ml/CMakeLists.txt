@@ -74,5 +74,9 @@ add_library(ml_engine
         operators/Operator.h
         operators/impl/gpu/ConcatOperator.cpp
         operators/impl/gpu/ConcatOperator.h
+        operators/impl/gpu/DotProdOperator.cpp
+        operators/impl/gpu/DotProdOperator.h
+        operators/impl/gpu/ScaleOperator.cpp
+        operators/impl/gpu/ScaleOperator.h
 )
 target_link_libraries(ml_engine core)
