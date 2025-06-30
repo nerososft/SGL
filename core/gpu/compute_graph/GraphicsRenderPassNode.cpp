@@ -82,7 +82,7 @@ void GraphicsRenderPassNode::Compute(const VkCommandBuffer commandBuffer) {
     this->renderPass->GPUCmdBeginRenderPass(commandBuffer, framebuffer->GetFramebuffer());
     if (!this->dependencies.empty()) {
         for (const auto &dependence: this->dependencies) {
-            Logger() << "Node: " << name << " Depend On:" << dependence->GetName() << std::endl;
+            Logger() << Logger::DEBUG << "Node: " << name << " Depend On:" << dependence->GetName() << std::endl;
             dependence->Compute(commandBuffer);
         }
     }

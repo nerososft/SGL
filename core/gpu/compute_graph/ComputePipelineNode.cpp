@@ -59,7 +59,7 @@ ComputePipelineNode::CreateDescriptorSet(const ComputeElement &computeElement) c
     }
 
     for (uint32_t i = 0; i < pipelineDescriptorInfos.size(); ++i) {
-        Logger() << "Descriptor(" << i << "):"
+        Logger() << Logger::DEBUG << "Descriptor(" << i << "):"
                 << string_VkDescriptorType(this->descriptorSetLayoutBindings[i].descriptorType)
                 << std::endl;
         if (this->descriptorSetLayoutBindings[i].descriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER) {
@@ -112,16 +112,16 @@ VkResult ComputePipelineNode::CreateComputeGraphNode() {
 void ComputePipelineNode::Compute(const VkCommandBuffer commandBuffer) {
     if (!this->dependencies.empty()) {
         for (const auto &dependence: this->dependencies) {
-            Logger() << "Node: " << name << " Depend On:" << dependence->GetName() << std::endl;
+            Logger() << Logger::DEBUG << "Node: " << name << " Depend On:" << dependence->GetName() << std::endl;
             dependence->Compute(commandBuffer);
         }
     }
 
-    Logger() << "Executing Compute Node: " << name << std::endl;
+    Logger() << Logger::DEBUG << "Executing Compute Node: " << name << std::endl;
     computePipeline->GPUCmdBindPipeline(commandBuffer);
     for (size_t i = 0; i < computeElements.size(); ++i) {
         if (computeElements[i].preCompute != nullptr) {
-            Logger() << "Executing PreCompute" << std::endl;
+            Logger() << Logger::DEBUG << "Executing PreCompute" << std::endl;
             computeElements[i].preCompute();
         }
 

@@ -82,7 +82,7 @@ std::shared_ptr<VkGPUDescriptorSet> GraphicsPipelineNode::CreateDescriptorSet(
     }
 
     for (uint32_t i = 0; i < pipelineDescriptorInfos.size(); ++i) {
-        Logger() << "Descriptor(" << i << "):"
+        Logger() << Logger::DEBUG << "Descriptor(" << i << "):"
                 << string_VkDescriptorType(this->descriptorSetLayoutBindings[i].descriptorType)
                 << std::endl;
         if (this->descriptorSetLayoutBindings[i].descriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER) {
@@ -113,7 +113,8 @@ VkResult GraphicsPipelineNode::CreateComputeGraphNode() {
     }
 
     for (auto &layoutBinding: descriptorSetLayoutBindings) {
-        Logger() << "Binding(" << layoutBinding.binding << "):" << string_VkDescriptorType(layoutBinding.descriptorType)
+        Logger() << Logger::DEBUG << "Binding(" << layoutBinding.binding << "):" << string_VkDescriptorType(
+                    layoutBinding.descriptorType)
                 << std::endl;
     }
 
@@ -146,11 +147,11 @@ VkResult GraphicsPipelineNode::CreateComputeGraphNode() {
 void GraphicsPipelineNode::Compute(const VkCommandBuffer commandBuffer) {
     if (!this->dependencies.empty()) {
         for (const auto &dependence: this->dependencies) {
-            Logger() << "Node: " << name << " Depend On:" << dependence->GetName() << std::endl;
+            Logger() << Logger::DEBUG << "Node: " << name << " Depend On:" << dependence->GetName() << std::endl;
             dependence->Compute(commandBuffer);
         }
     }
-    Logger() << "Executing Compute Node: " << name << std::endl;
+    Logger() << Logger::DEBUG << "Executing Compute Node: " << name << std::endl;
     graphicsPipeline->GPUCmdBindPipeline(commandBuffer);
     for (size_t i = 0; i < graphicsElements.size(); ++i) {
         pipelineDescriptorSets[i]->GPUCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS);

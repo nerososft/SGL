@@ -35,10 +35,10 @@ VkResult ImageToBufferCopyNode::CreateComputeGraphNode() {
 }
 
 void ImageToBufferCopyNode::Compute(const VkCommandBuffer commandBuffer) {
-    Logger() << "Executing Compute Node: " << name << std::endl;
+    Logger() << Logger::DEBUG << "Executing Compute Node: " << name << std::endl;
     if (!this->dependencies.empty()) {
         for (const auto &dependence: this->dependencies) {
-            Logger() << "Node: " << name << " Depend On:" << dependence->GetName() << std::endl;
+            Logger() << Logger::DEBUG << "Node: " << name << " Depend On:" << dependence->GetName() << std::endl;
             dependence->Compute(commandBuffer);
         }
     }
