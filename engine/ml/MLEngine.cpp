@@ -448,3 +448,32 @@ void MLEngine::Add(const std::shared_ptr<Matrix> &inputVector1,
     }
     this->mainSubGraph->AddComputeGraphNode(node);
 }
+
+void MLEngine::GatedSiLU(const std::shared_ptr<Matrix> &inputVector,
+                         const std::shared_ptr<Matrix> &gateVector,
+                         const std::shared_ptr<Matrix> &gateSigmoidOutput,
+                         const std::shared_ptr<Matrix> &outputVector) {
+    const auto sigmoidOp = std::make_shared<SigmoidOperator>(this->gpuCtx,
+                                                             gateVector->GetBuffer(),
+                                                             gateSigmoidOutput->GetBuffer());
+    operators.push_back(sigmoidOp);
+    const auto node = sigmoidOp->CreateComputeGraphNode();
+    if (node == nullptr) {
+        Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
+        throw std::runtime_error("Failed to create compute graph node!");
+    }
+
+    const auto dotProdOp = std::make_shared<DotProdOperator>(this->gpuCtx,
+                                                             inputVector->GetBuffer(),
+                                                             gateSigmoidOutput->GetBuffer(),
+                                                             outputVector->GetBuffer());
+    operators.push_back(dotProdOp);
+    const auto dotProdNode = dotProdOp->CreateComputeGraphNode();
+    if (dotProdNode == nullptr) {
+        Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
+        throw std::runtime_error("Failed to create compute graph node!");
+    }
+
+    dotProdNode->AddDependenceNode(node);
+    this->mainSubGraph->AddComputeGraphNode(dotProdNode);
+}

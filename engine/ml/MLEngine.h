@@ -111,6 +111,14 @@ public:
     void Add(const std::shared_ptr<Matrix> &inputVector1,
              const std::shared_ptr<Matrix> &inputVector2,
              const std::shared_ptr<Matrix> &outputVector);
+
+    /*
+     * GatedSiLU(up,gate)=up⋅sigmod(gate)
+     */
+    void GatedSiLU(const std::shared_ptr<Matrix> &inputVector,
+                   const std::shared_ptr<Matrix> &gateVector,
+                   const std::shared_ptr<Matrix> &gateSigmoidOutput,
+                   const std::shared_ptr<Matrix> &outputVector);
 };
 
 

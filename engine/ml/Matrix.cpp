@@ -76,6 +76,7 @@ void *Matrix::GetDataAddr() const {
 
 void Matrix::Print() const {
     const float *data = static_cast<float *>(this->GetDataAddr());
+    std::cout << "(" << this->GetWidth() << ", " << this->GetHeight() << ")";
     std::cout << "[";
     for (size_t y = 0; y < this->height; y++) {
         std::cout << "[";

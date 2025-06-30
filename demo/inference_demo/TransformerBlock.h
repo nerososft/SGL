@@ -93,8 +93,13 @@ class TransformerBlock {
     std::shared_ptr<Matrix> postAttentionLayerNormOutput = nullptr; // 1024
 
     std::shared_ptr<Matrix> mlpUpProj = nullptr; // 3072, 1024
+    std::shared_ptr<Matrix> mlpUpProjOutput = nullptr; // 3072
     std::shared_ptr<Matrix> mlpGateProj = nullptr; // 3072, 1024
+    std::shared_ptr<Matrix> mlpGateProjOutput = nullptr; // 3072
+    std::shared_ptr<Matrix> mlpGateSigmoidOutput = nullptr; // 3072
+    std::shared_ptr<Matrix> mlpGateOutput = nullptr; // 3072
     std::shared_ptr<Matrix> mlpDownProj = nullptr; // 1024,3072
+    std::shared_ptr<Matrix> mlpOutput = nullptr; // 1024
 
 public:
     explicit TransformerBlock(const std::shared_ptr<MLEngine> &mle,
