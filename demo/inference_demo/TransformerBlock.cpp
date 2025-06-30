@@ -180,7 +180,7 @@ bool TransformerBlock::Init(const std::shared_ptr<SafeTensor> &safeTensor,
     }
 
     // Scaled Dot-Product Attention
-    qkvAttentionConcatOutput = mle->CreateMatrix(selfAttnQProjWeight.shape.width, selfAttnQProjWeight.shape.width);
+    qkvAttentionConcatOutput = mle->CreateMatrix(selfAttnQProjWeight.shape.width, 1);
     assert(qkvAttentionConcatOutput != nullptr);
     qkDotProdOutputs.resize(queryHeadNums);
     qkDotProdScaleOutputs.resize(queryHeadNums);
@@ -205,6 +205,22 @@ bool TransformerBlock::Init(const std::shared_ptr<SafeTensor> &safeTensor,
     }
 
     mle->Concat(qkvAttentionOutput, qkvAttentionConcatOutput);
+
+    selfAttnOProjOutput = mle->CreateMatrix(selfAttnOProj->GetWidth(), 1);
+    assert(selfAttnOProjOutput != nullptr);
+    mle->MatMul(qkvAttentionConcatOutput, selfAttnOProj, selfAttnOProjOutput);
+
+    // add
+    add1Output = mle->CreateMatrix(selfAttnOProj->GetWidth(), 1);
+    assert(add1Output != nullptr);
+    mle->Add(selfAttnOProjOutput, inputMatrix, add1Output);
+
+    postAttentionLayerNormOutput = mle->CreateMatrix(postAttentionLayerNorm->GetWidth(), 1);
+    assert(postAttentionLayerNormOutput != nullptr);
+    mle->LayerNorm(add1Output, postAttentionLayerNorm, biasMatrix, 1e-06,
+                   true,
+                   false,
+                   postAttentionLayerNormOutput);
 
     // TODO: MLP/FFN
     return true;
@@ -239,8 +255,28 @@ void TransformerBlock::Dump() const {
     for (int i = 0; i < 8; i++) {
         vHeadLayerNormOutputs[i]->Print();
     }
+    Logger() << "qkDotProdOutputs: ";
+    for (int i = 0; i < 16; i++) {
+        qkDotProdOutputs[i]->Print();
+    }
+    Logger() << "qkDotProdScaleOutputs: ";
+    for (int i = 0; i < 16; i++) {
+        qkDotProdScaleOutputs[i]->Print();
+    }
+    Logger() << "qkDotProdScaleSoftmaxOutputs: ";
+    for (int i = 0; i < 16; i++) {
+        qkDotProdScaleSoftmaxOutputs[i]->Print();
+    }
     Logger() << "qkvAttentionOutput: ";
     for (int i = 0; i < 16; i++) {
         qkvAttentionOutput[i]->Print();
     }
+    Logger() << "qkvAttentionConcatOutput: ";
+    qkvAttentionConcatOutput->Print();
+    Logger() << "selfAttnOProjOutput: ";
+    selfAttnOProjOutput->Print();
+    Logger() << "add1Output: ";
+    add1Output->Print();
+    Logger() << "postAttentionLayerNormOutput: ";
+    postAttentionLayerNormOutput->Print();
 }

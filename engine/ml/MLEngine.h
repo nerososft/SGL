@@ -107,6 +107,10 @@ public:
     void DupConcat(const std::vector<std::shared_ptr<Matrix> > &inputVectors,
                    size_t dup,
                    const std::shared_ptr<Matrix> &vectorOutput);
+
+    void Add(const std::shared_ptr<Matrix> &inputVector1,
+             const std::shared_ptr<Matrix> &inputVector2,
+             const std::shared_ptr<Matrix> &outputVector);
 };
 
 

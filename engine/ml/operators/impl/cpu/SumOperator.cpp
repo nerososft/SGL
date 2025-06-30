@@ -18,13 +18,13 @@ VkResult CPUSumNode::CreateComputeGraphNode() {
 void CPUSumNode::Compute(const VkCommandBuffer commandBuffer) {
     CPUComputeNode::Compute(commandBuffer);
 
+    *sum = 0;
     if (inputBuffer->MapBuffer(inputBuffer->GetBufferSize()) != VK_SUCCESS) {
         Logger() << Logger::ERROR << "Failed to map buffer!" << std::endl;
         *sum = 0.0f;
     }
-    *sum = 0.0f;
     for (size_t i = 0; i < inputBuffer->GetBufferSize() / sizeof(float); i++) {
-        *sum += static_cast<float *>(inputBuffer->GetMappedAddr())[i];
+        *sum += (static_cast<float *>(inputBuffer->GetMappedAddr()))[i];
     }
     inputBuffer->UnMapBuffer();
 }

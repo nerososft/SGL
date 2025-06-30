@@ -18,6 +18,7 @@
 #include "operators/impl/cpu/RMSOperator.h"
 #include "operators/impl/cpu/SumOperator.h"
 #include "operators/impl/cpu/VarianceOperator.h"
+#include "operators/impl/gpu/AddOperator.h"
 #include "operators/impl/gpu/ConcatOperator.h"
 #include "operators/impl/gpu/DotProdOperator.h"
 #include "operators/impl/gpu/ScaleOperator.h"
@@ -429,5 +430,21 @@ void MLEngine::DupConcat(const std::vector<std::shared_ptr<Matrix> > &inputVecto
         throw std::runtime_error("Failed to create compute graph node!");
     }
 
+    this->mainSubGraph->AddComputeGraphNode(node);
+}
+
+void MLEngine::Add(const std::shared_ptr<Matrix> &inputVector1,
+                   const std::shared_ptr<Matrix> &inputVector2,
+                   const std::shared_ptr<Matrix> &outputVector) {
+    const auto addOp = std::make_shared<AddOperator>(this->gpuCtx,
+                                                     inputVector1->GetBuffer(),
+                                                     inputVector2->GetBuffer(),
+                                                     outputVector->GetBuffer());
+    operators.push_back(addOp);
+    const auto node = addOp->CreateComputeGraphNode();
+    if (node == nullptr) {
+        Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
+        throw std::runtime_error("Failed to create compute graph node!");
+    }
     this->mainSubGraph->AddComputeGraphNode(node);
 }

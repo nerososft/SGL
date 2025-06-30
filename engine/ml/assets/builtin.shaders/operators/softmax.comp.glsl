@@ -20,5 +20,6 @@ void main() {
     if (coord.x >= inputBuffer.data.length()) {
         return;
     }
-    outputBuffer.data[coord.x] = exp(inputBuffer.data[coord.x]) / params.sum;
+    float sum = max(params.sum, 1e-10);
+    outputBuffer.data[coord.x] = exp(inputBuffer.data[coord.x]) / sum;
 }

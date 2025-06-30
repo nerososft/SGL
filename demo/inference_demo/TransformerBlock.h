@@ -86,9 +86,11 @@ class TransformerBlock {
 
     std::shared_ptr<Matrix> qkvAttentionConcatOutput = nullptr; // 2048
     std::shared_ptr<Matrix> selfAttnOProj = nullptr; // 1024, 2048
+    std::shared_ptr<Matrix> selfAttnOProjOutput = nullptr; // 1024
 
-    const std::shared_ptr<Matrix> add1Output = nullptr; // multi head attention 残差连接
+    std::shared_ptr<Matrix> add1Output = nullptr; // multi head attention 残差连接
     std::shared_ptr<Matrix> postAttentionLayerNorm = nullptr; // 1024
+    std::shared_ptr<Matrix> postAttentionLayerNormOutput = nullptr; // 1024
 
     std::shared_ptr<Matrix> mlpUpProj = nullptr; // 3072, 1024
     std::shared_ptr<Matrix> mlpGateProj = nullptr; // 3072, 1024
