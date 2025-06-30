@@ -72,8 +72,6 @@ void Infer::Run(const std::string &prompt) const {
             std::cout << i << " ";
         }
         std::cout << "]" << std::endl;
-
-        break; // TODO: remove after debug ok
     }
     const uint64_t inferTimeEnd = TimeUtils::GetCurrentMonoMs();
     Logger() << "Infer time: " << inferTimeEnd - inferTimeStart << std::endl << std::endl;
