@@ -98,6 +98,7 @@ bool TransformerBlock::Init(const std::shared_ptr<SafeTensor> &safeTensor,
     assert(vProjOutput != nullptr);
     mle->MatMul(inputLayerNormOutput, selfAttnVProj, vProjOutput);
 
+    // Q
     size_t queryHeadNums = qProjOutput->GetWidth() / config->GetHeadDim();
     qHeads.resize(queryHeadNums);
     qHeadLayerNormOutputs.resize(queryHeadNums);
@@ -116,8 +117,6 @@ bool TransformerBlock::Init(const std::shared_ptr<SafeTensor> &safeTensor,
         }
         qHeadLayerNormOutputs[i] = matLayerNorm;
     }
-
-    // do MultiHead split for Q
     mle->Split(qProjOutput, queryHeadNums, qHeads);
     for (int i = 0; i < queryHeadNums; i++) {
         mle->LayerNorm(qHeads[i], selfAttnQNorm, biasMatrix, 1e-06,
@@ -126,6 +125,7 @@ bool TransformerBlock::Init(const std::shared_ptr<SafeTensor> &safeTensor,
                        qHeadLayerNormOutputs[i]);
     }
 
+    // K
     size_t keyHeadNums = kProjOutput->GetWidth() / config->GetHeadDim();
     kHeads.resize(keyHeadNums);
     kHeadLayerNormOutputs.resize(keyHeadNums);
@@ -144,8 +144,6 @@ bool TransformerBlock::Init(const std::shared_ptr<SafeTensor> &safeTensor,
         }
         kHeadLayerNormOutputs[i] = matLayerNorm;
     }
-
-    // do MultiHead split for K
     mle->Split(kProjOutput, keyHeadNums, kHeads);
     for (int i = 0; i < keyHeadNums; i++) {
         mle->LayerNorm(kHeads[i], selfAttnKNorm, biasMatrix, 1e-06,
@@ -154,6 +152,7 @@ bool TransformerBlock::Init(const std::shared_ptr<SafeTensor> &safeTensor,
                        kHeadLayerNormOutputs[i]);
     }
 
+    // V
     size_t valueHeadNums = vProjOutput->GetWidth() / config->GetHeadDim();
     vHeads.resize(valueHeadNums);
     vHeadLayerNormOutputs.resize(valueHeadNums);
@@ -172,8 +171,6 @@ bool TransformerBlock::Init(const std::shared_ptr<SafeTensor> &safeTensor,
         }
         vHeadLayerNormOutputs[i] = matLayerNorm;
     }
-
-    // do MultiHead split for V
     mle->Split(vProjOutput, valueHeadNums, vHeads);
     for (int i = 0; i < valueHeadNums; i++) {
         mle->LayerNorm(vHeads[i], selfAttnKNorm, biasMatrix, 1e-06,
@@ -183,27 +180,31 @@ bool TransformerBlock::Init(const std::shared_ptr<SafeTensor> &safeTensor,
     }
 
     // Scaled Dot-Product Attention
+    qkvAttentionConcatOutput = mle->CreateMatrix(selfAttnQProjWeight.shape.width, selfAttnQProjWeight.shape.width);
+    assert(qkvAttentionConcatOutput != nullptr);
+    qkDotProdOutputs.resize(queryHeadNums);
+    qkDotProdScaleOutputs.resize(queryHeadNums);
+    qkDotProdScaleSoftmaxOutputs.resize(queryHeadNums);
+    qkvAttentionOutput.resize(queryHeadNums);
+    for (int i = 0; i < queryHeadNums; i++) {
+        qkDotProdOutputs[i] = mle->CreateMatrix(config->GetHeadDim(), 1);
+        assert(qkDotProdOutputs[i] != nullptr);
+        qkDotProdScaleOutputs[i] = mle->CreateMatrix(config->GetHeadDim(), 1);
+        assert(qkDotProdScaleOutputs[i] != nullptr);
+        qkDotProdScaleSoftmaxOutputs[i] = mle->CreateMatrix(config->GetHeadDim(), 1);
+        assert(qkDotProdScaleSoftmaxOutputs[i] != nullptr);
+        qkvAttentionOutput[i] = mle->CreateMatrix(config->GetHeadDim(), 1);
+        assert(qkvAttentionOutput[i] != nullptr);
+        mle->ScaledDotProductAttention(qHeadLayerNormOutputs[i],
+                                       kHeadLayerNormOutputs[i / 2],
+                                       qkDotProdOutputs[i],
+                                       qkDotProdScaleOutputs[i],
+                                       qkDotProdScaleSoftmaxOutputs[i],
+                                       vHeadLayerNormOutputs[i / 2],
+                                       qkvAttentionOutput[i]);
+    }
 
-    qHeadLayerNormConcatOutput = mle->CreateMatrix(selfAttnOProj->GetHeight(), 1);
-    assert(qHeadLayerNormConcatOutput != nullptr);
-    kHeadLayerNormConcatOutput = mle->CreateMatrix(selfAttnOProj->GetHeight(), 1);
-    assert(kHeadLayerNormConcatOutput != nullptr);
-    vHeadLayerNormConcatOutput = mle->CreateMatrix(selfAttnOProj->GetHeight(), 1);
-    assert(vHeadLayerNormConcatOutput != nullptr);
-    mle->Concat(qHeadLayerNormOutputs, qHeadLayerNormConcatOutput);
-    mle->DupConcat(kHeadLayerNormOutputs, 2, kHeadLayerNormConcatOutput);
-    mle->DupConcat(vHeadLayerNormOutputs, 2, vHeadLayerNormConcatOutput);
-
-    qLastProjOutput = mle->CreateMatrix(selfAttnOProj->GetWidth(), 1);
-    assert(qLastProjOutput != nullptr);
-    kLastProjOutput = mle->CreateMatrix(selfAttnOProj->GetWidth(), 1);
-    assert(kLastProjOutput != nullptr);
-    vLastProjOutput = mle->CreateMatrix(selfAttnOProj->GetWidth(), 1);
-    assert(vLastProjOutput != nullptr);
-
-    mle->MatMul(qHeadLayerNormConcatOutput, selfAttnOProj, qLastProjOutput);
-    mle->MatMul(kHeadLayerNormConcatOutput, selfAttnOProj, kLastProjOutput);
-    mle->MatMul(vHeadLayerNormConcatOutput, selfAttnOProj, vLastProjOutput);
+    mle->Concat(qkvAttentionOutput, qkvAttentionConcatOutput);
 
     // TODO: MLP/FFN
     return true;
@@ -226,19 +227,20 @@ void TransformerBlock::Dump() const {
     inputLayerNormOutput->Print();
     Logger() << "qProjOutput: ";
     qProjOutput->Print();
+    Logger() << "qHeadLayerNormOutputs: ";
     for (int i = 0; i < 16; i++) {
         qHeadLayerNormOutputs[i]->Print();
     }
+    Logger() << "kHeadLayerNormOutputs: ";
     for (int i = 0; i < 8; i++) {
         kHeadLayerNormOutputs[i]->Print();
     }
+    Logger() << "vHeadLayerNormOutputs: ";
     for (int i = 0; i < 8; i++) {
         vHeadLayerNormOutputs[i]->Print();
     }
-    Logger() << "qLastProjOutput: ";
-    qLastProjOutput->Print();
-    Logger() << "kLastProjOutput: ";
-    kLastProjOutput->Print();
-    Logger() << "vLastProjOutput: ";
-    vLastProjOutput->Print();
+    Logger() << "qkvAttentionOutput: ";
+    for (int i = 0; i < 16; i++) {
+        qkvAttentionOutput[i]->Print();
+    }
 }

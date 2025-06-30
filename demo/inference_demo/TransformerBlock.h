@@ -67,24 +67,24 @@ class TransformerBlock {
     std::vector<std::shared_ptr<Matrix> > qHeads;
     std::shared_ptr<Matrix> selfAttnQNorm = nullptr; // 128
     std::vector<std::shared_ptr<Matrix> > qHeadLayerNormOutputs;
-    std::shared_ptr<Matrix> qHeadLayerNormConcatOutput = nullptr; // 2048
-    std::shared_ptr<Matrix> qLastProjOutput = nullptr; // 1024
 
     std::shared_ptr<Matrix> selfAttnKProj = nullptr; // 1024, 1024
     std::shared_ptr<Matrix> kProjOutput = nullptr; //1024
     std::vector<std::shared_ptr<Matrix> > kHeads;
     std::shared_ptr<Matrix> selfAttnKNorm = nullptr; // 128
     std::vector<std::shared_ptr<Matrix> > kHeadLayerNormOutputs;
-    std::shared_ptr<Matrix> kHeadLayerNormConcatOutput = nullptr; // 2048
-    std::shared_ptr<Matrix> kLastProjOutput = nullptr; // 1024
 
     std::shared_ptr<Matrix> selfAttnVProj = nullptr; // 1024, 1024
     std::shared_ptr<Matrix> vProjOutput = nullptr; //1024
     std::vector<std::shared_ptr<Matrix> > vHeads;
     std::vector<std::shared_ptr<Matrix> > vHeadLayerNormOutputs;
-    std::shared_ptr<Matrix> vHeadLayerNormConcatOutput = nullptr; // 2048
-    std::shared_ptr<Matrix> vLastProjOutput = nullptr; // 1024
 
+    std::vector<std::shared_ptr<Matrix> > qkDotProdOutputs;
+    std::vector<std::shared_ptr<Matrix> > qkDotProdScaleOutputs;
+    std::vector<std::shared_ptr<Matrix> > qkDotProdScaleSoftmaxOutputs;
+    std::vector<std::shared_ptr<Matrix> > qkvAttentionOutput;
+
+    std::shared_ptr<Matrix> qkvAttentionConcatOutput = nullptr; // 2048
     std::shared_ptr<Matrix> selfAttnOProj = nullptr; // 1024, 2048
 
     const std::shared_ptr<Matrix> add1Output = nullptr; // multi head attention 残差连接
