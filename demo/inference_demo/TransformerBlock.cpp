@@ -183,10 +183,16 @@ bool TransformerBlock::Init(const std::shared_ptr<SafeTensor> &safeTensor,
     qkvAttentionConcatOutput = mle->CreateMatrix(selfAttnQProjWeight.shape.width, 1);
     assert(qkvAttentionConcatOutput != nullptr);
     qkDotProdOutputs.resize(queryHeadNums);
+    qRoPEOutput.resize(queryHeadNums);
+    kRoPEOutput.resize(queryHeadNums);
     qkDotProdScaleOutputs.resize(queryHeadNums);
     qkDotProdScaleSoftmaxOutputs.resize(queryHeadNums);
     qkvAttentionOutput.resize(queryHeadNums);
     for (int i = 0; i < queryHeadNums; i++) {
+        qRoPEOutput[i] = mle->CreateMatrix(config->GetHeadDim(), 1);
+        assert(qRoPEOutput[i] != nullptr);
+        kRoPEOutput[i] = mle->CreateMatrix(config->GetHeadDim(), 1);
+        assert(kRoPEOutput[i] != nullptr);
         qkDotProdOutputs[i] = mle->CreateMatrix(config->GetHeadDim(), 1);
         assert(qkDotProdOutputs[i] != nullptr);
         qkDotProdScaleOutputs[i] = mle->CreateMatrix(config->GetHeadDim(), 1);
@@ -197,6 +203,11 @@ bool TransformerBlock::Init(const std::shared_ptr<SafeTensor> &safeTensor,
         assert(qkvAttentionOutput[i] != nullptr);
         mle->ScaledDotProductAttention(qHeadLayerNormOutputs[i],
                                        kHeadLayerNormOutputs[i / 2],
+                                       config->GetRoPETheta(),
+                                       &tokenIndex,
+                                       &tokenPos,
+                                       qRoPEOutput[i],
+                                       kRoPEOutput[i],
                                        qkDotProdOutputs[i],
                                        qkDotProdScaleOutputs[i],
                                        qkDotProdScaleSoftmaxOutputs[i],

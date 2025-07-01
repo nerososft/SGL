@@ -227,7 +227,7 @@ void MLEngine::MatMul(const std::shared_ptr<Matrix> &mat1,
 }
 
 auto MLEngine::RoPE(const uint32_t ropeTheta,
-                    const uint32_t m,
+                    uint32_t *m,
                     const std::shared_ptr<Matrix> &vectorInput,
                     const std::shared_ptr<Matrix> &vectorOutput) -> void {
     const auto ropeOp = std::make_shared<RoPEOperator>(this->gpuCtx,
@@ -246,14 +246,43 @@ auto MLEngine::RoPE(const uint32_t ropeTheta,
 
 void MLEngine::ScaledDotProductAttention(const std::shared_ptr<Matrix> &Q,
                                          const std::shared_ptr<Matrix> &K,
+                                         const uint64_t ropeTheta,
+                                         uint32_t *m,
+                                         uint32_t *n,
+                                         const std::shared_ptr<Matrix> &qRoPEOutput,
+                                         const std::shared_ptr<Matrix> &kRoPEOutput,
                                          const std::shared_ptr<Matrix> &qkDotProdOutput,
                                          const std::shared_ptr<Matrix> &qkDotProdScaleOutput,
                                          const std::shared_ptr<Matrix> &softmaxOutput,
                                          const std::shared_ptr<Matrix> &V,
                                          const std::shared_ptr<Matrix> &vMulOutput) {
+    const auto qRopeOp = std::make_shared<RoPEOperator>(this->gpuCtx,
+                                                        Q->GetBuffer(),
+                                                        qRoPEOutput->GetBuffer());
+    qRopeOp->SetRopeTheta(ropeTheta);
+    qRopeOp->SetM(m);
+    operators.push_back(qRopeOp);
+    const auto qRopeNode = qRopeOp->CreateComputeGraphNode();
+    if (qRopeNode == nullptr) {
+        Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
+        throw std::runtime_error("Failed to create compute graph node!");
+    }
+
+    const auto kRopeOp = std::make_shared<RoPEOperator>(this->gpuCtx,
+                                                        K->GetBuffer(),
+                                                        kRoPEOutput->GetBuffer());
+    kRopeOp->SetRopeTheta(ropeTheta);
+    kRopeOp->SetM(n);
+    operators.push_back(kRopeOp);
+    const auto kRopeNode = kRopeOp->CreateComputeGraphNode();
+    if (kRopeNode == nullptr) {
+        Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
+        throw std::runtime_error("Failed to create compute graph node!");
+    }
+
     const auto qkDotProdOp = std::make_shared<DotProdOperator>(this->gpuCtx,
-                                                               Q->GetBuffer(),
-                                                               K->GetBuffer(),
+                                                               qRoPEOutput->GetBuffer(),
+                                                               kRoPEOutput->GetBuffer(),
                                                                qkDotProdOutput->GetBuffer());
     operators.push_back(qkDotProdOp);
     const auto qkDotProdNode = qkDotProdOp->CreateComputeGraphNode();
@@ -307,6 +336,8 @@ void MLEngine::ScaledDotProductAttention(const std::shared_ptr<Matrix> &Q,
         throw std::runtime_error("Failed to create compute graph node!");
     }
 
+    kRopeNode->AddDependenceNode(qRopeNode);
+    qkDotProdNode->AddDependenceNode(kRopeNode);
     scaleNode->AddDependenceNode(qkDotProdNode);
     sumNode->AddDependenceNode(scaleNode);
     softmaxNode->AddDependenceNode(sumNode);

@@ -73,7 +73,7 @@ public:
                 const std::shared_ptr<Matrix> &output);
 
     void RoPE(uint32_t ropeTheta,
-              uint32_t m,
+              uint32_t *m,
               const std::shared_ptr<Matrix> &vectorInput,
               const std::shared_ptr<Matrix> &vectorOutput);
 
@@ -82,6 +82,11 @@ public:
      */
     void ScaledDotProductAttention(const std::shared_ptr<Matrix> &Q,
                                    const std::shared_ptr<Matrix> &K,
+                                   uint64_t ropeTheta,
+                                   uint32_t *m,
+                                   uint32_t *n,
+                                   const std::shared_ptr<Matrix> &qRoPEOutput,
+                                   const std::shared_ptr<Matrix> &kRoPEOutput,
                                    const std::shared_ptr<Matrix> &qkDotProdOutput,
                                    const std::shared_ptr<Matrix> &qkDotProdScaleOutput,
                                    const std::shared_ptr<Matrix> &softmaxOutput,

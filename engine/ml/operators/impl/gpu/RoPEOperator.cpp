@@ -4,6 +4,8 @@
 
 #include "RoPEOperator.h"
 
+#include <assert.h>
+
 #include "core/gpu/VkGPUHelper.h"
 #include "core/gpu/compute_graph/ComputePipelineNode.h"
 #include "core/log/Log.h"
@@ -62,6 +64,10 @@ std::shared_ptr<IComputeGraphNode> RoPEOperator::CreateComputeGraphNode() {
         .pushConstantInfo = pushConstantInfo,
         .buffers = buffers,
         .customDrawFunc = nullptr,
+        .preCompute = [this] {
+            assert(this->m != nullptr);
+            this->params.m = *(this->m);
+        }
     };
     ropeNode->AddComputeElement(computeElem);
 

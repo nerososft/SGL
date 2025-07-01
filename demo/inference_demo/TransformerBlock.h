@@ -52,6 +52,9 @@
 
 class TransformerBlock {
     uint64_t layerIndex = 0;
+    uint32_t tokenIndex = 0;
+    uint32_t tokenPos = 0;
+
     std::shared_ptr<MLEngine> mle = nullptr;
 
     std::shared_ptr<Matrix> inputMatrix = nullptr;
@@ -79,6 +82,8 @@ class TransformerBlock {
     std::vector<std::shared_ptr<Matrix> > vHeads;
     std::vector<std::shared_ptr<Matrix> > vHeadLayerNormOutputs;
 
+    std::vector<std::shared_ptr<Matrix> > qRoPEOutput;
+    std::vector<std::shared_ptr<Matrix> > kRoPEOutput;
     std::vector<std::shared_ptr<Matrix> > qkDotProdOutputs;
     std::vector<std::shared_ptr<Matrix> > qkDotProdScaleOutputs;
     std::vector<std::shared_ptr<Matrix> > qkDotProdScaleSoftmaxOutputs;
@@ -120,6 +125,12 @@ public:
     std::shared_ptr<Matrix> &GetOutputMatrix();
 
     void Dump() const;
+
+    void UpdateTokenInfo(const uint32_t tokenIndex,
+                         const uint32_t tokenPos) {
+        this->tokenIndex = tokenIndex;
+        this->tokenPos = tokenPos;
+    };
 };
 
 #endif //TRANSFORMERBLOCK_H

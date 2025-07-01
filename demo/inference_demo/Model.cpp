@@ -80,16 +80,22 @@ bool Model::Init() {
 void Model::Dump() const {
     blocks[0]->Dump();
     // for (auto &block: this->blocks) {
-        // block->Dump();
+    // block->Dump();
     // }
 }
 
-std::vector<float> Model::Forward(const std::vector<float> &input) const {
+std::vector<float> Model::Forward(const std::vector<float> &input,
+                                  const uint32_t tokenIndex,
+                                  const uint32_t tokenPos) const {
     const auto inputBuffer = this->inputMatrix->GetBuffer();
     const VkResult result = inputBuffer->UploadData(input.data(), input.size() * sizeof(float));
     if (result != VK_SUCCESS) {
         Logger() << "Failed to upload input vector" << std::endl;
         return {};
+    }
+
+    for (auto &block: this->blocks) {
+        block->UpdateTokenInfo(tokenIndex, tokenPos);
     }
 
     mle->Compute();

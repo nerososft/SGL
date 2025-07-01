@@ -36,7 +36,7 @@ public:
 
     void Dump() const;
 
-    std::vector<float> Forward(const std::vector<float> &input) const;
+    std::vector<float> Forward(const std::vector<float> &input, uint32_t tokenIndex, uint32_t tokenPos) const;
 };
 
 
