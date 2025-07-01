@@ -20,7 +20,7 @@
 #include "operators/impl/cpu/VarianceOperator.h"
 #include "operators/impl/gpu/AddOperator.h"
 #include "operators/impl/gpu/ConcatOperator.h"
-#include "operators/impl/gpu/DotProdOperator.h"
+#include "operators/impl/gpu/MulOperator.h"
 #include "operators/impl/gpu/RoPEOperator.h"
 #include "operators/impl/gpu/ScaleOperator.h"
 #include "operators/impl/gpu/SplitOperator.h"
@@ -244,6 +244,7 @@ auto MLEngine::RoPE(const uint32_t ropeTheta,
     this->mainSubGraph->AddComputeGraphNode(node);
 }
 
+// FIXME: NOT CORRECT!
 void MLEngine::ScaledDotProductAttention(const std::shared_ptr<Matrix> &Q,
                                          const std::shared_ptr<Matrix> &K,
                                          const uint64_t ropeTheta,
@@ -280,16 +281,27 @@ void MLEngine::ScaledDotProductAttention(const std::shared_ptr<Matrix> &Q,
         throw std::runtime_error("Failed to create compute graph node!");
     }
 
-    const auto qkDotProdOp = std::make_shared<DotProdOperator>(this->gpuCtx,
-                                                               qRoPEOutput->GetBuffer(),
-                                                               kRoPEOutput->GetBuffer(),
-                                                               qkDotProdOutput->GetBuffer());
-    operators.push_back(qkDotProdOp);
-    const auto qkDotProdNode = qkDotProdOp->CreateComputeGraphNode();
-    if (qkDotProdNode == nullptr) {
+    const auto qkElementWiseMulOp = std::make_shared<MulOperator>(this->gpuCtx,
+                                                                  qRoPEOutput->GetBuffer(),
+                                                                  kRoPEOutput->GetBuffer(),
+                                                                  qkDotProdOutput->GetBuffer());
+    operators.push_back(qkElementWiseMulOp);
+    const auto qkElementWiseMulNode = qkElementWiseMulOp->CreateComputeGraphNode();
+    if (qkElementWiseMulNode == nullptr) {
         Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
         throw std::runtime_error("Failed to create compute graph node!");
     }
+
+    const auto dotProdSumOp = std::make_shared<SumOperator>(qkDotProdScaleOutput->GetBuffer());
+    sumOperators.push_back(dotProdSumOp);
+    const auto dotProdSumNode = dotProdSumOp->CreateComputeGraphNode();
+
+    if (dotProdSumNode == nullptr) {
+        Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
+        throw std::runtime_error("Failed to create compute graph node!");
+    }
+
+    // TODO: FIXME !!!
 
     // Scale
     const auto scaleOp = std::make_shared<ScaleOperator>(this->gpuCtx,
@@ -298,7 +310,7 @@ void MLEngine::ScaledDotProductAttention(const std::shared_ptr<Matrix> &Q,
     operators.push_back(scaleOp);
     scaleOp->SetDelta(K->GetHeight() * K->GetWidth());
     const auto scaleNode = scaleOp->CreateComputeGraphNode();
-    if (qkDotProdNode == nullptr) {
+    if (scaleNode == nullptr) {
         Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
         throw std::runtime_error("Failed to create compute graph node!");
     }
@@ -337,8 +349,8 @@ void MLEngine::ScaledDotProductAttention(const std::shared_ptr<Matrix> &Q,
     }
 
     kRopeNode->AddDependenceNode(qRopeNode);
-    qkDotProdNode->AddDependenceNode(kRopeNode);
-    scaleNode->AddDependenceNode(qkDotProdNode);
+    qkElementWiseMulNode->AddDependenceNode(kRopeNode);
+    scaleNode->AddDependenceNode(qkElementWiseMulNode);
     sumNode->AddDependenceNode(scaleNode);
     softmaxNode->AddDependenceNode(sumNode);
     vMulNode->AddDependenceNode(softmaxNode);
@@ -513,17 +525,17 @@ void MLEngine::GatedSiLU(const std::shared_ptr<Matrix> &inputVector,
         throw std::runtime_error("Failed to create compute graph node!");
     }
 
-    const auto dotProdOp = std::make_shared<DotProdOperator>(this->gpuCtx,
-                                                             inputVector->GetBuffer(),
-                                                             gateSigmoidOutput->GetBuffer(),
-                                                             outputVector->GetBuffer());
-    operators.push_back(dotProdOp);
-    const auto dotProdNode = dotProdOp->CreateComputeGraphNode();
-    if (dotProdNode == nullptr) {
+    const auto elementWiseMulOp = std::make_shared<MulOperator>(this->gpuCtx,
+                                                                inputVector->GetBuffer(),
+                                                                gateSigmoidOutput->GetBuffer(),
+                                                                outputVector->GetBuffer());
+    operators.push_back(elementWiseMulOp);
+    const auto elementWiseMulNode = elementWiseMulOp->CreateComputeGraphNode();
+    if (elementWiseMulNode == nullptr) {
         Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
         throw std::runtime_error("Failed to create compute graph node!");
     }
 
-    dotProdNode->AddDependenceNode(node);
-    this->mainSubGraph->AddComputeGraphNode(dotProdNode);
+    elementWiseMulNode->AddDependenceNode(node);
+    this->mainSubGraph->AddComputeGraphNode(elementWiseMulNode);
 }

@@ -2,19 +2,19 @@
 // Created by neo on 25-6-30.
 //
 
-#ifndef DOTPRODOPERATOR_H
-#define DOTPRODOPERATOR_H
+#ifndef MULOPERATOR_H
+#define MULOPERATOR_H
 #include "engine/ml/operators/BinaryOperator.h"
 
 
-class DotProdOperator final : public BinaryOperator {
+class MulOperator final : public BinaryOperator {
 public:
-    DotProdOperator(const std::shared_ptr<VkGPUContext> &gpuCtx,
+    MulOperator(const std::shared_ptr<VkGPUContext> &gpuCtx,
                     const std::shared_ptr<VkGPUBuffer> &inputBuffer1,
                     const std::shared_ptr<VkGPUBuffer> &inputBuffer2,
                     const std::shared_ptr<VkGPUBuffer> &outputBuffer);
 
-    ~DotProdOperator() override;
+    ~MulOperator() override;
 
     std::shared_ptr<IComputeGraphNode> CreateComputeGraphNode() override;
 
@@ -22,4 +22,4 @@ public:
 };
 
 
-#endif //DOTPRODOPERATOR_H
+#endif //MULOPERATOR_H

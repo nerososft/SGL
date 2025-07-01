@@ -2,23 +2,23 @@
 // Created by neo on 25-6-30.
 //
 
-#include "DotProdOperator.h"
+#include "MulOperator.h"
 
 #include "core/config.h"
 #include "core/gpu/VkGPUHelper.h"
 #include "core/gpu/compute_graph/ComputePipelineNode.h"
 #include "core/log/Log.h"
 
-DotProdOperator::DotProdOperator(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                                 const std::shared_ptr<VkGPUBuffer> &inputBuffer1,
-                                 const std::shared_ptr<VkGPUBuffer> &inputBuffer2,
-                                 const std::shared_ptr<VkGPUBuffer> &outputBuffer)
+MulOperator::MulOperator(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                         const std::shared_ptr<VkGPUBuffer> &inputBuffer1,
+                         const std::shared_ptr<VkGPUBuffer> &inputBuffer2,
+                         const std::shared_ptr<VkGPUBuffer> &outputBuffer)
     : BinaryOperator(gpuCtx, inputBuffer1, inputBuffer2, outputBuffer) {
 }
 
-DotProdOperator::~DotProdOperator() = default;
+MulOperator::~MulOperator() = default;
 
-std::shared_ptr<IComputeGraphNode> DotProdOperator::CreateComputeGraphNode() {
+std::shared_ptr<IComputeGraphNode> MulOperator::CreateComputeGraphNode() {
     std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
     descriptorSetLayoutBindings.push_back(
         VkGPUHelper::BuildDescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1,
@@ -30,17 +30,17 @@ std::shared_ptr<IComputeGraphNode> DotProdOperator::CreateComputeGraphNode() {
         VkGPUHelper::BuildDescriptorSetLayoutBinding(2, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1,
                                                      VK_SHADER_STAGE_COMPUTE_BIT));
     const size_t nums = outputBuffer->GetBufferSize() / sizeof(float);
-    auto dotProdNode = std::make_shared<ComputePipelineNode>(this->gpuCtx,
-                                                             "DotProd",
-                                                             SHADER(dotprod.comp.glsl.spv),
-                                                             0,
-                                                             descriptorSetLayoutBindings,
-                                                             (nums + 255) / 256,
-                                                             1,
-                                                             1);
-    const VkResult ret = dotProdNode->CreateComputeGraphNode();
+    auto mulNode = std::make_shared<ComputePipelineNode>(this->gpuCtx,
+                                                         "ElementWiseMultiplication",
+                                                         SHADER(mul.comp.glsl.spv),
+                                                         0,
+                                                         descriptorSetLayoutBindings,
+                                                         (nums + 255) / 256,
+                                                         1,
+                                                         1);
+    const VkResult ret = mulNode->CreateComputeGraphNode();
     if (ret != VK_SUCCESS) {
-        Logger() << "Error creating dot-product node." << std::endl;
+        Logger() << "Error creating Element-wise Multiplication node." << std::endl;
         return nullptr;
     }
     std::vector<PipelineNodeBuffer> buffers;
@@ -72,11 +72,11 @@ std::shared_ptr<IComputeGraphNode> DotProdOperator::CreateComputeGraphNode() {
         .buffers = buffers,
         .customDrawFunc = nullptr,
     };
-    dotProdNode->AddComputeElement(computeElem);
+    mulNode->AddComputeElement(computeElem);
 
-    return dotProdNode;
+    return mulNode;
 }
 
-void DotProdOperator::Destroy() {
+void MulOperator::Destroy() {
     BinaryOperator::Destroy();
 }
