@@ -267,52 +267,53 @@ void TransformerBlock::Dump() const {
     inputLayerNormOutput->Print();
     Logger() << "qProjOutput: ";
     qProjOutput->Print();
-    // Logger() << "qHeadLayerNormOutputs: ";
-    // for (int i = 0; i < 16; i++) {
-    //     qHeadLayerNormOutputs[i]->Print();
-    // }
-    // Logger() << "kHeadLayerNormOutputs: ";
-    // for (int i = 0; i < 8; i++) {
-    //     kHeadLayerNormOutputs[i]->Print();
-    // }
-    // Logger() << "vHeadLayerNormOutputs: ";
-    // for (int i = 0; i < 8; i++) {
-    //     vHeadLayerNormOutputs[i]->Print();
-    // }
-    // Logger() << "qkDotProdOutputs: ";
-    // for (int i = 0; i < 16; i++) {
-    //     qkDotProdOutputs[i]->Print();
-    // }
-    // Logger() << "qkDotProdScaleOutputs: ";
-    // for (int i = 0; i < 16; i++) {
-    //     qkDotProdScaleOutputs[i]->Print();
-    // }
-    // Logger() << "qkDotProdScaleSoftmaxOutputs: ";
-    // for (int i = 0; i < 16; i++) {
-    //     qkDotProdScaleSoftmaxOutputs[i]->Print();
-    // }
-    // Logger() << "qkvAttentionOutput: ";
-    // for (int i = 0; i < 16; i++) {
-    //     qkvAttentionOutput[i]->Print();
-    // }
-    // Logger() << "qkvAttentionConcatOutput: ";
-    // qkvAttentionConcatOutput->Print();
-    // Logger() << "selfAttnOProjOutput: ";
-    // selfAttnOProjOutput->Print();
-    // Logger() << "add1Output: ";
-    // add1Output->Print();
-    // Logger() << "postAttentionLayerNormOutput: ";
-    // postAttentionLayerNormOutput->Print();
-    // Logger() << "mlpUpProjOutput: ";
-    // mlpUpProjOutput->Print();
-    // Logger() << "mlpGateProjOutput: ";
-    // mlpGateProjOutput->Print();
-    // Logger() << "mlpGateSigmoidOutput: ";
-    // mlpGateSigmoidOutput->Print();
-    // Logger() << "mlpGateOutput: ";
-    // mlpGateOutput->Print();
-    // Logger() << "mlpOutput: ";
-    // mlpOutput->Print();
+
+    for (int i = 0; i < 16; i++) {
+        Logger() << "qHeadLayerNormOutputs(" << i << "): ";
+        qHeadLayerNormOutputs[i]->Print();
+    }
+    for (int i = 0; i < 8; i++) {
+        Logger() << "kHeadLayerNormOutputs(" << i << "): ";
+        kHeadLayerNormOutputs[i]->Print();
+    }
+    for (int i = 0; i < 8; i++) {
+        Logger() << "vHeadLayerNormOutputs(" << i << "): ";
+        vHeadLayerNormOutputs[i]->Print();
+    }
+    for (int i = 0; i < 16; i++) {
+        Logger() << "qkDotProdOutputs(" << i << "): ";
+        qkDotProdOutputs[i]->Print();
+    }
+    for (int i = 0; i < 16; i++) {
+        Logger() << "qkDotProdScaleOutputs(" << i << "): ";
+        qkDotProdScaleOutputs[i]->Print();
+    }
+    for (int i = 0; i < 16; i++) {
+        Logger() << "qkDotProdScaleSoftmaxOutputs(" << i << "): ";
+        qkDotProdScaleSoftmaxOutputs[i]->Print();
+    }
+    for (int i = 0; i < 16; i++) {
+        Logger() << "qkvAttentionOutput(" << i << "): ";
+        qkvAttentionOutput[i]->Print();
+    }
+    Logger() << "qkvAttentionConcatOutput: ";
+    qkvAttentionConcatOutput->Print();
+    Logger() << "selfAttnOProjOutput: ";
+    selfAttnOProjOutput->Print();
+    Logger() << "add1Output: ";
+    add1Output->Print();
+    Logger() << "postAttentionLayerNormOutput: ";
+    postAttentionLayerNormOutput->Print();
+    Logger() << "mlpUpProjOutput: ";
+    mlpUpProjOutput->Print();
+    Logger() << "mlpGateProjOutput: ";
+    mlpGateProjOutput->Print();
+    Logger() << "mlpGateSigmoidOutput: ";
+    mlpGateSigmoidOutput->Print();
+    Logger() << "mlpGateOutput: ";
+    mlpGateOutput->Print();
+    Logger() << "mlpOutput: ";
+    mlpOutput->Print();
     Logger() << "Output: ";
     outputMatrix->Print();
     Logger() << std::endl;

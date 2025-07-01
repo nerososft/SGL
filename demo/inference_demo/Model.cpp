@@ -78,9 +78,10 @@ bool Model::Init() {
 }
 
 void Model::Dump() const {
-    for (auto &block: this->blocks) {
-        block->Dump();
-    }
+    blocks[0]->Dump();
+    // for (auto &block: this->blocks) {
+        // block->Dump();
+    // }
 }
 
 std::vector<float> Model::Forward(const std::vector<float> &input) const {
