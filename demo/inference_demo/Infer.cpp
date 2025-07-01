@@ -55,9 +55,9 @@ void Infer::Run(const std::string &prompt) const {
     Logger() << "Decode time: " << decodeTimeEnd - decodeTimeStart << std::endl;
 
     const uint64_t inferTimeStart = TimeUtils::GetCurrentMonoMs();
-    for (size_t tokenIndex = 0; tokenIndex < result.size(); ++tokenIndex) {
-        const std::vector<float> embedding = this->safeTensor->EmbeddingToken(result[tokenIndex]);
-        Logger() << "Token: " << result[tokenIndex] << std::endl;
+    for (size_t pos = 0; pos < result.size(); ++pos) {
+        const std::vector<float> embedding = this->safeTensor->EmbeddingToken(result[pos]);
+        Logger() << "Token: " << result[pos] << std::endl;
         Logger() << "Embedding(" << embedding.size() << "): [";
         for (const float e: embedding) {
             std::cout << e << " ";
@@ -65,7 +65,7 @@ void Infer::Run(const std::string &prompt) const {
         std::cout << "]" << std::endl;
 
         // Let's transform
-        const std::vector<float> output = model->Forward(embedding, tokenIndex, result[tokenIndex]);
+        const std::vector<float> output = model->Forward(embedding, result[pos], pos);
 
         Logger() << "Output(" << output.size() << "): [";
         for (const float o: output) {

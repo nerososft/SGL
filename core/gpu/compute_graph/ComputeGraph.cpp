@@ -28,9 +28,10 @@ VkResult ComputeGraph::Compute() const {
     VkResult ret = VK_SUCCESS;
     std::vector<VkFence> waitFences;
     if (!this->subGraphs.empty()) {
-        Logger() << "Subgraph Count: " << this->subGraphs.size() << std::endl;
+        Logger() << Logger::DEBUG << "Subgraph Count: " << this->subGraphs.size() << std::endl;
         for (const auto &subGraph: this->subGraphs) {
-            Logger() << "Execute Subgraph on " << subGraph->GetQueue().queueFamilyIndex << "-" << subGraph->GetQueue().
+            Logger() << Logger::DEBUG << "Execute Subgraph on " << subGraph->GetQueue().queueFamilyIndex << "-" <<
+                    subGraph->GetQueue().
                     queueIndex << std::endl;
             ret = subGraph->Compute();
             waitFences.push_back(subGraph->GetComputeFence());

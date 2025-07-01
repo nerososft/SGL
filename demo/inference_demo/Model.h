@@ -28,7 +28,8 @@ public:
                    const std::shared_ptr<Config> &config,
                    const std::shared_ptr<SafeTensor> &safeTensor);
 
-    std::shared_ptr<Matrix> InitWeightMatrix(const std::shared_ptr<SafeTensor> &safeTensor, const Weight &weight) const;
+    [[nodiscard]] std::shared_ptr<Matrix> InitWeightMatrix(const std::shared_ptr<SafeTensor> &safeTensor,
+                                                           const Weight &weight) const;
 
     ~Model() = default;
 
@@ -36,7 +37,8 @@ public:
 
     void Dump() const;
 
-    std::vector<float> Forward(const std::vector<float> &input, uint32_t tokenIndex, uint32_t tokenPos) const;
+    [[nodiscard]] std::vector<float> Forward(const std::vector<float> &input, uint32_t tokenIndex,
+                                             uint32_t tokenPos) const;
 };
 
 

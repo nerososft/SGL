@@ -13,7 +13,7 @@ int main(int argc, char *argv[]) {
 
     Infer infer;
     infer.Init();
-    infer.Run("Hello, World!");
+    infer.Run("What is the capital of France?");
 
     return 0;
 }

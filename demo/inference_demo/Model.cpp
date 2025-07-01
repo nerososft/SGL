@@ -78,9 +78,9 @@ bool Model::Init() {
 }
 
 void Model::Dump() const {
-    blocks[0]->Dump();
+    // blocks[1]->Dump();
     // for (auto &block: this->blocks) {
-    // block->Dump();
+        // block->Dump();
     // }
 }
 
