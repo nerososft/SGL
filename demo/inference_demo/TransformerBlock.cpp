@@ -283,9 +283,17 @@ void TransformerBlock::Dump() const {
         Logger() << "qHeadLayerNormOutputs(" << i << "): ";
         qHeadLayerNormOutputs[i]->Print();
     }
+    for (int i = 0; i < 16; i++) {
+        Logger() << "qRoPEOutput(" << i << "): ";
+        qRoPEOutput[i]->Print();
+    }
     for (int i = 0; i < 8; i++) {
         Logger() << "kHeadLayerNormOutputs(" << i << "): ";
         kHeadLayerNormOutputs[i]->Print();
+    }
+    for (int i = 0; i < 16; i++) {
+        Logger() << "kRoPEOutput(" << i << "): ";
+        kRoPEOutput[i]->Print();
     }
     for (int i = 0; i < 8; i++) {
         Logger() << "vHeadLayerNormOutputs(" << i << "): ";
