@@ -201,6 +201,7 @@ bool TransformerBlock::Init(const std::shared_ptr<SafeTensor> &safeTensor,
         assert(qkDotProdScaleSoftmaxOutputs[i] != nullptr);
         qkvAttentionOutput[i] = mle->CreateMatrix(config->GetHeadDim(), 1);
         assert(qkvAttentionOutput[i] != nullptr);
+        // FIXME: Loop and calculate K of each token
         mle->ScaledDotProductAttention(qHeadLayerNormOutputs[i],
                                        kHeadLayerNormOutputs[i / 2],
                                        config->GetRoPETheta(),
