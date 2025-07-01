@@ -21,6 +21,7 @@
 #include "operators/impl/gpu/AddOperator.h"
 #include "operators/impl/gpu/ConcatOperator.h"
 #include "operators/impl/gpu/DotProdOperator.h"
+#include "operators/impl/gpu/RoPEOperator.h"
 #include "operators/impl/gpu/ScaleOperator.h"
 #include "operators/impl/gpu/SplitOperator.h"
 
@@ -218,6 +219,24 @@ void MLEngine::MatMul(const std::shared_ptr<Matrix> &mat1,
     matMulOp->SetMat1Size(mat1->GetWidth(), mat1->GetHeight());
     matMulOp->SetMat2Size(mat2->GetWidth(), mat2->GetHeight());
     const auto node = matMulOp->CreateComputeGraphNode();
+    if (node == nullptr) {
+        Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
+        throw std::runtime_error("Failed to create compute graph node!");
+    }
+    this->mainSubGraph->AddComputeGraphNode(node);
+}
+
+auto MLEngine::RoPE(const uint32_t ropeTheta,
+                    const uint32_t m,
+                    const std::shared_ptr<Matrix> &vectorInput,
+                    const std::shared_ptr<Matrix> &vectorOutput) -> void {
+    const auto ropeOp = std::make_shared<RoPEOperator>(this->gpuCtx,
+                                                       vectorInput->GetBuffer(),
+                                                       vectorOutput->GetBuffer());
+    operators.push_back(ropeOp);
+    ropeOp->SetRopeTheta(ropeTheta);
+    ropeOp->SetM(m);
+    const auto node = ropeOp->CreateComputeGraphNode();
     if (node == nullptr) {
         Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
         throw std::runtime_error("Failed to create compute graph node!");

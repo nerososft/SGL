@@ -72,6 +72,11 @@ public:
                 const std::shared_ptr<Matrix> &mat2,
                 const std::shared_ptr<Matrix> &output);
 
+    void RoPE(uint32_t ropeTheta,
+              uint32_t m,
+              const std::shared_ptr<Matrix> &vectorInput,
+              const std::shared_ptr<Matrix> &vectorOutput);
+
     /*
      * Attention(Q, K, V) = softmax(Q·K^T/√d)·V
      */
