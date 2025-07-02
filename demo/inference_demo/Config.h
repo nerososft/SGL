@@ -51,6 +51,8 @@ public:
     [[nodiscard]] uint64_t GetHeadDim() const;
 
     [[nodiscard]] uint64_t GetRoPETheta() const;
+
+    [[nodiscard]] uint64_t GetHiddenSize() const;
 };
 
 #endif //MODEL_CONFIG_H

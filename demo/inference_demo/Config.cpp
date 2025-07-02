@@ -18,6 +18,7 @@ bool Config::LoadFromFile(const std::string &configFilePath) {
     this->properties.num_hidden_layers = config["num_hidden_layers"];
     this->properties.head_dim = config["head_dim"];
     this->properties.rope_theta = config["rope_theta"];
+    this->properties.hidden_size = config["hidden_size"];
     return true;
 }
 
@@ -31,4 +32,8 @@ uint64_t Config::GetHeadDim() const {
 
 uint64_t Config::GetRoPETheta() const {
     return this->properties.rope_theta;
+}
+
+uint64_t Config::GetHiddenSize() const {
+    return this->properties.hidden_size;
 }
