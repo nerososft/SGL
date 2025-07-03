@@ -5,7 +5,7 @@ High-Performance GPU Compute Engine Based on Vulkan
 ## 基础框架使用
 以两个100000000个浮点数的向量逐元素相加为例
 
-### 初始化GPU与计算图
+### 1. 初始化GPU与计算图
 ```c++
 std::vector<const char *> extensions = {};
 VkGPUContext gpuCtx(extensions);
@@ -16,7 +16,7 @@ computeSubGraph.Init();
 computeGraph.AddSubGraph(computeSubGraph);
 ```
 
-### 创建计算/渲染节点
+### 2. 创建计算/渲染节点
 
 ```c++
 std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
@@ -52,7 +52,7 @@ void main() {
 }
 ```
 
-### 申请GPU内存并添加计算数据到计算节点
+### 3. 申请GPU内存并添加计算数据到计算节点
 
 ```c++
 VkGPUBuffer inputBuffer(gpuCtx);
@@ -73,12 +73,12 @@ addNode->AddComputeElement({ .pushConstantInfo = {}, .buffers = ppBuffers, .cust
 computeSubGraph->AddComputeGraphNode(bezierNode);
 ```
 
-### 计算
+### 4. 计算
 ```c++
 computeGraph.Compute();
 ```
 
-### 获取结果
+### 5. 获取结果
 ```c++
 outputBuffer.MapBuffer();
 float *result = outputBuffer.GetMappedAddr();
@@ -86,12 +86,12 @@ float *result = outputBuffer.GetMappedAddr();
 
 ---
 ## 图像处理算子使用
-### 初始化滤镜框架
+### 1. 初始化滤镜框架
 ```c++
 EffectEngine effectEngine;
 effectEngine.Init();
 ```
-### 使用滤镜
+### 2. 使用滤镜
 以高斯模糊为例
 ```c++
 const auto filter = std::make_shared<FastGaussianBlurFilter>();
@@ -132,9 +132,9 @@ effectEngine.Process({.width = 1024, .height = 768, .channels = 4 .bytesPerLine 
 
 ---
 ## 机器学习算子使用
-### 初始化
-### 矩阵初始化
-### 使用算子
+### 1. 初始化
+### 2. 矩阵初始化
+### 3. 使用算子
 目前内置的算子有：
 - [add](https://gitcode.com/OpenHarmonyPerfSquad/SGL/blob/main/engine/ml/assets/builtin.shaders/operators/add.comp.glsl)
 - [concat8](https://gitcode.com/OpenHarmonyPerfSquad/SGL/blob/main/engine/ml/assets/builtin.shaders/operators/concat8.comp.glsl)
@@ -153,4 +153,4 @@ effectEngine.Process({.width = 1024, .height = 768, .channels = 4 .bytesPerLine 
 - [split8](https://gitcode.com/OpenHarmonyPerfSquad/SGL/blob/main/engine/ml/assets/builtin.shaders/operators/split8.comp.glsl)
 - [split16](https://gitcode.com/OpenHarmonyPerfSquad/SGL/blob/main/engine/ml/assets/builtin.shaders/operators/split16.comp.glsl)
 - [tanh](https://gitcode.com/OpenHarmonyPerfSquad/SGL/blob/main/engine/ml/assets/builtin.shaders/operators/tanh.comp.glsl)
-### 计算
+### 4. 计算
