@@ -24,7 +24,7 @@ descriptorSetLayoutBindings.push_back(VkGPUHelper::BuildDescriptorSetLayoutBindi
 descriptorSetLayoutBindings.push_back(VkGPUHelper::BuildDescriptorSetLayoutBinding(1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, VK_SHADER_STAGE_COMPUTE_BIT));
 descriptorSetLayoutBindings.push_back(VkGPUHelper::BuildDescriptorSetLayoutBinding(2, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, VK_SHADER_STAGE_COMPUTE_BIT));
                                                      
-ComputePipelineNode addNode(gpuCtx, "Add", SHADER(add.comp.glsl.spv), 0, descriptorSetLayoutBindings, (params.bodyPointsNums + 255) / 256, 1, 1);
+ComputePipelineNode addNode(gpuCtx, "Add", SHADER(add.comp.glsl.spv), 0, descriptorSetLayoutBindings, (100000000 + 255) / 256, 1, 1);
 addNode->CreateComputeGraphNode();
 ```
 编写`shader`
