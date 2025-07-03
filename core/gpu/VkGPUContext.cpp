@@ -120,7 +120,7 @@ DeviceQueue VkGPUContext::DispatchQueue(const VkQueueFlags flag) {
     const uint32_t queueFamilyIndex = suitableQueue[selectedQueueIndex].queueFamilyIndex;
     const uint32_t queueIndex = suitableQueue[selectedQueueIndex].queueIndex;
 
-    Logger() << "Queue selected: " << queueFamilyIndex << "-" << queueIndex << std::endl;
+    Logger() << Logger::DEBUG << "Queue selected: " << queueFamilyIndex << "-" << queueIndex << std::endl;
     if (suitableQueue[selectedQueueIndex].queue == VK_NULL_HANDLE) {
         vkGetDeviceQueue(this->device,
                          queueFamilyIndex,
