@@ -3,7 +3,7 @@ High-Performance GPU Compute Engine Based on Vulkan
 
 ---
 ## 基础框架使用
-以两个100000000个浮点数的向量逐元素相加为例
+以两个`100000000`个浮点数的向量`float input1[100000000]`, `float input2[100000000]`逐元素相加为例
 
 ### 1. 初始化GPU与计算图
 ```c++
@@ -63,7 +63,7 @@ VkGPUBuffer outputBuffer(gpuCtx);
 outputBuffer.AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED, 100000000 * sizeof(float));
  
 inputBuffer.UploadData(input1, 100000000 * sizeof(float));
-inputBuffer2.UploadData(input.data(), 100000000 * sizeof(float));
+inputBuffer2.UploadData(input2, 100000000 * sizeof(float));
  
 std::vector<PipelineNodeBuffer> ppBuffers;
 ppBuffers.push_back({ .type = PIPELINE_NODE_BUFFER_STORAGE_READ, .buf = { .bufferSize = inputBuffer->GetBufferSize(), .buffer = inputBuffer->GetBuffer()}});
