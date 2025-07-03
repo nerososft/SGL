@@ -88,7 +88,6 @@ std::shared_ptr<IComputeGraphNode> LayerNormOperator::CreateComputeGraphNode() {
         .buffers = buffers,
         .customDrawFunc = nullptr,
         .preCompute = [this] {
-            assert(this != nullptr); // if null, means optimized out
             assert(this->avg != nullptr);
             assert(this->variance != nullptr);
             this->params.avg = *this->avg;

@@ -65,7 +65,6 @@ std::shared_ptr<IComputeGraphNode> RMSNormOperator::CreateComputeGraphNode() {
         .buffers = buffers,
         .customDrawFunc = nullptr,
         .preCompute = [this] {
-            assert(this != nullptr); // if null, means optimized out
             assert(this->rms != nullptr);
             this->params.rms = *this->rms;
         }
