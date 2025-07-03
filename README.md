@@ -1,6 +1,7 @@
 # SGL (Simple GPU Layer)
 High-Performance GPU Compute Engine Based on Vulkan
 
+---
 ## 基础框架使用
 以两个100000000个浮点数的向量逐元素相加为例
 
@@ -83,6 +84,7 @@ outputBuffer.MapBuffer();
 float *result = outputBuffer.GetMappedAddr();
 ```
 
+---
 ## 图像处理算子使用
 ### 初始化滤镜框架
 ```c++
@@ -128,6 +130,7 @@ effectEngine.Process({.width = 1024, .height = 768, .channels = 4 .bytesPerLine 
 ### 自定义滤镜
 参考`基础框架使用`即可
 
+---
 ## 机器学习算子使用
 ### 初始化
 ### 矩阵初始化
