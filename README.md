@@ -1,8 +1,6 @@
 # SGL (Simple GPU Layer)
 High-Performance GPU Compute Engine Based on Vulkan
 
-将Vulkan封装为计算图结构，隐藏细节，简化使用，可以用来做一些通用计算加速，图像处理，渲染，机器学习等任务。
-
 ## 基础框架使用
 以两个100000000个浮点数的向量逐元素相加为例
 
