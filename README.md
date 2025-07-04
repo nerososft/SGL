@@ -60,7 +60,7 @@ void main() {
 }
 ```
 
-### 3. 申请GPU内存并添加计算数据到计算节点
+### 3. GPU内存申请/数据上传下载
 
 ```c++
 VkGPUBuffer inputBuffer(gpuCtx);
