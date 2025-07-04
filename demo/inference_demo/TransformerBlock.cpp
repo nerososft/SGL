@@ -198,21 +198,30 @@ void TransformerBlock::MultiHead(const size_t tokenPos) {
             ->Record(mle->MatMul(inputLayerNormOutput[tokenPos], selfAttnVProj, vProjOutput[tokenPos]))
             ->Record(mle->Split(qProjOutput[tokenPos], queryHeadNums, qHeads[tokenPos]));
     for (int i = 0; i < queryHeadNums; i++) {
-        seq->Record(mle->LayerNorm(qHeads[tokenPos][i], selfAttnQNorm, biasMatrix, 1e-06,
+        seq->Record(mle->LayerNorm(qHeads[tokenPos][i],
+                                   selfAttnQNorm,
+                                   biasMatrix,
+                                   1e-06,
                                    true,
                                    false,
                                    qHeadLayerNormOutputs[tokenPos][i]));
     }
     seq->Record(mle->Split(kProjOutput[tokenPos], keyHeadNums, kHeads[tokenPos]));
     for (int i = 0; i < keyHeadNums; i++) {
-        seq->Record(mle->LayerNorm(kHeads[tokenPos][i], selfAttnKNorm, biasMatrix, 1e-06,
+        seq->Record(mle->LayerNorm(kHeads[tokenPos][i],
+                                   selfAttnKNorm,
+                                   biasMatrix,
+                                   1e-06,
                                    true,
                                    false,
                                    kHeadLayerNormOutputs[tokenPos][i]));
     }
     seq->Record(mle->Split(vProjOutput[tokenPos], valueHeadNums, vHeads[tokenPos]));
     for (int i = 0; i < valueHeadNums; i++) {
-        seq->Record(mle->LayerNorm(vHeads[tokenPos][i], selfAttnKNorm, biasMatrix, 1e-06,
+        seq->Record(mle->LayerNorm(vHeads[tokenPos][i],
+                                   selfAttnKNorm,
+                                   biasMatrix,
+                                   1e-06,
                                    true,
                                    false,
                                    vHeadLayerNormOutputs[tokenPos][i]));
@@ -267,11 +276,13 @@ void TransformerBlock::Attention(const size_t tokenPos) {
                         qHeadLayerNormOutputs[tokenPos][headIdx],
                         kHeadLayerNormOutputs[tokenPos][headIdx / 2],
                         kqRoPEMulOutputs[tokenPos][headIdx]))
-                    ->Record(mle->Sum(kqRoPEMulOutputs[tokenPos][headIdx], &qkDotProdScale[tokenIdx]));
+                    ->Record(mle->Sum(kqRoPEMulOutputs[tokenPos][headIdx],
+                                      &qkDotProdScale[tokenIdx]));
         }
         auto softmax = mle->CreateMatrix(seqLen, 1, qkDotProdScale);
         assert(softmax != nullptr);
-        seq->Record(mle->Softmax(softmax, qkSoftmaxOutputs[headIdx][tokenPos]))
+        seq->Record(mle->Softmax(softmax,
+                                 qkSoftmaxOutputs[headIdx][tokenPos]))
                 ->Eval()
                 ->Destroy();
         // (RoPE(Q) · RoPE(K)) / sqrt(dim) * V
@@ -281,9 +292,16 @@ void TransformerBlock::Attention(const size_t tokenPos) {
     const auto seq = mle->Seq();
     seq->Record(mle->Concat(qkvAttentionOutputs[tokenPos], qkvAttentionConcatOutputs[tokenPos]))
             ->Record(
-                mle->MatMul(qkvAttentionConcatOutputs[tokenPos], selfAttnOProj, selfAttnOProjOutputs[tokenPos]))
-            ->Record(mle->Add(selfAttnOProjOutputs[tokenPos], inputsMatrix[tokenPos], add1Outputs[tokenPos]))
-            ->Record(mle->LayerNorm(add1Outputs[tokenPos], postAttentionLayerNorm, biasMatrix, 1e-06,
+                mle->MatMul(qkvAttentionConcatOutputs[tokenPos],
+                            selfAttnOProj,
+                            selfAttnOProjOutputs[tokenPos]))
+            ->Record(mle->Add(selfAttnOProjOutputs[tokenPos],
+                              inputsMatrix[tokenPos],
+                              add1Outputs[tokenPos]))
+            ->Record(mle->LayerNorm(add1Outputs[tokenPos],
+                                    postAttentionLayerNorm,
+                                    biasMatrix,
+                                    1e-06,
                                     true,
                                     false,
                                     postAttentionLayerNormOutputs[tokenPos]))
@@ -319,13 +337,25 @@ void TransformerBlock::MLP(const size_t tokenPos) {
 
     // MLP/FFN
     const auto seq = mle->Seq()
-            ->Record(mle->MatMul(postAttentionLayerNormOutputs[tokenPos], mlpUpProj, mlpUpProjOutputs[tokenPos]))
-            ->Record(mle->MatMul(postAttentionLayerNormOutputs[tokenPos], mlpGateProj, mlpGateProjOutputs[tokenPos]))
-            ->Record(mle->GatedSiLU(mlpUpProjOutputs[tokenPos], mlpGateProjOutputs[tokenPos],
-                                    mlpGateSigmoidOutputs[tokenPos], mlpGateOutputs[tokenPos]))
-            ->Record(mle->MatMul(mlpGateOutputs[tokenPos], mlpDownProj, mlpOutputs[tokenPos]))
-            ->Record(mle->LayerNorm(mlpOutputs[tokenPos], postAttentionLayerNormOutputs[tokenPos], biasMatrix, 1e-06,
-                                    true, false, outputsMatrix[tokenPos]))
+            ->Record(mle->MatMul(postAttentionLayerNormOutputs[tokenPos],
+                                 mlpUpProj,
+                                 mlpUpProjOutputs[tokenPos]))
+            ->Record(mle->MatMul(postAttentionLayerNormOutputs[tokenPos],
+                                 mlpGateProj, mlpGateProjOutputs[tokenPos]))
+            ->Record(mle->GatedSiLU(mlpUpProjOutputs[tokenPos],
+                                    mlpGateProjOutputs[tokenPos],
+                                    mlpGateSigmoidOutputs[tokenPos],
+                                    mlpGateOutputs[tokenPos]))
+            ->Record(mle->MatMul(mlpGateOutputs[tokenPos],
+                                 mlpDownProj,
+                                 mlpOutputs[tokenPos]))
+            ->Record(mle->LayerNorm(mlpOutputs[tokenPos],
+                                    postAttentionLayerNormOutputs[tokenPos],
+                                    biasMatrix,
+                                    1e-06,
+                                    true,
+                                    false,
+                                    outputsMatrix[tokenPos]))
             ->Eval()
             ->Destroy();
 }
