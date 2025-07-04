@@ -34,6 +34,8 @@ set(ENGINE_GPU_SOURCE gpu/VkGPUHelper.cpp
         gpu/compute_graph/IComputeGraphNode.h
         gpu/compute_graph/ComputePipelineNode.cpp
         gpu/compute_graph/ComputePipelineNode.h
+        gpu/compute_graph/Sequence.cpp
+        gpu/compute_graph/Sequence.h
         gpu/compute_graph/BufferCopyNode.h
         gpu/compute_graph/BufferCopyNode.cpp
         gpu/compute_graph/GraphicsPipelineNode.cpp
