@@ -201,3 +201,5 @@ auto mat = mle->CreateMatrix(width, height);
 - [split16](https://gitcode.com/OpenHarmonyPerfSquad/SGL/blob/main/engine/ml/assets/builtin.shaders/operators/split16.comp.glsl)
 - [tanh](https://gitcode.com/OpenHarmonyPerfSquad/SGL/blob/main/engine/ml/assets/builtin.shaders/operators/tanh.comp.glsl)
 ### 4. 自定义算子
+
+参考`基础框架使用`即可
