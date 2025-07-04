@@ -1,13 +1,16 @@
 # SGL (Simple GPU Layer)
+
 High-Performance GPU Compute Engine Based on Vulkan
 
 ![架构图](doc/img.png)
 ---
 
 ## 基础框架使用
+
 以两个`100000000`个浮点数的向量`float input1[100000000]`, `float input2[100000000]`逐元素相加为例
 
 ### 1. 初始化GPU与计算图
+
 ```c++
 std::vector<const char *> extensions = {};
 VkGPUContext gpuCtx(extensions);
@@ -29,7 +32,9 @@ descriptorSetLayoutBindings.push_back(VkGPUHelper::BuildDescriptorSetLayoutBindi
 ComputePipelineNode addNode(gpuCtx, "Add", SHADER(add.comp.glsl.spv), 0, descriptorSetLayoutBindings, (100000000 + 255) / 256, 1, 1);
 addNode->CreateComputeGraphNode();
 ```
+
 编写`shader`
+
 ```glsl
 #version 450
 layout (local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
@@ -76,32 +81,42 @@ computeSubGraph->AddComputeGraphNode(bezierNode);
 ```
 
 ### 4. 计算
+
 ```c++
 computeGraph.Compute();
 ```
 
 ### 5. 获取结果
+
 ```c++
 outputBuffer.MapBuffer();
 float *result = outputBuffer.GetMappedAddr();
 ```
 
 ---
+
 ## 图像处理算子使用
+
 ### 1. 初始化滤镜框架
+
 ```c++
 EffectEngine effectEngine;
 effectEngine.Init();
 ```
+
 ### 2. 使用滤镜
+
 以高斯模糊为例
+
 ```c++
 const auto filter = std::make_shared<FastGaussianBlurFilter>();
 filter->SetRadius(120);
 ImageInfo 
 effectEngine.Process({.width = 1024, .height = 768, .channels = 4 .bytesPerLine = 4 * 1024, .data = inputPixelData}, {.width = 1024, .height = 768, .channels = 4 .bytesPerLine = 4 * 1024, .data = outputPixelData}, filter);
 ```
+
 目前内置的效果有
+
 - [chinese_paint](https://gitcode.com/OpenHarmonyPerfSquad/SGL/blob/main/engine/effect/assets/builtin.shaders/effects/chinese_paint.comp.glsl)
 - [color_pencil_sketch](https://gitcode.com/OpenHarmonyPerfSquad/SGL/blob/main/engine/effect/assets/builtin.shaders/effects/color_pencil_sketch.comp.glsl)
 - [color_separation](https://gitcode.com/OpenHarmonyPerfSquad/SGL/blob/main/engine/effect/assets/builtin.shaders/effects/color_separation.comp.glsl)
@@ -129,15 +144,39 @@ effectEngine.Process({.width = 1024, .height = 768, .channels = 4 .bytesPerLine 
 - [vertical_blur](https://gitcode.com/OpenHarmonyPerfSquad/SGL/blob/main/engine/effect/assets/builtin.shaders/effects/vertical_blur.comp.glsl)
 - [vibrance](https://gitcode.com/OpenHarmonyPerfSquad/SGL/blob/main/engine/effect/assets/builtin.shaders/effects/vibrance.comp.glsl)
 - [voronoi](https://gitcode.com/OpenHarmonyPerfSquad/SGL/blob/main/engine/effect/assets/builtin.shaders/effects/voronoi.comp.glsl)
+
 ### 自定义滤镜
+
 参考`基础框架使用`即可
 
 ---
+
 ## 机器学习算子使用
+
 ### 1. 初始化
+
 ### 2. 矩阵初始化
+
 ### 3. 使用算子
+```c++
+ const std::shared_ptr<Sequence> seq = mle->Seq()
+            ->Record(mle->LayerNorm(inputsMatrix[tokenPos],
+                                    this->inputLayerNorm,
+                                    biasMatrix,
+                                    1e-06,
+                                    true,
+                                    false,
+                                    inputLayerNormOutput[tokenPos]))
+            ->Record(mle->MatMul(inputLayerNormOutput[tokenPos], selfAttnQProj, qProjOutput[tokenPos]))
+            ->Record(mle->MatMul(inputLayerNormOutput[tokenPos], selfAttnKProj, kProjOutput[tokenPos]))
+            ->Record(mle->MatMul(inputLayerNormOutput[tokenPos], selfAttnVProj, vProjOutput[tokenPos]))
+            ->Record(mle->Split(qProjOutput[tokenPos], queryHeadNums, qHeads[tokenPos]))
+            ->Eval()
+            ->Destroy();
+```
+
 目前内置的算子有：
+
 - [add](https://gitcode.com/OpenHarmonyPerfSquad/SGL/blob/main/engine/ml/assets/builtin.shaders/operators/add.comp.glsl)
 - [concat8](https://gitcode.com/OpenHarmonyPerfSquad/SGL/blob/main/engine/ml/assets/builtin.shaders/operators/concat8.comp.glsl)
 - [concat16](https://gitcode.com/OpenHarmonyPerfSquad/SGL/blob/main/engine/ml/assets/builtin.shaders/operators/concat16.comp.glsl)
@@ -155,4 +194,5 @@ effectEngine.Process({.width = 1024, .height = 768, .channels = 4 .bytesPerLine 
 - [split8](https://gitcode.com/OpenHarmonyPerfSquad/SGL/blob/main/engine/ml/assets/builtin.shaders/operators/split8.comp.glsl)
 - [split16](https://gitcode.com/OpenHarmonyPerfSquad/SGL/blob/main/engine/ml/assets/builtin.shaders/operators/split16.comp.glsl)
 - [tanh](https://gitcode.com/OpenHarmonyPerfSquad/SGL/blob/main/engine/ml/assets/builtin.shaders/operators/tanh.comp.glsl)
+
 ### 4. 计算
