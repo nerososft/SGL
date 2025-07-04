@@ -31,7 +31,8 @@ public:
 
 class SumOperator final : IOperator {
     std::shared_ptr<VkGPUBuffer> inputBuffer = nullptr;
-    float sum = 0.0;
+    float *sum = nullptr;
+    float innerSum = 0.0f;
 
 public:
     explicit SumOperator(const std::shared_ptr<VkGPUBuffer> &inputBuffer);
@@ -40,9 +41,13 @@ public:
 
     std::shared_ptr<IComputeGraphNode> CreateComputeGraphNode() override;
 
-    float *GetSum() { return &sum; }
+    float *GetSum() const { return sum; }
+
+    float *GetInnerSum() { return &innerSum; }
 
     void Destroy() override;
+
+    void SetSum(float *sum) { this->sum = sum; }
 };
 
 

@@ -36,17 +36,19 @@ std::shared_ptr<Matrix> TransformerBlock::InitMatrix(const Weight &weight) const
 
 bool TransformerBlock::Init(const std::shared_ptr<SafeTensor> &safeTensor,
                             const std::shared_ptr<Config> &config) {
-    Weight inputLayerNormWeight = safeTensor->GetLayerWeight(this->layerIndex, "input_layernorm");
-    Weight selfAttnKNormWeight = safeTensor->GetLayerWeight(this->layerIndex, "self_attn.k_norm");
-    Weight selfAttnKProjWeight = safeTensor->GetLayerWeight(this->layerIndex, "self_attn.k_proj");
-    Weight selfAttnOProjWeight = safeTensor->GetLayerWeight(this->layerIndex, "self_attn.o_proj");
-    Weight selfAttnQNormWeight = safeTensor->GetLayerWeight(this->layerIndex, "self_attn.q_norm");
-    Weight selfAttnQProjWeight = safeTensor->GetLayerWeight(this->layerIndex, "self_attn.q_proj");
-    Weight selfAttnVProjWeight = safeTensor->GetLayerWeight(this->layerIndex, "self_attn.v_proj");
-    Weight postAttentionLayerNormWeight = safeTensor->GetLayerWeight(this->layerIndex, "post_attention_layernorm");
-    Weight mlpUpProjWeight = safeTensor->GetLayerWeight(this->layerIndex, "mlp.up_proj");
-    Weight mlpGateProjWeight = safeTensor->GetLayerWeight(this->layerIndex, "mlp.gate_proj");
-    Weight mlpDownProjWeight = safeTensor->GetLayerWeight(this->layerIndex, "mlp.down_proj");
+    this->config = config;
+
+    this->inputLayerNormWeight = safeTensor->GetLayerWeight(this->layerIndex, "input_layernorm");
+    this->selfAttnKNormWeight = safeTensor->GetLayerWeight(this->layerIndex, "self_attn.k_norm");
+    this->selfAttnKProjWeight = safeTensor->GetLayerWeight(this->layerIndex, "self_attn.k_proj");
+    this->selfAttnOProjWeight = safeTensor->GetLayerWeight(this->layerIndex, "self_attn.o_proj");
+    this->selfAttnQNormWeight = safeTensor->GetLayerWeight(this->layerIndex, "self_attn.q_norm");
+    this->selfAttnQProjWeight = safeTensor->GetLayerWeight(this->layerIndex, "self_attn.q_proj");
+    this->selfAttnVProjWeight = safeTensor->GetLayerWeight(this->layerIndex, "self_attn.v_proj");
+    this->postAttentionLayerNormWeight = safeTensor->GetLayerWeight(this->layerIndex, "post_attention_layernorm");
+    this->mlpUpProjWeight = safeTensor->GetLayerWeight(this->layerIndex, "mlp.up_proj");
+    this->mlpGateProjWeight = safeTensor->GetLayerWeight(this->layerIndex, "mlp.gate_proj");
+    this->mlpDownProjWeight = safeTensor->GetLayerWeight(this->layerIndex, "mlp.down_proj");
 
     selfAttnKNorm = InitWeightMatrix(safeTensor, selfAttnKNormWeight);
     assert(selfAttnKNorm != nullptr);
@@ -69,272 +71,314 @@ bool TransformerBlock::Init(const std::shared_ptr<SafeTensor> &safeTensor,
     mlpDownProj = InitWeightMatrix(safeTensor, mlpDownProjWeight);
     assert(mlpDownProj != nullptr);
 
-    outputMatrix = InitMatrix(inputLayerNormWeight);
-    assert(outputMatrix != nullptr);
-
     inputLayerNorm = InitWeightMatrix(safeTensor, inputLayerNormWeight);
     assert(inputLayerNorm != nullptr);
 
-    inputLayerNormOutput = InitMatrix(inputLayerNormWeight);
-    assert(inputLayerNorm != nullptr);
     biasMatrix = mle->CreateMatrix(32, 32);
-    mle->LayerNorm(this->inputMatrix,
-                   this->inputLayerNorm,
-                   biasMatrix,
-                   1e-06,
-                   true,
-                   false,
-                   inputLayerNormOutput);
-
-    qProjOutput = mle->CreateMatrix(selfAttnQProjWeight.shape.width, 1);
-    assert(qProjOutput != nullptr);
-    mle->MatMul(inputLayerNormOutput, selfAttnQProj, qProjOutput);
-
-    kProjOutput = mle->CreateMatrix(selfAttnKProjWeight.shape.width, 1);
-    assert(kProjOutput != nullptr);
-    mle->MatMul(inputLayerNormOutput, selfAttnKProj, kProjOutput);
-
-    vProjOutput = mle->CreateMatrix(selfAttnVProjWeight.shape.width, 1);
-    assert(vProjOutput != nullptr);
-    mle->MatMul(inputLayerNormOutput, selfAttnVProj, vProjOutput);
-
-    // Q
-    size_t queryHeadNums = qProjOutput->GetWidth() / config->GetHeadDim();
-    qHeads.resize(queryHeadNums);
-    qHeadLayerNormOutputs.resize(queryHeadNums);
-    for (int i = 0; i < queryHeadNums; i++) {
-        auto mat = mle->CreateMatrix(config->GetHeadDim(), 1);
-        if (mat == nullptr) {
-            Logger() << "failed to create qHead matrix" << std::endl;
-            return false;
-        }
-        qHeads[i] = mat;
-
-        auto matLayerNorm = mle->CreateMatrix(config->GetHeadDim(), 1);
-        if (matLayerNorm == nullptr) {
-            Logger() << "failed to create qHead layerNorm matrix" << std::endl;
-            return false;
-        }
-        qHeadLayerNormOutputs[i] = matLayerNorm;
-    }
-    mle->Split(qProjOutput, queryHeadNums, qHeads);
-    for (int i = 0; i < queryHeadNums; i++) {
-        mle->LayerNorm(qHeads[i], selfAttnQNorm, biasMatrix, 1e-06,
-                       true,
-                       false,
-                       qHeadLayerNormOutputs[i]);
-    }
-
-    // K
-    size_t keyHeadNums = kProjOutput->GetWidth() / config->GetHeadDim();
-    kHeads.resize(keyHeadNums);
-    kHeadLayerNormOutputs.resize(keyHeadNums);
-    for (int i = 0; i < keyHeadNums; i++) {
-        auto mat = mle->CreateMatrix(config->GetHeadDim(), 1);
-        if (mat == nullptr) {
-            Logger() << "failed to create kHead matrix" << std::endl;
-            return false;
-        }
-        kHeads[i] = mat;
-
-        auto matLayerNorm = mle->CreateMatrix(config->GetHeadDim(), 1);
-        if (matLayerNorm == nullptr) {
-            Logger() << "failed to create kHead layerNorm matrix" << std::endl;
-            return false;
-        }
-        kHeadLayerNormOutputs[i] = matLayerNorm;
-    }
-    mle->Split(kProjOutput, keyHeadNums, kHeads);
-    for (int i = 0; i < keyHeadNums; i++) {
-        mle->LayerNorm(kHeads[i], selfAttnKNorm, biasMatrix, 1e-06,
-                       true,
-                       false,
-                       kHeadLayerNormOutputs[i]);
-    }
-
-    // V
-    size_t valueHeadNums = vProjOutput->GetWidth() / config->GetHeadDim();
-    vHeads.resize(valueHeadNums);
-    vHeadLayerNormOutputs.resize(valueHeadNums);
-    for (int i = 0; i < valueHeadNums; i++) {
-        auto mat = mle->CreateMatrix(config->GetHeadDim(), 1);
-        if (mat == nullptr) {
-            Logger() << "failed to create vHead matrix" << std::endl;
-            return false;
-        }
-        vHeads[i] = mat;
-
-        auto matLayerNorm = mle->CreateMatrix(config->GetHeadDim(), 1);
-        if (matLayerNorm == nullptr) {
-            Logger() << "failed to create vHead layerNorm matrix" << std::endl;
-            return false;
-        }
-        vHeadLayerNormOutputs[i] = matLayerNorm;
-    }
-    mle->Split(vProjOutput, valueHeadNums, vHeads);
-    for (int i = 0; i < valueHeadNums; i++) {
-        mle->LayerNorm(vHeads[i], selfAttnKNorm, biasMatrix, 1e-06,
-                       true,
-                       false,
-                       vHeadLayerNormOutputs[i]);
-    }
-
-    // Scaled Dot-Product Attention
-    qkvAttentionConcatOutput = mle->CreateMatrix(selfAttnQProjWeight.shape.width, 1);
-    assert(qkvAttentionConcatOutput != nullptr);
-    qkDotProdOutputs.resize(queryHeadNums);
-    qRoPEOutput.resize(queryHeadNums);
-    kRoPEOutput.resize(queryHeadNums);
-    qkDotProdScaleOutputs.resize(queryHeadNums);
-    qkDotProdScaleSoftmaxOutputs.resize(queryHeadNums);
-    qkvAttentionOutput.resize(queryHeadNums);
-    for (int i = 0; i < queryHeadNums; i++) {
-        qRoPEOutput[i] = mle->CreateMatrix(config->GetHeadDim(), 1);
-        assert(qRoPEOutput[i] != nullptr);
-        kRoPEOutput[i] = mle->CreateMatrix(config->GetHeadDim(), 1);
-        assert(kRoPEOutput[i] != nullptr);
-        qkDotProdOutputs[i] = mle->CreateMatrix(config->GetHeadDim(), 1);
-        assert(qkDotProdOutputs[i] != nullptr);
-        qkDotProdScaleOutputs[i] = mle->CreateMatrix(config->GetHeadDim(), 1);
-        assert(qkDotProdScaleOutputs[i] != nullptr);
-        qkDotProdScaleSoftmaxOutputs[i] = mle->CreateMatrix(config->GetHeadDim(), 1);
-        assert(qkDotProdScaleSoftmaxOutputs[i] != nullptr);
-        qkvAttentionOutput[i] = mle->CreateMatrix(config->GetHeadDim(), 1);
-        assert(qkvAttentionOutput[i] != nullptr);
-        // FIXME: Loop and calculate K of each token
-        mle->ScaledDotProductAttention(qHeadLayerNormOutputs[i],
-                                       kHeadLayerNormOutputs[i / 2],
-                                       config->GetRoPETheta(),
-                                       &tokenIndex,
-                                       &tokenPos,
-                                       qRoPEOutput[i],
-                                       kRoPEOutput[i],
-                                       qkDotProdOutputs[i],
-                                       qkDotProdScaleOutputs[i],
-                                       qkDotProdScaleSoftmaxOutputs[i],
-                                       vHeadLayerNormOutputs[i / 2],
-                                       qkvAttentionOutput[i]);
-    }
-
-    mle->Concat(qkvAttentionOutput, qkvAttentionConcatOutput);
-
-    selfAttnOProjOutput = mle->CreateMatrix(selfAttnOProj->GetWidth(), 1);
-    assert(selfAttnOProjOutput != nullptr);
-    mle->MatMul(qkvAttentionConcatOutput, selfAttnOProj, selfAttnOProjOutput);
-
-    // add
-    add1Output = mle->CreateMatrix(selfAttnOProj->GetWidth(), 1);
-    assert(add1Output != nullptr);
-    mle->Add(selfAttnOProjOutput, inputMatrix, add1Output);
-
-    postAttentionLayerNormOutput = mle->CreateMatrix(postAttentionLayerNorm->GetWidth(), 1);
-    assert(postAttentionLayerNormOutput != nullptr);
-    mle->LayerNorm(add1Output, postAttentionLayerNorm, biasMatrix, 1e-06,
-                   true,
-                   false,
-                   postAttentionLayerNormOutput);
-
-    // MLP/FFN
-    mlpUpProjOutput = mle->CreateMatrix(mlpUpProj->GetWidth(), 1);
-    assert(mlpUpProjOutput != nullptr);
-    mle->MatMul(postAttentionLayerNormOutput, mlpUpProj, mlpUpProjOutput);
-
-    mlpGateProjOutput = mle->CreateMatrix(mlpGateProj->GetWidth(), 1);
-    assert(mlpGateProjOutput != nullptr);
-    mle->MatMul(postAttentionLayerNormOutput, mlpGateProj, mlpGateProjOutput);
-
-    mlpGateSigmoidOutput = mle->CreateMatrix(mlpGateProj->GetWidth(), 1);
-    assert(mlpGateSigmoidOutput != nullptr);
-    mlpGateOutput = mle->CreateMatrix(mlpGateProj->GetWidth(), 1);
-    assert(mlpGateOutput != nullptr);
-    mle->GatedSiLU(mlpUpProjOutput, mlpGateProjOutput, mlpGateSigmoidOutput, mlpGateOutput);
-
-    mlpOutput = mle->CreateMatrix(mlpGateProj->GetHeight(), 1);
-    assert(mlpOutput != nullptr);
-    mle->MatMul(mlpGateOutput, mlpDownProj, mlpOutput);
-
-    mle->LayerNorm(mlpOutput, postAttentionLayerNormOutput, biasMatrix, 1e-06,
-                   true,
-                   false,
-                   outputMatrix);
 
     return true;
 }
 
-void TransformerBlock::SetInputMatrix(const std::shared_ptr<Matrix> &input) {
-    this->inputMatrix = input;
+void TransformerBlock::SetInputsMatrix(const std::vector<std::shared_ptr<Matrix> > &inputs) {
+    this->inputsMatrix = inputs;
 }
 
-std::shared_ptr<Matrix> &TransformerBlock::GetOutputMatrix() {
-    return this->outputMatrix;
+void TransformerBlock::SetOutputsMatrix(const std::vector<std::shared_ptr<Matrix> > &outputs) {
+    this->outputsMatrix = outputs;
+}
+
+void TransformerBlock::MultiHead(const size_t tokenPos) {
+    const size_t seqLen = inputsMatrix.size();
+    inputLayerNormOutput.resize(seqLen); // seq_len, 1024
+    qProjOutput.resize(seqLen); // seq_len, 2048
+    qHeads.resize(seqLen); // seq_len, 16, 128
+    qHeadLayerNormOutputs.resize(seqLen); // seq_len, 16, 128
+    kProjOutput.resize(seqLen); //seq_len, 1024
+    kHeads.resize(seqLen); // seq_len, 8, 128
+    kHeadLayerNormOutputs.resize(seqLen); // seq_len, 8, 128
+    vProjOutput.resize(seqLen); //seq_len, 1024
+    vHeads.resize(seqLen); // seq_len, 8, 128
+    vHeadLayerNormOutputs.resize(seqLen); // seq_len, 8, 128
+
+    if (inputLayerNormOutput[tokenPos] == nullptr) {
+        inputLayerNormOutput[tokenPos] = InitMatrix(inputLayerNormWeight);
+        assert(inputLayerNorm != nullptr);
+    }
+    if (qProjOutput[tokenPos] == nullptr) {
+        qProjOutput[tokenPos] = mle->CreateMatrix(selfAttnQProjWeight.shape.width, 1);
+        assert(qProjOutput[tokenPos] != nullptr);
+    }
+    if (kProjOutput[tokenPos] == nullptr) {
+        kProjOutput[tokenPos] = mle->CreateMatrix(selfAttnKProjWeight.shape.width, 1);
+        assert(kProjOutput[tokenPos] != nullptr);
+    }
+    if (vProjOutput[tokenPos] == nullptr) {
+        vProjOutput[tokenPos] = mle->CreateMatrix(selfAttnVProjWeight.shape.width, 1);
+        assert(vProjOutput[tokenPos] != nullptr);
+    }
+    const size_t queryHeadNums = qProjOutput[tokenPos]->GetWidth() / config->GetHeadDim();
+    qHeads[tokenPos].resize(queryHeadNums);
+    qHeadLayerNormOutputs[tokenPos].resize(queryHeadNums);
+    for (int i = 0; i < queryHeadNums; i++) {
+        if (qHeads[tokenPos][i] == nullptr) {
+            auto mat = mle->CreateMatrix(config->GetHeadDim(), 1);
+            if (mat == nullptr) {
+                Logger() << "failed to create qHead matrix" << std::endl;
+                throw std::runtime_error("failed to create qHead matrix");
+            }
+            qHeads[tokenPos][i] = mat;
+        }
+
+        if (qHeadLayerNormOutputs[tokenPos][i] == nullptr) {
+            auto matLayerNorm = mle->CreateMatrix(config->GetHeadDim(), 1);
+            if (matLayerNorm == nullptr) {
+                Logger() << "failed to create qHead layerNorm matrix" << std::endl;
+                throw std::runtime_error("failed to create qHead layerNorm matrix");
+            }
+            qHeadLayerNormOutputs[tokenPos][i] = matLayerNorm;
+        }
+    }
+
+    const size_t keyHeadNums = kProjOutput[tokenPos]->GetWidth() / config->GetHeadDim();
+    kHeads[tokenPos].resize(keyHeadNums);
+    kHeadLayerNormOutputs[tokenPos].resize(keyHeadNums);
+    for (int i = 0; i < keyHeadNums; i++) {
+        if (kHeads[tokenPos][i] == nullptr) {
+            auto mat = mle->CreateMatrix(config->GetHeadDim(), 1);
+            if (mat == nullptr) {
+                Logger() << "failed to create kHead matrix" << std::endl;
+                throw std::runtime_error("failed to create kHead matrix");
+            }
+            kHeads[tokenPos][i] = mat;
+        }
+
+        if (kHeadLayerNormOutputs[tokenPos][i] == nullptr) {
+            auto matLayerNorm = mle->CreateMatrix(config->GetHeadDim(), 1);
+            if (matLayerNorm == nullptr) {
+                Logger() << "failed to create kHead layerNorm matrix" << std::endl;
+                throw std::runtime_error("failed to create kHead layerNorm matrix");
+            }
+            kHeadLayerNormOutputs[tokenPos][i] = matLayerNorm;
+        }
+    }
+
+    const size_t valueHeadNums = vProjOutput[tokenPos]->GetWidth() / config->GetHeadDim();
+    vHeads[tokenPos].resize(valueHeadNums);
+    vHeadLayerNormOutputs[tokenPos].resize(valueHeadNums);
+    for (int i = 0; i < valueHeadNums; i++) {
+        if (vHeads[tokenPos][i] == nullptr) {
+            auto mat = mle->CreateMatrix(config->GetHeadDim(), 1);
+            if (mat == nullptr) {
+                Logger() << "failed to create vHead matrix" << std::endl;
+                throw std::runtime_error("failed to create vHead matrix");
+            }
+            vHeads[tokenPos][i] = mat;
+        }
+
+        if (vHeadLayerNormOutputs[tokenPos][i] == nullptr) {
+            auto matLayerNorm = mle->CreateMatrix(config->GetHeadDim(), 1);
+            if (matLayerNorm == nullptr) {
+                Logger() << "failed to create vHead layerNorm matrix" << std::endl;
+                throw std::runtime_error("failed to create vHead layerNorm matrix");
+            }
+            vHeadLayerNormOutputs[tokenPos][i] = matLayerNorm;
+        }
+    }
+
+    const std::shared_ptr<Sequence> seq = mle->Seq()
+            ->Record(mle->LayerNorm(inputsMatrix[tokenPos],
+                                    this->inputLayerNorm,
+                                    biasMatrix,
+                                    1e-06,
+                                    true,
+                                    false,
+                                    inputLayerNormOutput[tokenPos]))
+            ->Record(mle->MatMul(inputLayerNormOutput[tokenPos], selfAttnQProj, qProjOutput[tokenPos]))
+            ->Record(mle->MatMul(inputLayerNormOutput[tokenPos], selfAttnKProj, kProjOutput[tokenPos]))
+            ->Record(mle->MatMul(inputLayerNormOutput[tokenPos], selfAttnVProj, vProjOutput[tokenPos]))
+            ->Record(mle->Split(qProjOutput[tokenPos], queryHeadNums, qHeads[tokenPos]));
+    for (int i = 0; i < queryHeadNums; i++) {
+        seq->Record(mle->LayerNorm(qHeads[tokenPos][i], selfAttnQNorm, biasMatrix, 1e-06,
+                                   true,
+                                   false,
+                                   qHeadLayerNormOutputs[tokenPos][i]));
+    }
+    seq->Record(mle->Split(kProjOutput[tokenPos], keyHeadNums, kHeads[tokenPos]));
+    for (int i = 0; i < keyHeadNums; i++) {
+        seq->Record(mle->LayerNorm(kHeads[tokenPos][i], selfAttnKNorm, biasMatrix, 1e-06,
+                                   true,
+                                   false,
+                                   kHeadLayerNormOutputs[tokenPos][i]));
+    }
+    seq->Record(mle->Split(vProjOutput[tokenPos], valueHeadNums, vHeads[tokenPos]));
+    for (int i = 0; i < valueHeadNums; i++) {
+        seq->Record(mle->LayerNorm(vHeads[tokenPos][i], selfAttnKNorm, biasMatrix, 1e-06,
+                                   true,
+                                   false,
+                                   vHeadLayerNormOutputs[tokenPos][i]));
+    }
+    seq->Eval()->Destroy();
+}
+
+void TransformerBlock::Attention(const size_t tokenPos) {
+    const size_t seqLen = inputsMatrix.size();
+    qkvAttentionOutputs.resize(seqLen);
+    qkvAttentionConcatOutputs.resize(seqLen);
+    if (qkvAttentionConcatOutputs[tokenPos] == nullptr) {
+        qkvAttentionConcatOutputs[tokenPos] = mle->CreateMatrix(selfAttnQProjWeight.shape.width, 1);
+        assert(qkvAttentionConcatOutputs[tokenPos] != nullptr);
+    }
+
+    const size_t queryHeadNums = qProjOutput[tokenPos]->GetWidth() / config->GetHeadDim();
+    qkvAttentionOutputs[tokenPos].resize(queryHeadNums);
+    kqRoPEMulOutputs[tokenPos].resize(queryHeadNums);
+    for (int headIdx = 0; headIdx < queryHeadNums; headIdx++) {
+        for (int tokenIdx = 0; tokenIdx < seqLen; tokenIdx++) {
+            if (kqRoPEMulOutputs[tokenPos][headIdx] == nullptr) {
+                kqRoPEMulOutputs[tokenPos][headIdx] = mle->CreateMatrix(config->GetHeadDim(), 1);
+                assert(kqRoPEMulOutputs[tokenPos][headIdx] != nullptr);
+            }
+            if (qkvAttentionOutputs[tokenPos][headIdx] == nullptr) {
+                qkvAttentionOutputs[tokenPos][headIdx] = mle->CreateMatrix(config->GetHeadDim(), 1);
+                assert(qkvAttentionOutputs[tokenPos][headIdx] != nullptr);
+            }
+        }
+    }
+
+    if (selfAttnOProjOutputs[tokenPos] == nullptr) {
+        selfAttnOProjOutputs[tokenPos] = mle->CreateMatrix(selfAttnOProj->GetWidth(), 1);
+        assert(selfAttnOProjOutputs[tokenPos] != nullptr);
+    }
+    if (add1Outputs[tokenPos] == nullptr) {
+        add1Outputs[tokenPos] = mle->CreateMatrix(selfAttnOProj->GetWidth(), 1);
+        assert(add1Outputs[tokenPos] != nullptr);
+    }
+
+    qkSoftmaxOutputs.resize(queryHeadNums);
+    for (int headIdx = 0; headIdx < queryHeadNums; headIdx++) {
+        qkSoftmaxOutputs[headIdx].resize(seqLen);
+        const auto seq = mle->Seq();
+        std::vector<float> qkDotProdScale(seqLen);
+        for (int tokenIdx = 0; tokenIdx < seqLen; tokenIdx++) {
+            seq->Record(mle->RoPEAndMul(
+                        config->GetRoPETheta(),
+                        tokenPos,
+                        tokenIdx,
+                        qHeadLayerNormOutputs[tokenPos][headIdx],
+                        kHeadLayerNormOutputs[tokenPos][headIdx / 2],
+                        kqRoPEMulOutputs[tokenPos][headIdx]))
+                    ->Record(mle->Sum(kqRoPEMulOutputs[tokenPos][headIdx], &qkDotProdScale[tokenIdx]));
+        }
+        auto softmax = mle->CreateMatrix(seqLen, 1, qkDotProdScale);
+        assert(softmax != nullptr);
+        seq->Record(mle->Softmax(softmax, qkSoftmaxOutputs[headIdx][tokenPos]))
+                ->Eval()
+                ->Destroy();
+        // (RoPE(Q) · RoPE(K)) / sqrt(dim) * V
+        // TODO:
+    }
+
+    const auto seq = mle->Seq();
+    seq->Record(mle->Concat(qkvAttentionOutputs[tokenPos], qkvAttentionConcatOutputs[tokenPos]))
+            ->Record(
+                mle->MatMul(qkvAttentionConcatOutputs[tokenPos], selfAttnOProj, selfAttnOProjOutputs[tokenPos]))
+            ->Record(mle->Add(selfAttnOProjOutputs[tokenPos], inputsMatrix[tokenPos], add1Outputs[tokenPos]))
+            ->Record(mle->LayerNorm(add1Outputs[tokenPos], postAttentionLayerNorm, biasMatrix, 1e-06,
+                                    true,
+                                    false,
+                                    postAttentionLayerNormOutputs[tokenPos]))
+            ->Eval()
+            ->Destroy();
+}
+
+void TransformerBlock::MLP(const size_t tokenPos) {
+    if (postAttentionLayerNormOutputs[tokenPos] == nullptr) {
+        postAttentionLayerNormOutputs[tokenPos] = mle->CreateMatrix(postAttentionLayerNorm->GetWidth(), 1);
+        assert(postAttentionLayerNormOutputs[tokenPos] != nullptr);
+    }
+    if (mlpUpProjOutputs[tokenPos] == nullptr) {
+        mlpUpProjOutputs[tokenPos] = mle->CreateMatrix(mlpUpProj->GetWidth(), 1);
+        assert(mlpUpProjOutputs[tokenPos] != nullptr);
+    }
+    if (mlpGateProjOutputs[tokenPos] == nullptr) {
+        mlpGateProjOutputs[tokenPos] = mle->CreateMatrix(mlpGateProj->GetWidth(), 1);
+        assert(mlpGateProjOutputs[tokenPos] != nullptr);
+    }
+    if (mlpGateSigmoidOutputs[tokenPos] == nullptr) {
+        mlpGateSigmoidOutputs[tokenPos] = mle->CreateMatrix(mlpGateProj->GetWidth(), 1);
+        assert(mlpGateSigmoidOutputs[tokenPos] != nullptr);
+    }
+    if (mlpGateOutputs[tokenPos] == nullptr) {
+        mlpGateOutputs[tokenPos] = mle->CreateMatrix(mlpGateProj->GetWidth(), 1);
+        assert(mlpGateOutputs[tokenPos] != nullptr);
+    }
+    if (mlpOutputs[tokenPos] == nullptr) {
+        mlpOutputs[tokenPos] = mle->CreateMatrix(mlpGateProj->GetHeight(), 1);
+        assert(mlpOutputs[tokenPos] != nullptr);
+    }
+
+    // MLP/FFN
+    const auto seq = mle->Seq()
+            ->Record(mle->MatMul(postAttentionLayerNormOutputs[tokenPos], mlpUpProj, mlpUpProjOutputs[tokenPos]))
+            ->Record(mle->MatMul(postAttentionLayerNormOutputs[tokenPos], mlpGateProj, mlpGateProjOutputs[tokenPos]))
+            ->Record(mle->GatedSiLU(mlpUpProjOutputs[tokenPos], mlpGateProjOutputs[tokenPos],
+                                    mlpGateSigmoidOutputs[tokenPos], mlpGateOutputs[tokenPos]))
+            ->Record(mle->MatMul(mlpGateOutputs[tokenPos], mlpDownProj, mlpOutputs[tokenPos]))
+            ->Record(mle->LayerNorm(mlpOutputs[tokenPos], postAttentionLayerNormOutputs[tokenPos], biasMatrix, 1e-06,
+                                    true, false, outputsMatrix[tokenPos]))
+            ->Eval()
+            ->Destroy();
 }
 
 void TransformerBlock::Dump() const {
+    const size_t seqLen = inputsMatrix.size();
     Logger() << "TransformerLayer:" << this->layerIndex << std::endl;
-    Logger() << "inputMatrix: ";
-    inputMatrix->Print();
-    Logger() << "inputLayerNorm: ";
-    inputLayerNorm->Print();
-    Logger() << "inputLayerNormOutput: ";
-    inputLayerNormOutput->Print();
-    Logger() << "qProjOutput: ";
-    qProjOutput->Print();
+    for (int tokenIdx = 0; tokenIdx < seqLen; tokenIdx++) {
+        Logger() << "inputMatrix: ";
+        inputsMatrix[tokenIdx]->Print();
+        Logger() << "inputLayerNorm: ";
+        inputLayerNorm->Print();
+        Logger() << "inputLayerNormOutput: ";
+        inputLayerNormOutput[tokenIdx]->Print();
+        Logger() << "qProjOutput: ";
+        qProjOutput[tokenIdx]->Print();
 
-    for (int i = 0; i < 16; i++) {
-        Logger() << "qHeadLayerNormOutputs(" << i << "): ";
-        qHeadLayerNormOutputs[i]->Print();
+        for (int i = 0; i < 16; i++) {
+            Logger() << "qHeadLayerNormOutputs(" << i << "): ";
+            qHeadLayerNormOutputs[tokenIdx][i]->Print();
+        }
+        for (int i = 0; i < 8; i++) {
+            Logger() << "kHeadLayerNormOutputs(" << i << "): ";
+            kHeadLayerNormOutputs[tokenIdx][i]->Print();
+        }
+        for (int i = 0; i < 8; i++) {
+            Logger() << "vHeadLayerNormOutputs(" << i << "): ";
+            vHeadLayerNormOutputs[tokenIdx][i]->Print();
+        }
+        for (int i = 0; i < 16; i++) {
+            Logger() << "qkvAttentionOutput(" << i << "): ";
+            qkvAttentionOutputs[tokenIdx][i]->Print();
+        }
+        Logger() << "qkvAttentionConcatOutput: ";
+        qkvAttentionConcatOutputs[tokenIdx]->Print();
+        Logger() << "selfAttnOProjOutput: ";
+        selfAttnOProjOutputs[tokenIdx]->Print();
+        Logger() << "add1Output: ";
+        add1Outputs[tokenIdx]->Print();
+        Logger() << "postAttentionLayerNormOutput: ";
+        postAttentionLayerNormOutputs[tokenIdx]->Print();
+        Logger() << "mlpUpProjOutput: ";
+        mlpUpProjOutputs[tokenIdx]->Print();
+        Logger() << "mlpGateProjOutput: ";
+        mlpGateProjOutputs[tokenIdx]->Print();
+        Logger() << "mlpGateSigmoidOutput: ";
+        mlpGateSigmoidOutputs[tokenIdx]->Print();
+        Logger() << "mlpGateOutput: ";
+        mlpGateOutputs[tokenIdx]->Print();
+        Logger() << "mlpOutput: ";
+        mlpOutputs[tokenIdx]->Print();
+        Logger() << "Output: ";
+        outputsMatrix[tokenIdx]->Print();
     }
-    for (int i = 0; i < 16; i++) {
-        Logger() << "qRoPEOutput(" << i << "): ";
-        qRoPEOutput[i]->Print();
-    }
-    for (int i = 0; i < 8; i++) {
-        Logger() << "kHeadLayerNormOutputs(" << i << "): ";
-        kHeadLayerNormOutputs[i]->Print();
-    }
-    for (int i = 0; i < 16; i++) {
-        Logger() << "kRoPEOutput(" << i << "): ";
-        kRoPEOutput[i]->Print();
-    }
-    for (int i = 0; i < 8; i++) {
-        Logger() << "vHeadLayerNormOutputs(" << i << "): ";
-        vHeadLayerNormOutputs[i]->Print();
-    }
-    for (int i = 0; i < 16; i++) {
-        Logger() << "qkDotProdOutputs(" << i << "): ";
-        qkDotProdOutputs[i]->Print();
-    }
-    for (int i = 0; i < 16; i++) {
-        Logger() << "qkDotProdScaleOutputs(" << i << "): ";
-        qkDotProdScaleOutputs[i]->Print();
-    }
-    for (int i = 0; i < 16; i++) {
-        Logger() << "qkDotProdScaleSoftmaxOutputs(" << i << "): ";
-        qkDotProdScaleSoftmaxOutputs[i]->Print();
-    }
-    for (int i = 0; i < 16; i++) {
-        Logger() << "qkvAttentionOutput(" << i << "): ";
-        qkvAttentionOutput[i]->Print();
-    }
-    Logger() << "qkvAttentionConcatOutput: ";
-    qkvAttentionConcatOutput->Print();
-    Logger() << "selfAttnOProjOutput: ";
-    selfAttnOProjOutput->Print();
-    Logger() << "add1Output: ";
-    add1Output->Print();
-    Logger() << "postAttentionLayerNormOutput: ";
-    postAttentionLayerNormOutput->Print();
-    Logger() << "mlpUpProjOutput: ";
-    mlpUpProjOutput->Print();
-    Logger() << "mlpGateProjOutput: ";
-    mlpGateProjOutput->Print();
-    Logger() << "mlpGateSigmoidOutput: ";
-    mlpGateSigmoidOutput->Print();
-    Logger() << "mlpGateOutput: ";
-    mlpGateOutput->Print();
-    Logger() << "mlpOutput: ";
-    mlpOutput->Print();
-    Logger() << "Output: ";
-    outputMatrix->Print();
     Logger() << std::endl;
 }

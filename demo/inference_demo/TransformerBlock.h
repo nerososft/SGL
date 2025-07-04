@@ -48,59 +48,68 @@
 
 class TransformerBlock {
     uint64_t layerIndex = 0;
-    uint32_t tokenIndex = 0;
-    uint32_t tokenPos = 0;
 
     std::shared_ptr<MLEngine> mle = nullptr;
+    std::shared_ptr<Config> config = nullptr;
 
-    std::shared_ptr<Matrix> inputMatrix = nullptr;
-    std::shared_ptr<Matrix> outputMatrix = nullptr;
+    std::vector<std::shared_ptr<Matrix> > inputsMatrix; // seq_len, 1024
+    std::vector<std::shared_ptr<Matrix> > outputsMatrix; // seq_len, 1024
 
     std::shared_ptr<Matrix> biasMatrix = nullptr;
 
+    Weight inputLayerNormWeight{};
+    Weight selfAttnKNormWeight{};
+    Weight selfAttnKProjWeight{};
+    Weight selfAttnOProjWeight{};
+    Weight selfAttnQNormWeight{};
+    Weight selfAttnQProjWeight{};
+    Weight selfAttnVProjWeight{};
+    Weight postAttentionLayerNormWeight{};
+    Weight mlpUpProjWeight{};
+    Weight mlpGateProjWeight{};
+    Weight mlpDownProjWeight{};
+
+    // KQV
     std::shared_ptr<Matrix> inputLayerNorm = nullptr; // 1024
-    std::shared_ptr<Matrix> inputLayerNormOutput = nullptr; // 1024
+    std::vector<std::shared_ptr<Matrix> > inputLayerNormOutput; // seq_len, 1024
 
     std::shared_ptr<Matrix> selfAttnQProj = nullptr; // 2048, 1024
-    std::shared_ptr<Matrix> qProjOutput = nullptr; //2048
-    std::vector<std::shared_ptr<Matrix> > qHeads;
+    std::vector<std::shared_ptr<Matrix> > qProjOutput; // seq_len, 2048
+    std::vector<std::vector<std::shared_ptr<Matrix> > > qHeads; // seq_len, 16, 128
     std::shared_ptr<Matrix> selfAttnQNorm = nullptr; // 128
-    std::vector<std::shared_ptr<Matrix> > qHeadLayerNormOutputs;
+    std::vector<std::vector<std::shared_ptr<Matrix> > > qHeadLayerNormOutputs; // seq_len, 16, 128
 
     std::shared_ptr<Matrix> selfAttnKProj = nullptr; // 1024, 1024
-    std::shared_ptr<Matrix> kProjOutput = nullptr; //1024
-    std::vector<std::shared_ptr<Matrix> > kHeads;
+    std::vector<std::shared_ptr<Matrix> > kProjOutput; //seq_len, 1024
+    std::vector<std::vector<std::shared_ptr<Matrix> > > kHeads; // seq_len, 8, 128
     std::shared_ptr<Matrix> selfAttnKNorm = nullptr; // 128
-    std::vector<std::shared_ptr<Matrix> > kHeadLayerNormOutputs;
+    std::vector<std::vector<std::shared_ptr<Matrix> > > kHeadLayerNormOutputs; // seq_len, 8, 128
 
     std::shared_ptr<Matrix> selfAttnVProj = nullptr; // 1024, 1024
-    std::shared_ptr<Matrix> vProjOutput = nullptr; //1024
-    std::vector<std::shared_ptr<Matrix> > vHeads;
-    std::vector<std::shared_ptr<Matrix> > vHeadLayerNormOutputs;
+    std::vector<std::shared_ptr<Matrix> > vProjOutput; //seq_len, 1024
+    std::vector<std::vector<std::shared_ptr<Matrix> > > vHeads; // seq_len, 8, 128
+    std::vector<std::vector<std::shared_ptr<Matrix> > > vHeadLayerNormOutputs; // seq_len, 8, 128
 
-    std::vector<std::shared_ptr<Matrix> > qRoPEOutput;
-    std::vector<std::shared_ptr<Matrix> > kRoPEOutput;
-    std::vector<std::shared_ptr<Matrix> > qkDotProdOutputs;
-    std::vector<std::shared_ptr<Matrix> > qkDotProdScaleOutputs;
-    std::vector<std::shared_ptr<Matrix> > qkDotProdScaleSoftmaxOutputs;
-    std::vector<std::shared_ptr<Matrix> > qkvAttentionOutput;
+    std::vector<std::vector<std::shared_ptr<Matrix> > > kqRoPEMulOutputs; // seq_Len, 16, 128
+    std::vector<std::vector<std::shared_ptr<Matrix> > > qkSoftmaxOutputs; // 128, seq_len, seq_len
+    std::vector<std::vector<std::shared_ptr<Matrix> > > qkvAttentionOutputs; // seq_Len, 16, 128
 
-    std::shared_ptr<Matrix> qkvAttentionConcatOutput = nullptr; // 2048
+    std::vector<std::shared_ptr<Matrix> > qkvAttentionConcatOutputs; // seq_len, 2048
     std::shared_ptr<Matrix> selfAttnOProj = nullptr; // 1024, 2048
-    std::shared_ptr<Matrix> selfAttnOProjOutput = nullptr; // 1024
+    std::vector<std::shared_ptr<Matrix> > selfAttnOProjOutputs; // seq_len, 1024
 
-    std::shared_ptr<Matrix> add1Output = nullptr; // multi head attention 残差连接
+    std::vector<std::shared_ptr<Matrix> > add1Outputs; // seq_len, 1024
     std::shared_ptr<Matrix> postAttentionLayerNorm = nullptr; // 1024
-    std::shared_ptr<Matrix> postAttentionLayerNormOutput = nullptr; // 1024
+    std::vector<std::shared_ptr<Matrix> > postAttentionLayerNormOutputs; // seq_len, 1024
 
     std::shared_ptr<Matrix> mlpUpProj = nullptr; // 3072, 1024
-    std::shared_ptr<Matrix> mlpUpProjOutput = nullptr; // 3072
+    std::vector<std::shared_ptr<Matrix> > mlpUpProjOutputs; // seq_len, 3072
     std::shared_ptr<Matrix> mlpGateProj = nullptr; // 3072, 1024
-    std::shared_ptr<Matrix> mlpGateProjOutput = nullptr; // 3072
-    std::shared_ptr<Matrix> mlpGateSigmoidOutput = nullptr; // 3072
-    std::shared_ptr<Matrix> mlpGateOutput = nullptr; // 3072
+    std::vector<std::shared_ptr<Matrix> > mlpGateProjOutputs; // seq_len, 3072
+    std::vector<std::shared_ptr<Matrix> > mlpGateSigmoidOutputs; // seq_len, 3072
+    std::vector<std::shared_ptr<Matrix> > mlpGateOutputs; // 3072
     std::shared_ptr<Matrix> mlpDownProj = nullptr; // 1024,3072
-    std::shared_ptr<Matrix> mlpOutput = nullptr; // 1024
+    std::vector<std::shared_ptr<Matrix> > mlpOutputs; // seq_len, 1024
 
 public:
     explicit TransformerBlock(const std::shared_ptr<MLEngine> &mle,
@@ -116,17 +125,17 @@ public:
 
     ~TransformerBlock() = default;
 
-    void SetInputMatrix(const std::shared_ptr<Matrix> &input);
+    void SetInputsMatrix(const std::vector<std::shared_ptr<Matrix> > &inputs);
 
-    std::shared_ptr<Matrix> &GetOutputMatrix();
+    void SetOutputsMatrix(const std::vector<std::shared_ptr<Matrix> > &outputs);
+
+    void MultiHead(size_t tokenPos);
+
+    void Attention(size_t tokenPos);
+
+    void MLP(size_t tokenPos);
 
     void Dump() const;
-
-    void UpdateTokenInfo(const uint32_t tokenIndex,
-                         const uint32_t tokenPos) {
-        this->tokenIndex = tokenIndex;
-        this->tokenPos = tokenPos;
-    };
 };
 
 #endif //TRANSFORMERBLOCK_H

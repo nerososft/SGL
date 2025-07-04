@@ -21,9 +21,16 @@
 #include "operators/impl/gpu/AddOperator.h"
 #include "operators/impl/gpu/ConcatOperator.h"
 #include "operators/impl/gpu/MulOperator.h"
+#include "operators/impl/gpu/RoPEMulOperator.h"
 #include "operators/impl/gpu/RoPEOperator.h"
 #include "operators/impl/gpu/ScaleOperator.h"
 #include "operators/impl/gpu/SplitOperator.h"
+
+std::shared_ptr<Sequence> MLEngine::Seq() {
+    auto seq = std::make_shared<Sequence>(this->gpuCtx);
+    seq->Init();
+    return seq;
+}
 
 bool MLEngine::Init() {
     std::vector<const char *> requiredExtensions;
@@ -32,30 +39,12 @@ bool MLEngine::Init() {
     // this->gpuCtx->AddInstanceEnableLayer("VK_LAYER_LUNARG_api_dump");
     // this->gpuCtx->AddInstanceEnableLayer("VK_LAYER_KHRONOS_synchronization2");
     // this->gpuCtx->AddDeviceEnabledExtension("VK_KHR_synchronization2");
-    VkResult result = this->gpuCtx->Init();
+    const VkResult result = this->gpuCtx->Init();
     if (result != VK_SUCCESS) {
         Logger() << Logger::ERROR << "Failed to initialize Vulkan GPU context!" << std::endl;
         return false;
     }
     Logger() << Logger::INFO << "Initialized Compute Engine, version: " << VERSION << std::endl;
-
-    this->mainSubGraph = std::make_shared<SubComputeGraph>(this->gpuCtx);
-    if (this->mainSubGraph == nullptr) {
-        Logger() << Logger::ERROR << "Failed to initialize SubComputeGraph!" << std::endl;
-        return false;
-    }
-    result = this->mainSubGraph->Init();
-    if (result != VK_SUCCESS) {
-        Logger() << Logger::ERROR << "Failed to initialize main SubComputeGraph!" << std::endl;
-        return false;
-    }
-
-    this->graph = std::make_shared<ComputeGraph>(this->gpuCtx);
-    if (this->graph == nullptr) {
-        Logger() << Logger::ERROR << "Failed to create compute graph!" << std::endl;
-        return false;
-    }
-    this->graph->AddSubGraph(this->mainSubGraph);
 
     return true;
 }
@@ -108,8 +97,8 @@ std::shared_ptr<Matrix> MLEngine::CreateMatrix(uint32_t width,
     return matrix;
 }
 
-void MLEngine::ReLU(const std::shared_ptr<Matrix> &input,
-                    const std::shared_ptr<Matrix> &output) {
+std::shared_ptr<IComputeGraphNode> MLEngine::ReLU(const std::shared_ptr<Matrix> &input,
+                                                  const std::shared_ptr<Matrix> &output) {
     const auto reluOp = std::make_shared<ReLUOperator>(this->gpuCtx,
                                                        input->GetBuffer(),
                                                        output->GetBuffer());
@@ -119,12 +108,12 @@ void MLEngine::ReLU(const std::shared_ptr<Matrix> &input,
         Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
         throw std::runtime_error("Failed to create compute graph node!");
     }
-    this->mainSubGraph->AddComputeGraphNode(node);
+    return node;
 }
 
 
-void MLEngine::Sigmoid(const std::shared_ptr<Matrix> &input,
-                       const std::shared_ptr<Matrix> &output) {
+std::shared_ptr<IComputeGraphNode> MLEngine::Sigmoid(const std::shared_ptr<Matrix> &input,
+                                                     const std::shared_ptr<Matrix> &output) {
     const auto sigmoidOp = std::make_shared<SigmoidOperator>(this->gpuCtx,
                                                              input->GetBuffer(),
                                                              output->GetBuffer());
@@ -134,11 +123,11 @@ void MLEngine::Sigmoid(const std::shared_ptr<Matrix> &input,
         Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
         throw std::runtime_error("Failed to create compute graph node!");
     }
-    this->mainSubGraph->AddComputeGraphNode(node);
+    return node;
 }
 
-void MLEngine::Tanh(const std::shared_ptr<Matrix> &input,
-                    const std::shared_ptr<Matrix> &output) {
+std::shared_ptr<IComputeGraphNode> MLEngine::Tanh(const std::shared_ptr<Matrix> &input,
+                                                  const std::shared_ptr<Matrix> &output) {
     const auto tanhOp = std::make_shared<TanhOperator>(this->gpuCtx,
                                                        input->GetBuffer(),
                                                        output->GetBuffer());
@@ -148,11 +137,11 @@ void MLEngine::Tanh(const std::shared_ptr<Matrix> &input,
         Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
         throw std::runtime_error("Failed to create compute graph node!");
     }
-    this->mainSubGraph->AddComputeGraphNode(node);
+    return node;
 }
 
-void MLEngine::Softmax(const std::shared_ptr<Matrix> &input,
-                       const std::shared_ptr<Matrix> &output) {
+std::shared_ptr<IComputeGraphNode> MLEngine::Softmax(const std::shared_ptr<Matrix> &input,
+                                                     const std::shared_ptr<Matrix> &output) {
     const auto sumOp = std::make_shared<SumOperator>(input->GetBuffer());
     sumOperators.push_back(sumOp);
     const auto sumNode = sumOp->CreateComputeGraphNode();
@@ -165,18 +154,18 @@ void MLEngine::Softmax(const std::shared_ptr<Matrix> &input,
                                                              input->GetBuffer(),
                                                              output->GetBuffer());
     this->operators.push_back(softmaxOp);
-    softmaxOp->SetSum(sumOp->GetSum());
+    softmaxOp->SetSum(sumOp->GetInnerSum());
     const auto node = softmaxOp->CreateComputeGraphNode();
     if (node == nullptr) {
         Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
         throw std::runtime_error("Failed to create compute graph node!");
     }
     node->AddDependenceNode(sumNode);
-    this->mainSubGraph->AddComputeGraphNode(node);
+    return node;
 }
 
-void MLEngine::GELU(const std::shared_ptr<Matrix> &input,
-                    const std::shared_ptr<Matrix> &output) {
+std::shared_ptr<IComputeGraphNode> MLEngine::GELU(const std::shared_ptr<Matrix> &input,
+                                                  const std::shared_ptr<Matrix> &output) {
     const auto geluOp = std::make_shared<GELUOperator>(this->gpuCtx,
                                                        input->GetBuffer(),
                                                        output->GetBuffer());
@@ -186,11 +175,11 @@ void MLEngine::GELU(const std::shared_ptr<Matrix> &input,
         Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
         throw std::runtime_error("Failed to create compute graph node!");
     }
-    this->mainSubGraph->AddComputeGraphNode(node);
+    return node;
 }
 
-void MLEngine::SiLU(const std::shared_ptr<Matrix> &input,
-                    const std::shared_ptr<Matrix> &output) {
+std::shared_ptr<IComputeGraphNode> MLEngine::SiLU(const std::shared_ptr<Matrix> &input,
+                                                  const std::shared_ptr<Matrix> &output) {
     const auto siluOp = std::make_shared<SiLUOperator>(this->gpuCtx,
                                                        input->GetBuffer(),
                                                        output->GetBuffer());
@@ -200,17 +189,17 @@ void MLEngine::SiLU(const std::shared_ptr<Matrix> &input,
         Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
         throw std::runtime_error("Failed to create compute graph node!");
     }
-    this->mainSubGraph->AddComputeGraphNode(node);
+    return node;
 }
 
-void MLEngine::MatMul(const std::shared_ptr<Matrix> &mat1,
-                      const std::shared_ptr<Matrix> &mat2,
-                      const std::shared_ptr<Matrix> &output) {
+std::shared_ptr<IComputeGraphNode> MLEngine::MatMul(const std::shared_ptr<Matrix> &mat1,
+                                                    const std::shared_ptr<Matrix> &mat2,
+                                                    const std::shared_ptr<Matrix> &output) {
     if (mat1->GetWidth() != mat2->GetHeight()) {
         Logger() << "can not mul"
                 << " mat with size (" << mat1->GetWidth() << "," << mat1->GetHeight() << ")"
                 << " and mat with size (" << mat2->GetWidth() << "," << mat2->GetHeight() << ")!" << std::endl;
-        return;
+        return nullptr;
     }
     const auto matMulOp = std::make_shared<MatMulOperator>(this->gpuCtx, mat1->GetBuffer(),
                                                            mat2->GetBuffer(),
@@ -223,145 +212,49 @@ void MLEngine::MatMul(const std::shared_ptr<Matrix> &mat1,
         Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
         throw std::runtime_error("Failed to create compute graph node!");
     }
-    this->mainSubGraph->AddComputeGraphNode(node);
+    return node;
 }
 
-auto MLEngine::RoPE(const uint32_t ropeTheta,
-                    uint32_t *m,
-                    const std::shared_ptr<Matrix> &vectorInput,
-                    const std::shared_ptr<Matrix> &vectorOutput) -> void {
+std::shared_ptr<IComputeGraphNode> MLEngine::RoPE(const uint32_t ropeTheta,
+                                                  uint32_t m,
+                                                  const std::shared_ptr<Matrix> &vectorInput,
+                                                  const std::shared_ptr<Matrix> &vectorOutput) {
     const auto ropeOp = std::make_shared<RoPEOperator>(this->gpuCtx,
                                                        vectorInput->GetBuffer(),
                                                        vectorOutput->GetBuffer());
     operators.push_back(ropeOp);
     ropeOp->SetRopeTheta(ropeTheta);
     ropeOp->SetM(m);
-    const auto node = ropeOp->CreateComputeGraphNode();
+    auto node = ropeOp->CreateComputeGraphNode();
     if (node == nullptr) {
         Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
         throw std::runtime_error("Failed to create compute graph node!");
     }
-    this->mainSubGraph->AddComputeGraphNode(node);
+    return node;
 }
 
-// FIXME: NOT CORRECT!
-void MLEngine::ScaledDotProductAttention(const std::shared_ptr<Matrix> &Q,
-                                         const std::shared_ptr<Matrix> &K,
-                                         const uint64_t ropeTheta,
-                                         uint32_t *m,
-                                         uint32_t *n,
-                                         const std::shared_ptr<Matrix> &qRoPEOutput,
-                                         const std::shared_ptr<Matrix> &kRoPEOutput,
-                                         const std::shared_ptr<Matrix> &qkDotProdOutput,
-                                         const std::shared_ptr<Matrix> &qkDotProdScaleOutput,
-                                         const std::shared_ptr<Matrix> &softmaxOutput,
-                                         const std::shared_ptr<Matrix> &V,
-                                         const std::shared_ptr<Matrix> &vMulOutput) {
-    const auto qRopeOp = std::make_shared<RoPEOperator>(this->gpuCtx,
-                                                        Q->GetBuffer(),
-                                                        qRoPEOutput->GetBuffer());
-    qRopeOp->SetRopeTheta(ropeTheta);
-    qRopeOp->SetM(m);
-    operators.push_back(qRopeOp);
-    const auto qRopeNode = qRopeOp->CreateComputeGraphNode();
-    if (qRopeNode == nullptr) {
-        Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
-        throw std::runtime_error("Failed to create compute graph node!");
-    }
-
-    const auto kRopeOp = std::make_shared<RoPEOperator>(this->gpuCtx,
-                                                        K->GetBuffer(),
-                                                        kRoPEOutput->GetBuffer());
-    kRopeOp->SetRopeTheta(ropeTheta);
-    kRopeOp->SetM(n);
-    operators.push_back(kRopeOp);
-    const auto kRopeNode = kRopeOp->CreateComputeGraphNode();
-    if (kRopeNode == nullptr) {
-        Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
-        throw std::runtime_error("Failed to create compute graph node!");
-    }
-
-    const auto qkElementWiseMulOp = std::make_shared<MulOperator>(this->gpuCtx,
-                                                                  qRoPEOutput->GetBuffer(),
-                                                                  kRoPEOutput->GetBuffer(),
-                                                                  qkDotProdOutput->GetBuffer());
-    operators.push_back(qkElementWiseMulOp);
-    const auto qkElementWiseMulNode = qkElementWiseMulOp->CreateComputeGraphNode();
-    if (qkElementWiseMulNode == nullptr) {
-        Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
-        throw std::runtime_error("Failed to create compute graph node!");
-    }
-
-    const auto dotProdSumOp = std::make_shared<SumOperator>(qkDotProdScaleOutput->GetBuffer());
-    sumOperators.push_back(dotProdSumOp);
-    const auto dotProdSumNode = dotProdSumOp->CreateComputeGraphNode();
-
-    if (dotProdSumNode == nullptr) {
-        Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
-        throw std::runtime_error("Failed to create compute graph node!");
-    }
-
-    // TODO: FIXME !!!
-
-    // Scale
-    const auto scaleOp = std::make_shared<ScaleOperator>(this->gpuCtx,
-                                                         qkDotProdOutput->GetBuffer(),
-                                                         qkDotProdScaleOutput->GetBuffer());
-    operators.push_back(scaleOp);
-    scaleOp->SetDelta(K->GetHeight() * K->GetWidth());
-    const auto scaleNode = scaleOp->CreateComputeGraphNode();
-    if (scaleNode == nullptr) {
-        Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
-        throw std::runtime_error("Failed to create compute graph node!");
-    }
-
-    // Softmax
-    const auto sumOp = std::make_shared<SumOperator>(qkDotProdScaleOutput->GetBuffer());
-    sumOperators.push_back(sumOp);
-    const auto sumNode = sumOp->CreateComputeGraphNode();
-    if (sumNode == nullptr) {
-        Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
-        throw std::runtime_error("Failed to create compute graph node!");
-    }
-
-    const auto softmaxOp = std::make_shared<SoftmaxOperator>(this->gpuCtx,
-                                                             qkDotProdScaleOutput->GetBuffer(),
-                                                             softmaxOutput->GetBuffer());
-    operators.push_back(softmaxOp);
-    softmaxOp->SetSum(sumOp->GetSum());
-    const auto softmaxNode = softmaxOp->CreateComputeGraphNode();
-    if (softmaxNode == nullptr) {
-        Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
-        throw std::runtime_error("Failed to create compute graph node!");
-    }
-
-    const auto vMulOp = std::make_shared<MatMulOperator>(this->gpuCtx,
-                                                         softmaxOutput->GetBuffer(),
-                                                         V->GetBuffer(),
-                                                         vMulOutput->GetBuffer());
-    operators.push_back(vMulOp);
-    vMulOp->SetMat1Size(softmaxOutput->GetWidth(), softmaxOutput->GetHeight());
-    vMulOp->SetMat2Size(V->GetHeight(), V->GetWidth()); // Transpose
-    const auto vMulNode = vMulOp->CreateComputeGraphNode();
-    if (vMulNode == nullptr) {
-        Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
-        throw std::runtime_error("Failed to create compute graph node!");
-    }
-
-    kRopeNode->AddDependenceNode(qRopeNode);
-    qkElementWiseMulNode->AddDependenceNode(kRopeNode);
-    scaleNode->AddDependenceNode(qkElementWiseMulNode);
-    sumNode->AddDependenceNode(scaleNode);
-    softmaxNode->AddDependenceNode(sumNode);
-    vMulNode->AddDependenceNode(softmaxNode);
-    this->mainSubGraph->AddComputeGraphNode(vMulNode);
+std::shared_ptr<IComputeGraphNode> MLEngine::ScaledDotProductAttention(const std::shared_ptr<Matrix> &Q,
+                                                                       const std::shared_ptr<Matrix> &K,
+                                                                       const uint64_t ropeTheta,
+                                                                       const uint32_t m,
+                                                                       const uint32_t n,
+                                                                       const std::shared_ptr<Matrix> &qRoPEOutput,
+                                                                       const std::shared_ptr<Matrix> &kRoPEOutput,
+                                                                       const std::shared_ptr<Matrix> &qkDotProdOutput,
+                                                                       const std::shared_ptr<Matrix> &
+                                                                       qkDotProdScaleOutput,
+                                                                       const std::shared_ptr<Matrix> &softmaxOutput,
+                                                                       const std::shared_ptr<Matrix> &V,
+                                                                       const std::shared_ptr<Matrix> &vMulOutput) {
+    // TODO: IMPL ME
+    return nullptr;
 }
 
-void MLEngine::RMSNorm(const std::shared_ptr<Matrix> &vectorInput,
-                       const float scale,
-                       const float bias,
-                       const float epsilon,
-                       const std::shared_ptr<Matrix> &vectorOutput) {
+std::shared_ptr<IComputeGraphNode> MLEngine::RMSNorm(const std::shared_ptr<Matrix> &vectorInput,
+                                                     const float scale,
+                                                     const float bias,
+                                                     const float epsilon,
+                                                     const std::shared_ptr<Matrix> &vectorOutput) {
     const auto rmsOp = std::make_shared<RMSOperator>(vectorInput->GetBuffer());
     rmsOperators.push_back(rmsOp);
     rmsOp->SetBias(bias);
@@ -384,16 +277,16 @@ void MLEngine::RMSNorm(const std::shared_ptr<Matrix> &vectorInput,
         throw std::runtime_error("Failed to create compute graph node!");
     }
     node->AddDependenceNode(rmsNode);
-    this->mainSubGraph->AddComputeGraphNode(node);
+    return node;
 }
 
-void MLEngine::LayerNorm(const std::shared_ptr<Matrix> &vectorInput,
-                         const std::shared_ptr<Matrix> &weightInput,
-                         const std::shared_ptr<Matrix> &biasInput,
-                         const float epsilon,
-                         const bool weightEnable,
-                         const bool biasEnable,
-                         const std::shared_ptr<Matrix> &vectorOutput) {
+std::shared_ptr<IComputeGraphNode> MLEngine::LayerNorm(const std::shared_ptr<Matrix> &vectorInput,
+                                                       const std::shared_ptr<Matrix> &weightInput,
+                                                       const std::shared_ptr<Matrix> &biasInput,
+                                                       const float epsilon,
+                                                       const bool weightEnable,
+                                                       const bool biasEnable,
+                                                       const std::shared_ptr<Matrix> &vectorOutput) {
     const auto avgOp = std::make_shared<AvgOperator>(vectorInput->GetBuffer());
     avgOperators.push_back(avgOp);
     const auto avgNode = avgOp->CreateComputeGraphNode();
@@ -431,19 +324,12 @@ void MLEngine::LayerNorm(const std::shared_ptr<Matrix> &vectorInput,
 
     varianceNode->AddDependenceNode(avgNode);
     node->AddDependenceNode(varianceNode);
-    this->mainSubGraph->AddComputeGraphNode(node);
+    return node;
 }
 
-void MLEngine::Compute() const {
-    const VkResult result = this->graph->Compute();
-    if (result != VK_SUCCESS) {
-        Logger() << Logger::ERROR << "Failed to compute graph!" << std::endl;
-    }
-}
-
-void MLEngine::Split(const std::shared_ptr<Matrix> &vectorInput,
-                     const uint64_t nums,
-                     const std::vector<std::shared_ptr<Matrix> > &results) {
+std::shared_ptr<IComputeGraphNode> MLEngine::Split(const std::shared_ptr<Matrix> &vectorInput,
+                                                   const uint64_t nums,
+                                                   const std::vector<std::shared_ptr<Matrix> > &results) {
     std::vector<std::shared_ptr<VkGPUBuffer> > resultsVector;
     resultsVector.reserve(results.size());
     for (auto &mat: results) {
@@ -462,17 +348,17 @@ void MLEngine::Split(const std::shared_ptr<Matrix> &vectorInput,
         throw std::runtime_error("Failed to create compute graph node!");
     }
 
-    this->mainSubGraph->AddComputeGraphNode(node);
+    return node;
 }
 
-void MLEngine::Concat(const std::vector<std::shared_ptr<Matrix> > &inputVectors,
-                      const std::shared_ptr<Matrix> &vectorOutput) {
-    this->DupConcat(inputVectors, 1, vectorOutput);
+std::shared_ptr<IComputeGraphNode> MLEngine::Concat(const std::vector<std::shared_ptr<Matrix> > &inputVectors,
+                                                    const std::shared_ptr<Matrix> &vectorOutput) {
+    return this->DupConcat(inputVectors, 1, vectorOutput);
 }
 
-void MLEngine::DupConcat(const std::vector<std::shared_ptr<Matrix> > &inputVectors,
-                         const size_t dup,
-                         const std::shared_ptr<Matrix> &vectorOutput) {
+std::shared_ptr<IComputeGraphNode> MLEngine::DupConcat(const std::vector<std::shared_ptr<Matrix> > &inputVectors,
+                                                       const size_t dup,
+                                                       const std::shared_ptr<Matrix> &vectorOutput) {
     std::vector<std::shared_ptr<VkGPUBuffer> > inputBufferVector;
     inputBufferVector.reserve(inputVectors.size());
     for (auto &mat: inputVectors) {
@@ -492,12 +378,12 @@ void MLEngine::DupConcat(const std::vector<std::shared_ptr<Matrix> > &inputVecto
         throw std::runtime_error("Failed to create compute graph node!");
     }
 
-    this->mainSubGraph->AddComputeGraphNode(node);
+    return node;
 }
 
-void MLEngine::Add(const std::shared_ptr<Matrix> &inputVector1,
-                   const std::shared_ptr<Matrix> &inputVector2,
-                   const std::shared_ptr<Matrix> &outputVector) {
+std::shared_ptr<IComputeGraphNode> MLEngine::Add(const std::shared_ptr<Matrix> &inputVector1,
+                                                 const std::shared_ptr<Matrix> &inputVector2,
+                                                 const std::shared_ptr<Matrix> &outputVector) {
     const auto addOp = std::make_shared<AddOperator>(this->gpuCtx,
                                                      inputVector1->GetBuffer(),
                                                      inputVector2->GetBuffer(),
@@ -508,13 +394,37 @@ void MLEngine::Add(const std::shared_ptr<Matrix> &inputVector1,
         Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
         throw std::runtime_error("Failed to create compute graph node!");
     }
-    this->mainSubGraph->AddComputeGraphNode(node);
+    return node;
 }
 
-void MLEngine::GatedSiLU(const std::shared_ptr<Matrix> &inputVector,
-                         const std::shared_ptr<Matrix> &gateVector,
-                         const std::shared_ptr<Matrix> &gateSigmoidOutput,
-                         const std::shared_ptr<Matrix> &outputVector) {
+std::shared_ptr<IComputeGraphNode> MLEngine::Sum(const std::shared_ptr<Matrix> &inputVector1) {
+    const auto sumOp = std::make_shared<SumOperator>(inputVector1->GetBuffer());
+    sumOperators.push_back(sumOp);
+    const auto sumNode = sumOp->CreateComputeGraphNode();
+    if (sumNode == nullptr) {
+        Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
+        throw std::runtime_error("Failed to create compute graph node!");
+    }
+    return sumNode;
+}
+
+
+std::shared_ptr<IComputeGraphNode> MLEngine::Sum(const std::shared_ptr<Matrix> &inputVector1, float *output) {
+    const auto sumOp = std::make_shared<SumOperator>(inputVector1->GetBuffer());
+    sumOperators.push_back(sumOp);
+    sumOp->SetSum(output);
+    const auto sumNode = sumOp->CreateComputeGraphNode();
+    if (sumNode == nullptr) {
+        Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
+        throw std::runtime_error("Failed to create compute graph node!");
+    }
+    return sumNode;
+}
+
+std::shared_ptr<IComputeGraphNode> MLEngine::GatedSiLU(const std::shared_ptr<Matrix> &inputVector,
+                                                       const std::shared_ptr<Matrix> &gateVector,
+                                                       const std::shared_ptr<Matrix> &gateSigmoidOutput,
+                                                       const std::shared_ptr<Matrix> &outputVector) {
     const auto sigmoidOp = std::make_shared<SigmoidOperator>(this->gpuCtx,
                                                              gateVector->GetBuffer(),
                                                              gateSigmoidOutput->GetBuffer());
@@ -537,5 +447,27 @@ void MLEngine::GatedSiLU(const std::shared_ptr<Matrix> &inputVector,
     }
 
     elementWiseMulNode->AddDependenceNode(node);
-    this->mainSubGraph->AddComputeGraphNode(elementWiseMulNode);
+    return elementWiseMulNode;
+}
+
+std::shared_ptr<IComputeGraphNode> MLEngine::RoPEAndMul(const uint32_t ropeTheta,
+                                                        const uint32_t m,
+                                                        const uint32_t n,
+                                                        const std::shared_ptr<Matrix> &Q,
+                                                        const std::shared_ptr<Matrix> &K,
+                                                        const std::shared_ptr<Matrix> &output) {
+    const auto ropeMulOp = std::make_shared<RoPEMulOperator>(this->gpuCtx,
+                                                             Q->GetBuffer(),
+                                                             K->GetBuffer(),
+                                                             output->GetBuffer());
+    operators.push_back(ropeMulOp);
+    ropeMulOp->SetRopeTheta(ropeTheta);
+    ropeMulOp->SetM(m);
+    ropeMulOp->SetN(n);
+    auto node = ropeMulOp->CreateComputeGraphNode();
+    if (node == nullptr) {
+        Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
+        throw std::runtime_error("Failed to create compute graph node!");
+    }
+    return node;
 }

@@ -13,12 +13,15 @@
 class Model {
     std::shared_ptr<Config> config = nullptr;
     std::shared_ptr<SafeTensor> safeTensor = nullptr;
+
     std::shared_ptr<MLEngine> mle = nullptr;
 
     std::vector<std::shared_ptr<TransformerBlock> > blocks;
 
-    std::shared_ptr<Matrix> inputMatrix = nullptr;
+    std::vector<std::shared_ptr<Matrix> > inputsMatrix; // seq_len, 1024
+    std::vector<std::vector<std::shared_ptr<Matrix> > > outputsMatrix; // hidden_layers, seq_len, 1024
 
+    std::shared_ptr<Matrix> biasMatrix = nullptr;
     std::shared_ptr<Matrix> normMatrix = nullptr;
 
     std::shared_ptr<Matrix> outputMatrix = nullptr;
@@ -37,8 +40,7 @@ public:
 
     void Dump() const;
 
-    [[nodiscard]] std::vector<float> Forward(const std::vector<float> &input, uint32_t tokenIndex,
-                                             uint32_t tokenPos) const;
+    [[nodiscard]] std::vector<float> Forward(const std::vector<std::vector<float> > &inputs);
 };
 
 

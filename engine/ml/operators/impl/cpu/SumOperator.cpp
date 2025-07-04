@@ -40,7 +40,11 @@ SumOperator::SumOperator(const std::shared_ptr<VkGPUBuffer> &inputBuffer) {
 std::shared_ptr<IComputeGraphNode> SumOperator::CreateComputeGraphNode() {
     auto node = std::make_shared<CPUSumNode>();
     node->SetInputBuffer(inputBuffer);
-    node->SetSum(&sum);
+    if (sum != nullptr) {
+        node->SetSum(sum);
+    } else {
+        node->SetSum(&innerSum);
+    }
     return node;
 }
 

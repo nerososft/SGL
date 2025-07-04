@@ -37,77 +37,82 @@ std::shared_ptr<Matrix> Model::InitWeightMatrix(const std::shared_ptr<SafeTensor
 bool Model::Init() {
     const uint64_t layerNums = this->config->GetHiddenLayerNums();
     Logger(Logger::DEBUG) << "layerNums: " << layerNums << std::endl;
-
-    this->inputMatrix = mle->CreateMatrix(1024, 1); // FIXME: input shape should read from some config
-    if (this->inputMatrix == nullptr) {
-        Logger() << "Failed to create input matrix" << std::endl;
-        return false;
-    }
+    this->outputsMatrix.resize(layerNums);
 
     const Weight normWeight = safeTensor->GetWeight("model.norm.weight");
     normMatrix = InitWeightMatrix(safeTensor, normWeight);
     assert(normMatrix != nullptr);
 
-    this->outputMatrix = mle->CreateMatrix(1024, 1); // FIXME: input shape should read from some config
-    if (this->outputMatrix == nullptr) {
-        Logger() << "Failed to create output matrix" << std::endl;
-        return false;
-    }
-
     this->blocks.resize(layerNums);
-    for (uint64_t i = 0; i < layerNums; i++) {
-        blocks[i] = std::make_shared<TransformerBlock>(mle, i);
-        if (i == 0) {
-            blocks[i]->SetInputMatrix(this->inputMatrix);
-        } else {
-            blocks[i]->SetInputMatrix(blocks[i - 1]->GetOutputMatrix());
-        }
-        blocks[i]->Init(safeTensor, config);
-    }
 
-    const auto placeholderMatrix = mle->CreateMatrix(32, 32);
-    mle->LayerNorm(blocks[layerNums - 1]->GetOutputMatrix(),
-                   this->normMatrix,
-                   placeholderMatrix,
-                   1e-06,
-                   true,
-                   false,
-                   this->outputMatrix);
-
+    biasMatrix = mle->CreateMatrix(32, 32);
     return true;
 }
 
 void Model::Dump() const {
     // blocks[1]->Dump();
     // for (auto &block: this->blocks) {
-        // block->Dump();
+    // block->Dump();
     // }
 }
 
-std::vector<float> Model::Forward(const std::vector<float> &input,
-                                  const uint32_t tokenIndex,
-                                  const uint32_t tokenPos) const {
-    const auto inputBuffer = this->inputMatrix->GetBuffer();
-    const VkResult result = inputBuffer->UploadData(input.data(), input.size() * sizeof(float));
-    if (result != VK_SUCCESS) {
-        Logger() << "Failed to upload input vector" << std::endl;
-        return {};
+std::vector<float> Model::Forward(const std::vector<std::vector<float> > &inputs) {
+    inputsMatrix.resize(inputs.size());
+    for (size_t tokenPos = 0; tokenPos < inputs.size(); tokenPos++) {
+        if (inputsMatrix[tokenPos] == nullptr) {
+            const auto inputMatrix = mle->CreateMatrix(this->config->GetHiddenSize(), 1);
+            if (inputMatrix == nullptr) {
+                Logger() << "Failed to create input matrix" << std::endl;
+                return {};
+            }
+            const auto inputBuffer = inputMatrix->GetBuffer();
+            const VkResult result = inputBuffer->UploadData(inputs[tokenPos].data(),
+                                                            inputs[tokenPos].size() * sizeof(float));
+            if (result != VK_SUCCESS) {
+                Logger() << "Failed to upload input vector" << std::endl;
+                return {};
+            }
+
+            this->inputsMatrix[tokenPos] = inputMatrix;
+        }
     }
 
-    for (auto &block: this->blocks) {
-        block->UpdateTokenInfo(tokenIndex, tokenPos);
+    for (uint64_t layerIdx = 0; layerIdx < this->config->GetHiddenLayerNums(); layerIdx++) {
+        this->outputsMatrix[layerIdx].resize(inputs.size());
+        for (size_t tokenPos = 0; tokenPos < inputs.size(); tokenPos++) {
+            if (this->outputsMatrix[layerIdx][tokenPos] == nullptr) {
+                const auto outputMatrix = mle->CreateMatrix(this->config->GetHiddenSize(), 1);
+                if (outputMatrix == nullptr) {
+                    Logger() << "Failed to create input matrix" << std::endl;
+                    return {};
+                }
+                this->outputsMatrix[layerIdx][tokenPos] = outputMatrix;
+            }
+        }
     }
 
-    mle->Compute();
-
-    std::vector<float> output;
-    output.resize(1024); // TODO: read from config
-
-    float *data = output.data();
-    this->outputMatrix->GetBuffer()->DownloadData(data, 1024 * sizeof(float));
-    for (size_t i = 0; i < 1024; i++) {
-        output[i] = data[i];
+    for (uint64_t layerIdx = 0; layerIdx < this->config->GetHiddenLayerNums(); layerIdx++) {
+        blocks[layerIdx] = std::make_shared<TransformerBlock>(mle, layerIdx);
+        blocks[layerIdx]->SetOutputsMatrix(this->outputsMatrix[layerIdx]);
+        if (layerIdx == 0) {
+            blocks[layerIdx]->SetInputsMatrix(this->inputsMatrix);
+        } else {
+            blocks[layerIdx]->SetInputsMatrix(this->outputsMatrix[layerIdx - 1]);
+        }
+        blocks[layerIdx]->Init(safeTensor, config);
     }
 
-    return output;
+    for (uint64_t layerIdx = 0; layerIdx < this->config->GetHiddenLayerNums(); layerIdx++) {
+        for (size_t tokenPos = 0; tokenPos < inputs.size(); tokenPos++) {
+            blocks[layerIdx]->MultiHead(tokenPos);
+        }
+        // for (size_t tokenPos = 0; tokenPos < inputs.size(); tokenPos++) {
+        //     blocks[layerIdx]->Attention(tokenPos);
+        // }
+        // for (size_t tokenPos = 0; tokenPos < inputs.size(); tokenPos++) {
+        //     blocks[layerIdx]->MLP(tokenPos);
+        // }
+    }
+
+    return {};
 }

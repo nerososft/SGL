@@ -13,7 +13,6 @@ struct RoPEOperatorParams {
 
 class RoPEOperator final : public UnaryOperator {
     RoPEOperatorParams params{};
-    uint32_t *m = nullptr;
 
 public:
     RoPEOperator(const std::shared_ptr<VkGPUContext> &gpuCtx,
@@ -24,7 +23,7 @@ public:
 
     void SetRopeTheta(const uint32_t ropeTheta) { this->params.ropeTheta = ropeTheta; }
 
-    void SetM(uint32_t *m) { this->m = m; }
+    void SetM(const uint32_t m) { this->params.m = m; }
 
     std::shared_ptr<IComputeGraphNode> CreateComputeGraphNode() override;
 
