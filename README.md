@@ -105,7 +105,7 @@ EffectEngine effectEngine;
 effectEngine.Init();
 ```
 
-### 2. 使用滤镜
+### 2. 使用内置滤镜
 
 以高斯模糊为例
 
@@ -146,7 +146,7 @@ effectEngine.Process({.width = 1024, .height = 768, .channels = 4 .bytesPerLine 
 - [vibrance](https://gitcode.com/OpenHarmonyPerfSquad/SGL/blob/main/engine/effect/assets/builtin.shaders/effects/vibrance.comp.glsl)
 - [voronoi](https://gitcode.com/OpenHarmonyPerfSquad/SGL/blob/main/engine/effect/assets/builtin.shaders/effects/voronoi.comp.glsl)
 
-### 自定义滤镜
+### 3. 自定义滤镜
 
 参考`基础框架使用`即可
 
@@ -158,7 +158,7 @@ effectEngine.Process({.width = 1024, .height = 768, .channels = 4 .bytesPerLine 
 
 ### 2. 矩阵初始化
 
-### 3. 使用算子
+### 3. 使用内置算子
 ```c++
  const std::shared_ptr<Sequence> seq = mle->Seq()
             ->Record(mle->LayerNorm(inputsMatrix[tokenPos],
@@ -195,5 +195,5 @@ effectEngine.Process({.width = 1024, .height = 768, .channels = 4 .bytesPerLine 
 - [split8](https://gitcode.com/OpenHarmonyPerfSquad/SGL/blob/main/engine/ml/assets/builtin.shaders/operators/split8.comp.glsl)
 - [split16](https://gitcode.com/OpenHarmonyPerfSquad/SGL/blob/main/engine/ml/assets/builtin.shaders/operators/split16.comp.glsl)
 - [tanh](https://gitcode.com/OpenHarmonyPerfSquad/SGL/blob/main/engine/ml/assets/builtin.shaders/operators/tanh.comp.glsl)
-
-### 4. 计算
+### 4. 自定义算子
+### 5. 计算
