@@ -193,10 +193,18 @@ void TransformerBlock::MultiHead(const size_t tokenPos) {
                                     true,
                                     false,
                                     inputLayerNormOutput[tokenPos]))
-            ->Record(mle->MatMul(inputLayerNormOutput[tokenPos], selfAttnQProj, qProjOutput[tokenPos]))
-            ->Record(mle->MatMul(inputLayerNormOutput[tokenPos], selfAttnKProj, kProjOutput[tokenPos]))
-            ->Record(mle->MatMul(inputLayerNormOutput[tokenPos], selfAttnVProj, vProjOutput[tokenPos]))
-            ->Record(mle->Split(qProjOutput[tokenPos], queryHeadNums, qHeads[tokenPos]));
+            ->Record(mle->MatMul(inputLayerNormOutput[tokenPos],
+                                 selfAttnQProj,
+                                 qProjOutput[tokenPos]))
+            ->Record(mle->MatMul(inputLayerNormOutput[tokenPos],
+                                 selfAttnKProj,
+                                 kProjOutput[tokenPos]))
+            ->Record(mle->MatMul(inputLayerNormOutput[tokenPos],
+                                 selfAttnVProj,
+                                 vProjOutput[tokenPos]))
+            ->Record(mle->Split(qProjOutput[tokenPos],
+                                queryHeadNums,
+                                qHeads[tokenPos]));
     for (int i = 0; i < queryHeadNums; i++) {
         seq->Record(mle->LayerNorm(qHeads[tokenPos][i],
                                    selfAttnQNorm,
