@@ -174,6 +174,14 @@ VkResult VkGPUContext::Init() {
         return result;
     }
 
+    uint32_t extensionsPropertiesCount = 0;
+    vkEnumerateInstanceExtensionProperties(nullptr, &extensionsPropertiesCount, nullptr);
+    std::vector<VkExtensionProperties> extensionProperties(extensionsPropertiesCount);
+    vkEnumerateInstanceExtensionProperties(nullptr, &extensionsPropertiesCount, extensionProperties.data());
+    for (size_t i = 0; i < extensionsPropertiesCount; i++) {
+        Logger() << Logger::DEBUG << "extension[" << i << "]: " << extensionProperties[i].extensionName << std::endl;
+    }
+
     vkEnumeratePhysicalDevices(instance, &this->physicalDeviceNums, nullptr);
     Logger() << "physical devices num: " << this->physicalDeviceNums << std::endl;
     this->physicalDevices.resize(this->physicalDeviceNums);
