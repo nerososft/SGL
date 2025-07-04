@@ -34,6 +34,8 @@ public:
     [[nodiscard]] uint32_t GetHeight() const { return this->height; }
 
     void Print() const;
+
+    void Destroy() const;
 };
 
 

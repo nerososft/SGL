@@ -92,3 +92,9 @@ void Matrix::Print() const {
     std::cout << "]" << std::endl;
     this->buffer->UnMapBuffer();
 }
+
+void Matrix::Destroy() const {
+    if (this->buffer != nullptr) {
+        this->buffer->Destroy();
+    }
+}
