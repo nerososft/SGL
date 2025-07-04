@@ -155,9 +155,14 @@ effectEngine.Process({.width = 1024, .height = 768, .channels = 4 .bytesPerLine 
 ## 机器学习算子使用
 
 ### 1. 初始化
-
+```c++
+auto mle = std::make_shared<MLEngine>();
+mle->Init()
+```
 ### 2. 矩阵初始化
-
+```c++
+auto mat = mle->CreateMatrix(width, height);
+```
 ### 3. 使用内置算子
 ```c++
  const std::shared_ptr<Sequence> seq = mle->Seq()
@@ -196,4 +201,3 @@ effectEngine.Process({.width = 1024, .height = 768, .channels = 4 .bytesPerLine 
 - [split16](https://gitcode.com/OpenHarmonyPerfSquad/SGL/blob/main/engine/ml/assets/builtin.shaders/operators/split16.comp.glsl)
 - [tanh](https://gitcode.com/OpenHarmonyPerfSquad/SGL/blob/main/engine/ml/assets/builtin.shaders/operators/tanh.comp.glsl)
 ### 4. 自定义算子
-### 5. 计算
