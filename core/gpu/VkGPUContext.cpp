@@ -57,7 +57,6 @@ VkResult VkGPUContext::CreateDevice(const std::vector<const char *> &deviceEnabl
     deviceEnableExtensions.push_back("VK_KHR_portability_subset");
 #endif /* __APPLE__ */
 
-
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
     for (auto &queueFamily: queueFamilies) {
         std::vector<float> queuePriorities;
