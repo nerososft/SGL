@@ -237,84 +237,111 @@ void TransformerBlock::MultiHead(const size_t tokenPos) {
     seq->Eval()->Destroy();
 }
 
-void TransformerBlock::Attention(const size_t tokenPos) {
+void TransformerBlock::Attention() {
     const size_t seqLen = inputsMatrix.size();
     qkvAttentionOutputs.resize(seqLen);
+    kqRoPEMulOutputs.resize(seqLen);
     qkvAttentionConcatOutputs.resize(seqLen);
-    if (qkvAttentionConcatOutputs[tokenPos] == nullptr) {
-        qkvAttentionConcatOutputs[tokenPos] = mle->CreateMatrix(selfAttnQProjWeight.shape.width, 1);
-        assert(qkvAttentionConcatOutputs[tokenPos] != nullptr);
-    }
+    selfAttnOProjOutputs.resize(seqLen);
+    add1Outputs.resize(seqLen);
+    const size_t queryHeadNums = selfAttnQProjWeight.shape.width / config->GetHeadDim();
+    for (size_t tokenPos = 0; tokenPos < seqLen; tokenPos++) {
+        if (qkvAttentionConcatOutputs[tokenPos] == nullptr) {
+            qkvAttentionConcatOutputs[tokenPos] = mle->CreateMatrix(selfAttnQProjWeight.shape.width, 1);
+            assert(qkvAttentionConcatOutputs[tokenPos] != nullptr);
+        }
 
-    const size_t queryHeadNums = qProjOutput[tokenPos]->GetWidth() / config->GetHeadDim();
-    qkvAttentionOutputs[tokenPos].resize(queryHeadNums);
-    kqRoPEMulOutputs[tokenPos].resize(queryHeadNums);
-    for (int headIdx = 0; headIdx < queryHeadNums; headIdx++) {
-        for (int tokenIdx = 0; tokenIdx < seqLen; tokenIdx++) {
-            if (kqRoPEMulOutputs[tokenPos][headIdx] == nullptr) {
-                kqRoPEMulOutputs[tokenPos][headIdx] = mle->CreateMatrix(config->GetHeadDim(), 1);
-                assert(kqRoPEMulOutputs[tokenPos][headIdx] != nullptr);
+        qkvAttentionOutputs.resize(queryHeadNums);
+        kqRoPEMulOutputs[tokenPos].resize(queryHeadNums);
+        for (int headIdx = 0; headIdx < queryHeadNums; headIdx++) {
+            for (int tokenIdx = 0; tokenIdx < seqLen; tokenIdx++) {
+                if (kqRoPEMulOutputs[tokenPos][headIdx] == nullptr) {
+                    kqRoPEMulOutputs[tokenPos][headIdx] = mle->CreateMatrix(config->GetHeadDim(), 1);
+                    assert(kqRoPEMulOutputs[tokenPos][headIdx] != nullptr);
+                }
             }
-            if (qkvAttentionOutputs[tokenPos][headIdx] == nullptr) {
-                qkvAttentionOutputs[tokenPos][headIdx] = mle->CreateMatrix(config->GetHeadDim(), 1);
-                assert(qkvAttentionOutputs[tokenPos][headIdx] != nullptr);
-            }
+        }
+
+        if (selfAttnOProjOutputs[tokenPos] == nullptr) {
+            selfAttnOProjOutputs[tokenPos] = mle->CreateMatrix(selfAttnOProj->GetWidth(), 1);
+            assert(selfAttnOProjOutputs[tokenPos] != nullptr);
+        }
+        if (add1Outputs[tokenPos] == nullptr) {
+            add1Outputs[tokenPos] = mle->CreateMatrix(selfAttnOProj->GetWidth(), 1);
+            assert(add1Outputs[tokenPos] != nullptr);
         }
     }
 
-    if (selfAttnOProjOutputs[tokenPos] == nullptr) {
-        selfAttnOProjOutputs[tokenPos] = mle->CreateMatrix(selfAttnOProj->GetWidth(), 1);
-        assert(selfAttnOProjOutputs[tokenPos] != nullptr);
-    }
-    if (add1Outputs[tokenPos] == nullptr) {
-        add1Outputs[tokenPos] = mle->CreateMatrix(selfAttnOProj->GetWidth(), 1);
-        assert(add1Outputs[tokenPos] != nullptr);
-    }
-
-    qkSoftmaxOutputs.resize(queryHeadNums);
     for (int headIdx = 0; headIdx < queryHeadNums; headIdx++) {
-        qkSoftmaxOutputs[headIdx].resize(seqLen);
+        auto qkvAttentionWeight = mle->CreateMatrix(config->GetHeadDim(), seqLen);
+        assert(qkvAttentionWeight != nullptr);
+        auto qkSoftmaxOutput = mle->CreateMatrix(seqLen, seqLen);
+        assert(qkSoftmaxOutput != nullptr);
+        auto vMatrixOutput = mle->CreateMatrix(config->GetHeadDim(), seqLen);
+        assert(vMatrixOutput != nullptr);
+
+        std::vector<std::shared_ptr<Matrix> > softmaxQOutputs(seqLen);
+        std::vector<std::shared_ptr<Matrix> > vMatrix(seqLen);
+        for (size_t tokenIdx = 0; tokenIdx < seqLen; tokenIdx++) {
+            softmaxQOutputs[tokenIdx] = mle->CreateMatrix(seqLen, 1);
+            assert(softmaxQOutputs[tokenIdx] != nullptr);
+        }
+
+        for (int tokenQ = 0; tokenQ < seqLen; tokenQ++) {
+            std::vector<float> qkDotProdScale(seqLen);
+            for (int tokenK = 0; tokenK < seqLen; tokenK++) {
+                const auto seq = mle->Seq();
+                seq->Record(mle->RoPEAndMul(
+                            config->GetRoPETheta(),
+                            tokenQ,
+                            tokenK,
+                            qHeadLayerNormOutputs[tokenQ][headIdx],
+                            kHeadLayerNormOutputs[tokenK][headIdx / 2],
+                            kqRoPEMulOutputs[tokenQ][headIdx]))
+                        ->Record(mle->Sum(kqRoPEMulOutputs[tokenQ][headIdx],
+                                          &qkDotProdScale[tokenK]))
+                        ->Eval()
+                        ->Destroy();
+            }
+            auto softmaxQ = mle->CreateMatrix(seqLen, 1, qkDotProdScale);
+            assert(softmaxQ != nullptr);
+            const auto seq = mle->Seq();
+            seq->Record(mle->Softmax(softmaxQ, softmaxQOutputs[tokenQ]))
+                    ->Eval()
+                    ->Destroy();
+            softmaxQ->Destroy();
+
+            vMatrix[tokenQ] = vHeadLayerNormOutputs[tokenQ][headIdx];
+        }
         const auto seq = mle->Seq();
-        std::vector<float> qkDotProdScale(seqLen);
-        for (int tokenIdx = 0; tokenIdx < seqLen; tokenIdx++) {
-            seq->Record(mle->RoPEAndMul(
-                        config->GetRoPETheta(),
-                        tokenPos,
-                        tokenIdx,
-                        qHeadLayerNormOutputs[tokenPos][headIdx],
-                        kHeadLayerNormOutputs[tokenPos][headIdx / 2],
-                        kqRoPEMulOutputs[tokenPos][headIdx]))
-                    ->Record(mle->Sum(kqRoPEMulOutputs[tokenPos][headIdx],
-                                      &qkDotProdScale[tokenIdx]));
+        seq->Record(mle->Concat(softmaxQOutputs, qkSoftmaxOutput))->Eval()->Destroy();
+        for (size_t tokenPos = 0; tokenPos < seqLen; tokenPos++) {
+            softmaxQOutputs[tokenPos]->Destroy();
         }
-        auto softmax = mle->CreateMatrix(seqLen, 1, qkDotProdScale);
-        assert(softmax != nullptr);
-        seq->Record(mle->Softmax(softmax,
-                                 qkSoftmaxOutputs[headIdx][tokenPos]))
-                ->Eval()
-                ->Destroy();
-        // (RoPE(Q) · RoPE(K)) / sqrt(dim) * V
-        // TODO:
+
+        seq->Record(mle->Concat(vMatrix, vMatrixOutput))
+                ->Record(mle->MatMul(qkSoftmaxOutput, vMatrixOutput, qkvAttentionOutputs[headIdx]))
+                ->Eval()->Destroy();
     }
 
-    const auto seq = mle->Seq();
-    seq->Record(mle->Concat(qkvAttentionOutputs[tokenPos], qkvAttentionConcatOutputs[tokenPos]))
-            ->Record(
-                mle->MatMul(qkvAttentionConcatOutputs[tokenPos],
-                            selfAttnOProj,
-                            selfAttnOProjOutputs[tokenPos]))
-            ->Record(mle->Add(selfAttnOProjOutputs[tokenPos],
-                              inputsMatrix[tokenPos],
-                              add1Outputs[tokenPos]))
-            ->Record(mle->LayerNorm(add1Outputs[tokenPos],
-                                    postAttentionLayerNorm,
-                                    biasMatrix,
-                                    1e-06,
-                                    true,
-                                    false,
-                                    postAttentionLayerNormOutputs[tokenPos]))
-            ->Eval()
-            ->Destroy();
+    // const auto seq = mle->Seq();
+    // seq->Record(mle->Concat(qkvAttentionOutputs[tokenPos], qkvAttentionConcatOutputs[tokenPos]))
+    //         ->Record(
+    //             mle->MatMul(qkvAttentionConcatOutputs[tokenPos],
+    //                         selfAttnOProj,
+    //                         selfAttnOProjOutputs[tokenPos]))
+    //         ->Record(mle->Add(selfAttnOProjOutputs[tokenPos],
+    //                           inputsMatrix[tokenPos],
+    //                           add1Outputs[tokenPos]))
+    //         ->Record(mle->LayerNorm(add1Outputs[tokenPos],
+    //                                 postAttentionLayerNorm,
+    //                                 biasMatrix,
+    //                                 1e-06,
+    //                                 true,
+    //                                 false,
+    //                                 postAttentionLayerNormOutputs[tokenPos]))
+    //         ->Eval()
+    //         ->Destroy();
 }
 
 void TransformerBlock::MLP(const size_t tokenPos) {
@@ -395,7 +422,7 @@ void TransformerBlock::Dump() const {
         }
         for (int i = 0; i < 16; i++) {
             Logger() << "qkvAttentionOutput(" << i << "): ";
-            qkvAttentionOutputs[tokenIdx][i]->Print();
+            qkvAttentionOutputs[i]->Print();
         }
         Logger() << "qkvAttentionConcatOutput: ";
         qkvAttentionConcatOutputs[tokenIdx]->Print();

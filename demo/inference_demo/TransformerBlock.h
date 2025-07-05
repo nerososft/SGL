@@ -92,7 +92,7 @@ class TransformerBlock {
 
     std::vector<std::vector<std::shared_ptr<Matrix> > > kqRoPEMulOutputs; // seq_Len, 16, 128
     std::vector<std::vector<std::shared_ptr<Matrix> > > qkSoftmaxOutputs; // 128, seq_len, seq_len
-    std::vector<std::vector<std::shared_ptr<Matrix> > > qkvAttentionOutputs; // seq_Len, 16, 128
+    std::vector<std::shared_ptr<Matrix> > qkvAttentionOutputs; // 16, seq_Len, 128
 
     std::vector<std::shared_ptr<Matrix> > qkvAttentionConcatOutputs; // seq_len, 2048
     std::shared_ptr<Matrix> selfAttnOProj = nullptr; // 1024, 2048
@@ -131,7 +131,7 @@ public:
 
     void MultiHead(size_t tokenPos);
 
-    void Attention(size_t tokenPos);
+    void Attention();
 
     void MLP(size_t tokenPos);
 
