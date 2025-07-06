@@ -15,7 +15,7 @@ BinaryOperator::BinaryOperator(const std::shared_ptr<VkGPUContext> &gpuCtx,
 }
 
 BinaryOperator::~BinaryOperator() {
-    this->Destroy();
+    this->BinaryOperator::Destroy();
 }
 
 void BinaryOperator::Destroy() {

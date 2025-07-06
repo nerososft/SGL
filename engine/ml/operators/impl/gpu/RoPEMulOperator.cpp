@@ -45,15 +45,15 @@ std::shared_ptr<IComputeGraphNode> RoPEMulOperator::CreateComputeGraphNode() {
     buffers.push_back({
         .type = PIPELINE_NODE_BUFFER_STORAGE_READ,
         .buf = {
-            .bufferSize = this->Q->GetBufferSize(),
-            .buffer = this->Q->GetBuffer(),
+            .bufferSize = this->inputBuffer1->GetBufferSize(),
+            .buffer = this->inputBuffer1->GetBuffer(),
         }
     });
     buffers.push_back({
         .type = PIPELINE_NODE_BUFFER_STORAGE_READ,
         .buf = {
-            .bufferSize = this->K->GetBufferSize(),
-            .buffer = this->K->GetBuffer(),
+            .bufferSize = this->inputBuffer2->GetBufferSize(),
+            .buffer = this->inputBuffer2->GetBuffer(),
         }
     });
     buffers.push_back({

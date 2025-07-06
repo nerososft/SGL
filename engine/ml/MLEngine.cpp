@@ -456,6 +456,9 @@ std::shared_ptr<IComputeGraphNode> MLEngine::RoPEAndMul(const uint32_t ropeTheta
                                                         const std::shared_ptr<Matrix> &Q,
                                                         const std::shared_ptr<Matrix> &K,
                                                         const std::shared_ptr<Matrix> &output) {
+    assert(Q != nullptr);
+    assert(K != nullptr);
+    assert(output != nullptr);
     const auto ropeMulOp = std::make_shared<RoPEMulOperator>(this->gpuCtx,
                                                              Q->GetBuffer(),
                                                              K->GetBuffer(),

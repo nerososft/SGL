@@ -21,10 +21,6 @@ struct RoPEMulOperatorParams {
 class RoPEMulOperator final : public BinaryOperator {
     RoPEMulOperatorParams params{};
 
-    std::shared_ptr<VkGPUBuffer> Q = nullptr;
-    std::shared_ptr<VkGPUBuffer> K = nullptr;
-    std::shared_ptr<VkGPUBuffer> output = nullptr;
-
 public:
     RoPEMulOperator(const std::shared_ptr<VkGPUContext> &gpuCtx,
                     const std::shared_ptr<VkGPUBuffer> &Q,
