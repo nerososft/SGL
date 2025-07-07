@@ -112,7 +112,6 @@ effectEngine.Init();
 ```c++
 const auto filter = std::make_shared<FastGaussianBlurFilter>();
 filter->SetRadius(120);
-ImageInfo 
 effectEngine.Process({.width = 1024, .height = 768, .channels = 4 .bytesPerLine = 4 * 1024, .data = inputPixelData}, {.width = 1024, .height = 768, .channels = 4 .bytesPerLine = 4 * 1024, .data = outputPixelData}, filter);
 ```
 
