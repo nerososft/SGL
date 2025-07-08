@@ -25,6 +25,7 @@
 #include "operators/impl/gpu/RoPEOperator.h"
 #include "operators/impl/gpu/ScaleOperator.h"
 #include "operators/impl/gpu/SplitOperator.h"
+#include "operators/impl/gpu/TransposeOperator.h"
 
 std::shared_ptr<Sequence> MLEngine::Seq() {
     auto seq = std::make_shared<Sequence>(this->gpuCtx);
@@ -501,4 +502,18 @@ std::shared_ptr<IComputeGraphNode> MLEngine::RoPEDotProduct(const uint32_t ropeT
 
     sumNode->AddDependenceNode(ropeDotProdMulNode);
     return sumNode;
+}
+
+std::shared_ptr<IComputeGraphNode> MLEngine::Transpose(const std::shared_ptr<Matrix> &inputMatrix,
+                                                       const std::shared_ptr<Matrix> &outputMatrix) {
+    const auto transposeOp = std::make_shared<TransposeOperator>(this->gpuCtx, inputMatrix->GetBuffer(),
+                                                                 outputMatrix->GetBuffer());
+    operators.push_back(transposeOp);
+    transposeOp->SetMatSize(inputMatrix->GetWidth(), inputMatrix->GetHeight());
+    const auto node = transposeOp->CreateComputeGraphNode();
+    if (node == nullptr) {
+        Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
+        throw std::runtime_error("Failed to create compute graph node!");
+    }
+    return node;
 }

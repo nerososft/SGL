@@ -144,6 +144,9 @@ public:
                                                       const std::shared_ptr<Matrix> &K,
                                                       const std::shared_ptr<Matrix> &dotProdOutput,
                                                       float *output);
+
+    std::shared_ptr<IComputeGraphNode> Transpose(const std::shared_ptr<Matrix> &inputMatrix,
+                                                 const std::shared_ptr<Matrix> &outputMatrix);
 };
 
 

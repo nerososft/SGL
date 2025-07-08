@@ -84,5 +84,7 @@ add_library(ml_engine
         operators/impl/gpu/RoPEOperator.h
         operators/impl/gpu/RoPEMulOperator.cpp
         operators/impl/gpu/RoPEMulOperator.h
+        operators/impl/gpu/TransposeOperator.cpp
+        operators/impl/gpu/TransposeOperator.h
 )
 target_link_libraries(ml_engine core)

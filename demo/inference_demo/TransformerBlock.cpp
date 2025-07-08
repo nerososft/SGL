@@ -193,14 +193,14 @@ void TransformerBlock::MultiHead(const size_t tokenPos) {
                                     true,
                                     false,
                                     inputLayerNormOutput[tokenPos]))
-            ->Record(mle->MatMul(inputLayerNormOutput[tokenPos],
-                                 selfAttnQProj,
+            ->Record(mle->MatMul(selfAttnQProj,
+                                 inputLayerNormOutput[tokenPos],
                                  qProjOutput[tokenPos]))
-            ->Record(mle->MatMul(inputLayerNormOutput[tokenPos],
-                                 selfAttnKProj,
+            ->Record(mle->MatMul(selfAttnKProj,
+                                 inputLayerNormOutput[tokenPos],
                                  kProjOutput[tokenPos]))
-            ->Record(mle->MatMul(inputLayerNormOutput[tokenPos],
-                                 selfAttnVProj,
+            ->Record(mle->MatMul(selfAttnVProj,
+                                 inputLayerNormOutput[tokenPos],
                                  vProjOutput[tokenPos]))
             ->Record(mle->Split(qProjOutput[tokenPos],
                                 queryHeadNums,
@@ -298,17 +298,24 @@ void TransformerBlock::Attention() {
 
         auto qkSoftmaxMatrix = mle->CreateMatrix(seqLen, seqLen, qk);
         assert(qkSoftmaxMatrix != nullptr);
-        auto vMatrix = mle->CreateMatrix(seqLen, config->GetHeadDim(), vv);
+        auto vMatrix = mle->CreateMatrix(config->GetHeadDim(), seqLen, vv);
         assert(vMatrix != nullptr);
+        auto vMatrixT = mle->CreateMatrix(seqLen, config->GetHeadDim());
+        assert(vMatrixT != nullptr);
 
         // 2. GEMM(qkSoftmaxMatrix, vMatrix)
         if (qkvAttentionOutputs[headIdx] == nullptr) {
-            qkvAttentionOutputs[headIdx] = mle->CreateMatrix(seqLen, config->GetHeadDim());
+            qkvAttentionOutputs[headIdx] = mle->CreateMatrix(config->GetHeadDim(), seqLen);
             assert(qkvAttentionOutputs[headIdx] != nullptr);
         }
-        mle->Seq()->Record(mle->MatMul(qkSoftmaxMatrix, vMatrix, qkvAttentionOutputs[headIdx]))->Eval()->Destroy();
+        mle->Seq()
+                ->Record(mle->Transpose(vMatrix, vMatrixT))
+                ->Record(mle->MatMul(qkSoftmaxMatrix, vMatrixT, qkvAttentionOutputs[headIdx]))
+                ->Eval()
+                ->Destroy();
         qkSoftmaxMatrix->Destroy();
         vMatrix->Destroy();
+        vMatrixT->Destroy();
     }
     qkDotProdTmp->Destroy();
 
