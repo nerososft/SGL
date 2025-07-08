@@ -261,7 +261,7 @@ void TransformerBlock::Attention() {
                                                        &dotProdResult))->Eval()->Destroy();
                 qkRoPEDotProdScaled[qIdx][kIdx] = dotProdResult / sqrt(config->GetHeadDim());
             }
-            // Softmax qIdx Raw
+            // Softmax by q Row
             auto raw = mle->CreateMatrix(seqLen, 1, qkRoPEDotProdScaled[qIdx]);
             assert(raw != nullptr);
             auto rawSoftmaxOut = mle->CreateMatrix(seqLen, 1, qkRoPEDotProdScaled[qIdx]);
