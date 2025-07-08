@@ -12,9 +12,11 @@
 #include "engine/ml/operators/Operator.h"
 
 struct ConcatOperatorParams {
-    uint32_t dim;
     uint32_t nums;
-    uint32_t dup;
+    uint32_t blockWidth;
+    uint32_t blockHeight;
+    uint32_t width;
+    uint32_t height;
 };
 
 class ConcatOperator final : public Operator {
@@ -29,11 +31,15 @@ public:
 
     ~ConcatOperator() override;
 
-    void SetDim(const size_t dim) { this->params.dim = dim; }
-
     void SetNums(const size_t nums) { this->params.nums = nums; }
 
-    void SetDup(const size_t dup) { this->params.dup = dup; }
+    void SetBlockWidth(const size_t width) { this->params.blockWidth = width; }
+
+    void SetBlockHeight(const size_t height) { this->params.blockHeight = height; }
+
+    void SetWidth(const size_t width) { this->params.width = width; }
+
+    void SetHeight(const size_t height) { this->params.height = height; }
 
     std::shared_ptr<IComputeGraphNode> CreateComputeGraphNode() override;
 

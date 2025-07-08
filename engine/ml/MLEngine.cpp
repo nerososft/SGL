@@ -195,11 +195,11 @@ std::shared_ptr<IComputeGraphNode> MLEngine::SiLU(const std::shared_ptr<Matrix> 
 std::shared_ptr<IComputeGraphNode> MLEngine::MatMul(const std::shared_ptr<Matrix> &mat1,
                                                     const std::shared_ptr<Matrix> &mat2,
                                                     const std::shared_ptr<Matrix> &output) {
-    if (mat1->GetWidth() != mat2->GetHeight()) {
+    if (mat1->GetHeight() != mat2->GetWidth()) {
         Logger() << "can not mul"
                 << " mat with size (" << mat1->GetWidth() << "," << mat1->GetHeight() << ")"
                 << " and mat with size (" << mat2->GetWidth() << "," << mat2->GetHeight() << ")!" << std::endl;
-        return nullptr;
+        throw std::runtime_error("can not mul");
     }
     const auto matMulOp = std::make_shared<MatMulOperator>(this->gpuCtx, mat1->GetBuffer(),
                                                            mat2->GetBuffer(),
@@ -351,12 +351,15 @@ std::shared_ptr<IComputeGraphNode> MLEngine::Split(const std::shared_ptr<Matrix>
 
 std::shared_ptr<IComputeGraphNode> MLEngine::Concat(const std::vector<std::shared_ptr<Matrix> > &inputVectors,
                                                     const std::shared_ptr<Matrix> &vectorOutput) {
-    return this->DupConcat(inputVectors, 1, vectorOutput);
-}
-
-std::shared_ptr<IComputeGraphNode> MLEngine::DupConcat(const std::vector<std::shared_ptr<Matrix> > &inputVectors,
-                                                       const size_t dup,
-                                                       const std::shared_ptr<Matrix> &vectorOutput) {
+    if (inputVectors.empty()) {
+        Logger() << Logger::ERROR << "Empty input!" << std::endl;
+        return nullptr;
+    }
+    if (inputVectors.size() * inputVectors[0]->GetWidth() != vectorOutput->GetWidth()) {
+        Logger() << Logger::ERROR << "Input vector width mismatch(" << inputVectors.size() << " * " << inputVectors[0]->
+                GetWidth() << ", " << vectorOutput->GetWidth() << ")!" << std::endl;
+        return nullptr;
+    }
     std::vector<std::shared_ptr<VkGPUBuffer> > inputBufferVector;
     inputBufferVector.reserve(inputVectors.size());
     for (auto &mat: inputVectors) {
@@ -366,9 +369,11 @@ std::shared_ptr<IComputeGraphNode> MLEngine::DupConcat(const std::vector<std::sh
                                                            inputBufferVector,
                                                            vectorOutput->GetBuffer());
     this->operators.push_back(concatOp);
-    concatOp->SetDim(inputVectors[0]->GetWidth());
+    concatOp->SetBlockWidth(inputVectors[0]->GetWidth());
+    concatOp->SetBlockHeight(inputVectors[0]->GetHeight());
+    concatOp->SetWidth(vectorOutput->GetWidth());
+    concatOp->SetHeight(vectorOutput->GetHeight());
     concatOp->SetNums(inputVectors.size());
-    concatOp->SetDup(dup);
     const auto node = concatOp->CreateComputeGraphNode();
     if (node == nullptr) {
         Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;

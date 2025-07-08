@@ -1,6 +1,6 @@
 #version 450
 
-layout (local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
+layout (local_size_x = 32, local_size_y = 32, local_size_z = 1) in;
 
 layout (std430, binding = 0) buffer InputStorageBuffer {
     float data[];
@@ -11,22 +11,27 @@ layout (std430, binding = 8) buffer OutputStorageBuffer {
 } outputBuffer;
 
 layout (push_constant) uniform Params {
-    uint dim;
     uint nums;
-    uint dup;
+    uint blockWidth;
+    uint blockHeight;
+    uint width;
+    uint height;
 } params;
 
 void main() {
-    uvec2 coord = gl_GlobalInvocationID.xy;
-    if (coord.x >= params.dim) {
+    uvec2 globalCoord = gl_GlobalInvocationID.xy;
+
+    if (globalCoord.x >= params.width || globalCoord.y >= params.height) {
         return;
     }
 
-    uint base_stride = params.dim * params.dup;
-    for (uint buffer_idx = 0; buffer_idx < 8; buffer_idx++) {
-        for (uint copy_idx = 0; copy_idx < params.dup; copy_idx++) {
-            uint output_idx = buffer_idx * base_stride + copy_idx * params.dim + coord.x;
-            outputBuffer.data[output_idx] = inputBuffers[buffer_idx].data[coord.x];
-        }
+    uint bufferIndex = globalCoord.x / params.blockWidth;
+    if (bufferIndex >= params.nums) {
+        return;
     }
+
+    uint localX = globalCoord.x % params.blockWidth;
+    uint inputIndex = globalCoord.y * params.blockWidth + localX;
+    uint outputIndex = globalCoord.y * params.width + globalCoord.x;
+    outputBuffer.data[outputIndex] = inputBuffers[bufferIndex].data[inputIndex];
 }

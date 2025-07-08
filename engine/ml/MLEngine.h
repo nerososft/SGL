@@ -113,10 +113,6 @@ public:
     std::shared_ptr<IComputeGraphNode> Concat(const std::vector<std::shared_ptr<Matrix> > &inputVectors,
                                               const std::shared_ptr<Matrix> &vectorOutput);
 
-    std::shared_ptr<IComputeGraphNode> DupConcat(const std::vector<std::shared_ptr<Matrix> > &inputVectors,
-                                                 size_t dup,
-                                                 const std::shared_ptr<Matrix> &vectorOutput);
-
     std::shared_ptr<IComputeGraphNode> Add(const std::shared_ptr<Matrix> &inputVector1,
                                            const std::shared_ptr<Matrix> &inputVector2,
                                            const std::shared_ptr<Matrix> &outputVector);

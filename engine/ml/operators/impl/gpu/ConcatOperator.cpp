@@ -40,8 +40,8 @@ std::shared_ptr<IComputeGraphNode> ConcatOperator::CreateComputeGraphNode() {
                                                                   shaderSpv,
                                                                   0,
                                                                   descriptorSetLayoutBindings,
-                                                                  (this->params.dim + 255) / 256,
-                                                                  1,
+                                                                  (this->params.width + 31) / 32,
+                                                                  (this->params.height + 31) / 32,
                                                                   1);
     const VkResult ret = concatNode->CreateComputeGraphNode();
     if (ret != VK_SUCCESS) {

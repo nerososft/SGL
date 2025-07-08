@@ -298,7 +298,7 @@ void TransformerBlock::Attention() {
 
         auto qkSoftmaxMatrix = mle->CreateMatrix(seqLen, seqLen, qk);
         assert(qkSoftmaxMatrix != nullptr);
-        auto vMatrix = mle->CreateMatrix(config->GetHeadDim(), seqLen, vv);
+        auto vMatrix = mle->CreateMatrix(seqLen, config->GetHeadDim(), vv);
         assert(vMatrix != nullptr);
 
         // 2. GEMM(qkSoftmaxMatrix, vMatrix)
@@ -314,14 +314,15 @@ void TransformerBlock::Attention() {
 
     // 3. Concat 16 heads attention
     if (qkvAttentionConcatOutput == nullptr) {
-        qkvAttentionConcatOutput = mle->CreateMatrix(seqLen, selfAttnQProjWeight.shape.width);
+        qkvAttentionConcatOutput = mle->CreateMatrix(selfAttnQProjWeight.shape.width, seqLen);
         assert(qkvAttentionConcatOutput != nullptr);
     }
     if (selfAttnOProjOutput == nullptr) {
-        selfAttnOProjOutput = mle->CreateMatrix(seqLen, selfAttnOProjWeight.shape.width);
+        selfAttnOProjOutput = mle->CreateMatrix(selfAttnQProjWeight.shape.width, seqLen);
         assert(selfAttnOProjOutput != nullptr);
     }
-    mle->Seq()->Record(mle->Concat(qkvAttentionOutputs, qkvAttentionConcatOutput))
+    mle->Seq()
+            ->Record(mle->Concat(qkvAttentionOutputs, qkvAttentionConcatOutput))
             ->Record(mle->MatMul(selfAttnOProj, qkvAttentionConcatOutput, selfAttnOProjOutput))
             ->Eval()->Destroy();
 
