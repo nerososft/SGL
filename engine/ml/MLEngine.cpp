@@ -309,7 +309,6 @@ std::shared_ptr<IComputeGraphNode> MLEngine::LayerNorm(const std::shared_ptr<Mat
                                                                  biasInput->GetBuffer(),
                                                                  vectorOutput->GetBuffer());
     this->operators.push_back(layerNormOp);
-    // avoid to optimize  out, because avg and variance will be use in layerNorm node precompute
     layerNormOp->SetAvg(avgOp->GetAvg());
     layerNormOp->SetVariance(varianceOp->GetVariance());
 
@@ -339,7 +338,6 @@ std::shared_ptr<IComputeGraphNode> MLEngine::Split(const std::shared_ptr<Matrix>
                                                          vectorInput->GetBuffer(),
                                                          resultsVector);
     this->operators.push_back(splitOp);
-    // avoid to optimize  out, because avg and variance will be use in layerNorm node precompute
     splitOp->SetDim(vectorInput->GetWidth() / nums);
     splitOp->SetNums(nums);
     const auto node = splitOp->CreateComputeGraphNode();
@@ -368,7 +366,6 @@ std::shared_ptr<IComputeGraphNode> MLEngine::DupConcat(const std::vector<std::sh
                                                            inputBufferVector,
                                                            vectorOutput->GetBuffer());
     this->operators.push_back(concatOp);
-    // avoid to optimize  out, because avg and variance will be use in layerNorm node precompute
     concatOp->SetDim(inputVectors[0]->GetWidth());
     concatOp->SetNums(inputVectors.size());
     concatOp->SetDup(dup);
