@@ -455,14 +455,14 @@ std::shared_ptr<IComputeGraphNode> MLEngine::RoPEAndMul(const uint32_t ropeTheta
                                                         const uint32_t n,
                                                         const std::shared_ptr<Matrix> &Q,
                                                         const std::shared_ptr<Matrix> &K,
-                                                        const std::shared_ptr<Matrix> &output) {
+                                                        const std::shared_ptr<Matrix> &dotProdOutput) {
     assert(Q != nullptr);
     assert(K != nullptr);
-    assert(output != nullptr);
+    assert(dotProdOutput != nullptr);
     const auto ropeMulOp = std::make_shared<RoPEMulOperator>(this->gpuCtx,
                                                              Q->GetBuffer(),
                                                              K->GetBuffer(),
-                                                             output->GetBuffer());
+                                                             dotProdOutput->GetBuffer());
     operators.push_back(ropeMulOp);
     ropeMulOp->SetRopeTheta(ropeTheta);
     ropeMulOp->SetM(m);
@@ -473,4 +473,30 @@ std::shared_ptr<IComputeGraphNode> MLEngine::RoPEAndMul(const uint32_t ropeTheta
         throw std::runtime_error("Failed to create compute graph node!");
     }
     return node;
+}
+
+std::shared_ptr<IComputeGraphNode> MLEngine::RoPEDotProduct(const uint32_t ropeTheta,
+                                                            const uint32_t m,
+                                                            const uint32_t n,
+                                                            const std::shared_ptr<Matrix> &Q,
+                                                            const std::shared_ptr<Matrix> &K,
+                                                            const std::shared_ptr<Matrix> &dotProdOutput,
+                                                            float *output) {
+    const auto ropeDotProdMulNode = RoPEAndMul(ropeTheta, m, n, Q, K, dotProdOutput);
+    if (ropeDotProdMulNode == nullptr) {
+        Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
+        throw std::runtime_error("Failed to create compute graph node!");
+    }
+
+    const auto sumOp = std::make_shared<SumOperator>(dotProdOutput->GetBuffer());
+    sumOp->SetSum(output);
+    sumOperators.push_back(sumOp);
+    const auto sumNode = sumOp->CreateComputeGraphNode();
+    if (sumNode == nullptr) {
+        Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
+        throw std::runtime_error("Failed to create compute graph node!");
+    }
+
+    sumNode->AddDependenceNode(ropeDotProdMulNode);
+    return sumNode;
 }

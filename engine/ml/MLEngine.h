@@ -139,7 +139,15 @@ public:
                                                   uint32_t n,
                                                   const std::shared_ptr<Matrix> &Q,
                                                   const std::shared_ptr<Matrix> &K,
-                                                  const std::shared_ptr<Matrix> &output);
+                                                  const std::shared_ptr<Matrix> &dotProdOutput);
+
+    std::shared_ptr<IComputeGraphNode> RoPEDotProduct(uint32_t ropeTheta,
+                                                      uint32_t m,
+                                                      uint32_t n,
+                                                      const std::shared_ptr<Matrix> &Q,
+                                                      const std::shared_ptr<Matrix> &K,
+                                                      const std::shared_ptr<Matrix> &dotProdOutput,
+                                                      float *output);
 };
 
 

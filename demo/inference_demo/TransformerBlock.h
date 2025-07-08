@@ -90,8 +90,6 @@ class TransformerBlock {
     std::vector<std::vector<std::shared_ptr<Matrix> > > vHeads; // seq_len, 8, 128
     std::vector<std::vector<std::shared_ptr<Matrix> > > vHeadLayerNormOutputs; // seq_len, 8, 128
 
-    std::vector<std::vector<std::shared_ptr<Matrix> > > kqRoPEMulOutputs; // seq_Len, 16, 128
-    std::vector<std::vector<std::shared_ptr<Matrix> > > qkSoftmaxOutputs; // 128, seq_len, seq_len
     std::vector<std::shared_ptr<Matrix> > qkvAttentionOutputs; // 16, seq_Len, 128
 
     std::vector<std::shared_ptr<Matrix> > qkvAttentionConcatOutputs; // seq_len, 2048
