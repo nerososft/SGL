@@ -39,6 +39,15 @@ const mat3 yuvToRgb = mat3(
 
 const vec3 yuvOffset = vec3(-16.0/255.0, -128.0/255.0, -128.0/255.0);
 
+// 从缓冲区读取一个字节
+uint readByte(uint byteOffset) {
+    uint wordOffset = byteOffset / 4;
+    uint byteInWord = byteOffset % 4;
+
+    uint word = inputImage.pixels[wordOffset];
+    return (word >> (byteInWord * 8)) & 0xFF;
+}
+
 void main() {
     uvec2 coord = gl_GlobalInvocationID.xy;
     if (any(greaterThanEqual(coord, uvec2(filterParams.outputWidth, filterParams.outputHeight)))) {
@@ -49,27 +58,26 @@ void main() {
     uint byteOffset = coord.y * filterParams.outputBytesPerLine + coord.x;
 
     float y, u, v;
-
-    // Y平面大小是 width * height
+    // Y平面大小是 width * height 字节
     uint ySize = filterParams.outputWidth * filterParams.outputHeight;
-    // U和V平面大小是 width*height/4
+    // U和V平面大小是 width*height/4 字节
     uint uvSize = ySize / 4;
 
     // 读取Y分量
-    uint yIndex = coord.y * filterParams.inputWidthStride + coord.x;
-    y = float(inputImage.pixels[yIndex] & 0xFF) / 255.0;
+    uint yByteOffset = coord.y * filterParams.inputWidthStride + coord.x;
+    y = float(readByte(yByteOffset)) / 255.0;
 
     // 计算UV分量的坐标(UV是Y的1/2分辨率)
     uint uvX = coord.x / 2;
     uint uvY = coord.y / 2;
 
     // 读取U分量
-    uint uIndex = ySize + uvY * (filterParams.inputWidthStride / 2) + uvX;
-    u = float(inputImage.pixels[uIndex] & 0xFF) / 255.0;
+    uint uByteOffset = ySize + uvY * (filterParams.inputWidthStride / 2) + uvX;
+    u = float(readByte(uByteOffset)) / 255.0;
 
     // 读取V分量
-    uint vIndex = ySize + uvSize + uvY * (filterParams.inputWidthStride / 2) + uvX;
-    v = float(inputImage.pixels[vIndex] & 0xFF) / 255.0;
+    uint vByteOffset = ySize + uvSize + uvY * (filterParams.inputWidthStride / 2) + uvX;
+    v = float(readByte(vByteOffset)) / 255.0;
 
     vec3 yuv = vec3(y, u, v) + yuvOffset;
     vec3 rgb = yuvToRgb * yuv;
