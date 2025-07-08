@@ -41,7 +41,7 @@ public:
 
     std::shared_ptr<IComputeGraphNode> CreateComputeGraphNode() override;
 
-    float *GetSum() const { return sum; }
+    [[nodiscard]] float *GetSum() const { return sum; }
 
     float *GetInnerSum() { return &innerSum; }
 

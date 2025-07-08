@@ -241,6 +241,9 @@ void TransformerBlock::Attention() {
     const size_t seqLen = inputsMatrix.size();
     const size_t queryHeadNums = selfAttnQProjWeight.shape.width / config->GetHeadDim();
 
+    qkvAttentionOutputs.resize(queryHeadNums);
+    const auto qkDotProdTmp = mle->CreateMatrix(config->GetHeadDim(), 1);
+    assert(qkDotProdTmp != nullptr);
 
     for (int headIdx = 0; headIdx < queryHeadNums; headIdx++) {
         // 1. (RoPE(Qm, m) · RoPE(Kn, n)) / sqrt(config->GetHeadDim())
@@ -248,18 +251,15 @@ void TransformerBlock::Attention() {
         for (size_t qIdx = 0; qIdx < seqLen; qIdx++) {
             qkRoPEDotProdScaled[qIdx].resize(seqLen);
             for (size_t kIdx = 0; kIdx < seqLen; kIdx++) {
-                auto vec = mle->CreateMatrix(config->GetHeadDim(), 1);
                 float dotProdResult = 0.0f;
-                assert(vec != nullptr);
                 mle->Seq()->Record(mle->RoPEDotProduct(config->GetRoPETheta(),
                                                        qIdx,
                                                        kIdx,
                                                        qHeadLayerNormOutputs[qIdx][headIdx],
-                                                       kHeadLayerNormOutputs[qIdx][headIdx / 2],
-                                                       vec,
+                                                       kHeadLayerNormOutputs[kIdx][headIdx / 2],
+                                                       qkDotProdTmp,
                                                        &dotProdResult))->Eval()->Destroy();
                 qkRoPEDotProdScaled[qIdx][kIdx] = dotProdResult / sqrt(config->GetHeadDim());
-                vec->Destroy();
             }
             // Softmax qIdx Raw
             auto raw = mle->CreateMatrix(seqLen, 1, qkRoPEDotProdScaled[qIdx]);
@@ -298,17 +298,19 @@ void TransformerBlock::Attention() {
 
         auto qkSoftmaxMatrix = mle->CreateMatrix(seqLen, seqLen, qk);
         assert(qkSoftmaxMatrix != nullptr);
-        auto kMatrix = mle->CreateMatrix(config->GetHeadDim(), seqLen);
-        assert(kMatrix != nullptr);
-        // 2. GEMM(qk, vv)
+        auto vMatrix = mle->CreateMatrix(config->GetHeadDim(), seqLen, vv);
+        assert(vMatrix != nullptr);
+
+        // 2. GEMM(qkSoftmaxMatrix, vMatrix)
         if (qkvAttentionOutputs[headIdx] == nullptr) {
             qkvAttentionOutputs[headIdx] = mle->CreateMatrix(seqLen, config->GetHeadDim());
             assert(qkvAttentionOutputs[headIdx] != nullptr);
         }
-        mle->Seq()->Record(mle->MatMul(qkSoftmaxMatrix, kMatrix, qkvAttentionOutputs[headIdx]))->Eval()->Destroy();
+        mle->Seq()->Record(mle->MatMul(qkSoftmaxMatrix, vMatrix, qkvAttentionOutputs[headIdx]))->Eval()->Destroy();
         qkSoftmaxMatrix->Destroy();
-        kMatrix->Destroy();
+        vMatrix->Destroy();
     }
+    qkDotProdTmp->Destroy();
 
     // 3. Concat 16 heads attention
     // TODO:
