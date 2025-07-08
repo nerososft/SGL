@@ -16,7 +16,7 @@ struct YuvToRgbFilterParams {
 };
 
 class YuvToRgbFilter final : public BasicFilter {
-    GrayFilterParams yuvToRgbFilterParams{};
+    YuvToRgbFilterParams yuvToRgbFilterParams{};
 
 public:
     YuvToRgbFilter() = default;
