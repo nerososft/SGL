@@ -193,14 +193,14 @@ void TransformerBlock::MultiHead(const size_t tokenPos) {
                                     true,
                                     false,
                                     inputLayerNormOutput[tokenPos]))
-            ->Record(mle->MatMul(selfAttnQProj,
-                                 inputLayerNormOutput[tokenPos],
+            ->Record(mle->MatMul(inputLayerNormOutput[tokenPos],
+                                 selfAttnQProj,
                                  qProjOutput[tokenPos]))
-            ->Record(mle->MatMul(selfAttnKProj,
-                                 inputLayerNormOutput[tokenPos],
+            ->Record(mle->MatMul(inputLayerNormOutput[tokenPos],
+                                 selfAttnKProj,
                                  kProjOutput[tokenPos]))
-            ->Record(mle->MatMul(selfAttnVProj,
-                                 inputLayerNormOutput[tokenPos],
+            ->Record(mle->MatMul(inputLayerNormOutput[tokenPos],
+                                 selfAttnVProj,
                                  vProjOutput[tokenPos]))
             ->Record(mle->Split(qProjOutput[tokenPos],
                                 queryHeadNums,
@@ -306,8 +306,6 @@ void TransformerBlock::Attention() {
         assert(qkSoftmaxMatrix != nullptr);
         auto vMatrix = mle->CreateMatrix(config->GetHeadDim(), seqLen, vv);
         assert(vMatrix != nullptr);
-        auto vMatrixT = mle->CreateMatrix(seqLen, config->GetHeadDim());
-        assert(vMatrixT != nullptr);
 
         // 2. GEMM(qkSoftmaxMatrix, vMatrix)
         if (qkvAttentionOutputs[headIdx] == nullptr) {
@@ -315,13 +313,11 @@ void TransformerBlock::Attention() {
             assert(qkvAttentionOutputs[headIdx] != nullptr);
         }
         mle->Seq()
-                ->Record(mle->Transpose(vMatrix, vMatrixT))
-                ->Record(mle->MatMul(qkSoftmaxMatrix, vMatrixT, qkvAttentionOutputs[headIdx]))
+                ->Record(mle->MatMul(qkSoftmaxMatrix, vMatrix, qkvAttentionOutputs[headIdx]))
                 ->Eval()
                 ->Destroy();
         qkSoftmaxMatrix->Destroy();
         vMatrix->Destroy();
-        vMatrixT->Destroy();
     }
     qkDotProdTmp->Destroy();
 
@@ -336,10 +332,11 @@ void TransformerBlock::Attention() {
     }
     mle->Seq()
             ->Record(mle->Concat(qkvAttentionOutputs, qkvAttentionConcatOutput))
-            ->Record(mle->MatMul(selfAttnOProj, qkvAttentionConcatOutput, selfAttnOProjOutput))
+            ->Record(mle->MatMul(qkvAttentionConcatOutput, selfAttnOProj, selfAttnOProjOutput))
             ->Eval()
             ->Destroy();
 
+    qkvAttentionConcatOutput->Print();
     // 4. Residual Connection by raw
     // TODO:
 }

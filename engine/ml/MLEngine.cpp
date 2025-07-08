@@ -196,7 +196,7 @@ std::shared_ptr<IComputeGraphNode> MLEngine::SiLU(const std::shared_ptr<Matrix> 
 std::shared_ptr<IComputeGraphNode> MLEngine::MatMul(const std::shared_ptr<Matrix> &mat1,
                                                     const std::shared_ptr<Matrix> &mat2,
                                                     const std::shared_ptr<Matrix> &output) {
-    if (mat1->GetHeight() != mat2->GetWidth()) {
+    if (mat1->GetWidth() != mat2->GetHeight()) {
         Logger() << "can not mul"
                 << " mat with size (" << mat1->GetWidth() << "," << mat1->GetHeight() << ")"
                 << " and mat with size (" << mat2->GetWidth() << "," << mat2->GetHeight() << ")!" << std::endl;
