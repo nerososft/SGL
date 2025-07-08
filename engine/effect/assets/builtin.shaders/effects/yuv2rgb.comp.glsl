@@ -17,7 +17,7 @@ layout (push_constant) uniform FilterParams {
     uint outputBytesPerLine;
     uint inputWidthStride;
     uint inputHeightStride;
-    uint format;// 0: I420, 1: NV12, etc.
+    uint format;// 0: I420
 } filterParams;
 
 // ABGR
