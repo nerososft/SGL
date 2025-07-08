@@ -15,7 +15,7 @@ layout (push_constant) uniform FilterParams {
     uint height;
     uint channels;
     uint bytesPerLine;
-    uint format;// 0: I420, 1: NV12, etc.
+    uint format; // 0: I420, 1: NV12, etc.
 } filterParams;
 
 // ABGR
@@ -40,9 +40,9 @@ vec4 unpackColor(uint color) {
 
 // RGB转YUV的系数
 const mat3 rgbToYuv = mat3(
-0.299, 0.587, 0.114,
--0.14713, -0.28886, 0.436,
-0.615, -0.51499, -0.10001
+0.299,     0.587,     0.114,
+-0.14713, -0.28886,  0.436,
+0.615,    -0.51499, -0.10001
 );
 
 void main() {

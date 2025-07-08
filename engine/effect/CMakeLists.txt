@@ -152,6 +152,8 @@ set(ENGINE_SOURCE EffectEngine.cpp
         filters/impl/TransformFilter.cpp
         filters/impl/YuvToRgbFilter.cpp
         filters/impl/YuvToRgbFilter.h
+        filters/impl/RgbToYuvFilter.cpp
+        filters/impl/RgbToYuvFilter.h
 )
 
 if (CMAKE_SYSTEM_NAME MATCHES "OHOS")
