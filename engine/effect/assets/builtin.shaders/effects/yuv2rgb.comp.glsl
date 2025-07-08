@@ -11,10 +11,12 @@ layout (std430, binding = 1) buffer OutputImageStorageBuffer {
 } outputImage;
 
 layout (push_constant) uniform FilterParams {
-    uint width;
-    uint height;
-    uint channels;
-    uint bytesPerLine;
+    uint outputWidth;
+    uint outputHeight;
+    uint outputChannels;
+    uint outputBytesPerLine;
+    uint inputWidthStride;
+    uint inputHeightStride;
     uint format;// 0: I420, 1: NV12, etc.
 } filterParams;
 
@@ -39,54 +41,39 @@ const vec3 yuvOffset = vec3(-16.0/255.0, -128.0/255.0, -128.0/255.0);
 
 void main() {
     uvec2 coord = gl_GlobalInvocationID.xy;
-    if (any(greaterThanEqual(coord, uvec2(filterParams.width, filterParams.height)))) {
+    if (any(greaterThanEqual(coord, uvec2(filterParams.outputWidth, filterParams.outputHeight)))) {
         return;
     }
 
     // 计算当前像素的字节偏移量
-    uint byteOffset = coord.y * filterParams.bytesPerLine + coord.x;
+    uint byteOffset = coord.y * filterParams.outputBytesPerLine + coord.x;
 
-    // 计算该字节所在的uint索引和在uint内的字节位置
-    uint uintIndex = byteOffset / 4;
-    uint bytePos = byteOffset % 4;
+    float y, u, v;
 
-    // 从uint中提取对应的字节，并归一化到[0,1]
-    uint yByte;
-    if (bytePos == 0) yByte = (inputImage.pixels[uintIndex] >> 0) & 0xFF;
-    else if (bytePos == 1) yByte = (inputImage.pixels[uintIndex] >> 8) & 0xFF;
-    else if (bytePos == 2) yByte = (inputImage.pixels[uintIndex] >> 16) & 0xFF;
-    else yByte = (inputImage.pixels[uintIndex] >> 24) & 0xFF;
-    float y = float(yByte) / 255.0;
+    // Y平面大小是 width * height
+    uint ySize = filterParams.outputWidth * filterParams.outputHeight;
+    // U和V平面大小是 width*height/4
+    uint uvSize = ySize / 4;
 
-    // 计算U分量的字节偏移量（U平面从width*height开始）
-    uint uByteOffset = filterParams.width * filterParams.height + (coord.y/2) * (filterParams.width/2) + (coord.x/2);
-    uint uUintIndex = uByteOffset / 4;
-    uint uBytePos = uByteOffset % 4;
+    // 读取Y分量
+    uint yIndex = coord.y * filterParams.inputWidthStride + coord.x;
+    y = float(inputImage.pixels[yIndex] & 0xFF) / 255.0;
 
-    // 从uint中提取U字节，并归一化到[0,1]
-    uint uByte;
-    if (uBytePos == 0) uByte = (inputImage.pixels[uUintIndex] >> 0) & 0xFF;
-    else if (uBytePos == 1) uByte = (inputImage.pixels[uUintIndex] >> 8) & 0xFF;
-    else if (uBytePos == 2) uByte = (inputImage.pixels[uUintIndex] >> 16) & 0xFF;
-    else uByte = (inputImage.pixels[uUintIndex] >> 24) & 0xFF;
-    float u = float(uByte) / 255.0;
+    // 计算UV分量的坐标(UV是Y的1/2分辨率)
+    uint uvX = coord.x / 2;
+    uint uvY = coord.y / 2;
 
-    // 计算V分量的字节偏移量（V平面从width*height*5/4开始）
-    uint vByteOffset = filterParams.width * filterParams.height * 5/4 + (coord.y/2) * (filterParams.width/2) + (coord.x/2);
-    uint vUintIndex = vByteOffset / 4;
-    uint vBytePos = vByteOffset % 4;
+    // 读取U分量
+    uint uIndex = ySize + uvY * (filterParams.inputWidthStride / 2) + uvX;
+    u = float(inputImage.pixels[uIndex] & 0xFF) / 255.0;
 
-    // 从uint中提取V字节，并归一化到[0,1]
-    uint vByte;
-    if (vBytePos == 0) vByte = (inputImage.pixels[vUintIndex] >> 0) & 0xFF;
-    else if (vBytePos == 1) vByte = (inputImage.pixels[vUintIndex] >> 8) & 0xFF;
-    else if (vBytePos == 2) vByte = (inputImage.pixels[vUintIndex] >> 16) & 0xFF;
-    else vByte = (inputImage.pixels[vUintIndex] >> 24) & 0xFF;
-    float v = float(vByte) / 255.0;
+    // 读取V分量
+    uint vIndex = ySize + uvSize + uvY * (filterParams.inputWidthStride / 2) + uvX;
+    v = float(inputImage.pixels[vIndex] & 0xFF) / 255.0;
 
     vec3 yuv = vec3(y, u, v) + yuvOffset;
     vec3 rgb = yuvToRgb * yuv;
 
-    uint index = coord.y * filterParams.bytesPerLine + coord.x;
+    uint index = coord.y * filterParams.outputWidth + coord.x;
     outputImage.pixels[index] = packColor(vec4(rgb, 1.0));
 }
