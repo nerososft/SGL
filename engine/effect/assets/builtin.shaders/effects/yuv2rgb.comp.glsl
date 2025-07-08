@@ -28,21 +28,14 @@ uint packColor(vec4 color) {
     );
 }
 
-// YUV 到 RGB 的转换矩阵 (BT.601 标准)
+// BT.601
 const mat3 yuvToRgb = mat3(
 1.0, 0.0, 1.13983,
 1.0, -0.39465, -0.58060,
 1.0, 2.03211, 0.0
 );
 
-// 偏移量
 const vec3 yuvOffset = vec3(-16.0/255.0, -128.0/255.0, -128.0/255.0);
-
-// 从 uint 缓冲区读取单字节
-uint readByte(uint bufferIndex, uint byteOffset) {
-    uint word = inputImage.pixels[bufferIndex];
-    return (word >> (byteOffset * 8)) & 0xFFu;
-}
 
 void main() {
     uvec2 coord = gl_GlobalInvocationID.xy;
@@ -50,40 +43,50 @@ void main() {
         return;
     }
 
-    // 计算 Y 分量的字节索引
-    uint yByteIndex = coord.y * filterParams.bytesPerLine + coord.x;
-    uint yWordIndex = yByteIndex / 4u;// 每个 uint 包含 4 个字节
-    uint yByteOffset = yByteIndex % 4u;
+    // 计算当前像素的字节偏移量
+    uint byteOffset = coord.y * filterParams.bytesPerLine + coord.x;
 
-    // 读取 Y 值 (8 位无符号整数)
-    float y = float(readByte(yWordIndex, yByteOffset)) / 255.0;
+    // 计算该字节所在的uint索引和在uint内的字节位置
+    uint uintIndex = byteOffset / 4;
+    uint bytePos = byteOffset % 4;
 
-    // 计算 U 和 V 分量的字节索引
-    uvec2 uvCoord = coord / 2u;
-    uint uvWidth = filterParams.bytesPerLine / 2;
-    uint uvHeight = filterParams.height / 2;
+    // 从uint中提取对应的字节，并归一化到[0,1]
+    uint yByte;
+    if (bytePos == 0) yByte = (inputImage.pixels[uintIndex] >> 0) & 0xFF;
+    else if (bytePos == 1) yByte = (inputImage.pixels[uintIndex] >> 8) & 0xFF;
+    else if (bytePos == 2) yByte = (inputImage.pixels[uintIndex] >> 16) & 0xFF;
+    else yByte = (inputImage.pixels[uintIndex] >> 24) & 0xFF;
+    float y = float(yByte) / 255.0;
 
-    // U 平面紧跟在 Y 平面后面
-    uint uByteIndex = filterParams.width * filterParams.height +
-    uvCoord.y * uvWidth + uvCoord.x;
-    uint uWordIndex = uByteIndex / 4u;
-    uint uByteOffset = uByteIndex % 4u;
+    // 计算U分量的字节偏移量（U平面从width*height开始）
+    uint uByteOffset = filterParams.width * filterParams.height + (coord.y/2) * (filterParams.width/2) + (coord.x/2);
+    uint uUintIndex = uByteOffset / 4;
+    uint uBytePos = uByteOffset % 4;
 
-    // V 平面在 U 平面后面
-    uint vByteIndex = filterParams.width * filterParams.height +
-    uvWidth * uvHeight +
-    uvCoord.y * uvWidth + uvCoord.x;
-    uint vWordIndex = vByteIndex / 4u;
-    uint vByteOffset = vByteIndex % 4u;
+    // 从uint中提取U字节，并归一化到[0,1]
+    uint uByte;
+    if (uBytePos == 0) uByte = (inputImage.pixels[uUintIndex] >> 0) & 0xFF;
+    else if (uBytePos == 1) uByte = (inputImage.pixels[uUintIndex] >> 8) & 0xFF;
+    else if (uBytePos == 2) uByte = (inputImage.pixels[uUintIndex] >> 16) & 0xFF;
+    else uByte = (inputImage.pixels[uUintIndex] >> 24) & 0xFF;
+    float u = float(uByte) / 255.0;
 
-    // 读取 U 和 V 值
-    float u = float(readByte(uWordIndex, uByteOffset)) / 255.0;
-    float v = float(readByte(vWordIndex, vByteOffset)) / 255.0;
+    // 计算V分量的字节偏移量（V平面从width*height*5/4开始）
+    uint vByteOffset = filterParams.width * filterParams.height * 5/4 + (coord.y/2) * (filterParams.width/2) + (coord.x/2);
+    uint vUintIndex = vByteOffset / 4;
+    uint vBytePos = vByteOffset % 4;
 
-    // 应用偏移量并转换到 RGB
+    // 从uint中提取V字节，并归一化到[0,1]
+    uint vByte;
+    if (vBytePos == 0) vByte = (inputImage.pixels[vUintIndex] >> 0) & 0xFF;
+    else if (vBytePos == 1) vByte = (inputImage.pixels[vUintIndex] >> 8) & 0xFF;
+    else if (vBytePos == 2) vByte = (inputImage.pixels[vUintIndex] >> 16) & 0xFF;
+    else vByte = (inputImage.pixels[vUintIndex] >> 24) & 0xFF;
+    float v = float(vByte) / 255.0;
+
     vec3 yuv = vec3(y, u, v) + yuvOffset;
     vec3 rgb = yuvToRgb * yuv;
 
-    // 写入输出图像 (ABGR 格式)
-    outputImage.pixels[yByteIndex / 4u] = packColor(vec4(rgb, 1.0));
+    uint index = coord.y * filterParams.bytesPerLine + coord.x;
+    outputImage.pixels[index] = packColor(vec4(rgb, 1.0));
 }
