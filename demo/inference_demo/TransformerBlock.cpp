@@ -313,6 +313,19 @@ void TransformerBlock::Attention() {
     qkDotProdTmp->Destroy();
 
     // 3. Concat 16 heads attention
+    if (qkvAttentionConcatOutput == nullptr) {
+        qkvAttentionConcatOutput = mle->CreateMatrix(seqLen, selfAttnQProjWeight.shape.width);
+        assert(qkvAttentionConcatOutput != nullptr);
+    }
+    if (selfAttnOProjOutput == nullptr) {
+        selfAttnOProjOutput = mle->CreateMatrix(seqLen, selfAttnOProjWeight.shape.width);
+        assert(selfAttnOProjOutput != nullptr);
+    }
+    mle->Seq()->Record(mle->Concat(qkvAttentionOutputs, qkvAttentionConcatOutput))
+            ->Record(mle->MatMul(selfAttnOProj, qkvAttentionConcatOutput, selfAttnOProjOutput))
+            ->Eval()->Destroy();
+
+    // 4. Residual Connection by raw
     // TODO:
 }
 
@@ -397,9 +410,9 @@ void TransformerBlock::Dump() const {
             qkvAttentionOutputs[i]->Print();
         }
         Logger() << "qkvAttentionConcatOutput: ";
-        qkvAttentionConcatOutputs[tokenIdx]->Print();
+        qkvAttentionConcatOutput->Print();
         Logger() << "selfAttnOProjOutput: ";
-        selfAttnOProjOutputs[tokenIdx]->Print();
+        selfAttnOProjOutput->Print();
         Logger() << "add1Output: ";
         add1Outputs[tokenIdx]->Print();
         Logger() << "postAttentionLayerNormOutput: ";

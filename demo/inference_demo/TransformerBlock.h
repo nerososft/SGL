@@ -91,10 +91,10 @@ class TransformerBlock {
     std::vector<std::vector<std::shared_ptr<Matrix> > > vHeadLayerNormOutputs; // seq_len, 8, 128
 
     std::vector<std::shared_ptr<Matrix> > qkvAttentionOutputs; // 16, seq_Len, 128
-    std::vector<std::shared_ptr<Matrix> > qkvAttentionConcatOutputs; // seq_len, 2048
+    std::shared_ptr<Matrix> qkvAttentionConcatOutput; // seq_len, 2048
 
     std::shared_ptr<Matrix> selfAttnOProj = nullptr; // 1024, 2048
-    std::vector<std::shared_ptr<Matrix> > selfAttnOProjOutputs; // seq_len, 1024
+    std::shared_ptr<Matrix> selfAttnOProjOutput; // seq_len, 1024
 
     std::vector<std::shared_ptr<Matrix> > add1Outputs; // seq_len, 1024
     std::shared_ptr<Matrix> postAttentionLayerNorm = nullptr; // 1024
