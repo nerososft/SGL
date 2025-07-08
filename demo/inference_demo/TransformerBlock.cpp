@@ -252,13 +252,16 @@ void TransformerBlock::Attention() {
             qkRoPEDotProdScaled[qIdx].resize(seqLen);
             for (size_t kIdx = 0; kIdx < seqLen; kIdx++) {
                 float dotProdResult = 0.0f;
-                mle->Seq()->Record(mle->RoPEDotProduct(config->GetRoPETheta(),
-                                                       qIdx,
-                                                       kIdx,
-                                                       qHeadLayerNormOutputs[qIdx][headIdx],
-                                                       kHeadLayerNormOutputs[kIdx][headIdx / 2],
-                                                       qkDotProdTmp,
-                                                       &dotProdResult))->Eval()->Destroy();
+                mle->Seq()
+                        ->Record(mle->RoPEDotProduct(config->GetRoPETheta(),
+                                                     qIdx,
+                                                     kIdx,
+                                                     qHeadLayerNormOutputs[qIdx][headIdx],
+                                                     kHeadLayerNormOutputs[kIdx][headIdx / 2],
+                                                     qkDotProdTmp,
+                                                     &dotProdResult))
+                        ->Eval()
+                        ->Destroy();
                 qkRoPEDotProdScaled[qIdx][kIdx] = dotProdResult / sqrt(config->GetHeadDim());
             }
             // Softmax by q Row
@@ -266,7 +269,10 @@ void TransformerBlock::Attention() {
             assert(raw != nullptr);
             auto rawSoftmaxOut = mle->CreateMatrix(seqLen, 1, qkRoPEDotProdScaled[qIdx]);
             assert(rawSoftmaxOut != nullptr);
-            mle->Seq()->Record(mle->Softmax(raw, rawSoftmaxOut))->Eval()->Destroy();
+            mle->Seq()
+                    ->Record(mle->Softmax(raw, rawSoftmaxOut))
+                    ->Eval()
+                    ->Destroy();
             rawSoftmaxOut->GetBuffer()->DownloadData(qkRoPEDotProdScaled[qIdx].data(), seqLen * sizeof(float));
             raw->Destroy();
             rawSoftmaxOut->Destroy();
@@ -331,7 +337,8 @@ void TransformerBlock::Attention() {
     mle->Seq()
             ->Record(mle->Concat(qkvAttentionOutputs, qkvAttentionConcatOutput))
             ->Record(mle->MatMul(selfAttnOProj, qkvAttentionConcatOutput, selfAttnOProjOutput))
-            ->Eval()->Destroy();
+            ->Eval()
+            ->Destroy();
 
     // 4. Residual Connection by raw
     // TODO:
