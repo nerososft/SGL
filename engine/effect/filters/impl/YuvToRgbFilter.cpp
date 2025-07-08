@@ -29,6 +29,6 @@ VkResult YuvToRgbFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                               1);
 }
 
-void GrayFilter::Destroy() {
+void YuvToRgbFilter::Destroy() {
     BasicFilter::Destroy();
 }
