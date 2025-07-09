@@ -15,15 +15,17 @@
 #include "operators/impl/gpu/SoftmaxOperator.h"
 #include "operators/impl/gpu/TanhOperator.h"
 #include "operators/impl/cpu/AvgOperator.h"
+#include "operators/impl/cpu/ExpSumOperator.h"
+#include "operators/impl/cpu/MaxOperator.h"
 #include "operators/impl/cpu/RMSOperator.h"
 #include "operators/impl/cpu/SumOperator.h"
 #include "operators/impl/cpu/VarianceOperator.h"
 #include "operators/impl/gpu/AddOperator.h"
 #include "operators/impl/gpu/ConcatOperator.h"
+#include "operators/impl/gpu/LogSoftmaxOperator.h"
 #include "operators/impl/gpu/MulOperator.h"
 #include "operators/impl/gpu/RoPEMulOperator.h"
 #include "operators/impl/gpu/RoPEOperator.h"
-#include "operators/impl/gpu/ScaleOperator.h"
 #include "operators/impl/gpu/SplitOperator.h"
 #include "operators/impl/gpu/TransposeOperator.h"
 
@@ -143,10 +145,19 @@ std::shared_ptr<IComputeGraphNode> MLEngine::Tanh(const std::shared_ptr<Matrix> 
 
 std::shared_ptr<IComputeGraphNode> MLEngine::Softmax(const std::shared_ptr<Matrix> &input,
                                                      const std::shared_ptr<Matrix> &output) {
-    const auto sumOp = std::make_shared<SumOperator>(input->GetBuffer());
-    sumOperators.push_back(sumOp);
-    const auto sumNode = sumOp->CreateComputeGraphNode();
-    if (sumNode == nullptr) {
+    const auto maxOp = std::make_shared<MaxOperator>(input->GetBuffer());
+    maxOperators.push_back(maxOp);
+    const auto maxNode = maxOp->CreateComputeGraphNode();
+    if (maxNode == nullptr) {
+        Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
+        throw std::runtime_error("Failed to create compute graph node!");
+    }
+
+    const auto expSumOp = std::make_shared<ExpSumOperator>(input->GetBuffer());
+    expSumOp->SetMax(maxOp->GetInnerMax());
+    expSumOperators.push_back(expSumOp);
+    const auto expSumNode = expSumOp->CreateComputeGraphNode();
+    if (expSumNode == nullptr) {
         Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
         throw std::runtime_error("Failed to create compute graph node!");
     }
@@ -155,13 +166,15 @@ std::shared_ptr<IComputeGraphNode> MLEngine::Softmax(const std::shared_ptr<Matri
                                                              input->GetBuffer(),
                                                              output->GetBuffer());
     this->operators.push_back(softmaxOp);
-    softmaxOp->SetSum(sumOp->GetInnerSum());
+    softmaxOp->SetSum(expSumOp->GetInnerSum());
+    softmaxOp->SetMax(maxOp->GetInnerMax());
     const auto node = softmaxOp->CreateComputeGraphNode();
     if (node == nullptr) {
         Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
         throw std::runtime_error("Failed to create compute graph node!");
     }
-    node->AddDependenceNode(sumNode);
+    expSumNode->AddDependenceNode(maxNode);
+    node->AddDependenceNode(expSumNode);
     return node;
 }
 
@@ -232,23 +245,6 @@ std::shared_ptr<IComputeGraphNode> MLEngine::RoPE(const uint32_t ropeTheta,
         throw std::runtime_error("Failed to create compute graph node!");
     }
     return node;
-}
-
-std::shared_ptr<IComputeGraphNode> MLEngine::ScaledDotProductAttention(const std::shared_ptr<Matrix> &Q,
-                                                                       const std::shared_ptr<Matrix> &K,
-                                                                       const uint64_t ropeTheta,
-                                                                       const uint32_t m,
-                                                                       const uint32_t n,
-                                                                       const std::shared_ptr<Matrix> &qRoPEOutput,
-                                                                       const std::shared_ptr<Matrix> &kRoPEOutput,
-                                                                       const std::shared_ptr<Matrix> &qkDotProdOutput,
-                                                                       const std::shared_ptr<Matrix> &
-                                                                       qkDotProdScaleOutput,
-                                                                       const std::shared_ptr<Matrix> &softmaxOutput,
-                                                                       const std::shared_ptr<Matrix> &V,
-                                                                       const std::shared_ptr<Matrix> &vMulOutput) {
-    // TODO: IMPL ME
-    return nullptr;
 }
 
 std::shared_ptr<IComputeGraphNode> MLEngine::RMSNorm(const std::shared_ptr<Matrix> &vectorInput,
@@ -515,5 +511,29 @@ std::shared_ptr<IComputeGraphNode> MLEngine::Transpose(const std::shared_ptr<Mat
         Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
         throw std::runtime_error("Failed to create compute graph node!");
     }
+    return node;
+}
+
+std::shared_ptr<IComputeGraphNode> MLEngine::LogSoftmax(const std::shared_ptr<Matrix> &input,
+                                                        const std::shared_ptr<Matrix> &output) {
+    const auto expSumOp = std::make_shared<ExpSumOperator>(input->GetBuffer());
+    expSumOperators.push_back(expSumOp);
+    const auto expSumNode = expSumOp->CreateComputeGraphNode();
+    if (expSumNode == nullptr) {
+        Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
+        throw std::runtime_error("Failed to create compute graph node!");
+    }
+
+    const auto logSoftmaxOp = std::make_shared<LogSoftmaxOperator>(this->gpuCtx,
+                                                                   input->GetBuffer(),
+                                                                   output->GetBuffer());
+    this->operators.push_back(logSoftmaxOp);
+    logSoftmaxOp->SetSum(expSumOp->GetInnerSum());
+    const auto node = logSoftmaxOp->CreateComputeGraphNode();
+    if (node == nullptr) {
+        Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
+        throw std::runtime_error("Failed to create compute graph node!");
+    }
+    node->AddDependenceNode(expSumNode);
     return node;
 }

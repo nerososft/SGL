@@ -23,8 +23,10 @@ class Model {
 
     std::shared_ptr<Matrix> biasMatrix = nullptr;
     std::shared_ptr<Matrix> normMatrix = nullptr;
+    std::shared_ptr<Matrix> lmHeadMatrix = nullptr;
 
-    std::shared_ptr<Matrix> outputMatrix = nullptr;
+    std::shared_ptr<Matrix> result = nullptr;
+    std::shared_ptr<Matrix> softmaxResult = nullptr;
 
 public:
     explicit Model(const std::shared_ptr<MLEngine> &mle,

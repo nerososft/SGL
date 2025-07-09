@@ -13,6 +13,8 @@
 #include "core/gpu/compute_graph/Sequence.h"
 #include "operators/IOperator.h"
 #include "operators/impl/cpu/AvgOperator.h"
+#include "operators/impl/cpu/ExpSumOperator.h"
+#include "operators/impl/cpu/MaxOperator.h"
 #include "operators/impl/cpu/RMSOperator.h"
 #include "operators/impl/cpu/SumOperator.h"
 #include "operators/impl/cpu/VarianceOperator.h"
@@ -27,6 +29,8 @@ class MLEngine {
     std::vector<std::shared_ptr<AvgOperator> > avgOperators;
     std::vector<std::shared_ptr<VarianceOperator> > variancesOperators;
     std::vector<std::shared_ptr<SumOperator> > sumOperators;
+    std::vector<std::shared_ptr<MaxOperator> > maxOperators;
+    std::vector<std::shared_ptr<ExpSumOperator> > expSumOperators;
     std::vector<std::shared_ptr<RMSOperator> > rmsOperators;
 
 public:
@@ -75,22 +79,6 @@ public:
                                             uint32_t m,
                                             const std::shared_ptr<Matrix> &vectorInput,
                                             const std::shared_ptr<Matrix> &vectorOutput);
-
-    /*
-     * Attention(Q, K, V) = softmax(Q·K^T/√d)·V
-     */
-    std::shared_ptr<IComputeGraphNode> ScaledDotProductAttention(const std::shared_ptr<Matrix> &Q,
-                                                                 const std::shared_ptr<Matrix> &K,
-                                                                 uint64_t ropeTheta,
-                                                                 uint32_t m,
-                                                                 uint32_t n,
-                                                                 const std::shared_ptr<Matrix> &qRoPEOutput,
-                                                                 const std::shared_ptr<Matrix> &kRoPEOutput,
-                                                                 const std::shared_ptr<Matrix> &qkDotProdOutput,
-                                                                 const std::shared_ptr<Matrix> &qkDotProdScaleOutput,
-                                                                 const std::shared_ptr<Matrix> &softmaxOutput,
-                                                                 const std::shared_ptr<Matrix> &V,
-                                                                 const std::shared_ptr<Matrix> &vMulOutput);
 
     std::shared_ptr<IComputeGraphNode> RMSNorm(const std::shared_ptr<Matrix> &vectorInput,
                                                float scale,
@@ -147,6 +135,9 @@ public:
 
     std::shared_ptr<IComputeGraphNode> Transpose(const std::shared_ptr<Matrix> &inputMatrix,
                                                  const std::shared_ptr<Matrix> &outputMatrix);
+
+    std::shared_ptr<IComputeGraphNode> LogSoftmax(const std::shared_ptr<Matrix> &input,
+                                                  const std::shared_ptr<Matrix> &output);
 };
 
 

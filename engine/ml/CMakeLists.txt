@@ -86,5 +86,11 @@ add_library(ml_engine
         operators/impl/gpu/RoPEMulOperator.h
         operators/impl/gpu/TransposeOperator.cpp
         operators/impl/gpu/TransposeOperator.h
+        operators/impl/cpu/ExpSumOperator.cpp
+        operators/impl/cpu/ExpSumOperator.h
+        operators/impl/cpu/MaxOperator.cpp
+        operators/impl/cpu/MaxOperator.h
+        operators/impl/gpu/LogSoftmaxOperator.cpp
+        operators/impl/gpu/LogSoftmaxOperator.h
 )
 target_link_libraries(ml_engine core)

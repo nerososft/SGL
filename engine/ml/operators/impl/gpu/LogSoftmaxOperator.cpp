@@ -1,8 +1,8 @@
 //
-// Created by neo on 25-5-25.
+// Created by neo on 25-7-9.
 //
 
-#include "SoftmaxOperator.h"
+#include "LogSoftmaxOperator.h"
 
 #include <cassert>
 
@@ -11,15 +11,15 @@
 #include "core/gpu/compute_graph/ComputePipelineNode.h"
 #include "core/log/Log.h"
 
-SoftmaxOperator::SoftmaxOperator(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                                 const std::shared_ptr<VkGPUBuffer> &inputBuffer,
-                                 const std::shared_ptr<VkGPUBuffer> &outputBuffer)
+LogSoftmaxOperator::LogSoftmaxOperator(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                                       const std::shared_ptr<VkGPUBuffer> &inputBuffer,
+                                       const std::shared_ptr<VkGPUBuffer> &outputBuffer)
     : UnaryOperator(gpuCtx, inputBuffer, outputBuffer) {
 }
 
-SoftmaxOperator::~SoftmaxOperator() = default;
+LogSoftmaxOperator::~LogSoftmaxOperator() = default;
 
-std::shared_ptr<IComputeGraphNode> SoftmaxOperator::CreateComputeGraphNode() {
+std::shared_ptr<IComputeGraphNode> LogSoftmaxOperator::CreateComputeGraphNode() {
     std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
     descriptorSetLayoutBindings.push_back(
         VkGPUHelper::BuildDescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1,
@@ -28,15 +28,15 @@ std::shared_ptr<IComputeGraphNode> SoftmaxOperator::CreateComputeGraphNode() {
         VkGPUHelper::BuildDescriptorSetLayoutBinding(1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1,
                                                      VK_SHADER_STAGE_COMPUTE_BIT));
     const size_t nums = outputBuffer->GetBufferSize() / sizeof(float);
-    auto softmaxNode = std::make_shared<ComputePipelineNode>(this->gpuCtx,
-                                                             "Softmax",
-                                                             SHADER(softmax.comp.glsl.spv),
-                                                             sizeof(SoftmaxOperatorParams),
-                                                             descriptorSetLayoutBindings,
-                                                             (nums + 255) / 256,
-                                                             1,
-                                                             1);
-    const VkResult ret = softmaxNode->CreateComputeGraphNode();
+    auto logSoftmaxNode = std::make_shared<ComputePipelineNode>(this->gpuCtx,
+                                                                "LogSoftmax",
+                                                                SHADER(logsoftmax.comp.glsl.spv),
+                                                                sizeof(LogSoftmaxOperatorParams),
+                                                                descriptorSetLayoutBindings,
+                                                                (nums + 255) / 256,
+                                                                1,
+                                                                1);
+    const VkResult ret = logSoftmaxNode->CreateComputeGraphNode();
     if (ret != VK_SUCCESS) {
         Logger() << "Error creating softmax node." << std::endl;
         return nullptr;
@@ -58,7 +58,7 @@ std::shared_ptr<IComputeGraphNode> SoftmaxOperator::CreateComputeGraphNode() {
     });
 
     const PushConstantInfo pushConstantInfo{
-        .size = sizeof(SoftmaxOperatorParams),
+        .size = sizeof(LogSoftmaxOperatorParams),
         .data = &this->params
     };
     const ComputeElement computeElem{
@@ -68,14 +68,12 @@ std::shared_ptr<IComputeGraphNode> SoftmaxOperator::CreateComputeGraphNode() {
         .preCompute = [this] {
             assert(this->sum != nullptr);
             this->params.sum = *this->sum;
-            const float maxVal = this->max == nullptr ? 0.0f : *this->max;
-            this->params.max = maxVal;
         }
     };
-    softmaxNode->AddComputeElement(computeElem);
-    return softmaxNode;
+    logSoftmaxNode->AddComputeElement(computeElem);
+    return logSoftmaxNode;
 }
 
-void SoftmaxOperator::Destroy() {
+void LogSoftmaxOperator::Destroy() {
     UnaryOperator::Destroy();
 }

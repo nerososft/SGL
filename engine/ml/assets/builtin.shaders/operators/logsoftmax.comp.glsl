@@ -12,7 +12,6 @@ layout (std430, binding = 1) buffer OutputStorageBuffer {
 
 layout (push_constant) uniform Params {
     float sum;
-    float max;
 // TODO: params
 } params;
 
@@ -21,6 +20,5 @@ void main() {
     if (coord.x >= inputBuffer.data.length()) {
         return;
     }
-    float sum = max(params.sum, 1e-10);
-    outputBuffer.data[coord.x] = exp(inputBuffer.data[coord.x] - params.max) / sum;
+    outputBuffer.data[coord.x] = inputBuffer.data[coord.x] - log(params.sum);
 }

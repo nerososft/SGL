@@ -43,6 +43,15 @@ bool Model::Init() {
     normMatrix = InitWeightMatrix(safeTensor, normWeight);
     assert(normMatrix != nullptr);
 
+    const Weight lmHeadWeight = safeTensor->GetWeight("lm_head.weight");
+    lmHeadMatrix = InitWeightMatrix(safeTensor, lmHeadWeight);
+    assert(lmHeadMatrix != nullptr);
+
+    result = mle->CreateMatrix(this->lmHeadMatrix->GetWidth(), 1);
+    assert(result!=nullptr);
+    softmaxResult = mle->CreateMatrix(this->lmHeadMatrix->GetWidth(), 1);
+    assert(softmaxResult!=nullptr);
+
     this->blocks.resize(layerNums);
 
     biasMatrix = mle->CreateMatrix(32, 32);
@@ -112,9 +121,20 @@ std::vector<float> Model::Forward(const std::vector<std::vector<float> > &inputs
         }
     }
 
-    std::vector<float> result(config->GetHiddenSize());
-    blocks[this->config->GetHiddenLayerNums() - 1]->GetOutputsMatrix()[inputs.size() - 1]->GetBuffer()->DownloadData(
-        result.data(), result.size() * sizeof(float));
+    const auto output = blocks[this->config->GetHiddenLayerNums() - 1]->GetOutputsMatrix()[inputs.size() - 1];
+    mle->Seq()
+            ->Record(mle->MatMul(output, lmHeadMatrix, result))
+            ->Record(mle->LogSoftmax(result, softmaxResult))
+            ->Eval()
+            ->Destroy();
+    result->Destroy();
 
-    return result;
+    std::vector<float> re(this->lmHeadMatrix->GetWidth());
+    softmaxResult->GetBuffer()->DownloadData(re.data(), re.size() * sizeof(float));
+    std::ranges::sort(re, std::greater<float>());
+    for (size_t i = 0; i < 100; i++) {
+        std::cout << re[i] << ", ";
+    }
+
+    return {};
 }
