@@ -15,113 +15,72 @@ layout (push_constant) uniform FilterParams {
     uint outputHeight;
     uint outputChannels;
     uint outputBytesPerLine;
-    uint inputWidthStride;
-    uint inputHeightStride;
-    uint format;// 0: I420
+    uint inputWidthStride;   // 输入图像Y平面的行跨度（字节）
+    uint inputHeightStride;  // 输入图像高度跨度（通常为实际高度）
+    uint format;             // 可保持为1表示NV12格式
 } filterParams;
 
-// ABGR
+// 打包RGBA颜色为ABGR格式的32位无符号整数
 uint packColor(vec4 color) {
     return (
-    (uint(clamp(color.a, 0.0, 1.0) * 255.0) << 24) |
+    (uint(clamp(color.a, 0.0, 1.0) * 255.0) << 24) | // a
     (uint(clamp(color.b, 0.0, 1.0) * 255.0) << 16) |
     (uint(clamp(color.g, 0.0, 1.0) * 255.0) << 8) |
     uint(clamp(color.r, 0.0, 1.0) * 255.0)
     );
 }
 
-// BT.601
+// BT.601标准YUV到RGB转换矩阵
 const mat3 yuvToRgb = mat3(
 1.0, 0.0, 1.13983,
 1.0, -0.39465, -0.58060,
 1.0, 2.03211, 0.0
 );
 
+// YUV分量偏移校正（将[0,1]范围映射到标准YUV范围）
 const vec3 yuvOffset = vec3(-16.0/255.0, -128.0/255.0, -128.0/255.0);
 
-// 从缓冲区读取一个字节
+// 从缓冲区指定字节偏移处读取一个字节
 uint readByte(uint byteOffset) {
-    uint wordOffset = byteOffset / 4;
-    uint byteInWord = byteOffset % 4;
+    uint wordOffset = byteOffset / 4;  // 计算32位字的索引
+    uint byteInWord = byteOffset % 4;  // 计算字内字节偏移（0-3）
 
     uint word = inputImage.pixels[wordOffset];
-    return (word >> (byteInWord * 8)) & 0xFF;
+    return (word >> (byteInWord * 8)) & 0xFF;  // 提取目标字节
 }
 
 void main() {
+    // 获取当前线程处理的像素坐标
     uvec2 coord = gl_GlobalInvocationID.xy;
-    // 使用正确的输出尺寸参数
+
+    // 边界检查：如果坐标超出输出图像范围则退出
     if (any(greaterThanEqual(coord, uvec2(filterParams.outputWidth, filterParams.outputHeight)))) {
         return;
     }
 
-    // 输出像素的索引
-    uint outputIndex = coord.y * filterParams.outputBytesPerLine + coord.x;
     float y, u, v;
 
-    // 输入图像的实际尺寸（假设输入和输出尺寸相同，除非使用了stride）
-    uint inputWidth = filterParams.inputWidthStride;
-    uint inputHeight = filterParams.inputHeightStride;
+    // 计算Y分量的字节偏移（Y平面每行跨度为inputWidthStride）
+    uint yByteOffset = coord.y * filterParams.inputWidthStride + coord.x;
+    y = float(readByte(yByteOffset)) / 255.0;  // 转换为[0,1]范围
 
-    // 如果stride未设置，则使用输出尺寸
-    if (inputWidth == 0) inputWidth = filterParams.outputWidth;
-    if (inputHeight == 0) inputHeight = filterParams.outputHeight;
+    // 计算UV分量的坐标（NV12的UV是4:2:0下采样，分辨率为Y的1/2）
+    uint uvX = coord.x / 2;
+    uint uvY = coord.y / 2;
 
-    if (filterParams.format == 0) { // I420 (YUV 4:2:0)
-        // 计算Y分量的字节偏移量
-        uint yOffset = coord.y * inputWidth + coord.x;
-        y = float(readByte(yOffset)) / 255.0;
+    // NV12的UV平面在Y平面之后，每个UV对占用2字节（U和V各1字节）
+    uint uvPlaneOffset = filterParams.inputHeightStride * filterParams.inputWidthStride;  // Y平面总大小
+    uint uvByteOffset = uvPlaneOffset + (uvY * filterParams.inputWidthStride) + (uvX * 2);  // UV平面内偏移
 
-        // 计算UV坐标（下采样）
-        uvec2 uvCoord = uvec2(coord.x / 2, coord.y / 2);
-        uint uvWidth = inputWidth / 2;
+    // 读取U和V分量（NV12中U在偶数偏移，V在奇数偏移）
+    u = float(readByte(uvByteOffset)) / 255.0;    // U分量
+    v = float(readByte(uvByteOffset + 1)) / 255.0;  // V分量
 
-        // 计算U分量的字节偏移量
-        uint uOffset = inputWidth * inputHeight + uvCoord.y * uvWidth + uvCoord.x;
-        u = float(readByte(uOffset)) / 255.0;
+    // YUV到RGB转换
+    vec3 yuv = vec3(y, u, v) + yuvOffset;  // 应用偏移校正
+    vec3 rgb = yuvToRgb * yuv;             // 矩阵转换
 
-        // 计算V分量的字节偏移量
-        uint vOffset = inputWidth * inputHeight + (inputWidth * inputHeight / 4) + uvCoord.y * uvWidth + uvCoord.x;
-        v = float(readByte(vOffset)) / 255.0;
-    }
-    else if (filterParams.format == 1) { // NV12 (YUV 4:2:0 with interleaved UV)
-        // 计算Y分量的字节偏移量
-        uint yOffset = coord.y * inputWidth + coord.x;
-        y = float(readByte(yOffset)) / 255.0;
-
-        // 计算UV坐标（下采样）
-        uvec2 uvCoord = uvec2(coord.x / 2, coord.y / 2);
-        uint uvWidth = inputWidth / 2;
-
-        // 计算UV分量的字节偏移量（NV12中U和V是交替存储的）
-        uint uvOffset = inputWidth * inputHeight + (uvCoord.y * uvWidth + uvCoord.x) * 2;
-
-        // 读取U和V分量
-        u = float(readByte(uvOffset)) / 255.0;
-        v = float(readByte(uvOffset + 1)) / 255.0;
-    }
-    else if (filterParams.format == 2) { // I444 (YUV 4:4:4)
-        // 计算Y分量的字节偏移量
-        uint yOffset = coord.y * inputWidth + coord.x;
-        y = float(readByte(yOffset)) / 255.0;
-
-        // 计算U分量的字节偏移量
-        uint uOffset = inputWidth * inputHeight + coord.y * inputWidth + coord.x;
-        u = float(readByte(uOffset)) / 255.0;
-
-        // 计算V分量的字节偏移量
-        uint vOffset = inputWidth * inputHeight * 2 + coord.y * inputWidth + coord.x;
-        v = float(readByte(vOffset)) / 255.0;
-    }
-    else {
-        // 默认情况，全部设为0
-        y = 0.0;
-        u = 0.0;
-        v = 0.0;
-    }
-
-    vec3 yuv = vec3(y, u, v) + yuvOffset;
-    vec3 rgb = yuvToRgb * yuv;
-
-    outputImage.pixels[outputIndex] = packColor(vec4(1.0, rgb));
+    // 计算输出像素索引并写入结果（ABGR格式）
+    uint outputIndex = coord.y * filterParams.outputWidth + coord.x;
+    outputImage.pixels[outputIndex] = packColor(vec4(rgb, 1.0));
 }
