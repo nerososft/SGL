@@ -127,6 +127,10 @@ public:
 
     void SetOutputsMatrix(const std::vector<std::shared_ptr<Matrix> > &outputs);
 
+    std::vector<std::shared_ptr<Matrix> > GetOutputsMatrix() {
+        return outputsMatrix;
+    }
+
     void MultiHead(size_t tokenPos);
 
     void Attention();

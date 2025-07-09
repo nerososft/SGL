@@ -112,5 +112,9 @@ std::vector<float> Model::Forward(const std::vector<std::vector<float> > &inputs
         }
     }
 
-    return {};
+    std::vector<float> result(config->GetHiddenSize());
+    blocks[this->config->GetHiddenLayerNums() - 1]->GetOutputsMatrix()[inputs.size() - 1]->GetBuffer()->DownloadData(
+        result.data(), result.size() * sizeof(float));
+
+    return result;
 }
