@@ -1,6 +1,6 @@
 #version 450
 
-layout (local_size_x = 32, local_size_y = 32, local_size_z = 1) in;
+layout (local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
 
 layout (std430, binding = 0) buffer InputImageStorageBuffer {
     uint pixels[];
@@ -15,75 +15,123 @@ layout (push_constant) uniform FilterParams {
     uint inputHeight;
     uint inputChannels;
     uint inputBytesPerLine;
-    uint outputWidthStride; // 输出图像Y平面的行跨度（uint数）
-    uint outputHeightStride; // 输出图像高度跨度（通常为实际高度）
-    uint format; // 可保持为1表示NV12格式
+    uint outputWidthStride; // Stride in uints for Y plane
+    uint outputHeightStride; // Height for Y plane (same as inputHeight)
+    uint format; // Keep as 1 for NV12
 } filterParams;
 
-// ABGR
 vec4 unpackColor(uint color) {
     return vec4(
-    float((color) & 0xFF) / 255.0f,
+    float(color & 0xFF) / 255.0f,
     float((color >> 8) & 0xFF) / 255.0f,
     float((color >> 16) & 0xFF) / 255.0f,
     float((color >> 24) & 0xFF) / 255.0f
     );
 }
 
-// 将4个8位值打包到一个uint中
 uint pack4Bytes(uint b0, uint b1, uint b2, uint b3) {
-    return (b3 << 24) | (b2 << 16) | (b1 << 8) | b0;
+    return b0 | (b1 << 8) | (b2 << 16) | (b3 << 24);
 }
 
 void main() {
-    uvec2 coord = gl_GlobalInvocationID.xy;
-    if (any(greaterThanEqual(coord, uvec2(filterParams.inputWidth, filterParams.inputHeight)))) {
-        return;
+    uvec2 blockId = gl_GlobalInvocationID.xy;
+    uint baseX = blockId.x * 2;
+    uint baseY = blockId.y * 2;
+
+    // Process a 2x2 block
+    vec3 blockRGB[2][2];
+    float yValues[2][2];
+    bool inBounds[2][2];
+    vec3 rgbSum = vec3(0);
+    int count = 0;
+
+    // Initialize all to false
+    for (int i = 0; i < 2; ++i) {
+        for (int j = 0; j < 2; ++j) {
+            inBounds[i][j] = false;
+        }
     }
 
-    // 从输入缓冲区读取像素并解包为RGBA
-    uint inputIndex = coord.y * filterParams.inputWidth + coord.x;
-    vec4 rgba = unpackColor(inputImage.pixels[inputIndex]);
+    // Read and process all 4 pixels in the block
+    for (uint i = 0; i < 2; i++) {
+        for (uint j = 0; j < 2; j++) {
+            uint x = baseX + i;
+            uint y = baseY + j;
 
-    // 提取RGB分量并转换为YUV
-    vec3 rgb = rgba.rgb;
-    float y =  0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b;
-    float u = -0.14713 * rgb.r - 0.28886 * rgb.g + 0.436 * rgb.b + 0.5;
-    float v =  0.615 * rgb.r - 0.51499 * rgb.g - 0.10001 * rgb.b + 0.5;
+            if (x < filterParams.inputWidth && y < filterParams.inputHeight) {
+                uint inputIndex = y * filterParams.inputWidth + x;
+                vec4 rgba = unpackColor(inputImage.pixels[inputIndex]);
+                blockRGB[i][j] = rgba.rgb;
+                inBounds[i][j] = true;
 
-    // 确保YUV值在有效范围内
-    y = clamp(y, 0.0, 1.0);
-    u = clamp(u, 0.0, 1.0);
-    v = clamp(v, 0.0, 1.0);
+                // Accumulate for UV calculation
+                rgbSum += blockRGB[i][j];
+                count++;
 
-    // 将YUV值转换为8位整数
-    uint yByte = min(uint(y * 255.0), 255u);
-    uint uByte = min(uint(u * 255.0), 255u);
-    uint vByte = min(uint(v * 255.0), 255u);
+                // Calculate Y for all pixels
+                vec3 rgb = blockRGB[i][j];
+                float y = 0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b;
+                y = clamp(y, 0.0, 1.0);
+                yValues[i][j] = y;
+            }
+        }
+    }
 
-    // 计算Y平面的输出索引（考虑对齐）
-    uint yLineOffset = coord.y * filterParams.outputWidthStride;  // 行偏移（uint数）
-    uint yPixelOffset = coord.x / 4;                               // 像素在uint中的偏移
-    uint yUintIndex = yLineOffset + yPixelOffset;                 // uint索引
-    uint yByteOffset = coord.x % 4;                                // 字节偏移（0-3）
+    // Calculate UV only if there are valid pixels
+    vec2 uv = vec2(0.5, 0.5);  // Default gray if no pixels
+    if (count > 0) {
+        vec3 avgRGB = rgbSum / float(count);
+        float u = -0.14713 * avgRGB.r - 0.28886 * avgRGB.g + 0.436 * avgRGB.b + 0.5;
+        float v = 0.615 * avgRGB.r - 0.51499 * avgRGB.g - 0.10001 * avgRGB.b + 0.5;
+        uv = clamp(vec2(u, v), 0.0, 1.0);
+    }
 
-    // 计算UV平面的输出索引（考虑对齐）
-    uvec2 uvCoord = uvec2(coord.x / 2, coord.y / 2);
-    uint uvLineOffset = uvCoord.y * filterParams.outputWidthStride;  // UV行偏移
-    uint uvPixelOffset = uvCoord.x / 2;                               // UV像素在uint中的偏移
-    uint uvUintIndex = (filterParams.outputWidthStride * filterParams.outputHeightStride) +
-    uvLineOffset + uvPixelOffset;                   // UV的uint索引
-    uint uvByteOffset = uvCoord.x % 2;                                // UV字节偏移（0-1）
+    // Convert to byte values
+    uint uByte = min(uint(uv.x * 255.0), 255u);
+    uint vByte = min(uint(uv.y * 255.0), 255u);
 
-    // 写入Y值
-    uint yMask = ~(0xFFu << (yByteOffset * 8));
-    uint yValue = yByte << (yByteOffset * 8);
-    outputImage.pixels[yUintIndex] = (outputImage.pixels[yUintIndex] & yMask) | yValue;
+    // ================================================
+    // Write Y Plane (packing 4 Y bytes into each uint)
+    // ================================================
+    for (uint j = 0; j < 2; j++) {
+        uint row = baseY + j;
+        if (row < filterParams.inputHeight) {
+            uint yIndex = row * filterParams.outputWidthStride + blockId.x;
+            uint packedY = outputImage.pixels[yIndex];  // Read existing data
 
-    // 仅在处理偶数坐标时写入UV值
-    if ((coord.x % 2 == 0) && (coord.y % 2 == 0)) {
-        uint uvMask = ~(0xFFu << (uvByteOffset * 8));
-        uint uvValue = (uvByteOffset == 0 ? uByte : vByte) << (uvByteOffset * 8);
-        outputImage.pixels[uvUintIndex] = (outputImage.pixels[uvUintIndex] & uvMask) | uvValue;
+            // Pack 2 pixels at a time for this row (2 bytes each)
+            for (uint i = 0; i < 2; i += 2) {
+                uint b0 = (baseX + i < filterParams.inputWidth && inBounds[i][j]) ?
+                uint(yValues[i][j] * 255.0) & 0xFF : 0u;
+                uint b1 = (baseX + i + 1 < filterParams.inputWidth && inBounds[i+1][j]) ?
+                uint(yValues[i+1][j] * 255.0) & 0xFF : 0u;
+
+                // Clear positions before writing
+                uint shift = i * 8;  // 0 or 16
+                uint mask = ~(0xFF | (0xFF << 8)) << shift;
+                packedY &= mask;
+                packedY |= (b0 | (b1 << 8)) << shift;
+            }
+
+            outputImage.pixels[yIndex] = packedY;
+        }
+    }
+
+    // ================================================
+    // Write UV Plane (only for top-left pixel of block)
+    // ================================================
+    if (baseY < filterParams.inputHeight && baseX < filterParams.inputWidth) {
+        uint uvBase = filterParams.outputWidthStride * filterParams.outputHeightStride;
+        uint uvRow = blockId.y;
+        uint uvCol = blockId.x;
+        uint uvIndex = uvBase + uvRow * filterParams.outputWidthStride + uvCol;
+
+        uint packedUV = outputImage.pixels[uvIndex];  // Read existing data
+        uint byteOffset = (blockId.x % 2) * 16;       // Low or high 16 bits
+        uint mask = 0xFFFF << byteOffset;
+        uint newUV = (uByte | (vByte << 8)) << byteOffset;
+
+        packedUV = (packedUV & ~mask) | newUV;
+        outputImage.pixels[uvIndex] = packedUV;
     }
 }
