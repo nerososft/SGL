@@ -15,9 +15,9 @@ layout (push_constant) uniform FilterParams {
     uint inputHeight;
     uint inputChannels;
     uint inputBytesPerLine;
-    uint outputWidthStride;// 输出图像Y平面的行跨度（字节）
-    uint outputHeightStride;// 输出图像高度跨度（通常为实际高度）
-    uint format;// 可保持为1表示NV12格式
+    uint outputWidthStride; // 输出图像Y平面的行跨度（uint数）
+    uint outputHeightStride; // 输出图像高度跨度（通常为实际高度）
+    uint format; // 可保持为1表示NV12格式
 } filterParams;
 
 // ABGR
@@ -30,44 +30,60 @@ vec4 unpackColor(uint color) {
     );
 }
 
+// 将4个8位值打包到一个uint中
+uint pack4Bytes(uint b0, uint b1, uint b2, uint b3) {
+    return (b3 << 24) | (b2 << 16) | (b1 << 8) | b0;
+}
+
 void main() {
     uvec2 coord = gl_GlobalInvocationID.xy;
     if (any(greaterThanEqual(coord, uvec2(filterParams.inputWidth, filterParams.inputHeight)))) {
         return;
     }
 
-    // 计算输入图像中的像素索引
-    uint inputIndex = coord.y * filterParams.inputWidth + coord.x;
-
     // 从输入缓冲区读取像素并解包为RGBA
+    uint inputIndex = coord.y * filterParams.inputWidth + coord.x;
     vec4 rgba = unpackColor(inputImage.pixels[inputIndex]);
 
-    // 提取RGB分量（忽略Alpha）
+    // 提取RGB分量并转换为YUV
     vec3 rgb = rgba.rgb;
-
-    // RGBA到YUV转换 (使用BT.601标准)
     float y =  0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b;
     float u = -0.14713 * rgb.r - 0.28886 * rgb.g + 0.436 * rgb.b + 0.5;
     float v =  0.615 * rgb.r - 0.51499 * rgb.g - 0.10001 * rgb.b + 0.5;
 
-    // 计算Y平面的输出索引（NV12格式的前半部分是Y平面）
-    uint yIndex = coord.y * filterParams.outputWidthStride + coord.x;
+    // 确保YUV值在有效范围内
+    y = clamp(y, 0.0, 1.0);
+    u = clamp(u, 0.0, 1.0);
+    v = clamp(v, 0.0, 1.0);
 
-    // 计算UV平面的输出索引（NV12格式的后半部分是UV交错平面）
-    // UV平面是Y平面尺寸的一半（在每个维度上）
+    // 将YUV值转换为8位整数
+    uint yByte = min(uint(y * 255.0), 255u);
+    uint uByte = min(uint(u * 255.0), 255u);
+    uint vByte = min(uint(v * 255.0), 255u);
+
+    // 计算Y平面的输出索引（考虑对齐）
+    uint yLineOffset = coord.y * filterParams.outputWidthStride;  // 行偏移（uint数）
+    uint yPixelOffset = coord.x / 4;                               // 像素在uint中的偏移
+    uint yUintIndex = yLineOffset + yPixelOffset;                 // uint索引
+    uint yByteOffset = coord.x % 4;                                // 字节偏移（0-3）
+
+    // 计算UV平面的输出索引（考虑对齐）
     uvec2 uvCoord = uvec2(coord.x / 2, coord.y / 2);
-    uint uvIndex = filterParams.inputWidth * filterParams.inputHeight +
-    uvCoord.y * filterParams.outputWidthStride +
-    uvCoord.x * 2;// 每个UV对占两个字节
+    uint uvLineOffset = uvCoord.y * filterParams.outputWidthStride;  // UV行偏移
+    uint uvPixelOffset = uvCoord.x / 2;                               // UV像素在uint中的偏移
+    uint uvUintIndex = (filterParams.outputWidthStride * filterParams.outputHeightStride) +
+    uvLineOffset + uvPixelOffset;                   // UV的uint索引
+    uint uvByteOffset = uvCoord.x % 2;                                // UV字节偏移（0-1）
 
-    // 将Y值写入输出缓冲区（转换为8位无符号整数）
-    outputImage.pixels[yIndex] = uint(y * 255.0);
+    // 写入Y值
+    uint yMask = ~(0xFFu << (yByteOffset * 8));
+    uint yValue = yByte << (yByteOffset * 8);
+    outputImage.pixels[yUintIndex] = (outputImage.pixels[yUintIndex] & yMask) | yValue;
 
-    // 仅在处理偶数坐标时写入UV值（因为UV平面是Y平面的1/4大小）
+    // 仅在处理偶数坐标时写入UV值
     if ((coord.x % 2 == 0) && (coord.y % 2 == 0)) {
-        // 将U值写入UV索引位置
-        outputImage.pixels[uvIndex] = uint(u * 255.0);
-        // 将V值写入UV索引+1位置
-        outputImage.pixels[uvIndex + 1] = uint(v * 255.0);
+        uint uvMask = ~(0xFFu << (uvByteOffset * 8));
+        uint uvValue = (uvByteOffset == 0 ? uByte : vByte) << (uvByteOffset * 8);
+        outputImage.pixels[uvUintIndex] = (outputImage.pixels[uvUintIndex] & uvMask) | uvValue;
     }
 }
