@@ -426,13 +426,9 @@ void TransformerBlock::MLP(const size_t tokenPos) {
             ->Record(mle->MatMul(mlpGateOutputs[tokenPos],
                                  mlpDownProj,
                                  mlpOutputs[tokenPos]))
-            ->Record(mle->LayerNorm(mlpOutputs[tokenPos],
-                                    postAttentionLayerNormOutputs[tokenPos],
-                                    biasMatrix,
-                                    1e-06,
-                                    true,
-                                    false,
-                                    outputsMatrix[tokenPos]))
+            ->Record(mle->Add(mlpOutputs[tokenPos],
+                              postAttentionLayerNormOutputs[tokenPos],
+                              outputsMatrix[tokenPos]))
             ->Eval()
             ->Destroy();
 }
