@@ -30,16 +30,6 @@ uint packColor(vec4 color) {
     );
 }
 
-// BT.601标准YUV到RGB转换矩阵
-const mat3 yuvToRgb = mat3(
-1.164, 0.0, 1.793,
-1.164, -0.213, -0.533,
-1.164, 2.112, 0.0
-);
-
-// YUV分量偏移校正（将[0,1]范围映射到标准YUV范围）
-const vec3 yuvOffset = vec3(-16.0/255.0, -128.0/255.0, -128.0/255.0);
-
 // 从缓冲区指定字节偏移处读取一个字节
 uint readByte(uint byteOffset) {
     uint wordOffset = byteOffset / 4;// 计算32位字的索引
@@ -58,11 +48,11 @@ void main() {
         return;
     }
 
-    float y, u, v;
+    uint y, u, v;
 
     // 计算Y分量的字节偏移（Y平面每行跨度为inputWidthStride）
     uint yByteOffset = coord.y * filterParams.inputWidthStride + coord.x;
-    y = float(readByte(yByteOffset)) / 255.0;// 转换为[0,1]范围
+    y = readByte(yByteOffset);
 
     // 计算UV分量的坐标（NV12的UV是4:2:0下采样，分辨率为Y的1/2）
     uint uvX = coord.x / 2;
@@ -73,14 +63,19 @@ void main() {
     uint uvByteOffset = uvPlaneOffset + (uvY * filterParams.inputWidthStride) + (uvX * 2);// UV平面内偏移
 
     // 读取U和V分量（NV12中U在偶数偏移，V在奇数偏移）
-    u = float(readByte(uvByteOffset)) / 255.0;// U分量
-    v = float(readByte(uvByteOffset + 1)) / 255.0;// V分量
+    u = readByte(uvByteOffset);
+    v = readByte(uvByteOffset + 1);
 
-    // YUV到RGB转换
-    vec3 yuv = vec3(y, u, v) + yuvOffset;// 应用偏移校正
-    vec3 rgb = yuvToRgb * yuv;// 矩阵转换
+    uint c = (y-16) * 298;
+    uint d = u-128;
+    uint e = v-128;
 
-    // 计算输出像素索引并写入结果（ABGR格式）
+    uint r = (c + 409 * e + 128) / 256;
+    uint g = (c - 100 * d - 208 * e + 128) / 256;
+    uint b = (c + 516 * d + 128) / 256;
+
+    vec3 rgb = vec3(float(r) / 256.0, float(g) / 256.0, float(b) / 256.0);
+
     uint outputIndex = coord.y * filterParams.outputWidth + coord.x;
     outputImage.pixels[outputIndex] = packColor(vec4(rgb, 1.0));
 }
