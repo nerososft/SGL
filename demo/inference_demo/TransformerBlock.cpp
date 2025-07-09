@@ -336,12 +336,57 @@ void TransformerBlock::Attention() {
             ->Eval()
             ->Destroy();
 
-    qkvAttentionConcatOutput->Print();
-    // 4. Residual Connection by raw
-    // TODO:
+    std::vector<std::shared_ptr<Matrix> > qkvAttentionConcatOutputRows(seqLen);
+    for (size_t tokenIdx = 0; tokenIdx < seqLen; tokenIdx++) {
+        qkvAttentionConcatOutputRows[tokenIdx] = mle->CreateMatrix(config->GetHiddenSize(), 1);
+        assert(qkvAttentionConcatOutputRows[tokenIdx] != nullptr);
+    }
+    mle->Seq()
+            ->Record(mle->Split(qkvAttentionConcatOutput, seqLen, qkvAttentionConcatOutputRows))
+            ->Eval()
+            ->Destroy();
+
+    add1Outputs.resize(seqLen);
+    postAttentionLayerNormOutputs.resize(seqLen);
+    for (size_t tokenIdx = 0; tokenIdx < seqLen; tokenIdx++) {
+        if (add1Outputs[tokenIdx] == nullptr) {
+            add1Outputs[tokenIdx] = mle->CreateMatrix(config->GetHiddenSize(), 1);
+            assert(add1Outputs[tokenIdx] != nullptr);
+        }
+        if (postAttentionLayerNormOutputs[tokenIdx] == nullptr) {
+            postAttentionLayerNormOutputs[tokenIdx] = mle->CreateMatrix(config->GetHiddenSize(), 1);
+            assert(postAttentionLayerNormOutputs[tokenIdx] != nullptr);
+        }
+
+        // 4. Residual Connection by raw
+        mle->Seq()
+                ->Record(mle->Add(inputsMatrix[tokenIdx], qkvAttentionConcatOutputRows[tokenIdx],
+                                  add1Outputs[tokenIdx]))
+                ->Eval()
+                ->Destroy();
+        qkvAttentionConcatOutputRows[tokenIdx]->Destroy();
+
+        // 5. postAttentionLayerNorm
+        mle->Seq()
+                ->Record(mle->LayerNorm(add1Outputs[tokenIdx],
+                                        postAttentionLayerNorm,
+                                        biasMatrix,
+                                        1e-06,
+                                        true,
+                                        false,
+                                        postAttentionLayerNormOutputs[tokenIdx]))
+                ->Eval()
+                ->Destroy();
+    }
 }
 
 void TransformerBlock::MLP(const size_t tokenPos) {
+    const size_t seqLen = inputsMatrix.size();
+    mlpUpProjOutputs.resize(seqLen);
+    mlpGateProjOutputs.resize(seqLen);
+    mlpGateSigmoidOutputs.resize(seqLen);
+    mlpGateOutputs.resize(seqLen);
+    mlpOutputs.resize(seqLen);
     if (postAttentionLayerNormOutputs[tokenPos] == nullptr) {
         postAttentionLayerNormOutputs[tokenPos] = mle->CreateMatrix(postAttentionLayerNorm->GetWidth(), 1);
         assert(postAttentionLayerNormOutputs[tokenPos] != nullptr);

@@ -107,9 +107,9 @@ std::vector<float> Model::Forward(const std::vector<std::vector<float> > &inputs
             blocks[layerIdx]->MultiHead(tokenPos);
         }
         blocks[layerIdx]->Attention();
-        // for (size_t tokenPos = 0; tokenPos < inputs.size(); tokenPos++) {
-        //     blocks[layerIdx]->MLP(tokenPos);
-        // }
+        for (size_t tokenPos = 0; tokenPos < inputs.size(); tokenPos++) {
+            blocks[layerIdx]->MLP(tokenPos);
+        }
     }
 
     return {};
