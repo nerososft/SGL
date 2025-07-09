@@ -123,5 +123,5 @@ void main() {
     vec3 yuv = vec3(y, u, v) + yuvOffset;
     vec3 rgb = yuvToRgb * yuv;
 
-    outputImage.pixels[outputIndex] = packColor(vec4(rgb, 1.0));
+    outputImage.pixels[outputIndex] = packColor(vec4(1.0, rgb));
 }
