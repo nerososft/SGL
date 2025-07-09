@@ -11,22 +11,14 @@ layout (std430, binding = 1) buffer OutputImageStorageBuffer {
 } outputImage;
 
 layout (push_constant) uniform FilterParams {
-    uint width;
-    uint height;
-    uint channels;
-    uint bytesPerLine;
-    uint format; // 0: I420, 1: NV12, etc.
+    uint inputWidth;
+    uint inputHeight;
+    uint inputChannels;
+    uint inputBytesPerLine;
+    uint outputWidthStride;// 输出图像Y平面的行跨度（字节）
+    uint outputHeightStride;// 输出图像高度跨度（通常为实际高度）
+    uint format;// 可保持为1表示NV12格式
 } filterParams;
-
-// ABGR
-uint packColor(vec4 color) {
-    return (
-    (uint(clamp(color.a, 0.0, 1.0) * 255.0) << 24) |
-    (uint(clamp(color.b, 0.0, 1.0) * 255.0) << 16) |
-    (uint(clamp(color.g, 0.0, 1.0) * 255.0) << 8) |
-    uint(clamp(color.r, 0.0, 1.0) * 255.0)
-    );
-}
 
 // ABGR
 vec4 unpackColor(uint color) {
@@ -38,46 +30,44 @@ vec4 unpackColor(uint color) {
     );
 }
 
-// RGB转YUV的系数
-const mat3 rgbToYuv = mat3(
-0.299,     0.587,     0.114,
--0.14713, -0.28886,  0.436,
-0.615,    -0.51499, -0.10001
-);
-
 void main() {
     uvec2 coord = gl_GlobalInvocationID.xy;
-    if (any(greaterThanEqual(coord, uvec2(filterParams.width, filterParams.height)))) {
+    if (any(greaterThanEqual(coord, uvec2(filterParams.inputWidth, filterParams.inputHeight)))) {
         return;
     }
 
-    // 计算输入像素索引
-    uint pixelIndex = coord.y * filterParams.width + coord.x;
-    // 解包ABGR颜色
-    vec4 abgrColor = unpackColor(inputImage.pixels[pixelIndex]);
-    // 转换为RGB
-    vec3 rgbColor = abgrColor.rgb;
+    // 计算输入图像中的像素索引
+    uint inputIndex = coord.y * filterParams.inputWidth + coord.x;
 
-    // 应用RGB到YUV的转换
-    vec3 yuvColor = rgbToYuv * rgbColor;
+    // 从输入缓冲区读取像素并解包为RGBA
+    vec4 rgba = unpackColor(inputImage.pixels[inputIndex]);
 
-    // 计算YUV420输出的索引
-    uint yPlaneSize = filterParams.width * filterParams.height;
-    uint uvWidth = filterParams.width / 2;
-    uint uvHeight = filterParams.height / 2;
+    // 提取RGB分量（忽略Alpha）
+    vec3 rgb = rgba.rgb;
 
-    // 写入Y分量（亮度）
-    outputImage.pixels[pixelIndex] = uint(clamp(yuvColor.x, 0.0, 1.0) * 255.0);
+    // RGBA到YUV转换 (使用BT.601标准)
+    float y =  0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b;
+    float u = -0.14713 * rgb.r - 0.28886 * rgb.g + 0.436 * rgb.b + 0.5;
+    float v =  0.615 * rgb.r - 0.51499 * rgb.g - 0.10001 * rgb.b + 0.5;
 
-    // 对UV分量进行2x2下采样
-    if (coord.x % 2 == 0 && coord.y % 2 == 0) {
-        uint uvX = coord.x / 2;
-        uint uvY = coord.y / 2;
-        uint uIndex = yPlaneSize + uvY * uvWidth + uvX;
-        uint vIndex = yPlaneSize + uvWidth * uvHeight + uvY * uvWidth + uvX;
+    // 计算Y平面的输出索引（NV12格式的前半部分是Y平面）
+    uint yIndex = coord.y * filterParams.outputWidthStride + coord.x;
 
-        // 写入U（Cb）和V（Cr）分量
-        outputImage.pixels[uIndex] = uint(clamp(yuvColor.y + 0.5, 0.0, 1.0) * 255.0);
-        outputImage.pixels[vIndex] = uint(clamp(yuvColor.z + 0.5, 0.0, 1.0) * 255.0);
+    // 计算UV平面的输出索引（NV12格式的后半部分是UV交错平面）
+    // UV平面是Y平面尺寸的一半（在每个维度上）
+    uvec2 uvCoord = uvec2(coord.x / 2, coord.y / 2);
+    uint uvIndex = filterParams.inputWidth * filterParams.inputHeight +
+    uvCoord.y * filterParams.outputWidthStride +
+    uvCoord.x * 2;// 每个UV对占两个字节
+
+    // 将Y值写入输出缓冲区（转换为8位无符号整数）
+    outputImage.pixels[yIndex] = uint(y * 255.0);
+
+    // 仅在处理偶数坐标时写入UV值（因为UV平面是Y平面的1/4大小）
+    if ((coord.x % 2 == 0) && (coord.y % 2 == 0)) {
+        // 将U值写入UV索引位置
+        outputImage.pixels[uvIndex] = uint(u * 255.0);
+        // 将V值写入UV索引+1位置
+        outputImage.pixels[uvIndex + 1] = uint(v * 255.0);
     }
 }
