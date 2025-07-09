@@ -20,16 +20,6 @@ layout (push_constant) uniform FilterParams {
     uint format;// 可保持为1表示NV12格式
 } filterParams;
 
-// 打包RGBA颜色为ABGR格式的32位无符号整数
-uint packColor(vec4 color) {
-    return (
-    (uint(clamp(color.a, 0.0, 1.0) * 255.0) << 24) |
-    (uint(clamp(color.b, 0.0, 1.0) * 255.0) << 16) |
-    (uint(clamp(color.g, 0.0, 1.0) * 255.0) << 8) |
-    uint(clamp(color.r, 0.0, 1.0) * 255.0)
-    );
-}
-
 // 从缓冲区指定字节偏移处读取一个字节
 uint readByte(uint byteOffset) {
     uint wordOffset = byteOffset / 4;// 计算32位字的索引
@@ -74,8 +64,12 @@ void main() {
     uint g = (c - 100 * d - 208 * e + 128) / 256;
     uint b = (c + 516 * d + 128) / 256;
 
-    vec3 rgb = vec3(float(r) / 256.0, float(g) / 256.0, float(b) / 256.0);
-
     uint outputIndex = coord.y * filterParams.outputWidth + coord.x;
-    outputImage.pixels[outputIndex] = packColor(vec4(rgb, 1.0));
+
+    uint color = (
+    (0xFF << 24) |
+    (clamp(b, 0, 0xFF) << 16) |
+    (clamp(g, 0, 0xFF) << 8) |
+    clamp(r, 0, 0xFF));
+    outputImage.pixels[outputIndex] = color;
 }
