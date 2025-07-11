@@ -202,9 +202,9 @@ auto mat = mle->CreateMatrix(width, height);
 
 参考`基础框架使用`即可
 
-## 渲染使用
+## 渲染与可视化使用
 
-### 1. 给渲染器设置场景加载回调：
+### 1. 设置场景加载回调
 ```c++
 const auto renderer = std::make_shared<Renderer>(768, 768);
 renderer->SetOnLoadScene([](Renderer *rdr) -> bool {
@@ -217,7 +217,8 @@ renderer->SetOnLoadScene([](Renderer *rdr) -> bool {
 );
 ```
 
-### 2. 初始化相机：
+### 2. 设置初始化成功回调
+初始化相机
 ```c++
 renderer->SetOnRendererReady([](Renderer *rdr) -> bool {
     const std::shared_ptr<RendererCamera> camera = rdr->GetCamera();
