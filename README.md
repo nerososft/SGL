@@ -1,4 +1,4 @@
-<img style="width:80px" src="doc/logo.png" alt="SGL"/>
+![Logo](doc/logo_sm.png)
 
 # SGL (Simple GPU Layer)
 High-Performance GPU Compute Engine Based on Vulkan
