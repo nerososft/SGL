@@ -202,6 +202,41 @@ auto mat = mle->CreateMatrix(width, height);
 
 参考`基础框架使用`即可
 
+## 渲染使用
+
+### 1. 给渲染器设置场景加载回调：
+```c++
+const auto renderer = std::make_shared<Renderer>(768, 768);
+renderer->SetOnLoadScene([](Renderer *rdr) -> bool {
+        const std::vector<std::shared_ptr<Mesh> > models = ModelLoader::LoadModel("./DamagedHelmet.gltf");
+        for (auto &mesh: models) {
+            rdr->AddDrawElement(mesh->vertexData, mesh->indicesData, mesh->material, mesh->transform);
+        }
+        return true;
+    }
+);
+```
+
+### 2. 初始化相机：
+```c++
+renderer->SetOnRendererReady([](Renderer *rdr) -> bool {
+    const std::shared_ptr<RendererCamera> camera = rdr->GetCamera();
+    const glm::mat4 view = camera->GetViewMatrix();
+    camera->SetViewMatrix(glm::rotate(view, glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
+    return true;
+});
+```
+
+### 3. 初始化渲染器
+```c++
+renderer->Init();
+```
+
+### 4. 离屏渲染
+```c++
+renderer->RenderFrameOffScreen("./render_offscreen1.png");
+```
+
 ## 图像处理架构图
 
 ![架构图](doc/img.png)
