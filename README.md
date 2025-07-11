@@ -3,8 +3,6 @@
 # SGL (Simple GPU Layer)
 High-Performance GPU Compute Engine Based on Vulkan
 
-![架构图](doc/img.png)
-
 ---
 
 ## 基础框架使用
@@ -203,3 +201,7 @@ auto mat = mle->CreateMatrix(width, height);
 ### 4. 自定义算子
 
 参考`基础框架使用`即可
+
+## 图像处理架构图
+
+![架构图](doc/img.png)
