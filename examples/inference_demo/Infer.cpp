@@ -17,21 +17,21 @@ bool Infer::Init() {
     }
 
     this->tokenizer = std::make_shared<Tokenizer>();
-    bool ok = tokenizer->LoadFromFile("../../../demo/inference_demo/models/Qwen3_0_6B/tokenizer.json");
+    bool ok = tokenizer->LoadFromFile("../../../examples/inference_demo/models/Qwen3_0_6B/tokenizer.json");
     if (!ok) {
         Logger() << "Failed to load tokenizer.json";
         return false;
     }
 
     this->config = std::make_shared<Config>();
-    ok = config->LoadFromFile("../../../demo/inference_demo/models/Qwen3_0_6B/config.json");
+    ok = config->LoadFromFile("../../../examples/inference_demo/models/Qwen3_0_6B/config.json");
     if (!ok) {
         Logger() << "Failed to load config.json";
         return false;
     }
 
     this->safeTensor = std::make_shared<SafeTensor>(this->config);
-    ok = safeTensor->LoadFromFile("../../../demo/inference_demo/models/Qwen3_0_6B/model.safetensors");
+    ok = safeTensor->LoadFromFile("../../../examples/inference_demo/models/Qwen3_0_6B/model.safetensors");
     if (!ok) {
         Logger() << "Failed to load safetensors";
         return false;

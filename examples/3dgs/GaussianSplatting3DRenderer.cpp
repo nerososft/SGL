@@ -10,7 +10,7 @@
 #include "core/log/Log.h"
 #include "core/utils/ImageUtils.h"
 #include "core/utils/TimeUtils.h"
-#include "demo/compute_demo/GPUBezierThickLineGenerator.h"
+#include "examples/compute_demo/GPUBezierThickLineGenerator.h"
 
 GaussianSplatting3DRenderer::~GaussianSplatting3DRenderer() {
     if (this->pixelMapBuffer != nullptr) {

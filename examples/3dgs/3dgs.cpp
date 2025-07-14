@@ -16,7 +16,7 @@
 int main(int argc, char *argv[]) {
     std::cout << "3dgs_demo" << std::endl;
     SpzModel model;
-    const bool loaded = model.loadModel("../../../demo/3dgs/assets/builtin.models/butterfly");
+    const bool loaded = model.loadModel("../../../examples/3dgs/assets/builtin.models/butterfly");
     if (!loaded) {
         std::cout << "Failed to load model" << std::endl;
         return 1;
@@ -63,7 +63,7 @@ int main(int argc, char *argv[]) {
     const uint64_t last = TimeUtils::GetCurrentMonoMs();
     std::cout << "Totally Usage: " << last - now << " ms" << std::endl;
 
-    utils.GeneratePixelMap("../../../demo/3dgs/3dgs.png");
+    utils.GeneratePixelMap("../../../examples/3dgs/3dgs.png");
 
     return 0;
 }
