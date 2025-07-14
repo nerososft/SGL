@@ -8,13 +8,13 @@
 
 #include "SafeTensor.h"
 #include "TransformerBlock.h"
-#include "engine/ml/MLEngine.h"
+#include "engine/compute/ComputeEngine.h"
 
 class Model {
     std::shared_ptr<Config> config = nullptr;
     std::shared_ptr<SafeTensor> safeTensor = nullptr;
 
-    std::shared_ptr<MLEngine> mle = nullptr;
+    std::shared_ptr<ComputeEngine> ce = nullptr;
 
     std::vector<std::shared_ptr<TransformerBlock> > blocks;
 
@@ -29,7 +29,7 @@ class Model {
     std::shared_ptr<Matrix> softmaxResult = nullptr;
 
 public:
-    explicit Model(const std::shared_ptr<MLEngine> &mle,
+    explicit Model(const std::shared_ptr<ComputeEngine> &ce,
                    const std::shared_ptr<Config> &config,
                    const std::shared_ptr<SafeTensor> &safeTensor);
 

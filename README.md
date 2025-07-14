@@ -154,7 +154,7 @@ effectEngine.Process({.width = 1024, .height = 768, .channels = 4 .bytesPerLine 
 
 ### 1. 初始化
 ```c++
-auto mle = std::make_shared<MLEngine>();
+auto mle = std::make_shared<ComputeEngine>();
 mle->Init()
 ```
 ### 2. 矩阵初始化

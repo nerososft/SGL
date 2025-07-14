@@ -10,11 +10,11 @@
 #include "Model.h"
 #include "SafeTensor.h"
 #include "Tokenizer.h"
-#include "engine/ml/MLEngine.h"
+#include "engine/compute/ComputeEngine.h"
 
 
 class Infer {
-    std::shared_ptr<MLEngine> mle = nullptr;
+    std::shared_ptr<ComputeEngine> ce = nullptr;
 
     std::shared_ptr<Config> config = nullptr;
     std::shared_ptr<SafeTensor> safeTensor = nullptr;

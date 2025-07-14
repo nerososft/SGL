@@ -10,8 +10,8 @@
 bool Infer::Init() {
     Logger(Logger::DEBUG) << "Infer Init......" << std::endl;
     const uint64_t initTimeStart = TimeUtils::GetCurrentMonoMs();
-    mle = std::make_shared<MLEngine>();
-    if (!mle->Init()) {
+    ce = std::make_shared<ComputeEngine>();
+    if (!ce->Init()) {
         std::cerr << "Failed to initialize engine" << std::endl;
         return false;
     }
@@ -37,7 +37,7 @@ bool Infer::Init() {
         return false;
     }
 
-    this->model = std::make_shared<Model>(this->mle, this->config, this->safeTensor);
+    this->model = std::make_shared<Model>(this->ce, this->config, this->safeTensor);
     ok = model->Init();
     if (!ok) {
         Logger() << "Failed to init model";

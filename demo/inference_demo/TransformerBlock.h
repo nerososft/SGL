@@ -8,8 +8,8 @@
 #include <memory>
 
 #include "SafeTensor.h"
-#include "engine/ml/Matrix.h"
-#include "engine/ml/MLEngine.h"
+#include "engine/compute/Matrix.h"
+#include "engine/compute/ComputeEngine.h"
 
 // "model.layers.0.input_layernorm.weight": 1024
 // "model.layers.0.self_attn.q_proj.weight": 2048, 1024
@@ -49,7 +49,7 @@
 class TransformerBlock {
     uint64_t layerIndex = 0;
 
-    std::shared_ptr<MLEngine> mle = nullptr;
+    std::shared_ptr<ComputeEngine> ce = nullptr;
     std::shared_ptr<Config> config = nullptr;
 
     std::vector<std::shared_ptr<Matrix> > inputsMatrix; // seq_len, 1024
@@ -110,7 +110,7 @@ class TransformerBlock {
     std::vector<std::shared_ptr<Matrix> > mlpOutputs; // seq_len, 1024
 
 public:
-    explicit TransformerBlock(const std::shared_ptr<MLEngine> &mle,
+    explicit TransformerBlock(const std::shared_ptr<ComputeEngine> &ce,
                               uint64_t layerIdx);
 
     [[nodiscard]] std::shared_ptr<Matrix> InitWeightMatrix(const std::shared_ptr<SafeTensor> &safeTensor,

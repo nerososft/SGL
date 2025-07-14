@@ -8,17 +8,17 @@
 
 #include "core/log/Log.h"
 
-Model::Model(const std::shared_ptr<MLEngine> &mle,
+Model::Model(const std::shared_ptr<ComputeEngine> &ce,
              const std::shared_ptr<Config> &config,
              const std::shared_ptr<SafeTensor> &safeTensor) {
     this->safeTensor = safeTensor;
     this->config = config;
-    this->mle = mle;
+    this->ce = ce;
 }
 
 std::shared_ptr<Matrix> Model::InitWeightMatrix(const std::shared_ptr<SafeTensor> &safeTensor,
                                                 const Weight &weight) const {
-    std::shared_ptr<Matrix> weightMatrix = mle->CreateMatrix(weight.shape.width, weight.shape.height);
+    std::shared_ptr<Matrix> weightMatrix = ce->CreateMatrix(weight.shape.width, weight.shape.height);
     const std::shared_ptr<VkGPUBuffer> matrixBuffer = weightMatrix->GetBuffer();
     if (matrixBuffer == nullptr) {
         Logger() << "matrixBuffer is null!";
@@ -47,14 +47,14 @@ bool Model::Init() {
     lmHeadMatrix = InitWeightMatrix(safeTensor, lmHeadWeight);
     assert(lmHeadMatrix != nullptr);
 
-    result = mle->CreateMatrix(this->lmHeadMatrix->GetWidth(), 1);
+    result = ce->CreateMatrix(this->lmHeadMatrix->GetWidth(), 1);
     assert(result!=nullptr);
-    softmaxResult = mle->CreateMatrix(this->lmHeadMatrix->GetWidth(), 1);
+    softmaxResult = ce->CreateMatrix(this->lmHeadMatrix->GetWidth(), 1);
     assert(softmaxResult!=nullptr);
 
     this->blocks.resize(layerNums);
 
-    biasMatrix = mle->CreateMatrix(32, 32);
+    biasMatrix = ce->CreateMatrix(32, 32);
     return true;
 }
 
@@ -69,7 +69,7 @@ std::vector<float> Model::Forward(const std::vector<std::vector<float> > &inputs
     inputsMatrix.resize(inputs.size());
     for (size_t tokenPos = 0; tokenPos < inputs.size(); tokenPos++) {
         if (inputsMatrix[tokenPos] == nullptr) {
-            const auto inputMatrix = mle->CreateMatrix(this->config->GetHiddenSize(), 1);
+            const auto inputMatrix = ce->CreateMatrix(this->config->GetHiddenSize(), 1);
             if (inputMatrix == nullptr) {
                 Logger() << "Failed to create input matrix" << std::endl;
                 return {};
@@ -90,7 +90,7 @@ std::vector<float> Model::Forward(const std::vector<std::vector<float> > &inputs
         this->outputsMatrix[layerIdx].resize(inputs.size());
         for (size_t tokenPos = 0; tokenPos < inputs.size(); tokenPos++) {
             if (this->outputsMatrix[layerIdx][tokenPos] == nullptr) {
-                const auto outputMatrix = mle->CreateMatrix(this->config->GetHiddenSize(), 1);
+                const auto outputMatrix = ce->CreateMatrix(this->config->GetHiddenSize(), 1);
                 if (outputMatrix == nullptr) {
                     Logger() << "Failed to create input matrix" << std::endl;
                     return {};
@@ -101,7 +101,7 @@ std::vector<float> Model::Forward(const std::vector<std::vector<float> > &inputs
     }
 
     for (uint64_t layerIdx = 0; layerIdx < this->config->GetHiddenLayerNums(); layerIdx++) {
-        blocks[layerIdx] = std::make_shared<TransformerBlock>(mle, layerIdx);
+        blocks[layerIdx] = std::make_shared<TransformerBlock>(ce, layerIdx);
         blocks[layerIdx]->SetOutputsMatrix(this->outputsMatrix[layerIdx]);
         if (layerIdx == 0) {
             blocks[layerIdx]->SetInputsMatrix(this->inputsMatrix);
@@ -122,9 +122,9 @@ std::vector<float> Model::Forward(const std::vector<std::vector<float> > &inputs
     }
 
     const auto output = blocks[this->config->GetHiddenLayerNums() - 1]->GetOutputsMatrix()[inputs.size() - 1];
-    mle->Seq()
-            ->Record(mle->MatMul(output, lmHeadMatrix, result))
-            ->Record(mle->LogSoftmax(result, softmaxResult))
+    ce->Seq()
+            ->Record(ce->MatMul(output, lmHeadMatrix, result))
+            ->Record(ce->LogSoftmax(result, softmaxResult))
             ->Eval()
             ->Destroy();
     result->Destroy();
