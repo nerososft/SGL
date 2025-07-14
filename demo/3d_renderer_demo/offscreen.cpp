@@ -32,7 +32,7 @@ int main(int argc, char *argv[]) {
     renderer->SetOnRendererReady([](Renderer *rdr) -> bool {
         const std::shared_ptr<RendererCamera> camera = rdr->GetCamera();
         const glm::mat4 view = camera->GetViewMatrix();
-        camera->SetViewMatrix(glm::rotate(view, glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
+        camera->SetViewMatrix(glm::rotate(view, glm::radians(0.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
         return true;
     });
 
