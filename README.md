@@ -150,31 +150,31 @@ effectEngine.Process({.width = 1024, .height = 768, .channels = 4 .bytesPerLine 
 
 ---
 
-## 机器学习算子使用
+## 计算库算子使用
 
 ### 1. 初始化
 ```c++
-auto mle = std::make_shared<ComputeEngine>();
-mle->Init()
+auto ce = std::make_shared<ComputeEngine>();
+ce->Init()
 ```
 ### 2. 矩阵初始化
 ```c++
-auto mat = mle->CreateMatrix(width, height);
+auto mat = ce->CreateMatrix(width, height);
 ```
 ### 3. 使用内置算子
 ```c++
- const std::shared_ptr<Sequence> seq = mle->Seq()
-            ->Record(mle->LayerNorm(inputsMatrix[tokenPos],
+ const std::shared_ptr<Sequence> seq = ce->Seq()
+            ->Record(ce->LayerNorm(inputsMatrix[tokenPos],
                                     this->inputLayerNorm,
                                     biasMatrix,
                                     1e-06,
                                     true,
                                     false,
                                     inputLayerNormOutput[tokenPos]))
-            ->Record(mle->MatMul(inputLayerNormOutput[tokenPos], selfAttnQProj, qProjOutput[tokenPos]))
-            ->Record(mle->MatMul(inputLayerNormOutput[tokenPos], selfAttnKProj, kProjOutput[tokenPos]))
-            ->Record(mle->MatMul(inputLayerNormOutput[tokenPos], selfAttnVProj, vProjOutput[tokenPos]))
-            ->Record(mle->Split(qProjOutput[tokenPos], queryHeadNums, qHeads[tokenPos]))
+            ->Record(ce->MatMul(inputLayerNormOutput[tokenPos], selfAttnQProj, qProjOutput[tokenPos]))
+            ->Record(ce->MatMul(inputLayerNormOutput[tokenPos], selfAttnKProj, kProjOutput[tokenPos]))
+            ->Record(ce->MatMul(inputLayerNormOutput[tokenPos], selfAttnVProj, vProjOutput[tokenPos]))
+            ->Record(ce->Split(qProjOutput[tokenPos], queryHeadNums, qHeads[tokenPos]))
             ->Eval()
             ->Destroy();
 ```
