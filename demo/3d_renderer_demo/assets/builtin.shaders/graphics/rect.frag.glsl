@@ -39,14 +39,14 @@ vec3 calculatePhongLighting(vec3 lightPos, vec3 viewPos, vec3 norm, vec3 fragPos
     vec3 viewDir = normalize(viewPos - fragPos);
     vec3 reflectDir = reflect(-lightDir, norm);
 
-    float ambientStrength = 0.5;
+    float ambientStrength = 0.8;
     vec3 ambient = light.color * material.ambientColor * ambientStrength;
-    float fakeAO = max(0.3, dot(norm, vec3(0,1,0)));
+    float fakeAO = max(0.3, dot(norm, vec3(0, 1, 0)));
     ambient *= fakeAO;
 
-    float diffuseFactor = max(dot(norm, lightDir), 0.0);
+    float diffuseFactor = max(dot(norm, lightDir), 0.1);
     vec3 diffuse = diffuseFactor * material.diffuseColor;
-    float specularFactor = pow(max(dot(viewDir, reflectDir), 0), material.shininess.r);
+    float specularFactor = pow(max(dot(viewDir, reflectDir), 0.1), material.shininess.r);
     vec3 specular = specularFactor * material.specularColor;
 
     return (ambient + diffuse + specular) * color;

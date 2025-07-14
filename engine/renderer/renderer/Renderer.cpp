@@ -532,7 +532,7 @@ void Renderer::RenderFrameOffScreen(const std::string &path) {
 
 void Renderer::Update() const {
     for (const auto light: rendererLights) {
-        glm::vec4 pos = glm::rotate(glm::mat4(1.0f), glm::radians(-0.4f),
+        glm::vec4 pos = glm::rotate(glm::mat4(1.0f), glm::radians(-0.1f),
                                     glm::vec3(0, 0, 1)) * light->GetLightPosition();
         light->SetLightPosition(pos);
     }
