@@ -8,15 +8,13 @@
 
 <td>
 
-<h1>SGL</h1>
+<h1>SGL(Simple GPU Layer)</h1>
 <h3>High-performance GPU compute framework based on Vulkan</h3>
 
 </td>
 
 </tr>
 </table>
-
-# SGL (Simple GPU Layer)
 
 
 ---
