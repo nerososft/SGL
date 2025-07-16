@@ -1,7 +1,23 @@
-![SGL](doc/logo_t.png)
+
+<table>
+<tr>
+
+<td width="20%">
+<img src="./doc/logo_t.png)">
+</td>
+
+<td>
+
+<h1>SGL</h1>
+<h3>High-Performance GPU Compute Engine Based on Vulkan</h3>
+
+</td>
+
+</tr>
+</table>
 
 # SGL (Simple GPU Layer)
-High-Performance GPU Compute Engine Based on Vulkan
+
 
 ---
 
