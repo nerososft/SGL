@@ -19,6 +19,7 @@ Matrix::Matrix(const uint32_t width, const uint32_t height, const std::shared_pt
 }
 
 Matrix::~Matrix() {
+    this->Destroy();
 }
 
 bool Matrix::CreateMatrix(std::shared_ptr<VkGPUContext> &ctx) {
