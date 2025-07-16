@@ -3,7 +3,7 @@
 <tr>
 
 <td width="20%">
-<img src="./doc/logo_t.png)">
+<img src="https://raw.gitcode.com/OpenHarmonyPerfSquad/SGL/blobs/9022a326d73aa21fcbd1a08e9458fa5b5ec32a89/logo_t.png">
 </td>
 
 <td>
