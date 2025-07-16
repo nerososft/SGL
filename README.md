@@ -9,7 +9,7 @@
 <td>
 
 <h1>SGL</h1>
-<h3>High-Performance GPU Compute Engine Based on Vulkan</h3>
+<h3>High-performance GPU compute framework based on Vulkan</h3>
 
 </td>
 
