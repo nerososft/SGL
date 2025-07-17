@@ -7,8 +7,8 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     #link_directories("$D:/vcpkg_install/vcpkg/installed/x64-windows/lib")
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     message(STATUS "Running on macOS")
-    link_directories("/opt/homebrew/Cellar/libpng/1.6.47/lib")
-    include_directories("/opt/homebrew/Cellar/libpng/1.6.47/include")
+    link_directories("/opt/homebrew/Cellar/libpng/1.6.50/lib")
+    include_directories("/opt/homebrew/Cellar/libpng/1.6.50/include")
 endif ()
 
 set(ENGINE_GPU_SOURCE gpu/VkGPUHelper.cpp

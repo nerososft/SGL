@@ -7,9 +7,9 @@ elseif (CMAKE_SYSTEM_NAME MATCHES "OHOS")
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     message(STATUS "Running on macOS")
     include_directories("/opt/homebrew/Cellar/glfw/3.4/include")
-    include_directories("/opt/homebrew/Cellar/assimp/6.0.1/include")
     link_directories("/opt/homebrew/Cellar/glfw/3.4/lib")
-    link_directories("/opt/homebrew/Cellar/assimp/6.0.1/lib")
+    include_directories("/opt/homebrew/Cellar/assimp/6.0.2/include")
+    link_directories("/opt/homebrew/Cellar/assimp/6.0.2/lib")
 endif ()
 
 # compile builtin shaders
