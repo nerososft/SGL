@@ -260,7 +260,3 @@ renderer->Init();
 ```c++
 renderer->RenderFrameOffScreen("./render_offscreen1.png");
 ```
-
-## 图像处理架构图
-
-![架构图](doc/img.png)
