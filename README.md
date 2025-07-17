@@ -19,6 +19,12 @@
  [Documentation](https://gitcode.com/OpenHarmonyPerfSquad/SGL/blob/main/README.md) [Examples](https://gitcode.com/OpenHarmonyPerfSquad/SGL/tree/main/examples) 
 
 
+```c++
+auto mat1 = ce->CreateMatrix(width, height, data1);
+auto mat2 = ce->CreateMatrix(width, height, data2);
+auto matOutput = ce->CreateMatrix(width, height);
+ce->Seq()->Record(ce->MatMul(mat1, mat2, matOutput))->Eval()->Destroy();
+```
 
 ---
 
