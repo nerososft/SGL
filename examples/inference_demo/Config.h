@@ -44,7 +44,7 @@ public:
 
     ~Config() = default;
 
-    bool LoadFromFile(const std::string &path);
+    bool LoadFromFile(const std::string &configFilePath);
 
     [[nodiscard]] uint64_t GetHiddenLayerNums() const;
 

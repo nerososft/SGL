@@ -8,8 +8,12 @@
 #include "vendor/json.hpp"
 
 bool Config::LoadFromFile(const std::string &configFilePath) {
-    Logger() << "LoadModelFromFile: '" << configFilePath << std::endl;
+    Logger() << "LoadConfigFromFile: '" << configFilePath << std::endl;
     std::ifstream f(configFilePath);
+    if (f.fail()) {
+        Logger() << "Failed to open file " << configFilePath << std::endl;
+        return false;
+    }
     nlohmann::json::const_reference config = nlohmann::json::parse(f);
     for (auto it = config.begin(); it != config.end(); ++it) {
         Logger(Logger::DEBUG) << it.key() << ": " << it.value() << std::endl;
