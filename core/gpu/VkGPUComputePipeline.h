@@ -34,7 +34,7 @@ public:
 
     void GPUCmdBindPipeline(VkCommandBuffer commandBuffer) const;
 
-    void Destroy() const;
+    void Destroy();
 };
 
 

@@ -12,6 +12,7 @@
 #include <vulkan/vk_enum_string_helper.h>
 #endif
 
+#include "ComputePipelineCache.h"
 #include "VkGPUHelper.h"
 #include "log/Log.h"
 
@@ -64,17 +65,23 @@ void VkGPUComputePipeline::GPUCmdBindPipeline(const VkCommandBuffer commandBuffe
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, this->computePipeline);
 }
 
-void VkGPUComputePipeline::Destroy() const {
+void VkGPUComputePipeline::Destroy() {
     if (this->computePipeline != VK_NULL_HANDLE) {
-        vkDestroyPipeline(device, computePipeline, nullptr);
+        if (ComputePipelineCache::GetInstance()->PutComputePipeline(this->computeShaderPath) == 0) {
+            vkDestroyPipeline(device, computePipeline, nullptr);
+        }
+        this->computePipeline = VK_NULL_HANDLE;
     }
     if (this->computeShaderModule != VK_NULL_HANDLE) {
         vkDestroyShaderModule(device, computeShaderModule, nullptr);
+        this->computeShaderModule = VK_NULL_HANDLE;
     }
     if (this->descriptorSetLayout != VK_NULL_HANDLE) {
         vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
+        this->descriptorSetLayout = VK_NULL_HANDLE;
     }
     if (this->pipelineLayout != VK_NULL_HANDLE) {
         vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
+        this->pipelineLayout = VK_NULL_HANDLE;
     }
 }
