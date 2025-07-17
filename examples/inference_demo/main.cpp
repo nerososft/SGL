@@ -6,12 +6,15 @@
 #include "Infer.h"
 #include "core/log/Log.h"
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[])
+{
     std::cout << "Inference demo" << std::endl;
+
+    const std::string prompt = "{\"role\": \"user\", \"content\": \"Give me a short introduction to large language model.\"}";
 
     Infer infer;
     infer.Init();
-    infer.Run("What is the capital of France?");
+    infer.Run(prompt);
 
     return 0;
 }
