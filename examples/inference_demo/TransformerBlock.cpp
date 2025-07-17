@@ -260,7 +260,7 @@ void TransformerBlock::Attention() {
                                                      kHeadLayerNormOutputs[kIdx][headIdx / 2],
                                                      qkDotProdTmp,
                                                      &dotProdResult))
-                        ->Eval()
+                        ->Eval() // TODO: Optimize this!!! too many submit vk cmd
                         ->Destroy();
                 qkRoPEDotProdScaled[qIdx][kIdx] = dotProdResult / sqrt(config->GetHeadDim());
             }
@@ -271,7 +271,7 @@ void TransformerBlock::Attention() {
             assert(rawSoftmaxOut != nullptr);
             ce->Seq()
                     ->Record(ce->Softmax(raw, rawSoftmaxOut))
-                    ->Eval()
+                    ->Eval() // TODO: Optimize this!!! too many submit vk cmd
                     ->Destroy();
             rawSoftmaxOut->GetBuffer()->DownloadData(qkRoPEDotProdScaled[qIdx].data(), seqLen * sizeof(float));
             raw->Destroy();
@@ -314,7 +314,7 @@ void TransformerBlock::Attention() {
         }
         ce->Seq()
                 ->Record(ce->MatMul(qkSoftmaxMatrix, vMatrix, qkvAttentionOutputs[headIdx]))
-                ->Eval()
+                ->Eval() // TODO: Optimize this!!! head nums submit vk cmd
                 ->Destroy();
         qkSoftmaxMatrix->Destroy();
         vMatrix->Destroy();
