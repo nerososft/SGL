@@ -32,8 +32,9 @@ uint32_t ComputePipelineCache::PutComputePipeline(const std::string& shaderPath)
             this->pipelineCache.erase(shaderPath);
             return 0;
         }
+        return this->pipelineCache[shaderPath].refCount->load();
     }
-    return this->pipelineCache[shaderPath].refCount->load();
+    return 0;
 }
 
 VkPipeline ComputePipelineCache::CacheComputePipeline(const std::string& shaderPath, const VkPipeline pipeline) {
