@@ -19,31 +19,15 @@ std::shared_ptr<ComputePipelineCache> ComputePipelineCache::GetInstance() {
 
 VkPipeline ComputePipelineCache::GetComputePipeline(const std::string& shaderPath) {
     if (this->pipelineCache.contains(shaderPath)) {
-        ++(*this->pipelineCache[shaderPath].refCount);
-        return this->pipelineCache[shaderPath].pipeline;
+        return this->pipelineCache[shaderPath];
     }
-    return nullptr;
-}
-
-uint32_t ComputePipelineCache::PutComputePipeline(const std::string& shaderPath) {
-    if (this->pipelineCache.contains(shaderPath)) {
-        --(*this->pipelineCache[shaderPath].refCount);
-        if (*(this->pipelineCache[shaderPath].refCount) == 0) {
-            this->pipelineCache.erase(shaderPath);
-            return 0;
-        }
-        return this->pipelineCache[shaderPath].refCount->load();
-    }
-    return 0;
+    return VK_NULL_HANDLE;
 }
 
 VkPipeline ComputePipelineCache::CacheComputePipeline(const std::string& shaderPath, const VkPipeline pipeline) {
     assert(pipeline != VK_NULL_HANDLE);
     if (!this->pipelineCache.contains(shaderPath)) {
-        Pipeline pp;
-        pp.pipeline                     = pipeline;
-        pp.refCount                     = std::make_unique<std::atomic<uint32_t>>(1);
-        this->pipelineCache[shaderPath] = std::move(pp);
+        this->pipelineCache.emplace(shaderPath, pipeline);
     }
     return pipeline;
 }

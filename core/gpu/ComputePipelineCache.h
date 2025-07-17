@@ -9,13 +9,8 @@
 #include <string>
 #include <vulkan/vulkan_core.h>
 
-typedef struct {
-    VkPipeline pipeline;
-    std::unique_ptr<std::atomic<uint32_t>> refCount;
-} Pipeline;
-
 class ComputePipelineCache {
-    std::map<std::string, Pipeline> pipelineCache;
+    std::map<std::string, VkPipeline> pipelineCache;
 
 public:
     ComputePipelineCache()  = default;
@@ -24,7 +19,6 @@ public:
     static std::shared_ptr<ComputePipelineCache> GetInstance();
 
     VkPipeline GetComputePipeline(const std::string& shaderPath);
-    uint32_t PutComputePipeline(const std::string& shaderPath);
     VkPipeline CacheComputePipeline(const std::string& shaderPath, VkPipeline pipeline);
 };
 
