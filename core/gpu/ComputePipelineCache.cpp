@@ -24,10 +24,23 @@ VkPipeline ComputePipelineCache::GetComputePipeline(const std::string& shaderPat
     return VK_NULL_HANDLE;
 }
 
-VkPipeline ComputePipelineCache::CacheComputePipeline(const std::string& shaderPath, const VkPipeline pipeline) {
+void ComputePipelineCache::CacheComputePipeline(const std::string& shaderPath, const VkPipeline pipeline) {
     assert(pipeline != VK_NULL_HANDLE);
     if (!this->pipelineCache.contains(shaderPath)) {
         this->pipelineCache.emplace(shaderPath, pipeline);
     }
-    return pipeline;
+}
+
+VkShaderModule ComputePipelineCache::GetShaderModule(const std::string& shaderPath) {
+    if (this->shaderModuleCache.contains(shaderPath)) {
+        return this->shaderModuleCache[shaderPath];
+    }
+    return VK_NULL_HANDLE;
+}
+
+void ComputePipelineCache::CacheShaderModule(const std::string& shaderPath, VkShaderModule shaderModule) {
+    assert(shaderModule != VK_NULL_HANDLE);
+    if (!this->shaderModuleCache.contains(shaderPath)) {
+        this->shaderModuleCache.emplace(shaderPath, shaderModule);
+    }
 }

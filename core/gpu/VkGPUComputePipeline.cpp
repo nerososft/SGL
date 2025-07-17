@@ -42,10 +42,16 @@ VkResult VkGPUComputePipeline::CreateComputePipeline(const VkDevice device, cons
         return ret;
     }
 
-    ret = VkGPUHelper::CreateShaderModuleFromPath(device, computeShaderPath, &this->computeShaderModule);
-    if (ret != VK_SUCCESS) {
-        Logger() << "failed to create shader module, err=" << string_VkResult(ret) << std::endl;
-        return ret;
+    const VkShaderModule cachedModule = ComputePipelineCache::GetInstance()->GetShaderModule(computeShaderPath);
+    if (cachedModule != VK_NULL_HANDLE) {
+        this->computeShaderModule = cachedModule;
+    } else {
+        ret = VkGPUHelper::CreateShaderModuleFromPath(device, computeShaderPath, &this->computeShaderModule);
+        if (ret != VK_SUCCESS) {
+            Logger() << "failed to create shader module, err=" << string_VkResult(ret) << std::endl;
+            return ret;
+        }
+        ComputePipelineCache::GetInstance()->CacheShaderModule(this->computeShaderPath, this->computeShaderModule);
     }
 
     const VkPipeline cachedPipeline = ComputePipelineCache::GetInstance()->GetComputePipeline(computeShaderPath);
@@ -73,7 +79,6 @@ void VkGPUComputePipeline::Destroy() {
         this->computePipeline = VK_NULL_HANDLE;
     }
     if (this->computeShaderModule != VK_NULL_HANDLE) {
-        vkDestroyShaderModule(device, computeShaderModule, nullptr);
         this->computeShaderModule = VK_NULL_HANDLE;
     }
     if (this->descriptorSetLayout != VK_NULL_HANDLE) {
