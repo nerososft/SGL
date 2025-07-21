@@ -4,8 +4,6 @@
 
 #ifndef COMPUTE_ENGINE_H
 #define COMPUTE_ENGINE_H
-#include <memory>
-
 #include "Matrix.h"
 #include "core/gpu/VkGPUBuffer.h"
 #include "core/gpu/VkGPUContext.h"
@@ -18,11 +16,12 @@
 #include "operators/impl/cpu/RMSOperator.h"
 #include "operators/impl/cpu/SumOperator.h"
 #include "operators/impl/cpu/VarianceOperator.h"
+#include <memory>
 
 class ComputeEngine {
     std::shared_ptr<VkGPUContext> gpuCtx = nullptr;
 
-    std::vector<std::shared_ptr<VkGPUBuffer> > buffers;
+    std::vector<std::shared_ptr<VkGPUBuffer>> buffers;
 
     // for lifecycle control
     std::vector<std::shared_ptr<IOperator> > operators;
@@ -138,6 +137,13 @@ public:
 
     std::shared_ptr<IComputeGraphNode> LogSoftmax(const std::shared_ptr<Matrix> &input,
                                                   const std::shared_ptr<Matrix> &output);
+
+    /*
+     * Math operatprs
+     */
+    std::shared_ptr<IComputeGraphNode> Sin(const std::shared_ptr<Matrix>& input, const std::shared_ptr<Matrix>& output);
+    std::shared_ptr<IComputeGraphNode> Cos(const std::shared_ptr<Matrix>& input, const std::shared_ptr<Matrix>& output);
+    std::shared_ptr<IComputeGraphNode> Exp(const std::shared_ptr<Matrix>& input, const std::shared_ptr<Matrix>& output);
 };
 
 

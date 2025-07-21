@@ -92,5 +92,11 @@ add_library(ml_engine
         operators/impl/cpu/MaxOperator.h
         operators/impl/gpu/LogSoftmaxOperator.cpp
         operators/impl/gpu/LogSoftmaxOperator.h
+        operators/impl/gpu/SinOperator.cpp
+        operators/impl/gpu/SinOperator.h
+        operators/impl/gpu/CosOperator.cpp
+        operators/impl/gpu/CosOperator.h
+        operators/impl/gpu/ExpOperator.cpp
+        operators/impl/gpu/ExpOperator.h
 )
 target_link_libraries(ml_engine core)

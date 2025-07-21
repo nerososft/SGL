@@ -5,15 +5,6 @@
 #include "ComputeEngine.h"
 
 #include "core/log/Log.h"
-#include "operators/impl/gpu/GELUOperator.h"
-#include "operators/impl/gpu/LayerNormOperator.h"
-#include "operators/impl/gpu/MatMulOperator.h"
-#include "operators/impl/gpu/ReLUOperator.h"
-#include "operators/impl/gpu/RMSNormOperator.h"
-#include "operators/impl/gpu/SigmoidOperator.h"
-#include "operators/impl/gpu/SiLUOperator.h"
-#include "operators/impl/gpu/SoftmaxOperator.h"
-#include "operators/impl/gpu/TanhOperator.h"
 #include "operators/impl/cpu/AvgOperator.h"
 #include "operators/impl/cpu/ExpSumOperator.h"
 #include "operators/impl/cpu/MaxOperator.h"
@@ -22,11 +13,23 @@
 #include "operators/impl/cpu/VarianceOperator.h"
 #include "operators/impl/gpu/AddOperator.h"
 #include "operators/impl/gpu/ConcatOperator.h"
+#include "operators/impl/gpu/CosOperator.h"
+#include "operators/impl/gpu/ExpOperator.h"
+#include "operators/impl/gpu/GELUOperator.h"
+#include "operators/impl/gpu/LayerNormOperator.h"
 #include "operators/impl/gpu/LogSoftmaxOperator.h"
+#include "operators/impl/gpu/MatMulOperator.h"
 #include "operators/impl/gpu/MulOperator.h"
+#include "operators/impl/gpu/RMSNormOperator.h"
+#include "operators/impl/gpu/ReLUOperator.h"
 #include "operators/impl/gpu/RoPEMulOperator.h"
 #include "operators/impl/gpu/RoPEOperator.h"
+#include "operators/impl/gpu/SiLUOperator.h"
+#include "operators/impl/gpu/SigmoidOperator.h"
+#include "operators/impl/gpu/SinOperator.h"
+#include "operators/impl/gpu/SoftmaxOperator.h"
 #include "operators/impl/gpu/SplitOperator.h"
+#include "operators/impl/gpu/TanhOperator.h"
 #include "operators/impl/gpu/TransposeOperator.h"
 
 std::shared_ptr<Sequence> ComputeEngine::Seq() {
@@ -535,5 +538,41 @@ std::shared_ptr<IComputeGraphNode> ComputeEngine::LogSoftmax(const std::shared_p
         throw std::runtime_error("Failed to create compute graph node!");
     }
     node->AddDependenceNode(expSumNode);
+    return node;
+}
+
+std::shared_ptr<IComputeGraphNode> ComputeEngine::Sin(const std::shared_ptr<Matrix>& input,
+                                                      const std::shared_ptr<Matrix>& output) {
+    const auto sinOp = std::make_shared<SinOperator>(this->gpuCtx, input->GetBuffer(), output->GetBuffer());
+    this->operators.push_back(sinOp);
+    const auto node = sinOp->CreateComputeGraphNode();
+    if (node == nullptr) {
+        Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
+        throw std::runtime_error("Failed to create compute graph node!");
+    }
+    return node;
+}
+
+std::shared_ptr<IComputeGraphNode> ComputeEngine::Cos(const std::shared_ptr<Matrix>& input,
+                                                      const std::shared_ptr<Matrix>& output) {
+    const auto cosOp = std::make_shared<CosOperator>(this->gpuCtx, input->GetBuffer(), output->GetBuffer());
+    this->operators.push_back(cosOp);
+    const auto node = cosOp->CreateComputeGraphNode();
+    if (node == nullptr) {
+        Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
+        throw std::runtime_error("Failed to create compute graph node!");
+    }
+    return node;
+}
+
+std::shared_ptr<IComputeGraphNode> ComputeEngine::Exp(const std::shared_ptr<Matrix>& input,
+                                                      const std::shared_ptr<Matrix>& output) {
+    const auto expOp = std::make_shared<ExpOperator>(this->gpuCtx, input->GetBuffer(), output->GetBuffer());
+    this->operators.push_back(expOp);
+    const auto node = expOp->CreateComputeGraphNode();
+    if (node == nullptr) {
+        Logger() << Logger::ERROR << "Failed to create compute graph node!" << std::endl;
+        throw std::runtime_error("Failed to create compute graph node!");
+    }
     return node;
 }
