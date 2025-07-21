@@ -221,6 +221,9 @@ auto mat = ce->CreateMatrix(width, height);
 - [split8](https://gitcode.com/OpenHarmonyPerfSquad/SGL/blob/main/engine/ml/assets/builtin.shaders/operators/split8.comp.glsl)
 - [split16](https://gitcode.com/OpenHarmonyPerfSquad/SGL/blob/main/engine/ml/assets/builtin.shaders/operators/split16.comp.glsl)
 - [tanh](https://gitcode.com/OpenHarmonyPerfSquad/SGL/blob/main/engine/ml/assets/builtin.shaders/operators/tanh.comp.glsl)
+- [sin](https://gitcode.com/OpenHarmonyPerfSquad/SGL/blob/main/engine/ml/assets/builtin.shaders/operators/sin.comp.glsl)
+- [cos](https://gitcode.com/OpenHarmonyPerfSquad/SGL/blob/main/engine/ml/assets/builtin.shaders/operators/cos.comp.glsl)
+- [exp](https://gitcode.com/OpenHarmonyPerfSquad/SGL/blob/main/engine/ml/assets/builtin.shaders/operators/exp.comp.glsl)
 ### 4. 自定义算子
 
 参考`基础框架使用`即可
