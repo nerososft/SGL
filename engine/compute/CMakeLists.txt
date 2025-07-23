@@ -30,7 +30,7 @@ endforeach ()
 message("Need: ${COMPILED_SHADERS}")
 add_custom_target(compile_operator_shaders ALL DEPENDS ${COMPILED_SHADERS})
 
-add_library(ml_engine
+add_library(compute_engine
         operators/IOperator.h
         operators/UnaryOperator.h
         operators/UnaryOperator.cpp
@@ -99,4 +99,4 @@ add_library(ml_engine
         operators/impl/gpu/ExpOperator.cpp
         operators/impl/gpu/ExpOperator.h
 )
-target_link_libraries(ml_engine core)
+target_link_libraries(compute_engine core)

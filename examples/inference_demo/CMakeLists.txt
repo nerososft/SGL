@@ -13,4 +13,4 @@ add_executable(inference_demo
         Infer.cpp
         Infer.h
 )
-target_link_libraries(inference_demo ml_engine)
+target_link_libraries(inference_demo compute_engine)
