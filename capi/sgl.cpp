@@ -3,13 +3,21 @@
 //
 
 #include "sgl.h"
-#include <stddef.h>
+
+#include <cstdlib>
 
 sgl_t* sgl_create() {
+    const auto sgl = static_cast<sgl_t*>(malloc(sizeof(sgl_t)));
+    if (sgl == nullptr) {
+        return nullptr;
+    }
     // TODO:
-    return NULL;
+    return nullptr;
 }
 
 void sgl_destroy(sgl_t* sgl) {
-    // TODO:
+    if (sgl == nullptr) {
+        return;
+    }
+    free(sgl);
 }

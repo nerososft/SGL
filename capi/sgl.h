@@ -4,6 +4,7 @@
 
 #ifndef SGL_H
 #define SGL_H
+#include <cstdint>
 
 typedef enum sgl_error {
     SGL_SUCCESS       = 0,
@@ -16,8 +17,16 @@ typedef struct sgl_info {
     const char* (*get_gpu_name)();
 } sgl_info_t;
 
-typedef struct sgl_image {
+typedef struct sgl_image_info {
+    uint32_t width;
+    uint32_t height;
+    uint32_t channels;
+    uint32_t bytesPerLine;
+    void* data;
+} sgl_image_info_t;
 
+typedef struct sgl_image {
+    sgl_error_t (*gray)(sgl_image_info_t in, sgl_image_info_t out);
 } sgl_image_t;
 
 typedef struct sgl_compute {
