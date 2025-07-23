@@ -28,13 +28,13 @@
 #define LOG_TO_FILE 0
 #endif
 
-#define LOG_LEVEL_DEBUG (0)
-#define LOG_LEVEL_INFO (1)
+#define LOG_LEVEL_DEBUG   (0)
+#define LOG_LEVEL_INFO    (1)
 #define LOG_LEVEL_WARNING (2)
-#define LOG_LEVEL_ERROR (3)
-#define LOG_SHOW_LEVEL LOG_LEVEL_INFO
-#define LOG_FILE_PATH "c://temp//output.txt"
+#define LOG_LEVEL_ERROR   (3)
+#define LOG_SHOW_LEVEL    LOG_LEVEL_INFO
+#define LOG_FILE_PATH     "c://temp//output.txt"
 
-#define SHADER(path) (SHADER_PATH # path)
+#define SHADER(path) (SHADER_PATH #path)
 
-#endif //CONFIG_H
+#endif // CONFIG_H
