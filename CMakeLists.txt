@@ -40,6 +40,9 @@ if (CMAKE_SYSTEM_PROCESSOR MATCHES "arm64")
 endif ()
 
 add_subdirectory(core)
+if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+add_subdirectory(core/sglang) # Testing
+endif ()
 add_subdirectory(engine/effect)
 add_subdirectory(engine/renderer)
 add_subdirectory(engine/compute)
