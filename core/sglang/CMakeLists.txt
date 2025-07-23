@@ -18,6 +18,7 @@ list(APPEND LLVM_LIBS
 )
 
 list(APPEND MLIR_LIBS
+        MLIR
         MLIRSupport
         MLIRIR
         MLIRPass
@@ -37,6 +38,5 @@ list(APPEND MLIR_LIBS
         MLIRUBToSPIRV
         MLIRUBDialect
         MLIRCallInterfaces
-        MLIRInferTypeOpInterface
 )
 target_link_libraries(slang ${LLVM_LIBS} ${MLIR_LIBS})
