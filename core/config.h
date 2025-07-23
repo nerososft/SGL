@@ -5,7 +5,7 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#define VERSION "1.0.9"
+#define VERSION "1.1.1"
 
 #ifdef OS_OPEN_HARMONY
 #define SHADER_PATH "/data/storage/el1/bundle/entry/resources/resfile/shader_compiled/"
