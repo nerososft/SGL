@@ -1,5 +1,5 @@
-add_library(libsgl
-       sgl.h
-        sgl.c
+add_library(libSGL
+        sgl.h
+        sgl.cpp
 )
-target_link_libraries(libsgl compute_engine)
+target_link_libraries(libSGL compute_engine)
