@@ -7,14 +7,11 @@
 UnaryOperator::UnaryOperator(const std::shared_ptr<VkGPUContext> &gpuCtx,
                              const std::shared_ptr<VkGPUBuffer> &inputBuffer,
                              const std::shared_ptr<VkGPUBuffer> &outputBuffer) {
-    this->gpuCtx = gpuCtx;
-    this->inputBuffer = inputBuffer;
-    this->outputBuffer = outputBuffer;
+  this->gpuCtx = gpuCtx;
+  this->inputBuffer = inputBuffer;
+  this->outputBuffer = outputBuffer;
 }
 
-UnaryOperator::~UnaryOperator() {
-    UnaryOperator::Destroy();
-}
+UnaryOperator::~UnaryOperator() { UnaryOperator::Destroy(); }
 
-void UnaryOperator::Destroy() {
-}
+void UnaryOperator::Destroy() {}

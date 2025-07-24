@@ -10,48 +10,48 @@
 #include "core/gpu/compute_graph/IComputeGraphNode.h"
 
 struct ViewProjectionMatrix {
-    glm::mat4 view;
-    glm::mat4 projection;
-    glm::vec4 position;
-    glm::vec4 up;
+  glm::mat4 view;
+  glm::mat4 projection;
+  glm::vec4 position;
+  glm::vec4 up;
 };
 
 class RendererCamera {
-    ViewProjectionMatrix viewProjectionMatrix{};
+  ViewProjectionMatrix viewProjectionMatrix{};
 
-    std::shared_ptr<VkGPUBuffer> viewProjectionBuffer = nullptr;
+  std::shared_ptr<VkGPUBuffer> viewProjectionBuffer = nullptr;
 
-    glm::mat4 GetInitialViewMatrix() const;
+  glm::mat4 GetInitialViewMatrix() const;
 
-    static glm::mat4 GetInitialProjectionMatrix(float aspectRatio);
+  static glm::mat4 GetInitialProjectionMatrix(float aspectRatio);
 
 public:
-    RendererCamera(glm::vec3 position, glm::vec3 up);
+  RendererCamera(glm::vec3 position, glm::vec3 up);
 
-    ~RendererCamera() = default;
+  ~RendererCamera() = default;
 
-    void SetPosition(const glm::vec3 position) {
-        this->viewProjectionMatrix.position = glm::vec4(position, 1.0f);
-    }
+  void SetPosition(const glm::vec3 position) {
+    this->viewProjectionMatrix.position = glm::vec4(position, 1.0f);
+  }
 
-    [[nodiscard]] glm::vec3 GetPosition() const {
-        return glm::vec3(this->viewProjectionMatrix.position.x,
-                         this->viewProjectionMatrix.position.y,
-                         this->viewProjectionMatrix.position.z);
-    }
+  [[nodiscard]] glm::vec3 GetPosition() const {
+    return glm::vec3(this->viewProjectionMatrix.position.x,
+                     this->viewProjectionMatrix.position.y,
+                     this->viewProjectionMatrix.position.z);
+  }
 
-    [[nodiscard]] glm::mat4 GetViewMatrix() const;
+  [[nodiscard]] glm::mat4 GetViewMatrix() const;
 
-    void SetViewMatrix(const glm::mat4 &viewMatrix);
+  void SetViewMatrix(const glm::mat4 &viewMatrix);
 
-    glm::mat4 GetProjectionMatrix() const;
+  glm::mat4 GetProjectionMatrix() const;
 
-    void Destroy();
+  void Destroy();
 
-    bool CreateGPUCamera(const std::shared_ptr<VkGPUContext> &gpuCtx, float aspectRatio);
+  bool CreateGPUCamera(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                       float aspectRatio);
 
-    PipelineNodeBuffer GetViewProjectionMatrixBufferNode() const;
+  PipelineNodeBuffer GetViewProjectionMatrixBufferNode() const;
 };
 
-
-#endif //RENDERERCAMERA_H
+#endif // RENDERERCAMERA_H

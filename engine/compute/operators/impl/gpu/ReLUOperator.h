@@ -10,16 +10,15 @@
 
 class ReLUOperator final : public UnaryOperator {
 public:
-    ReLUOperator(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                 const std::shared_ptr<VkGPUBuffer> &inputBuffer,
-                 const std::shared_ptr<VkGPUBuffer> &outputBuffer);
+  ReLUOperator(const std::shared_ptr<VkGPUContext> &gpuCtx,
+               const std::shared_ptr<VkGPUBuffer> &inputBuffer,
+               const std::shared_ptr<VkGPUBuffer> &outputBuffer);
 
-    ~ReLUOperator() override;
+  ~ReLUOperator() override;
 
-    std::shared_ptr<IComputeGraphNode> CreateComputeGraphNode() override;
+  std::shared_ptr<IComputeGraphNode> CreateComputeGraphNode() override;
 
-    void Destroy() override;
+  void Destroy() override;
 };
 
-
-#endif //RELUOPERATOR_H
+#endif // RELUOPERATOR_H

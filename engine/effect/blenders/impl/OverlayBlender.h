@@ -7,23 +7,22 @@
 #include "engine/effect/blenders/BaseBlender.h"
 
 struct OverlayBlenderParams {
-    BasicBlenderParam imageSize;
+  BasicBlenderParam imageSize;
 };
 
 class OverlayBlender final : public BaseBlender {
-    OverlayBlenderParams overlayBlenderParams{};
+  OverlayBlenderParams overlayBlenderParams{};
 
 public:
-    OverlayBlender() = default;
+  OverlayBlender() = default;
 
-    ~OverlayBlender() override = default;
+  ~OverlayBlender() override = default;
 
-    VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                   BlendImageInfo baseImageInfo,
-                   BlendImageInfo blendImageInfo,
-                   VkBuffer outputBuffer) override;
+  VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                 BlendImageInfo baseImageInfo, BlendImageInfo blendImageInfo,
+                 VkBuffer outputBuffer) override;
 
-    void Destroy() override;
+  void Destroy() override;
 };
 
-#endif //OVERLAYBLENDER_H
+#endif // OVERLAYBLENDER_H

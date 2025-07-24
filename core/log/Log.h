@@ -6,10 +6,10 @@
 #define LOG_H
 #include <string>
 
+#include "core/config.h"
+#include <fstream>
 #include <iostream>
 #include <sstream>
-#include <fstream>
-#include "core/config.h"
 #ifdef OS_OPEN_HARMONY
 #include <hilog/log.h>
 #endif
@@ -18,66 +18,70 @@ static std::ofstream g_log_file;
 
 class Logger {
 public:
-    enum Level { DEBUG = 0, INFO, WARNING, ERROR };
+  enum Level { DEBUG = 0, INFO, WARNING, ERROR };
 
-    std::ostringstream *buffer = nullptr;
-    std::streambuf *stdoutBuffer = std::cout.rdbuf();
+  std::ostringstream *buffer = nullptr;
+  std::streambuf *stdoutBuffer = std::cout.rdbuf();
 
-    explicit Logger(const Level lvl = INFO) : level(lvl) {
-        buffer = new std::ostringstream;
-        if constexpr (LOG_TO_FILE) {
-            g_log_file.open(LOG_FILE_PATH, std::ofstream::out | std::ofstream::app);
-            if (!g_log_file.is_open()) {
-                std::cerr << "Failed to open log file!" << std::endl;
-                return;
-            }
-            std::cout.rdbuf(g_log_file.rdbuf());
-        }
+  explicit Logger(const Level lvl = INFO) : level(lvl) {
+    buffer = new std::ostringstream;
+    if constexpr (LOG_TO_FILE) {
+      g_log_file.open(LOG_FILE_PATH, std::ofstream::out | std::ofstream::app);
+      if (!g_log_file.is_open()) {
+        std::cerr << "Failed to open log file!" << std::endl;
+        return;
+      }
+      std::cout.rdbuf(g_log_file.rdbuf());
     }
+  }
 
-    ~Logger() {
-        output();
-        std::cout.rdbuf(stdoutBuffer);
-        delete buffer;
-        g_log_file.close();
-    }
+  ~Logger() {
+    output();
+    std::cout.rdbuf(stdoutBuffer);
+    delete buffer;
+    g_log_file.close();
+  }
 
-    template<typename T>
-    Logger &operator<<(const T &msg) {
-        if (buffer) *buffer << msg;
-        return *this;
-    }
+  template <typename T> Logger &operator<<(const T &msg) {
+    if (buffer)
+      *buffer << msg;
+    return *this;
+  }
 
-    Logger &operator<<(std::ostream & (*manip)(std::ostream &)) {
-        if (buffer) manip(*buffer);
-        return *this;
-    }
+  Logger &operator<<(std::ostream &(*manip)(std::ostream &)) {
+    if (buffer)
+      manip(*buffer);
+    return *this;
+  }
 
-    Logger &operator<<(const Level lvl) {
-        output();
-        level = lvl;
-        return *this;
-    }
+  Logger &operator<<(const Level lvl) {
+    output();
+    level = lvl;
+    return *this;
+  }
 
 private:
-    Level level;
+  Level level;
 
-    void output() const {
-        if (buffer == nullptr) return;
-        if (buffer->tellp() > 0 && level >= LOG_SHOW_LEVEL) {
+  void output() const {
+    if (buffer == nullptr)
+      return;
+    if (buffer->tellp() > 0 && level >= LOG_SHOW_LEVEL) {
 #ifdef OS_OPEN_HARMONY
-                OH_LOG_Print(LOG_APP, LOG_INFO, 0xFF00, "[EffectEngine]", "%{public}s", buffer->str().c_str());
+      OH_LOG_Print(LOG_APP, LOG_INFO, 0xFF00, "[EffectEngine]", "%{public}s",
+                   buffer->str().c_str());
 #else
-            std::cout << getLevelStr() << buffer->str();
+      std::cout << getLevelStr() << buffer->str();
 #endif /* OS_OPEN_HARMONY */
-            buffer->str("");
-        }
+      buffer->str("");
     }
+  }
 
-    [[nodiscard]] const char *getLevelStr() const {
-        static const char *levels[] = {"[DEBUG] ", "[INFO] ", "[WARN] ", "[ERROR] "};
-        return levels[level];
-    }
+  [[nodiscard]] const char *getLevelStr() const {
+    static const char *levels[] = {"[DEBUG] ", "[INFO] ", "[WARN] ",
+                                   "[ERROR] "};
+    return levels[level];
+  }
 };
 
-#endif //LOG_H
+#endif // LOG_H

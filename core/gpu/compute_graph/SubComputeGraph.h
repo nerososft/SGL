@@ -10,33 +10,36 @@
 #include "core/gpu/VkGPUContext.h"
 
 class SubComputeGraph {
-    std::shared_ptr<VkGPUContext> gpuCtx = nullptr;
-    DeviceQueue queue{};
-    VkFence computeFence = VK_NULL_HANDLE;
-    VkSemaphore computeDoneSemaphore = VK_NULL_HANDLE;
-    VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
-    std::vector<std::shared_ptr<IComputeGraphNode> > computeGraphNodes;
-    std::vector<std::shared_ptr<SubComputeGraph> > dependence;
+  std::shared_ptr<VkGPUContext> gpuCtx = nullptr;
+  DeviceQueue queue{};
+  VkFence computeFence = VK_NULL_HANDLE;
+  VkSemaphore computeDoneSemaphore = VK_NULL_HANDLE;
+  VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
+  std::vector<std::shared_ptr<IComputeGraphNode>> computeGraphNodes;
+  std::vector<std::shared_ptr<SubComputeGraph>> dependence;
 
 public:
-    explicit SubComputeGraph(const std::shared_ptr<VkGPUContext> &gpuCtx);
+  explicit SubComputeGraph(const std::shared_ptr<VkGPUContext> &gpuCtx);
 
-    ~SubComputeGraph() = default;
+  ~SubComputeGraph() = default;
 
-    VkResult Init();
+  VkResult Init();
 
-    void AddDependence(const std::shared_ptr<SubComputeGraph> &dependence);
+  void AddDependence(const std::shared_ptr<SubComputeGraph> &dependence);
 
-    void AddComputeGraphNode(const std::shared_ptr<IComputeGraphNode> &computeGraphNode);
+  void AddComputeGraphNode(
+      const std::shared_ptr<IComputeGraphNode> &computeGraphNode);
 
-    [[nodiscard]] VkSemaphore GetComputeDoneSemaphore() const { return this->computeDoneSemaphore; }
+  [[nodiscard]] VkSemaphore GetComputeDoneSemaphore() const {
+    return this->computeDoneSemaphore;
+  }
 
-    [[nodiscard]] DeviceQueue GetQueue() const { return this->queue; }
-    [[nodiscard]] VkFence GetComputeFence() const { return this->computeFence; }
+  [[nodiscard]] DeviceQueue GetQueue() const { return this->queue; }
+  [[nodiscard]] VkFence GetComputeFence() const { return this->computeFence; }
 
-    [[nodiscard]] VkResult Compute() const;
+  [[nodiscard]] VkResult Compute() const;
 
-    void Destroy();
+  void Destroy();
 };
 
-#endif //SUBCOMPUTEGRAPH_H
+#endif // SUBCOMPUTEGRAPH_H

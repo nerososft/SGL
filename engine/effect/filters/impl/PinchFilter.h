@@ -3,28 +3,28 @@
 #define PINCHFILTER_H
 #include <vulkan/vulkan_core.h>
 
-#include "engine/effect/filters/BasicFilter.h"
 #include "core/gpu/VkGPUContext.h"
+#include "engine/effect/filters/BasicFilter.h"
 
 struct PinchFilterParams {
-    BasicFilterParam imageSize;
-    int amount;
+  BasicFilterParam imageSize;
+  int amount;
 };
 
 class PinchFilter final : public BasicFilter {
-    PinchFilterParams pinchFilterParams{};
+  PinchFilterParams pinchFilterParams{};
 
 public:
-    PinchFilter() = default;
+  PinchFilter() = default;
 
-    ~PinchFilter() override = default;
+  ~PinchFilter() override = default;
 
-    VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                   const std::vector<FilterImageInfo> &inputImageInfo,
-                   const std::vector<FilterImageInfo> &outputImageInfo) override;
+  VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                 const std::vector<FilterImageInfo> &inputImageInfo,
+                 const std::vector<FilterImageInfo> &outputImageInfo) override;
 
-    void SetAmount(const int amount) { this->pinchFilterParams.amount = amount; }
+  void SetAmount(const int amount) { this->pinchFilterParams.amount = amount; }
 
-    void Destroy() override;
+  void Destroy() override;
 };
 #endif

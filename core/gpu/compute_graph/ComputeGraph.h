@@ -10,27 +10,27 @@
 #include "SubComputeGraph.h"
 #include "core/gpu/VkGPURenderPass.h"
 
-
 class VkGPUContext;
 
 class ComputeGraph {
-    std::shared_ptr<VkGPUContext> gpuCtx = nullptr;
-    std::vector<std::shared_ptr<SubComputeGraph> > subGraphs;
-    std::vector<VkSemaphore> computeDoneSemaphores;
+  std::shared_ptr<VkGPUContext> gpuCtx = nullptr;
+  std::vector<std::shared_ptr<SubComputeGraph>> subGraphs;
+  std::vector<VkSemaphore> computeDoneSemaphores;
 
 public:
-    explicit ComputeGraph(const std::shared_ptr<VkGPUContext> &gpuCtx);
+  explicit ComputeGraph(const std::shared_ptr<VkGPUContext> &gpuCtx);
 
-    ~ComputeGraph() = default;
+  ~ComputeGraph() = default;
 
-    void AddSubGraph(const std::shared_ptr<SubComputeGraph> &subGraph);
+  void AddSubGraph(const std::shared_ptr<SubComputeGraph> &subGraph);
 
-    [[nodiscard]] VkResult Compute() const;
+  [[nodiscard]] VkResult Compute() const;
 
-    [[nodiscard]] std::vector<VkSemaphore> GetComputeDoneSemaphores() const { return computeDoneSemaphores; }
+  [[nodiscard]] std::vector<VkSemaphore> GetComputeDoneSemaphores() const {
+    return computeDoneSemaphores;
+  }
 
-    void Destroy() const;
+  void Destroy() const;
 };
 
-
-#endif //COMPUTEGRAPH_H
+#endif // COMPUTEGRAPH_H

@@ -9,46 +9,46 @@
 #include "engine/compute/operators/IOperator.h"
 
 class CPUSumNode final : public CPUComputeNode {
-    std::shared_ptr<VkGPUBuffer> inputBuffer = nullptr;
-    float *sum = nullptr;
+  std::shared_ptr<VkGPUBuffer> inputBuffer = nullptr;
+  float *sum = nullptr;
 
 public:
-    CPUSumNode();
+  CPUSumNode();
 
-    ~CPUSumNode() override = default;
+  ~CPUSumNode() override = default;
 
-    VkResult CreateComputeGraphNode() override;
+  VkResult CreateComputeGraphNode() override;
 
-    void Compute(VkCommandBuffer commandBuffer) override;
+  void Compute(VkCommandBuffer commandBuffer) override;
 
-    void Destroy() override;
+  void Destroy() override;
 
-    void SetInputBuffer(const std::shared_ptr<VkGPUBuffer> &inputBuffer) { this->inputBuffer = inputBuffer; }
+  void SetInputBuffer(const std::shared_ptr<VkGPUBuffer> &inputBuffer) {
+    this->inputBuffer = inputBuffer;
+  }
 
-    void SetSum(float *sum) { this->sum = sum; }
+  void SetSum(float *sum) { this->sum = sum; }
 };
-
 
 class SumOperator final : IOperator {
-    std::shared_ptr<VkGPUBuffer> inputBuffer = nullptr;
-    float *sum = nullptr;
-    float innerSum = 0.0f;
+  std::shared_ptr<VkGPUBuffer> inputBuffer = nullptr;
+  float *sum = nullptr;
+  float innerSum = 0.0f;
 
 public:
-    explicit SumOperator(const std::shared_ptr<VkGPUBuffer> &inputBuffer);
+  explicit SumOperator(const std::shared_ptr<VkGPUBuffer> &inputBuffer);
 
-    ~SumOperator() override = default;
+  ~SumOperator() override = default;
 
-    std::shared_ptr<IComputeGraphNode> CreateComputeGraphNode() override;
+  std::shared_ptr<IComputeGraphNode> CreateComputeGraphNode() override;
 
-    [[nodiscard]] float *GetSum() const { return sum; }
+  [[nodiscard]] float *GetSum() const { return sum; }
 
-    float *GetInnerSum() { return &innerSum; }
+  float *GetInnerSum() { return &innerSum; }
 
-    void Destroy() override;
+  void Destroy() override;
 
-    void SetSum(float *sum) { this->sum = sum; }
+  void SetSum(float *sum) { this->sum = sum; }
 };
 
-
-#endif //SUMOPERATOR_H
+#endif // SUMOPERATOR_H

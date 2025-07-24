@@ -10,36 +10,35 @@
 #include "core/gpu/VkGPUContext.h"
 
 typedef struct {
-    VkDeviceSize bufferSize;
-    VkBuffer buffer;
+  VkDeviceSize bufferSize;
+  VkBuffer buffer;
 } ImageToCopyNodeBufferInfo;
 
 typedef struct {
-    uint32_t rowLength;
-    uint32_t height;
-    uint32_t width;
-    VkImage image;
+  uint32_t rowLength;
+  uint32_t height;
+  uint32_t width;
+  VkImage image;
 } ImageToCopyNodeImageInfo;
 
 class ImageToBufferCopyNode final : public IComputeGraphNode {
-    ImageToCopyNodeImageInfo srcImage{};
-    ImageToCopyNodeBufferInfo dstBuffer{};
-    std::shared_ptr<VkGPUContext> gpuCtx = nullptr;
+  ImageToCopyNodeImageInfo srcImage{};
+  ImageToCopyNodeBufferInfo dstBuffer{};
+  std::shared_ptr<VkGPUContext> gpuCtx = nullptr;
 
 public:
-    ImageToBufferCopyNode(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                          const std::string &name,
-                          ImageToCopyNodeImageInfo srcImage,
-                          ImageToCopyNodeBufferInfo dstBuffer);
+  ImageToBufferCopyNode(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                        const std::string &name,
+                        ImageToCopyNodeImageInfo srcImage,
+                        ImageToCopyNodeBufferInfo dstBuffer);
 
-    ~ImageToBufferCopyNode() override = default;
+  ~ImageToBufferCopyNode() override = default;
 
-    VkResult CreateComputeGraphNode() override;
+  VkResult CreateComputeGraphNode() override;
 
-    void Compute(VkCommandBuffer commandBuffer) override;
+  void Compute(VkCommandBuffer commandBuffer) override;
 
-    void Destroy() override;
+  void Destroy() override;
 };
 
-
-#endif //IMAGECOPYNODE_H
+#endif // IMAGECOPYNODE_H

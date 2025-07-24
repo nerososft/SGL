@@ -7,39 +7,40 @@
 #include <engine/effect/filters/BasicFilter.h>
 
 struct RgbToYuvFilterParams {
-    BasicFilterParam imageSize;
-    uint32_t outputWidthStride;
-    uint32_t outputHeightStride;
-    uint32_t format;
+  BasicFilterParam imageSize;
+  uint32_t outputWidthStride;
+  uint32_t outputHeightStride;
+  uint32_t format;
 };
 
 class RgbToYuvFilter final : public BasicFilter {
-    RgbToYuvFilterParams rgbToYuvFilterParams{};
+  RgbToYuvFilterParams rgbToYuvFilterParams{};
 
-    std::shared_ptr<ComputeGraph> computeGraph = nullptr;
-    std::shared_ptr<SubComputeGraph> computeSubGraph = nullptr;
+  std::shared_ptr<ComputeGraph> computeGraph = nullptr;
+  std::shared_ptr<SubComputeGraph> computeSubGraph = nullptr;
 
 public:
-    RgbToYuvFilter() = default;
+  RgbToYuvFilter() = default;
 
-    ~RgbToYuvFilter() override = default;
+  ~RgbToYuvFilter() override = default;
 
-    VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                   const std::vector<FilterImageInfo> &inputImageInfo,
-                   const std::vector<FilterImageInfo> &outputImageInfo) override;
+  VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                 const std::vector<FilterImageInfo> &inputImageInfo,
+                 const std::vector<FilterImageInfo> &outputImageInfo) override;
 
-    void SetOutputWidthStride(const uint32_t inputWidthStride) {
-        this->rgbToYuvFilterParams.outputWidthStride = inputWidthStride;
-    }
+  void SetOutputWidthStride(const uint32_t inputWidthStride) {
+    this->rgbToYuvFilterParams.outputWidthStride = inputWidthStride;
+  }
 
-    void SetOutputHeightStride(const uint32_t inputHeightStride) {
-        this->rgbToYuvFilterParams.outputHeightStride = inputHeightStride;
-    }
+  void SetOutputHeightStride(const uint32_t inputHeightStride) {
+    this->rgbToYuvFilterParams.outputHeightStride = inputHeightStride;
+  }
 
-    void SetFormat(const uint32_t format) { this->rgbToYuvFilterParams.format = format; }
+  void SetFormat(const uint32_t format) {
+    this->rgbToYuvFilterParams.format = format;
+  }
 
-
-    void Destroy() override;
+  void Destroy() override;
 };
 
-#endif //RGBTOYUVFILTER_H
+#endif // RGBTOYUVFILTER_H

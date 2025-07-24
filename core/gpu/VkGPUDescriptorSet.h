@@ -7,38 +7,40 @@
 #include <vector>
 #include <vulkan/vulkan_core.h>
 
-
 class VkGPUDescriptorSet {
-    VkDevice device = VK_NULL_HANDLE;
-    VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
-    VkDescriptorSetLayout descriptorSetLayout = VK_NULL_HANDLE;
-    VkDescriptorPool descriptorPool = VK_NULL_HANDLE;
+  VkDevice device = VK_NULL_HANDLE;
+  VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
+  VkDescriptorSetLayout descriptorSetLayout = VK_NULL_HANDLE;
+  VkDescriptorPool descriptorPool = VK_NULL_HANDLE;
 
-    VkDescriptorSet descriptorSet = VK_NULL_HANDLE;
-    std::vector<VkWriteDescriptorSet> writeDescriptorSets;
-    std::vector<VkDescriptorSet> descriptorSets;
+  VkDescriptorSet descriptorSet = VK_NULL_HANDLE;
+  std::vector<VkWriteDescriptorSet> writeDescriptorSets;
+  std::vector<VkDescriptorSet> descriptorSets;
 
 public:
-    VkGPUDescriptorSet(VkDevice device,
-                       VkPipelineLayout pipelineLayout,
-                       VkDescriptorSetLayout descriptorSetLayout);
+  VkGPUDescriptorSet(VkDevice device, VkPipelineLayout pipelineLayout,
+                     VkDescriptorSetLayout descriptorSetLayout);
 
-    ~VkGPUDescriptorSet();
+  ~VkGPUDescriptorSet();
 
-    VkResult AllocateDescriptorSets(VkDescriptorPool descriptorPool);
+  VkResult AllocateDescriptorSets(VkDescriptorPool descriptorPool);
 
-    void AddUniformBufferDescriptorSet(uint32_t dtsBinding, const VkDescriptorBufferInfo &descriptorBufferInfo);
+  void AddUniformBufferDescriptorSet(
+      uint32_t dtsBinding, const VkDescriptorBufferInfo &descriptorBufferInfo);
 
-    void AddStorageBufferDescriptorSet(uint32_t dtsBinding, const VkDescriptorBufferInfo &descriptorBufferInfo);
+  void AddStorageBufferDescriptorSet(
+      uint32_t dtsBinding, const VkDescriptorBufferInfo &descriptorBufferInfo);
 
-    void AddSamplerDescriptorSet(uint32_t dtsBinding, const VkDescriptorImageInfo &descriptorImageInfo);
+  void
+  AddSamplerDescriptorSet(uint32_t dtsBinding,
+                          const VkDescriptorImageInfo &descriptorImageInfo);
 
-    void UpdateDescriptorSets() const;
+  void UpdateDescriptorSets() const;
 
-    void GPUCmdBindDescriptorSets(VkCommandBuffer commandBuffer, VkPipelineBindPoint pipelineBindPoint) const;
+  void GPUCmdBindDescriptorSets(VkCommandBuffer commandBuffer,
+                                VkPipelineBindPoint pipelineBindPoint) const;
 
-    void Destroy();
+  void Destroy();
 };
 
-
-#endif //VKGPUDESCRIPTORSET_H
+#endif // VKGPUDESCRIPTORSET_H

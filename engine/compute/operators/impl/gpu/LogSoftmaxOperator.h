@@ -8,27 +8,26 @@
 #include "engine/compute/operators/UnaryOperator.h"
 
 struct LogSoftmaxOperatorParams {
-    float sum;
+  float sum;
 };
 
 class LogSoftmaxOperator final : public UnaryOperator {
-    LogSoftmaxOperatorParams params{};
+  LogSoftmaxOperatorParams params{};
 
-    float *sum = nullptr;
+  float *sum = nullptr;
 
 public:
-    LogSoftmaxOperator(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                       const std::shared_ptr<VkGPUBuffer> &inputBuffer,
-                       const std::shared_ptr<VkGPUBuffer> &outputBuffer);
+  LogSoftmaxOperator(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                     const std::shared_ptr<VkGPUBuffer> &inputBuffer,
+                     const std::shared_ptr<VkGPUBuffer> &outputBuffer);
 
-    ~LogSoftmaxOperator() override;
+  ~LogSoftmaxOperator() override;
 
-    std::shared_ptr<IComputeGraphNode> CreateComputeGraphNode() override;
+  std::shared_ptr<IComputeGraphNode> CreateComputeGraphNode() override;
 
-    void SetSum(float *sum) { this->sum = sum; }
+  void SetSum(float *sum) { this->sum = sum; }
 
-    void Destroy() override;
+  void Destroy() override;
 };
 
-
-#endif //LOGSOFTMAXOPERATOR_H
+#endif // LOGSOFTMAXOPERATOR_H

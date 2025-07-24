@@ -10,39 +10,38 @@
 #include "core/gpu/VkGPURenderPass.h"
 
 class GraphicsRenderPassNode final : public IComputeGraphNode {
-    float width = 1.0f;
-    float height = 1.0f;
-    std::vector<VkAttachmentDescription> attachments;
-    std::vector<VkSubpassDependency> subPassDependencies;
-    std::vector<VkSubpassDescription> subPasses;
-    std::vector<VkClearValue> clearValues;
+  float width = 1.0f;
+  float height = 1.0f;
+  std::vector<VkAttachmentDescription> attachments;
+  std::vector<VkSubpassDependency> subPassDependencies;
+  std::vector<VkSubpassDescription> subPasses;
+  std::vector<VkClearValue> clearValues;
 
-    std::shared_ptr<VkGPUContext> gpuCtx = nullptr;
-    std::shared_ptr<VkGPURenderPass> renderPass = nullptr;
-    std::shared_ptr<VkGPUFramebuffer> framebuffer = nullptr;
+  std::shared_ptr<VkGPUContext> gpuCtx = nullptr;
+  std::shared_ptr<VkGPURenderPass> renderPass = nullptr;
+  std::shared_ptr<VkGPUFramebuffer> framebuffer = nullptr;
 
 public:
-    GraphicsRenderPassNode(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                           const std::string &name,
-                           const std::vector<VkAttachmentDescription> &attachments,
-                           const std::vector<VkSubpassDependency> &dependencies,
-                           const std::vector<VkSubpassDescription> &subPasses,
-                           float width,
-                           float height,
-                           const std::vector<VkClearValue> &clearValues);
+  GraphicsRenderPassNode(
+      const std::shared_ptr<VkGPUContext> &gpuCtx, const std::string &name,
+      const std::vector<VkAttachmentDescription> &attachments,
+      const std::vector<VkSubpassDependency> &dependencies,
+      const std::vector<VkSubpassDescription> &subPasses, float width,
+      float height, const std::vector<VkClearValue> &clearValues);
 
-    ~GraphicsRenderPassNode() override = default;
+  ~GraphicsRenderPassNode() override = default;
 
-    VkResult CreateComputeGraphNode() override;
+  VkResult CreateComputeGraphNode() override;
 
-    void Compute(VkCommandBuffer commandBuffer) override;
+  void Compute(VkCommandBuffer commandBuffer) override;
 
-    void Destroy() override;
+  void Destroy() override;
 
-    void SetFramebuffer(const std::shared_ptr<VkGPUFramebuffer> &framebuffer) { this->framebuffer = framebuffer; }
+  void SetFramebuffer(const std::shared_ptr<VkGPUFramebuffer> &framebuffer) {
+    this->framebuffer = framebuffer;
+  }
 
-    std::shared_ptr<VkGPURenderPass> GetRenderPass() { return this->renderPass; }
+  std::shared_ptr<VkGPURenderPass> GetRenderPass() { return this->renderPass; }
 };
 
-
-#endif //GRAPHICSRENDERPASSNODE_H
+#endif // GRAPHICSRENDERPASSNODE_H

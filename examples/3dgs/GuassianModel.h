@@ -7,12 +7,12 @@
 #include <glm/vec4.hpp>
 
 struct GaussianPoint {
-    glm::vec4 position;
-    glm::vec4 color;
-    glm::vec4 scale;
-    glm::vec4 rotate;
-    glm::vec4 opacity;
-    // Spherical Harmonics
+  glm::vec4 position;
+  glm::vec4 color;
+  glm::vec4 scale;
+  glm::vec4 rotate;
+  glm::vec4 opacity;
+  // Spherical Harmonics
 };
 
-#endif //GUASSIANMODEL_H
+#endif // GUASSIANMODEL_H

@@ -11,28 +11,28 @@
 #include <memory>
 
 typedef struct {
-    uint32_t width;
-    uint32_t height;
-    uint32_t channels;
-    uint32_t posX;
-    uint32_t posY;
-    VkDeviceSize bufferSize;
-    VkBuffer storageBuffer;
-    VkDeviceMemory storageBufferMemory;
+  uint32_t width;
+  uint32_t height;
+  uint32_t channels;
+  uint32_t posX;
+  uint32_t posY;
+  VkDeviceSize bufferSize;
+  VkBuffer storageBuffer;
+  VkDeviceMemory storageBufferMemory;
 } FilterImageInfo;
-
 
 class IFilter {
 public:
-    IFilter() = default;
+  IFilter() = default;
 
-    virtual ~IFilter() = default;
+  virtual ~IFilter() = default;
 
-    virtual VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                           const std::vector<FilterImageInfo> &inputImageInfo,
-                           const std::vector<FilterImageInfo> &outputImageInfo) = 0;
+  virtual VkResult
+  Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
+        const std::vector<FilterImageInfo> &inputImageInfo,
+        const std::vector<FilterImageInfo> &outputImageInfo) = 0;
 
-    virtual void Destroy() = 0;
+  virtual void Destroy() = 0;
 };
 
-#endif //IFILTER_H
+#endif // IFILTER_H

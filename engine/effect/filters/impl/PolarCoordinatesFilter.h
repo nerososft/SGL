@@ -3,28 +3,30 @@
 #define POLARCOORDINATESFILTER_H
 #include <vulkan/vulkan_core.h>
 
-#include "engine/effect/filters/BasicFilter.h"
 #include "core/gpu/VkGPUContext.h"
+#include "engine/effect/filters/BasicFilter.h"
 
 struct PolarCoordinatesFilterParams {
-    BasicFilterParam imageSize;
-    int type;
+  BasicFilterParam imageSize;
+  int type;
 };
 
 class PolarCoordinatesFilter final : public BasicFilter {
-    PolarCoordinatesFilterParams polarcoordinatesFilterParams{};
+  PolarCoordinatesFilterParams polarcoordinatesFilterParams{};
 
 public:
-    PolarCoordinatesFilter() = default;
+  PolarCoordinatesFilter() = default;
 
-    ~PolarCoordinatesFilter() override = default;
+  ~PolarCoordinatesFilter() override = default;
 
-    VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                   const std::vector<FilterImageInfo> &inputImageInfo,
-                   const std::vector<FilterImageInfo> &outputImageInfo) override;
+  VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                 const std::vector<FilterImageInfo> &inputImageInfo,
+                 const std::vector<FilterImageInfo> &outputImageInfo) override;
 
-    void SetType(const int type) { this->polarcoordinatesFilterParams.type = type; }
+  void SetType(const int type) {
+    this->polarcoordinatesFilterParams.type = type;
+  }
 
-    void Destroy() override;
+  void Destroy() override;
 };
 #endif

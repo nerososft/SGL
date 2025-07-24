@@ -6,33 +6,33 @@
 #define GLFWWINDOW_H
 
 #define GLFW_INCLUDE_VULKAN
-#include <vector>
 #include <GLFW/glfw3.h>
+#include <vector>
 
 #include "../../event/IEventHandler.h"
 #include "../../window/IWindow.h"
 
 class GLFWWindowImpl final : public IWindow {
-    GLFWwindow *window = nullptr;
-    bool glfwInitialized = false;
+  GLFWwindow *window = nullptr;
+  bool glfwInitialized = false;
 
 public:
-    explicit GLFWWindowImpl(IEventHandler *handler);
+  explicit GLFWWindowImpl(IEventHandler *handler);
 
-    void CreateWindow(uint32_t posX, uint32_t posY, uint32_t width, uint32_t height, const char *title) override;
+  void CreateWindow(uint32_t posX, uint32_t posY, uint32_t width,
+                    uint32_t height, const char *title) override;
 
-    ~GLFWWindowImpl() override;
+  ~GLFWWindowImpl() override;
 
-    bool ShouldClose() override;
+  bool ShouldClose() override;
 
-    void PollEvent() override;
+  void PollEvent() override;
 
-    void Render() override;
+  void Render() override;
 
-    std::vector<const char *> GetRendererRequiredExtensions() override;
+  std::vector<const char *> GetRendererRequiredExtensions() override;
 
-    Surface GetSurface(SurfaceGetParams params) override;
+  Surface GetSurface(SurfaceGetParams params) override;
 };
 
-
-#endif //GLFWWINDOW_H
+#endif // GLFWWINDOW_H

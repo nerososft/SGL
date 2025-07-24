@@ -7,17 +7,15 @@
 #include "IOperator.h"
 #include "core/gpu/VkGPUContext.h"
 
-
 class Operator : public IOperator {
 public:
-    std::shared_ptr<VkGPUContext> gpuCtx = nullptr;
+  std::shared_ptr<VkGPUContext> gpuCtx = nullptr;
 
-    explicit Operator(const std::shared_ptr<VkGPUContext> &gpuCtx);
+  explicit Operator(const std::shared_ptr<VkGPUContext> &gpuCtx);
 
-    ~Operator() override;
+  ~Operator() override;
 
-    void Destroy() override;
+  void Destroy() override;
 };
 
-
-#endif //OPERATOR_H
+#endif // OPERATOR_H

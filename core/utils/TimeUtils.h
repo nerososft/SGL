@@ -8,11 +8,11 @@
 
 class TimeUtils {
 public:
-    TimeUtils() = default;
+  TimeUtils() = default;
 
-    ~TimeUtils() = default;
+  ~TimeUtils() = default;
 
-    static uint64_t GetCurrentMonoMs();
+  static uint64_t GetCurrentMonoMs();
 };
 
-#endif //TIMEUTILS_H
+#endif // TIMEUTILS_H

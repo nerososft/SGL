@@ -6,36 +6,39 @@
 #define GRAYFILTER_H
 #include <vulkan/vulkan_core.h>
 
-
-#include "engine/effect/filters/BasicFilter.h"
 #include "core/gpu/VkGPUContext.h"
-
+#include "engine/effect/filters/BasicFilter.h"
 
 struct GrayFilterParams {
-    BasicFilterParam imageSize;
-    float redFactor;
-    float greenFactor;
-    float blueFactor;
+  BasicFilterParam imageSize;
+  float redFactor;
+  float greenFactor;
+  float blueFactor;
 };
 
 class GrayFilter final : public BasicFilter {
-    GrayFilterParams grayFilterParams{};
+  GrayFilterParams grayFilterParams{};
 
 public:
-    GrayFilter() = default;
+  GrayFilter() = default;
 
-    ~GrayFilter() override = default;
+  ~GrayFilter() override = default;
 
-    VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                   const std::vector<FilterImageInfo> &inputImageInfo,
-                   const std::vector<FilterImageInfo> &outputImageInfo) override;
+  VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                 const std::vector<FilterImageInfo> &inputImageInfo,
+                 const std::vector<FilterImageInfo> &outputImageInfo) override;
 
-    void SetRedFactor(const float redFactor) { this->grayFilterParams.redFactor = redFactor; }
-    void SetGreenFactor(const float greenFactor) { this->grayFilterParams.greenFactor = greenFactor; }
-    void SetBlueFactor(const float blueFactor) { this->grayFilterParams.blueFactor = blueFactor; }
+  void SetRedFactor(const float redFactor) {
+    this->grayFilterParams.redFactor = redFactor;
+  }
+  void SetGreenFactor(const float greenFactor) {
+    this->grayFilterParams.greenFactor = greenFactor;
+  }
+  void SetBlueFactor(const float blueFactor) {
+    this->grayFilterParams.blueFactor = blueFactor;
+  }
 
-    void Destroy() override;
+  void Destroy() override;
 };
 
-
-#endif //GRAYFILTER_H
+#endif // GRAYFILTER_H

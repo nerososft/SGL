@@ -9,40 +9,41 @@
 #include "engine/compute/operators/IOperator.h"
 
 class CPUAvgNode final : public CPUComputeNode {
-    std::shared_ptr<VkGPUBuffer> inputBuffer = nullptr;
-    float *avg = nullptr;
+  std::shared_ptr<VkGPUBuffer> inputBuffer = nullptr;
+  float *avg = nullptr;
 
 public:
-    CPUAvgNode();
+  CPUAvgNode();
 
-    ~CPUAvgNode() override = default;
+  ~CPUAvgNode() override = default;
 
-    VkResult CreateComputeGraphNode() override;
+  VkResult CreateComputeGraphNode() override;
 
-    void Compute(VkCommandBuffer commandBuffer) override;
+  void Compute(VkCommandBuffer commandBuffer) override;
 
-    void Destroy() override;
+  void Destroy() override;
 
-    void SetInputBuffer(const std::shared_ptr<VkGPUBuffer> &inputBuffer) { this->inputBuffer = inputBuffer; }
+  void SetInputBuffer(const std::shared_ptr<VkGPUBuffer> &inputBuffer) {
+    this->inputBuffer = inputBuffer;
+  }
 
-    void SetAvg(float *avg) { this->avg = avg; }
+  void SetAvg(float *avg) { this->avg = avg; }
 };
-
 
 class AvgOperator final : IOperator {
-    std::shared_ptr<VkGPUBuffer> inputBuffer = nullptr;
-    float avg = 0.0;
+  std::shared_ptr<VkGPUBuffer> inputBuffer = nullptr;
+  float avg = 0.0;
 
 public:
-    explicit AvgOperator(const std::shared_ptr<VkGPUBuffer> &inputBuffer);
+  explicit AvgOperator(const std::shared_ptr<VkGPUBuffer> &inputBuffer);
 
-    ~AvgOperator() override = default;
+  ~AvgOperator() override = default;
 
-    std::shared_ptr<IComputeGraphNode> CreateComputeGraphNode() override;
+  std::shared_ptr<IComputeGraphNode> CreateComputeGraphNode() override;
 
-    float *GetAvg() { return &avg; }
+  float *GetAvg() { return &avg; }
 
-    void Destroy() override;
+  void Destroy() override;
 };
 
-#endif //AVGOPERATOR_H
+#endif // AVGOPERATOR_H

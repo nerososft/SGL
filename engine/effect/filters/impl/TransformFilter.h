@@ -10,27 +10,27 @@
 #include "engine/effect/filters/BasicFilter.h"
 
 struct TransformFilterParams {
-    BasicFilterParam imageSize;
-    glm::mat4 transformMatrix;
+  BasicFilterParam imageSize;
+  glm::mat4 transformMatrix;
 };
 
 class TransformFilter final : public BasicFilter {
-    TransformFilterParams transformFilterParams{};
+  TransformFilterParams transformFilterParams{};
 
 public:
-    TransformFilter() = default;
+  TransformFilter() = default;
 
-    ~TransformFilter() override = default;
+  ~TransformFilter() override = default;
 
-    void SetTransformMatrix(const glm::mat4 &transformMatrix) {
-        this->transformFilterParams.transformMatrix = transformMatrix;
-    }
+  void SetTransformMatrix(const glm::mat4 &transformMatrix) {
+    this->transformFilterParams.transformMatrix = transformMatrix;
+  }
 
-    VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                   const std::vector<FilterImageInfo> &inputImageInfo,
-                   const std::vector<FilterImageInfo> &outputImageInfo) override;
+  VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                 const std::vector<FilterImageInfo> &inputImageInfo,
+                 const std::vector<FilterImageInfo> &outputImageInfo) override;
 
-    void Destroy() override;
+  void Destroy() override;
 };
 
-#endif //TRANSFORMFILTER_H
+#endif // TRANSFORMFILTER_H

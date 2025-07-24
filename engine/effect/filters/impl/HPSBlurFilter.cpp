@@ -12,63 +12,59 @@
 #include "core/gpu/compute_graph/GraphicsRenderPassNode.h"
 #include "core/log/Log.h"
 
-VkResult HPSBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                              const std::vector<FilterImageInfo> &inputImageInfo,
-                              const std::vector<FilterImageInfo> &outputImageInfo) {
-    this->computeGraph = std::make_shared<ComputeGraph>(gpuCtx);
-    this->computeSubGraph = std::make_shared<SubComputeGraph>(gpuCtx);
-    VkResult ret = this->computeSubGraph->Init();
-    if (ret != VK_SUCCESS) {
-        Logger() << "Failed to create compute graph, err =" << string_VkResult(ret) << std::endl;
-        return ret;
-    }
+VkResult
+HPSBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                     const std::vector<FilterImageInfo> &inputImageInfo,
+                     const std::vector<FilterImageInfo> &outputImageInfo) {
+  this->computeGraph = std::make_shared<ComputeGraph>(gpuCtx);
+  this->computeSubGraph = std::make_shared<SubComputeGraph>(gpuCtx);
+  VkResult ret = this->computeSubGraph->Init();
+  if (ret != VK_SUCCESS) {
+    Logger() << "Failed to create compute graph, err =" << string_VkResult(ret)
+             << std::endl;
+    return ret;
+  }
 
-    // TODO:
-    std::vector<VkAttachmentDescription> attachments;
-    std::vector<VkSubpassDependency> dependencies;
-    std::vector<VkSubpassDescription> subPasses;
-    VkFramebuffer framebuffer = VK_NULL_HANDLE;
-    std::vector<VkClearValue> clearValues;
-    const auto renderPassNode = std::make_shared<GraphicsRenderPassNode>(gpuCtx,
-                                                                         "HPSBlurRenderPass",
-                                                                         attachments,
-                                                                         dependencies,
-                                                                         subPasses,
-                                                                         inputImageInfo[0].width,
-                                                                         inputImageInfo[0].height,
-                                                                         clearValues);
-    ret = renderPassNode->CreateComputeGraphNode();
-    if (ret != VK_SUCCESS) {
-        Logger() << "Failed to create graphics renderpass node, err =" << string_VkResult(ret) << std::endl;
-        return ret;
-    }
+  // TODO:
+  std::vector<VkAttachmentDescription> attachments;
+  std::vector<VkSubpassDependency> dependencies;
+  std::vector<VkSubpassDescription> subPasses;
+  VkFramebuffer framebuffer = VK_NULL_HANDLE;
+  std::vector<VkClearValue> clearValues;
+  const auto renderPassNode = std::make_shared<GraphicsRenderPassNode>(
+      gpuCtx, "HPSBlurRenderPass", attachments, dependencies, subPasses,
+      inputImageInfo[0].width, inputImageInfo[0].height, clearValues);
+  ret = renderPassNode->CreateComputeGraphNode();
+  if (ret != VK_SUCCESS) {
+    Logger() << "Failed to create graphics renderpass node, err ="
+             << string_VkResult(ret) << std::endl;
+    return ret;
+  }
 
-    // TODO:
-    std::vector<VkVertexInputBindingDescription> vertexInputBindingDescriptions;
-    std::vector<VkVertexInputAttributeDescription> vertexInputAttributeDescriptions;
-    const auto graphicsNode = std::make_shared<GraphicsPipelineNode>(gpuCtx,
-                                                                     "HPSBlurPipeline",
-                                                                     renderPassNode->GetRenderPass(),
-                                                                     SHADER(rect.vert.glsl.spv),
-                                                                     SHADER(rect.frag.glsl.spv),
-                                                                     vertexInputBindingDescriptions,
-                                                                     vertexInputAttributeDescriptions,
-                                                                     inputImageInfo[0].width, inputImageInfo[0].height);
+  // TODO:
+  std::vector<VkVertexInputBindingDescription> vertexInputBindingDescriptions;
+  std::vector<VkVertexInputAttributeDescription>
+      vertexInputAttributeDescriptions;
+  const auto graphicsNode = std::make_shared<GraphicsPipelineNode>(
+      gpuCtx, "HPSBlurPipeline", renderPassNode->GetRenderPass(),
+      SHADER(rect.vert.glsl.spv), SHADER(rect.frag.glsl.spv),
+      vertexInputBindingDescriptions, vertexInputAttributeDescriptions,
+      inputImageInfo[0].width, inputImageInfo[0].height);
 
-    // TODO:
-    graphicsNode->AddGraphicsElement({});
+  // TODO:
+  graphicsNode->AddGraphicsElement({});
 
-    ret = graphicsNode->CreateComputeGraphNode();
-    if (ret != VK_SUCCESS) {
-        Logger() << "Failed to create graphics pipeline node, err =" << string_VkResult(ret) << std::endl;
-        return ret;
-    }
+  ret = graphicsNode->CreateComputeGraphNode();
+  if (ret != VK_SUCCESS) {
+    Logger() << "Failed to create graphics pipeline node, err ="
+             << string_VkResult(ret) << std::endl;
+    return ret;
+  }
 
-    renderPassNode->AddDependenceNode(graphicsNode);
-    this->computeSubGraph->AddComputeGraphNode(renderPassNode);
-    this->computeGraph->AddSubGraph(computeSubGraph);
-    return this->computeGraph->Compute();
+  renderPassNode->AddDependenceNode(graphicsNode);
+  this->computeSubGraph->AddComputeGraphNode(renderPassNode);
+  this->computeGraph->AddSubGraph(computeSubGraph);
+  return this->computeGraph->Compute();
 }
 
-void HPSBlurFilter::Destroy() {
-}
+void HPSBlurFilter::Destroy() {}

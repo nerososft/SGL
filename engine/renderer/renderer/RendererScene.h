@@ -11,17 +11,15 @@
 #include "RendererLight.h"
 #include "RendererMesh.h"
 
-
 class RendererScene {
-    std::vector<std::shared_ptr<RendererLight> > lights;
-    std::shared_ptr<RendererCamera> camera = nullptr;
-    std::vector<std::shared_ptr<RendererMesh> > meshes;
+  std::vector<std::shared_ptr<RendererLight>> lights;
+  std::shared_ptr<RendererCamera> camera = nullptr;
+  std::vector<std::shared_ptr<RendererMesh>> meshes;
 
 public:
-    RendererScene() = default;
+  RendererScene() = default;
 
-    ~RendererScene() = default;
+  ~RendererScene() = default;
 };
 
-
-#endif //RENDERERSCENE_H
+#endif // RENDERERSCENE_H

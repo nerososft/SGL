@@ -7,24 +7,22 @@
 #include "engine/effect/blenders/BaseBlender.h"
 
 struct MultiplyBlenderParams {
-    BasicBlenderParam imageSize;
+  BasicBlenderParam imageSize;
 };
 
 class MultiplyBlender final : public BaseBlender {
-    MultiplyBlenderParams multiplyBlenderParams{};
+  MultiplyBlenderParams multiplyBlenderParams{};
 
 public:
-    MultiplyBlender() = default;
+  MultiplyBlender() = default;
 
-    ~MultiplyBlender() override = default;
+  ~MultiplyBlender() override = default;
 
-    VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                   BlendImageInfo baseImageInfo,
-                   BlendImageInfo blendImageInfo,
-                   VkBuffer outputBuffer) override;
+  VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                 BlendImageInfo baseImageInfo, BlendImageInfo blendImageInfo,
+                 VkBuffer outputBuffer) override;
 
-    void Destroy() override;
+  void Destroy() override;
 };
 
-
-#endif //MULTIPLYBLENDER_H
+#endif // MULTIPLYBLENDER_H

@@ -7,22 +7,22 @@
 #include "engine/effect/filters/BasicFilter.h"
 
 struct ColorPencilSketchFilterParams {
-    BasicFilterParam imageSize;
+  BasicFilterParam imageSize;
 };
 
 class ColorPencilSketchFilter final : public BasicFilter {
-    ColorPencilSketchFilterParams colorPencilSketchFilterParams{};
+  ColorPencilSketchFilterParams colorPencilSketchFilterParams{};
 
 public:
-    ColorPencilSketchFilter() = default;
+  ColorPencilSketchFilter() = default;
 
-    ~ColorPencilSketchFilter() override = default;
+  ~ColorPencilSketchFilter() override = default;
 
-    VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                   const std::vector<FilterImageInfo> &inputImageInfo,
-                   const std::vector<FilterImageInfo> &outputImageInfo) override;
+  VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                 const std::vector<FilterImageInfo> &inputImageInfo,
+                 const std::vector<FilterImageInfo> &outputImageInfo) override;
 
-    void Destroy() override;
+  void Destroy() override;
 };
 
-#endif //COLORPENCILSKETCHFILTER_H
+#endif // COLORPENCILSKETCHFILTER_H

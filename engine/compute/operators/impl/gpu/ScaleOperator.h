@@ -12,24 +12,24 @@
 #include "engine/compute/operators/UnaryOperator.h"
 
 struct ScaleOperatorParams {
-    float delta;
+  float delta;
 };
 
 class ScaleOperator final : public UnaryOperator {
-    ScaleOperatorParams params{};
+  ScaleOperatorParams params{};
 
 public:
-    ScaleOperator(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                  const std::shared_ptr<VkGPUBuffer> &inputBuffer,
-                  const std::shared_ptr<VkGPUBuffer> &outputBuffer);
+  ScaleOperator(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                const std::shared_ptr<VkGPUBuffer> &inputBuffer,
+                const std::shared_ptr<VkGPUBuffer> &outputBuffer);
 
-    ~ScaleOperator() override;
+  ~ScaleOperator() override;
 
-    void SetDelta(const float delta) { this->params.delta = delta; };
+  void SetDelta(const float delta) { this->params.delta = delta; };
 
-    std::shared_ptr<IComputeGraphNode> CreateComputeGraphNode() override;
+  std::shared_ptr<IComputeGraphNode> CreateComputeGraphNode() override;
 
-    void Destroy() override;
+  void Destroy() override;
 };
 
-#endif //SCALEOPERATOR_H
+#endif // SCALEOPERATOR_H

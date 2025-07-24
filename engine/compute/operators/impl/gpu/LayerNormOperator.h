@@ -8,48 +8,48 @@
 #include <engine/compute/operators/UnaryOperator.h>
 
 struct LayerNormOperatorParams {
-    float avg;
-    float variance;
-    float epsilon;
-    bool weightEnable;
-    bool biasEnable;
+  float avg;
+  float variance;
+  float epsilon;
+  bool weightEnable;
+  bool biasEnable;
 };
 
 class LayerNormOperator final : public UnaryOperator {
-    LayerNormOperatorParams params{};
+  LayerNormOperatorParams params{};
 
-    std::shared_ptr<VkGPUBuffer> weightBuffer = nullptr;
-    std::shared_ptr<VkGPUBuffer> biasBuffer = nullptr;
+  std::shared_ptr<VkGPUBuffer> weightBuffer = nullptr;
+  std::shared_ptr<VkGPUBuffer> biasBuffer = nullptr;
 
-    float *avg = nullptr;
-    float *variance = nullptr;
+  float *avg = nullptr;
+  float *variance = nullptr;
 
 public:
-    LayerNormOperator(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                      const std::shared_ptr<VkGPUBuffer> &inputBuffer,
-                      const std::shared_ptr<VkGPUBuffer> &weightBuffer,
-                      const std::shared_ptr<VkGPUBuffer> &biasBuffer,
-                      const std::shared_ptr<VkGPUBuffer> &outputBuffer);
+  LayerNormOperator(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                    const std::shared_ptr<VkGPUBuffer> &inputBuffer,
+                    const std::shared_ptr<VkGPUBuffer> &weightBuffer,
+                    const std::shared_ptr<VkGPUBuffer> &biasBuffer,
+                    const std::shared_ptr<VkGPUBuffer> &outputBuffer);
 
-    ~LayerNormOperator() override;
+  ~LayerNormOperator() override;
 
-    void SetAvg(float *avg) {
-        this->avg = avg;
-    }
+  void SetAvg(float *avg) { this->avg = avg; }
 
-    void SetVariance(float *variance) {
-        this->variance = variance;
-    }
+  void SetVariance(float *variance) { this->variance = variance; }
 
-    void SetEpsilon(const float epsilon) { this->params.epsilon = epsilon; }
+  void SetEpsilon(const float epsilon) { this->params.epsilon = epsilon; }
 
-    void SetWeightEnable(const bool weightEnable) { this->params.weightEnable = weightEnable; }
+  void SetWeightEnable(const bool weightEnable) {
+    this->params.weightEnable = weightEnable;
+  }
 
-    void SetBiasEnable(const bool biasEnable) { this->params.biasEnable = biasEnable; }
+  void SetBiasEnable(const bool biasEnable) {
+    this->params.biasEnable = biasEnable;
+  }
 
-    std::shared_ptr<IComputeGraphNode> CreateComputeGraphNode() override;
+  std::shared_ptr<IComputeGraphNode> CreateComputeGraphNode() override;
 
-    void Destroy() override;
+  void Destroy() override;
 };
 
-#endif //LAYERNORMOPERATOR_H
+#endif // LAYERNORMOPERATOR_H

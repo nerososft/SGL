@@ -11,52 +11,52 @@
 #include "engine/compute/operators/IOperator.h"
 
 class CPUExpSumNode final : public CPUComputeNode {
-    std::shared_ptr<VkGPUBuffer> inputBuffer = nullptr;
-    float *sum = nullptr;
-    float *max = nullptr;
+  std::shared_ptr<VkGPUBuffer> inputBuffer = nullptr;
+  float *sum = nullptr;
+  float *max = nullptr;
 
 public:
-    CPUExpSumNode();
+  CPUExpSumNode();
 
-    ~CPUExpSumNode() override = default;
+  ~CPUExpSumNode() override = default;
 
-    VkResult CreateComputeGraphNode() override;
+  VkResult CreateComputeGraphNode() override;
 
-    void Compute(VkCommandBuffer commandBuffer) override;
+  void Compute(VkCommandBuffer commandBuffer) override;
 
-    void Destroy() override;
+  void Destroy() override;
 
-    void SetInputBuffer(const std::shared_ptr<VkGPUBuffer> &inputBuffer) { this->inputBuffer = inputBuffer; }
+  void SetInputBuffer(const std::shared_ptr<VkGPUBuffer> &inputBuffer) {
+    this->inputBuffer = inputBuffer;
+  }
 
-    void SetSum(float *sum) { this->sum = sum; }
+  void SetSum(float *sum) { this->sum = sum; }
 
-    void SetMax(float *max) { this->max = max; }
+  void SetMax(float *max) { this->max = max; }
 };
-
 
 class ExpSumOperator final : IOperator {
-    std::shared_ptr<VkGPUBuffer> inputBuffer = nullptr;
-    float *sum = nullptr;
-    float *max = nullptr;
-    float innerSum = 0.0f;
+  std::shared_ptr<VkGPUBuffer> inputBuffer = nullptr;
+  float *sum = nullptr;
+  float *max = nullptr;
+  float innerSum = 0.0f;
 
 public:
-    explicit ExpSumOperator(const std::shared_ptr<VkGPUBuffer> &inputBuffer);
+  explicit ExpSumOperator(const std::shared_ptr<VkGPUBuffer> &inputBuffer);
 
-    ~ExpSumOperator() override = default;
+  ~ExpSumOperator() override = default;
 
-    std::shared_ptr<IComputeGraphNode> CreateComputeGraphNode() override;
+  std::shared_ptr<IComputeGraphNode> CreateComputeGraphNode() override;
 
-    [[nodiscard]] float *GetSum() const { return sum; }
+  [[nodiscard]] float *GetSum() const { return sum; }
 
-    float *GetInnerSum() { return &innerSum; }
+  float *GetInnerSum() { return &innerSum; }
 
-    void Destroy() override;
+  void Destroy() override;
 
-    void SetSum(float *sum) { this->sum = sum; }
+  void SetSum(float *sum) { this->sum = sum; }
 
-    void SetMax(float *max) { this->max = max; };
+  void SetMax(float *max) { this->max = max; };
 };
 
-
-#endif //EXPSUMOPERATOR_H
+#endif // EXPSUMOPERATOR_H

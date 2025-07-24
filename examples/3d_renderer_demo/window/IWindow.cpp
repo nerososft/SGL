@@ -4,6 +4,4 @@
 
 #include "IWindow.h"
 
-IWindow::IWindow(IEventHandler *handler) {
-    this->handler = handler;
-}
+IWindow::IWindow(IEventHandler *handler) { this->handler = handler; }

@@ -7,29 +7,32 @@
 #include "engine/effect/filters/BasicFilter.h"
 
 struct VibranceFilterParams {
-    BasicFilterParam imageSize;
-    float vibrance;
-    float saturation;
+  BasicFilterParam imageSize;
+  float vibrance;
+  float saturation;
 };
 
 class VibranceFilter final : public BasicFilter {
-    VibranceFilterParams vibranceFilterParams{};
+  VibranceFilterParams vibranceFilterParams{};
 
 public:
-    VibranceFilter() = default;
+  VibranceFilter() = default;
 
-    ~VibranceFilter() override = default;
+  ~VibranceFilter() override = default;
 
-    VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                   const std::vector<FilterImageInfo> &inputImageInfo,
-                   const std::vector<FilterImageInfo> &outputImageInfo) override;
+  VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                 const std::vector<FilterImageInfo> &inputImageInfo,
+                 const std::vector<FilterImageInfo> &outputImageInfo) override;
 
-    void SetVibrance(const float vibrance) { this->vibranceFilterParams.vibrance = vibrance; }
+  void SetVibrance(const float vibrance) {
+    this->vibranceFilterParams.vibrance = vibrance;
+  }
 
-    void SetSaturation(const float saturation) { this->vibranceFilterParams.saturation = saturation; }
+  void SetSaturation(const float saturation) {
+    this->vibranceFilterParams.saturation = saturation;
+  }
 
-    void Destroy() override;
+  void Destroy() override;
 };
 
-
-#endif //VIBRANCEFILTER_H
+#endif // VIBRANCEFILTER_H

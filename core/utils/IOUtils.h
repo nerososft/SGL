@@ -4,15 +4,15 @@
 
 #ifndef IOUTILS_H
 #define IOUTILS_H
-#include <vector>
 #include <string>
+#include <vector>
 class IOUtils {
 public:
-    IOUtils() = default;
+  IOUtils() = default;
 
-    ~IOUtils() = default;
+  ~IOUtils() = default;
 
-    static std::vector<char> ReadFile(const std::string &path);
+  static std::vector<char> ReadFile(const std::string &path);
 };
 
-#endif //IOUTILS_H
+#endif // IOUTILS_H

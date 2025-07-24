@@ -8,59 +8,58 @@
 #include "Config.h"
 #include "vendor/json.hpp"
 
-
 enum DataType {
-    FLOAT,
-    BF16,
+  FLOAT,
+  BF16,
 };
 
 struct DataOffset {
-    size_t start;
-    size_t end;
+  size_t start;
+  size_t end;
 };
 
 struct Shape2D {
-    size_t width;
-    size_t height;
+  size_t width;
+  size_t height;
 };
 
 struct Weight {
-    DataOffset dataOffsets;
-    std::string dtype;
-    Shape2D shape;
+  DataOffset dataOffsets;
+  std::string dtype;
+  Shape2D shape;
 };
 
 class SafeTensor {
-    std::shared_ptr<Config> config = nullptr;
+  std::shared_ptr<Config> config = nullptr;
 
-    std::vector<char> dataBytes;
+  std::vector<char> dataBytes;
 
-    std::vector<std::vector<float> > embeddingMatrix;
-    std::unordered_map<std::string, Weight> weights;
+  std::vector<std::vector<float>> embeddingMatrix;
+  std::unordered_map<std::string, Weight> weights;
 
 public:
-    explicit SafeTensor(const std::shared_ptr<Config> &config);
+  explicit SafeTensor(const std::shared_ptr<Config> &config);
 
-    ~SafeTensor() = default;
+  ~SafeTensor() = default;
 
-    bool LoadWeight(const std::string &weightName,
-                    nlohmann::json::const_reference weightData);
+  bool LoadWeight(const std::string &weightName,
+                  nlohmann::json::const_reference weightData);
 
-    bool LoadWeights(const std::vector<char> &safeTensorData,
-                     nlohmann::json::const_reference header);
+  bool LoadWeights(const std::vector<char> &safeTensorData,
+                   nlohmann::json::const_reference header);
 
-    bool LoadBF16EmbeddingMatrix(const std::vector<char> &safeTensorData,
-                                 nlohmann::json::const_reference header);
+  bool LoadBF16EmbeddingMatrix(const std::vector<char> &safeTensorData,
+                               nlohmann::json::const_reference header);
 
-    bool LoadFromFile(const std::string &tensorFilePath);
+  bool LoadFromFile(const std::string &tensorFilePath);
 
-    std::vector<float> EmbeddingToken(int token);
+  std::vector<float> EmbeddingToken(int token);
 
-    Weight GetWeight(const std::string &name);
+  Weight GetWeight(const std::string &name);
 
-    Weight GetLayerWeight(size_t layerIndex, const std::string &name);
+  Weight GetLayerWeight(size_t layerIndex, const std::string &name);
 
-    std::vector<float> GetLayerWeightData(const Weight &weight);
+  std::vector<float> GetLayerWeightData(const Weight &weight);
 };
 
-#endif //SAFETENSORDATA_H
+#endif // SAFETENSORDATA_H

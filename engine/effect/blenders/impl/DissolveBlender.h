@@ -7,27 +7,27 @@
 #include "engine/effect/blenders/BaseBlender.h"
 
 struct DissolveBlenderParams {
-    BasicBlenderParam imageSize;
-    float blenderFactor;
+  BasicBlenderParam imageSize;
+  float blenderFactor;
 };
 
 class DissolveBlender final : public BaseBlender {
-    DissolveBlenderParams dissolveBlenderParams{};
+  DissolveBlenderParams dissolveBlenderParams{};
 
 public:
-    DissolveBlender() = default;
+  DissolveBlender() = default;
 
-    ~DissolveBlender() override = default;
+  ~DissolveBlender() override = default;
 
-    VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                   BlendImageInfo baseImageInfo,
-                   BlendImageInfo blendImageInfo,
-                   VkBuffer outputBuffer) override;
+  VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                 BlendImageInfo baseImageInfo, BlendImageInfo blendImageInfo,
+                 VkBuffer outputBuffer) override;
 
-    void SetDissolveFactor(const float dissolveFactor) { this->dissolveBlenderParams.blenderFactor = dissolveFactor; }
+  void SetDissolveFactor(const float dissolveFactor) {
+    this->dissolveBlenderParams.blenderFactor = dissolveFactor;
+  }
 
-    void Destroy() override;
+  void Destroy() override;
 };
 
-
-#endif //DISSOLVEBLENDER_H
+#endif // DISSOLVEBLENDER_H

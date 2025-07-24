@@ -8,35 +8,34 @@
 
 #include "core/gpu/VkGPUBuffer.h"
 
-
 class Matrix {
-    uint32_t width = 0;
-    uint32_t height = 0;
-    std::shared_ptr<VkGPUBuffer> buffer = nullptr;
+  uint32_t width = 0;
+  uint32_t height = 0;
+  std::shared_ptr<VkGPUBuffer> buffer = nullptr;
 
 public:
-    Matrix(uint32_t width, uint32_t height);
+  Matrix(uint32_t width, uint32_t height);
 
-    Matrix(uint32_t width, uint32_t height, const std::shared_ptr<VkGPUBuffer> &buffer);
+  Matrix(uint32_t width, uint32_t height,
+         const std::shared_ptr<VkGPUBuffer> &buffer);
 
-    ~Matrix();
+  ~Matrix();
 
-    bool CreateMatrix(std::shared_ptr<VkGPUContext> &ctx);
+  bool CreateMatrix(std::shared_ptr<VkGPUContext> &ctx);
 
-    [[nodiscard]] bool SetData(const std::vector<float> &data) const;
+  [[nodiscard]] bool SetData(const std::vector<float> &data) const;
 
-    std::shared_ptr<VkGPUBuffer> GetBuffer();
+  std::shared_ptr<VkGPUBuffer> GetBuffer();
 
-    [[nodiscard]] void *GetDataAddr() const;
+  [[nodiscard]] void *GetDataAddr() const;
 
-    [[nodiscard]] uint32_t GetWidth() const { return this->width; }
+  [[nodiscard]] uint32_t GetWidth() const { return this->width; }
 
-    [[nodiscard]] uint32_t GetHeight() const { return this->height; }
+  [[nodiscard]] uint32_t GetHeight() const { return this->height; }
 
-    void Print() const;
+  void Print() const;
 
-    void Destroy() const;
+  void Destroy() const;
 };
 
-
-#endif //MATRIX_H
+#endif // MATRIX_H

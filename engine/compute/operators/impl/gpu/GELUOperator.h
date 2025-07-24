@@ -9,15 +9,15 @@
 
 class GELUOperator final : public UnaryOperator {
 public:
-    GELUOperator(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                 const std::shared_ptr<VkGPUBuffer> &inputBuffer,
-                 const std::shared_ptr<VkGPUBuffer> &outputBuffer);
+  GELUOperator(const std::shared_ptr<VkGPUContext> &gpuCtx,
+               const std::shared_ptr<VkGPUBuffer> &inputBuffer,
+               const std::shared_ptr<VkGPUBuffer> &outputBuffer);
 
-    ~GELUOperator() override;
+  ~GELUOperator() override;
 
-    std::shared_ptr<IComputeGraphNode> CreateComputeGraphNode() override;
+  std::shared_ptr<IComputeGraphNode> CreateComputeGraphNode() override;
 
-    void Destroy() override;
+  void Destroy() override;
 };
 
-#endif //GELUOPERATOR_H
+#endif // GELUOPERATOR_H

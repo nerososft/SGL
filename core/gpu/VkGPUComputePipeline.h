@@ -9,33 +9,38 @@
 #include <vulkan/vulkan_core.h>
 
 class VkGPUComputePipeline {
-    VkDevice device = VK_NULL_HANDLE;
-    std::string computeShaderPath;
-    std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
-    std::vector<VkPushConstantRange> pushConstantRanges;
-    VkDescriptorSetLayout descriptorSetLayout = VK_NULL_HANDLE;
-    VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
-    VkShaderModule computeShaderModule = VK_NULL_HANDLE;
-    VkPipeline computePipeline = VK_NULL_HANDLE;
+  VkDevice device = VK_NULL_HANDLE;
+  std::string computeShaderPath;
+  std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
+  std::vector<VkPushConstantRange> pushConstantRanges;
+  VkDescriptorSetLayout descriptorSetLayout = VK_NULL_HANDLE;
+  VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
+  VkShaderModule computeShaderModule = VK_NULL_HANDLE;
+  VkPipeline computePipeline = VK_NULL_HANDLE;
 
 public:
-    VkGPUComputePipeline(const std::string &computeShaderPath,
-                         const std::vector<VkDescriptorSetLayoutBinding> &descriptorSetLayoutBindings,
-                         const std::vector<VkPushConstantRange> &pushConstantRanges);
+  VkGPUComputePipeline(
+      const std::string &computeShaderPath,
+      const std::vector<VkDescriptorSetLayoutBinding>
+          &descriptorSetLayoutBindings,
+      const std::vector<VkPushConstantRange> &pushConstantRanges);
 
-    ~VkGPUComputePipeline() = default;
+  ~VkGPUComputePipeline() = default;
 
-    VkResult CreateComputePipeline(VkDevice device,
-                                   VkPipelineCache pipelineCache);
+  VkResult CreateComputePipeline(VkDevice device,
+                                 VkPipelineCache pipelineCache);
 
-    [[nodiscard]] VkPipelineLayout GetPipelineLayout() const { return this->pipelineLayout; }
+  [[nodiscard]] VkPipelineLayout GetPipelineLayout() const {
+    return this->pipelineLayout;
+  }
 
-    [[nodiscard]] VkDescriptorSetLayout GetDescriptorSetLayout() const { return this->descriptorSetLayout; }
+  [[nodiscard]] VkDescriptorSetLayout GetDescriptorSetLayout() const {
+    return this->descriptorSetLayout;
+  }
 
-    void GPUCmdBindPipeline(VkCommandBuffer commandBuffer) const;
+  void GPUCmdBindPipeline(VkCommandBuffer commandBuffer) const;
 
-    void Destroy();
+  void Destroy();
 };
 
-
-#endif //VKGPUCOMPUTEPIPELINE_H
+#endif // VKGPUCOMPUTEPIPELINE_H

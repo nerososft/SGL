@@ -8,17 +8,16 @@
 
 class AddOperator final : public BinaryOperator {
 public:
-    AddOperator(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                const std::shared_ptr<VkGPUBuffer> &inputBuffer1,
-                const std::shared_ptr<VkGPUBuffer> &inputBuffer2,
-                const std::shared_ptr<VkGPUBuffer> &outputBuffer);
+  AddOperator(const std::shared_ptr<VkGPUContext> &gpuCtx,
+              const std::shared_ptr<VkGPUBuffer> &inputBuffer1,
+              const std::shared_ptr<VkGPUBuffer> &inputBuffer2,
+              const std::shared_ptr<VkGPUBuffer> &outputBuffer);
 
-    std::shared_ptr<IComputeGraphNode> CreateComputeGraphNode() override;
+  std::shared_ptr<IComputeGraphNode> CreateComputeGraphNode() override;
 
-    ~AddOperator() override;
+  ~AddOperator() override;
 
-    void Destroy() override;
+  void Destroy() override;
 };
 
-
-#endif //ADDOPERATOR_H
+#endif // ADDOPERATOR_H

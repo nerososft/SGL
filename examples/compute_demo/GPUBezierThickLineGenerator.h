@@ -13,48 +13,49 @@
 #define MAX_LINE_NUMS (10240)
 
 struct Point2D {
-    float x;
-    float y;
+  float x;
+  float y;
 };
 
 struct BezierLine {
-    Point2D points[4];
-    float beginWidth;
-    float endWidth;
+  Point2D points[4];
+  float beginWidth;
+  float endWidth;
 };
 
 struct BezierParams {
-    uint32_t lineNums;
-    uint32_t bodyPointsNums; // 生成的点数量,采样精度
-    uint32_t assPointsNums; // 生成的屁股点数量,越多越圆
-    uint32_t headPointsNums; // 生成的头点数量,越多越圆
+  uint32_t lineNums;
+  uint32_t bodyPointsNums; // 生成的点数量,采样精度
+  uint32_t assPointsNums;  // 生成的屁股点数量,越多越圆
+  uint32_t headPointsNums; // 生成的头点数量,越多越圆
 };
 
 class GPUBezierThickLineGenerator {
-    std::shared_ptr<VkGPUContext> gpuCtx = nullptr;
-    std::shared_ptr<ComputeGraph> computeGraph = nullptr;
-    std::shared_ptr<SubComputeGraph> computeSubGraph = nullptr;
-    std::shared_ptr<ComputePipelineNode> bezierNode = nullptr;
+  std::shared_ptr<VkGPUContext> gpuCtx = nullptr;
+  std::shared_ptr<ComputeGraph> computeGraph = nullptr;
+  std::shared_ptr<SubComputeGraph> computeSubGraph = nullptr;
+  std::shared_ptr<ComputePipelineNode> bezierNode = nullptr;
 
-    std::shared_ptr<VkGPUBuffer> inputBuffer = nullptr;
-    std::shared_ptr<VkGPUBuffer> outputBuffer = nullptr;
+  std::shared_ptr<VkGPUBuffer> inputBuffer = nullptr;
+  std::shared_ptr<VkGPUBuffer> outputBuffer = nullptr;
 
-    BezierParams params{};
+  BezierParams params{};
 
 public:
-    GPUBezierThickLineGenerator() = default;
+  GPUBezierThickLineGenerator() = default;
 
-    ~GPUBezierThickLineGenerator();
+  ~GPUBezierThickLineGenerator();
 
-    bool InitializeGPUPipeline(const BezierParams &bezierParams);
+  bool InitializeGPUPipeline(const BezierParams &bezierParams);
 
-    [[nodiscard]] Point2D *GenerateThickLine(const std::vector<BezierLine> &lines);
+  [[nodiscard]] Point2D *
+  GenerateThickLine(const std::vector<BezierLine> &lines);
 
-    void UnMapOutputBuffer() const {
-        if (outputBuffer != nullptr) {
-            outputBuffer->UnMapBuffer();
-        }
+  void UnMapOutputBuffer() const {
+    if (outputBuffer != nullptr) {
+      outputBuffer->UnMapBuffer();
     }
+  }
 };
 
-#endif //BEZIER_THICK_LINE_UTILS_H
+#endif // BEZIER_THICK_LINE_UTILS_H

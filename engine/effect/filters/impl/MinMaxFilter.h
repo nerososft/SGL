@@ -3,31 +3,31 @@
 #define MINMAXFILTER_H
 #include <vulkan/vulkan_core.h>
 
-#include "engine/effect/filters/BasicFilter.h"
 #include "core/gpu/VkGPUContext.h"
+#include "engine/effect/filters/BasicFilter.h"
 
 struct MinMaxFilterParams {
-    BasicFilterParam imageSize;
-    int radius;
-    int type;
+  BasicFilterParam imageSize;
+  int radius;
+  int type;
 };
 
 class MinMaxFilter final : public BasicFilter {
-    MinMaxFilterParams minmaxFilterParams{};
+  MinMaxFilterParams minmaxFilterParams{};
 
 public:
-    MinMaxFilter() = default;
+  MinMaxFilter() = default;
 
-    ~MinMaxFilter() override = default;
+  ~MinMaxFilter() override = default;
 
-    VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                   const std::vector<FilterImageInfo> &inputImageInfo,
-                   const std::vector<FilterImageInfo> &outputImageInfo) override;
+  VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                 const std::vector<FilterImageInfo> &inputImageInfo,
+                 const std::vector<FilterImageInfo> &outputImageInfo) override;
 
-    void SetRadius(const int radius) { this->minmaxFilterParams.radius = radius; }
+  void SetRadius(const int radius) { this->minmaxFilterParams.radius = radius; }
 
-    void SetType(const int type) { this->minmaxFilterParams.type = type; }
+  void SetType(const int type) { this->minmaxFilterParams.type = type; }
 
-    void Destroy() override;
+  void Destroy() override;
 };
 #endif

@@ -4,30 +4,32 @@
 #define FACETFILTER_H
 #include <vulkan/vulkan_core.h>
 
-#include "engine/effect/filters/BasicFilter.h"
 #include "core/gpu/VkGPUContext.h"
+#include "engine/effect/filters/BasicFilter.h"
 
 struct FacetFilterParams {
-    BasicFilterParam imageSize;
-    int radius;
-    int intensityLevel;
+  BasicFilterParam imageSize;
+  int radius;
+  int intensityLevel;
 };
 
 class FacetFilter final : public BasicFilter {
-    FacetFilterParams facetParams{};
+  FacetFilterParams facetParams{};
 
 public:
-    FacetFilter() = default;
+  FacetFilter() = default;
 
-    ~FacetFilter() override = default;
+  ~FacetFilter() override = default;
 
-    VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                   const std::vector<FilterImageInfo> &inputImageInfo,
-                   const std::vector<FilterImageInfo> &outputImageInfo) override;
+  VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                 const std::vector<FilterImageInfo> &inputImageInfo,
+                 const std::vector<FilterImageInfo> &outputImageInfo) override;
 
-    void SetRadius(const int radius) { this->facetParams.radius = radius; }
-    void SetLevel(const int intensityLevel) { this->facetParams.intensityLevel = intensityLevel; }
+  void SetRadius(const int radius) { this->facetParams.radius = radius; }
+  void SetLevel(const int intensityLevel) {
+    this->facetParams.intensityLevel = intensityLevel;
+  }
 
-    void Destroy() override;
+  void Destroy() override;
 };
 #endif

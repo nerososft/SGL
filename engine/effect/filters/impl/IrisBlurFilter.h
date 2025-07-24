@@ -3,43 +3,44 @@
 #define IRISBLURFILTER_H
 #include <vulkan/vulkan_core.h>
 
-#include "engine/effect/filters/BasicFilter.h"
 #include "core/gpu/VkGPUContext.h"
-
+#include "engine/effect/filters/BasicFilter.h"
 
 struct IrisBlurFilterParams {
-    BasicFilterParam imageSize;
-    float x;
-    float y;
-    float a;
-    float b;
-    float ina;
-    float inb;
-    float angle;
+  BasicFilterParam imageSize;
+  float x;
+  float y;
+  float a;
+  float b;
+  float ina;
+  float inb;
+  float angle;
 };
 
 class IrisBlurFilter final : public IFilter {
-    IrisBlurFilterParams irisblurFilterParams{};
-    std::shared_ptr<ComputeGraph> computeGraph = nullptr;
-    std::shared_ptr<SubComputeGraph> computeSubGraph = nullptr;
+  IrisBlurFilterParams irisblurFilterParams{};
+  std::shared_ptr<ComputeGraph> computeGraph = nullptr;
+  std::shared_ptr<SubComputeGraph> computeSubGraph = nullptr;
 
 public:
-    IrisBlurFilter() = default;
+  IrisBlurFilter() = default;
 
-    ~IrisBlurFilter() override = default;
+  ~IrisBlurFilter() override = default;
 
-    VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                   const std::vector<FilterImageInfo> &inputImageInfo,
-                   const std::vector<FilterImageInfo> &outputImageInfo) override;
+  VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                 const std::vector<FilterImageInfo> &inputImageInfo,
+                 const std::vector<FilterImageInfo> &outputImageInfo) override;
 
-    void SetCenterX(const float _x) { this->irisblurFilterParams.x = _x; }
-    void SetCenterY(const float _y) { this->irisblurFilterParams.y = _y; }
-    void SetA(const float _a) { this->irisblurFilterParams.a = _a; }
-    void SetB(const float _b) { this->irisblurFilterParams.b = _b; }
-    void SetinA(const float _ina) { this->irisblurFilterParams.ina = _ina; }
-    void SetinB(const float _inb) { this->irisblurFilterParams.inb = _inb; }
-    void SetAngle(const float _angle) { this->irisblurFilterParams.angle = _angle; }
+  void SetCenterX(const float _x) { this->irisblurFilterParams.x = _x; }
+  void SetCenterY(const float _y) { this->irisblurFilterParams.y = _y; }
+  void SetA(const float _a) { this->irisblurFilterParams.a = _a; }
+  void SetB(const float _b) { this->irisblurFilterParams.b = _b; }
+  void SetinA(const float _ina) { this->irisblurFilterParams.ina = _ina; }
+  void SetinB(const float _inb) { this->irisblurFilterParams.inb = _inb; }
+  void SetAngle(const float _angle) {
+    this->irisblurFilterParams.angle = _angle;
+  }
 
-    void Destroy() override;
+  void Destroy() override;
 };
 #endif

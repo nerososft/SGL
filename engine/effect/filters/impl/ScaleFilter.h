@@ -7,32 +7,37 @@
 #include "engine/effect/filters/BasicFilter.h"
 
 struct ScaleFilterParams {
-    BasicFilterParam imageSize;
-    uint32_t targetWidth;
-    uint32_t targetHeight;
-    uint32_t interpType = 1;
+  BasicFilterParam imageSize;
+  uint32_t targetWidth;
+  uint32_t targetHeight;
+  uint32_t interpType = 1;
 };
 
 class ScaleFilter final : public BasicFilter {
-    ScaleFilterParams scaleFilterParams{};
-    std::shared_ptr<SubComputeGraph> computeSubGraph = nullptr;
-    std::shared_ptr<ComputeGraph> computeGraph = nullptr;
+  ScaleFilterParams scaleFilterParams{};
+  std::shared_ptr<SubComputeGraph> computeSubGraph = nullptr;
+  std::shared_ptr<ComputeGraph> computeGraph = nullptr;
 
 public:
-    ScaleFilter() = default;
+  ScaleFilter() = default;
 
-    ~ScaleFilter() override = default;
+  ~ScaleFilter() override = default;
 
-    VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                   const std::vector<FilterImageInfo> &inputImageInfo,
-                   const std::vector<FilterImageInfo> &outputImageInfo) override;
+  VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                 const std::vector<FilterImageInfo> &inputImageInfo,
+                 const std::vector<FilterImageInfo> &outputImageInfo) override;
 
-    void Destroy() override;
+  void Destroy() override;
 
-    void SetTargetWidth(const uint32_t width) { this->scaleFilterParams.targetWidth = width; }
-    void SetTargetHeight(const uint32_t height) { this->scaleFilterParams.targetHeight = height; }
-    void SetInterpType(const uint32_t type) { this->scaleFilterParams.interpType = type; }
+  void SetTargetWidth(const uint32_t width) {
+    this->scaleFilterParams.targetWidth = width;
+  }
+  void SetTargetHeight(const uint32_t height) {
+    this->scaleFilterParams.targetHeight = height;
+  }
+  void SetInterpType(const uint32_t type) {
+    this->scaleFilterParams.interpType = type;
+  }
 };
 
-
-#endif //SCALEFILTER_H
+#endif // SCALEFILTER_H

@@ -11,34 +11,34 @@
 #include "engine/compute/operators/BinaryOperator.h"
 #include "engine/compute/operators/IOperator.h"
 
-
 struct RoPEMulOperatorParams {
-    uint32_t ropeTheta;
-    uint32_t m;
-    uint32_t n;
+  uint32_t ropeTheta;
+  uint32_t m;
+  uint32_t n;
 };
 
 class RoPEMulOperator final : public BinaryOperator {
-    RoPEMulOperatorParams params{};
+  RoPEMulOperatorParams params{};
 
 public:
-    RoPEMulOperator(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                    const std::shared_ptr<VkGPUBuffer> &Q,
-                    const std::shared_ptr<VkGPUBuffer> &K,
-                    const std::shared_ptr<VkGPUBuffer> &output);
+  RoPEMulOperator(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                  const std::shared_ptr<VkGPUBuffer> &Q,
+                  const std::shared_ptr<VkGPUBuffer> &K,
+                  const std::shared_ptr<VkGPUBuffer> &output);
 
-    ~RoPEMulOperator() override;
+  ~RoPEMulOperator() override;
 
-    void SetRopeTheta(const uint32_t ropeTheta) { this->params.ropeTheta = ropeTheta; }
+  void SetRopeTheta(const uint32_t ropeTheta) {
+    this->params.ropeTheta = ropeTheta;
+  }
 
-    void SetM(const uint32_t m) { this->params.m = m; }
+  void SetM(const uint32_t m) { this->params.m = m; }
 
-    void SetN(const uint32_t n) { this->params.n = n; }
+  void SetN(const uint32_t n) { this->params.n = n; }
 
-    std::shared_ptr<IComputeGraphNode> CreateComputeGraphNode() override;
+  std::shared_ptr<IComputeGraphNode> CreateComputeGraphNode() override;
 
-    void Destroy() override;
+  void Destroy() override;
 };
 
-
-#endif //ROPEMULOPERATOR_H
+#endif // ROPEMULOPERATOR_H

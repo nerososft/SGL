@@ -11,15 +11,15 @@
 
 class SigmoidOperator final : public UnaryOperator {
 public:
-    SigmoidOperator(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                    const std::shared_ptr<VkGPUBuffer> &inputBuffer,
-                    const std::shared_ptr<VkGPUBuffer> &outputBuffer);
+  SigmoidOperator(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                  const std::shared_ptr<VkGPUBuffer> &inputBuffer,
+                  const std::shared_ptr<VkGPUBuffer> &outputBuffer);
 
-    ~SigmoidOperator() override;
+  ~SigmoidOperator() override;
 
-    std::shared_ptr<IComputeGraphNode> CreateComputeGraphNode() override;
+  std::shared_ptr<IComputeGraphNode> CreateComputeGraphNode() override;
 
-    void Destroy() override;
+  void Destroy() override;
 };
 
-#endif //SIGMODOPERATOR_H
+#endif // SIGMODOPERATOR_H

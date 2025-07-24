@@ -6,20 +6,18 @@
 #define MULOPERATOR_H
 #include "engine/compute/operators/BinaryOperator.h"
 
-
 class MulOperator final : public BinaryOperator {
 public:
-    MulOperator(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                    const std::shared_ptr<VkGPUBuffer> &inputBuffer1,
-                    const std::shared_ptr<VkGPUBuffer> &inputBuffer2,
-                    const std::shared_ptr<VkGPUBuffer> &outputBuffer);
+  MulOperator(const std::shared_ptr<VkGPUContext> &gpuCtx,
+              const std::shared_ptr<VkGPUBuffer> &inputBuffer1,
+              const std::shared_ptr<VkGPUBuffer> &inputBuffer2,
+              const std::shared_ptr<VkGPUBuffer> &outputBuffer);
 
-    ~MulOperator() override;
+  ~MulOperator() override;
 
-    std::shared_ptr<IComputeGraphNode> CreateComputeGraphNode() override;
+  std::shared_ptr<IComputeGraphNode> CreateComputeGraphNode() override;
 
-    void Destroy() override;
+  void Destroy() override;
 };
 
-
-#endif //MULOPERATOR_H
+#endif // MULOPERATOR_H

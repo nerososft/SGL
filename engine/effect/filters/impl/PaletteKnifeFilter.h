@@ -9,31 +9,35 @@
 #include "engine/effect/filters/BasicFilter.h"
 
 struct PaletteKnifeFilterParams {
-    BasicFilterParam imageSize;
-    int radius;
-    int quantScale;
+  BasicFilterParam imageSize;
+  int radius;
+  int quantScale;
 };
 
 class PaletteKnifeFilter final : public BasicFilter {
-    PaletteKnifeFilterParams paletteKnifeFilterParams{};
-    std::shared_ptr<ComputeGraph> computeGraph = nullptr;
-    std::shared_ptr<SubComputeGraph> computeSubGraph = nullptr;
-    std::shared_ptr<VkGPUBuffer> qBuffer = nullptr;
+  PaletteKnifeFilterParams paletteKnifeFilterParams{};
+  std::shared_ptr<ComputeGraph> computeGraph = nullptr;
+  std::shared_ptr<SubComputeGraph> computeSubGraph = nullptr;
+  std::shared_ptr<VkGPUBuffer> qBuffer = nullptr;
 
 public:
-    PaletteKnifeFilter() = default;
+  PaletteKnifeFilter() = default;
 
-    ~PaletteKnifeFilter() override = default;
+  ~PaletteKnifeFilter() override = default;
 
-    VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                   const std::vector<FilterImageInfo> &inputImageInfo,
-                   const std::vector<FilterImageInfo> &outputImageInfo) override;
+  VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                 const std::vector<FilterImageInfo> &inputImageInfo,
+                 const std::vector<FilterImageInfo> &outputImageInfo) override;
 
-    void SetRadius(const int radius) { this->paletteKnifeFilterParams.radius = radius; }
+  void SetRadius(const int radius) {
+    this->paletteKnifeFilterParams.radius = radius;
+  }
 
-    void SetQuantScale(const int quantScale) { this->paletteKnifeFilterParams.quantScale = quantScale; }
+  void SetQuantScale(const int quantScale) {
+    this->paletteKnifeFilterParams.quantScale = quantScale;
+  }
 
-    void Destroy() override;
+  void Destroy() override;
 };
 
-#endif //PALETTEKNIFEFILTER_H
+#endif // PALETTEKNIFEFILTER_H

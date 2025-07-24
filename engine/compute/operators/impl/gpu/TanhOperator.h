@@ -11,15 +11,15 @@
 
 class TanhOperator final : public UnaryOperator {
 public:
-    TanhOperator(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                 const std::shared_ptr<VkGPUBuffer> &inputBuffer,
-                 const std::shared_ptr<VkGPUBuffer> &outputBuffer);
+  TanhOperator(const std::shared_ptr<VkGPUContext> &gpuCtx,
+               const std::shared_ptr<VkGPUBuffer> &inputBuffer,
+               const std::shared_ptr<VkGPUBuffer> &outputBuffer);
 
-    ~TanhOperator() override;
+  ~TanhOperator() override;
 
-    std::shared_ptr<IComputeGraphNode> CreateComputeGraphNode() override;
+  std::shared_ptr<IComputeGraphNode> CreateComputeGraphNode() override;
 
-    void Destroy() override;
+  void Destroy() override;
 };
 
-#endif //TANHOPERATOR_H
+#endif // TANHOPERATOR_H

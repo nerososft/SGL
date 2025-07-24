@@ -9,46 +9,47 @@
 #include "engine/compute/operators/IOperator.h"
 
 class CPURmsNode final : public CPUComputeNode {
-    std::shared_ptr<VkGPUBuffer> inputBuffer = nullptr;
-    float bias = 0.0;
-    float *rms = nullptr;
+  std::shared_ptr<VkGPUBuffer> inputBuffer = nullptr;
+  float bias = 0.0;
+  float *rms = nullptr;
 
 public:
-    CPURmsNode();
+  CPURmsNode();
 
-    ~CPURmsNode() override = default;
+  ~CPURmsNode() override = default;
 
-    VkResult CreateComputeGraphNode() override;
+  VkResult CreateComputeGraphNode() override;
 
-    void Compute(VkCommandBuffer commandBuffer) override;
+  void Compute(VkCommandBuffer commandBuffer) override;
 
-    void Destroy() override;
+  void Destroy() override;
 
-    void SetInputBuffer(const std::shared_ptr<VkGPUBuffer> &inputBuffer) { this->inputBuffer = inputBuffer; }
+  void SetInputBuffer(const std::shared_ptr<VkGPUBuffer> &inputBuffer) {
+    this->inputBuffer = inputBuffer;
+  }
 
-    void SetRms(float *rms) { this->rms = rms; }
+  void SetRms(float *rms) { this->rms = rms; }
 
-    void SetBias(const float bias) { this->bias = bias; }
+  void SetBias(const float bias) { this->bias = bias; }
 };
-
 
 class RMSOperator final : IOperator {
-    std::shared_ptr<VkGPUBuffer> inputBuffer = nullptr;
-    float rms = 0.0;
-    float bias = 0.0;
+  std::shared_ptr<VkGPUBuffer> inputBuffer = nullptr;
+  float rms = 0.0;
+  float bias = 0.0;
 
 public:
-    explicit RMSOperator(const std::shared_ptr<VkGPUBuffer> &inputBuffer);
+  explicit RMSOperator(const std::shared_ptr<VkGPUBuffer> &inputBuffer);
 
-    ~RMSOperator() override = default;
+  ~RMSOperator() override = default;
 
-    void SetBias(const float bias) { this->bias = bias; }
+  void SetBias(const float bias) { this->bias = bias; }
 
-    std::shared_ptr<IComputeGraphNode> CreateComputeGraphNode() override;
+  std::shared_ptr<IComputeGraphNode> CreateComputeGraphNode() override;
 
-    float *GetRms() { return &rms; }
+  float *GetRms() { return &rms; }
 
-    void Destroy() override;
+  void Destroy() override;
 };
 
-#endif //RMSOPERATOR_H
+#endif // RMSOPERATOR_H

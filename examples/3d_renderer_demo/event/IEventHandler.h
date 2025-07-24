@@ -8,48 +8,47 @@
 #include <unistd.h>
 
 enum EventType {
-    EVENT_KEY_DOWN,
-    EVENT_KEY_UP,
-    EVENT_MOUSE_DOWN,
-    EVENT_MOUSE_UP,
-    EVENT_MOUSE_MOVE,
+  EVENT_KEY_DOWN,
+  EVENT_KEY_UP,
+  EVENT_MOUSE_DOWN,
+  EVENT_MOUSE_UP,
+  EVENT_MOUSE_MOVE,
 };
 
 struct Event {
-    EventType type;
+  EventType type;
 
-    union {
-        struct {
-            uint32_t key = 0;
-        } key;
+  union {
+    struct {
+      uint32_t key = 0;
+    } key;
 
-        struct {
-            uint32_t x = 0;
-            uint32_t y = 0;
-        } cursor;
+    struct {
+      uint32_t x = 0;
+      uint32_t y = 0;
+    } cursor;
 
-        struct {
-            uint32_t key = 0;
-        } mouse;
-    } data;
+    struct {
+      uint32_t key = 0;
+    } mouse;
+  } data;
 };
 
 class IEventHandler {
 public:
-    IEventHandler() = default;
+  IEventHandler() = default;
 
-    virtual ~IEventHandler() = default;
+  virtual ~IEventHandler() = default;
 
-    virtual void OnKeyUp(uint32_t key) = 0;
+  virtual void OnKeyUp(uint32_t key) = 0;
 
-    virtual void OnKeyDown(uint32_t key) = 0;
+  virtual void OnKeyDown(uint32_t key) = 0;
 
-    virtual void OnMouseDown(uint32_t key) = 0;
+  virtual void OnMouseDown(uint32_t key) = 0;
 
-    virtual void OnMouseUp(uint32_t key) = 0;
+  virtual void OnMouseUp(uint32_t key) = 0;
 
-    virtual void OnMouseMove(uint32_t x, uint32_t y) = 0;
+  virtual void OnMouseMove(uint32_t x, uint32_t y) = 0;
 };
 
-
-#endif //EVENTHANDLER_H
+#endif // EVENTHANDLER_H

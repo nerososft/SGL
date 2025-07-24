@@ -13,49 +13,49 @@
 #define MAX_THREADS (8)
 
 typedef enum {
-    GPU_BUFFER_TYPE_UNIFORM,
-    GPU_BUFFER_TYPE_STORAGE_LOCAL,
-    GPU_BUFFER_TYPE_STORAGE_SHARED,
-    GPU_BUFFER_TYPE_VERTEX,
-    GPU_BUFFER_TYPE_INDEX,
+  GPU_BUFFER_TYPE_UNIFORM,
+  GPU_BUFFER_TYPE_STORAGE_LOCAL,
+  GPU_BUFFER_TYPE_STORAGE_SHARED,
+  GPU_BUFFER_TYPE_VERTEX,
+  GPU_BUFFER_TYPE_INDEX,
 } VkGPUBufferType;
 
 class VkGPUBuffer {
-    std::shared_ptr<VkGPUContext> gpuCtx = nullptr;
-    VkGPUBufferType type;
-    VkBuffer buffer = VK_NULL_HANDLE;
-    VkDeviceMemory bufferMemory = VK_NULL_HANDLE;
-    void *data = nullptr;
-    VkDeviceSize bufferSize = 0;
+  std::shared_ptr<VkGPUContext> gpuCtx = nullptr;
+  VkGPUBufferType type;
+  VkBuffer buffer = VK_NULL_HANDLE;
+  VkDeviceMemory bufferMemory = VK_NULL_HANDLE;
+  void *data = nullptr;
+  VkDeviceSize bufferSize = 0;
 
 public:
-    explicit VkGPUBuffer(const std::shared_ptr<VkGPUContext> &gpuCtx);
+  explicit VkGPUBuffer(const std::shared_ptr<VkGPUContext> &gpuCtx);
 
-    ~VkGPUBuffer();
+  ~VkGPUBuffer();
 
-    VkResult AllocateAndBind(VkGPUBufferType type, VkDeviceSize size);
+  VkResult AllocateAndBind(VkGPUBufferType type, VkDeviceSize size);
 
-    VkResult MapBuffer(VkDeviceSize size);
+  VkResult MapBuffer(VkDeviceSize size);
 
-    VkResult MapBuffer();
+  VkResult MapBuffer();
 
-    void UnMapBuffer() const;
+  void UnMapBuffer() const;
 
-    VkResult UploadData(const void *uploadData, VkDeviceSize size);
+  VkResult UploadData(const void *uploadData, VkDeviceSize size);
 
-    VkResult AllocateAndUploadVectorF(const std::vector<float> &data);
+  VkResult AllocateAndUploadVectorF(const std::vector<float> &data);
 
-    VkResult DownloadData(void *downloadAddr, VkDeviceSize size);
+  VkResult DownloadData(void *downloadAddr, VkDeviceSize size);
 
-    [[nodiscard]] VkDeviceSize GetBufferSize() const { return this->bufferSize; }
+  [[nodiscard]] VkDeviceSize GetBufferSize() const { return this->bufferSize; }
 
-    void Destroy();
+  void Destroy();
 
-    [[nodiscard]] VkBuffer GetBuffer() const { return buffer; }
+  [[nodiscard]] VkBuffer GetBuffer() const { return buffer; }
 
-    [[nodiscard]] void *GetMappedAddr() const { return data; }
+  [[nodiscard]] void *GetMappedAddr() const { return data; }
 
-    [[nodiscard]] VkDeviceMemory GetDeviceMemory() const { return bufferMemory; }
+  [[nodiscard]] VkDeviceMemory GetDeviceMemory() const { return bufferMemory; }
 };
 
-#endif //VKGPUBUFFER_H
+#endif // VKGPUBUFFER_H

@@ -7,27 +7,27 @@
 #include "engine/effect/filters/BasicFilter.h"
 
 struct HPSBlurFilterParams {
-    BasicFilterParam imageSize;
-    int radius;
+  BasicFilterParam imageSize;
+  int radius;
 };
 
 class HPSBlurFilter final : public IFilter {
-    HPSBlurFilterParams blurFilterParams{};
-    std::shared_ptr<ComputeGraph> computeGraph = nullptr;
-    std::shared_ptr<SubComputeGraph> computeSubGraph = nullptr;
+  HPSBlurFilterParams blurFilterParams{};
+  std::shared_ptr<ComputeGraph> computeGraph = nullptr;
+  std::shared_ptr<SubComputeGraph> computeSubGraph = nullptr;
 
 public:
-    HPSBlurFilter() = default;
+  HPSBlurFilter() = default;
 
-    ~HPSBlurFilter() override = default;
+  ~HPSBlurFilter() override = default;
 
-    VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                   const std::vector<FilterImageInfo> &inputImageInfo,
-                   const std::vector<FilterImageInfo> &outputImageInfo) override;
+  VkResult Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                 const std::vector<FilterImageInfo> &inputImageInfo,
+                 const std::vector<FilterImageInfo> &outputImageInfo) override;
 
-    void SetRadius(const int radius) { this->blurFilterParams.radius = radius; }
+  void SetRadius(const int radius) { this->blurFilterParams.radius = radius; }
 
-    void Destroy() override;
+  void Destroy() override;
 };
 
-#endif //HPSBLURFILTER_H
+#endif // HPSBLURFILTER_H

@@ -9,17 +9,17 @@
 
 class UnaryOperator : public IOperator {
 public:
-    std::shared_ptr<VkGPUContext> gpuCtx = nullptr;
-    std::shared_ptr<VkGPUBuffer> inputBuffer = nullptr;
-    std::shared_ptr<VkGPUBuffer> outputBuffer = nullptr;
+  std::shared_ptr<VkGPUContext> gpuCtx = nullptr;
+  std::shared_ptr<VkGPUBuffer> inputBuffer = nullptr;
+  std::shared_ptr<VkGPUBuffer> outputBuffer = nullptr;
 
-    UnaryOperator(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                  const std::shared_ptr<VkGPUBuffer> &inputBuffer,
-                  const std::shared_ptr<VkGPUBuffer> &outputBuffer);
+  UnaryOperator(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                const std::shared_ptr<VkGPUBuffer> &inputBuffer,
+                const std::shared_ptr<VkGPUBuffer> &outputBuffer);
 
-    ~UnaryOperator() override;
+  ~UnaryOperator() override;
 
-    void Destroy() override;
+  void Destroy() override;
 };
 
-#endif //UNARYOPERATOR_H
+#endif // UNARYOPERATOR_H

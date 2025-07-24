@@ -10,46 +10,46 @@
 #include "engine/compute/operators/IOperator.h"
 
 class CPUMaxNode final : public CPUComputeNode {
-    std::shared_ptr<VkGPUBuffer> inputBuffer = nullptr;
-    float *max = nullptr;
+  std::shared_ptr<VkGPUBuffer> inputBuffer = nullptr;
+  float *max = nullptr;
 
 public:
-    CPUMaxNode();
+  CPUMaxNode();
 
-    ~CPUMaxNode() override = default;
+  ~CPUMaxNode() override = default;
 
-    VkResult CreateComputeGraphNode() override;
+  VkResult CreateComputeGraphNode() override;
 
-    void Compute(VkCommandBuffer commandBuffer) override;
+  void Compute(VkCommandBuffer commandBuffer) override;
 
-    void Destroy() override;
+  void Destroy() override;
 
-    void SetInputBuffer(const std::shared_ptr<VkGPUBuffer> &inputBuffer) { this->inputBuffer = inputBuffer; }
+  void SetInputBuffer(const std::shared_ptr<VkGPUBuffer> &inputBuffer) {
+    this->inputBuffer = inputBuffer;
+  }
 
-    void SetMax(float *max) { this->max = max; }
+  void SetMax(float *max) { this->max = max; }
 };
-
 
 class MaxOperator final : IOperator {
-    std::shared_ptr<VkGPUBuffer> inputBuffer = nullptr;
-    float *max = nullptr;
-    float innerMax = 0.0f;
+  std::shared_ptr<VkGPUBuffer> inputBuffer = nullptr;
+  float *max = nullptr;
+  float innerMax = 0.0f;
 
 public:
-    explicit MaxOperator(const std::shared_ptr<VkGPUBuffer> &inputBuffer);
+  explicit MaxOperator(const std::shared_ptr<VkGPUBuffer> &inputBuffer);
 
-    ~MaxOperator() override = default;
+  ~MaxOperator() override = default;
 
-    std::shared_ptr<IComputeGraphNode> CreateComputeGraphNode() override;
+  std::shared_ptr<IComputeGraphNode> CreateComputeGraphNode() override;
 
-    [[nodiscard]] float *GetMax() const { return max; }
+  [[nodiscard]] float *GetMax() const { return max; }
 
-    float *GetInnerMax() { return &innerMax; }
+  float *GetInnerMax() { return &innerMax; }
 
-    void Destroy() override;
+  void Destroy() override;
 
-    void SetMax(float *max) { this->max = max; }
+  void SetMax(float *max) { this->max = max; }
 };
 
-
-#endif //MAXOPERATOR_H
+#endif // MAXOPERATOR_H

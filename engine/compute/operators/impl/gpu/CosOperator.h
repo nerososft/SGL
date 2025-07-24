@@ -6,17 +6,17 @@
 #define COSOPERATOR_H
 #include "engine/compute/operators/UnaryOperator.h"
 
-
 class CosOperator final : public UnaryOperator {
 public:
-    CosOperator(const std::shared_ptr<VkGPUContext>& gpuCtx, const std::shared_ptr<VkGPUBuffer>& inputBuffer,
-        const std::shared_ptr<VkGPUBuffer>& outputBuffer);
+  CosOperator(const std::shared_ptr<VkGPUContext> &gpuCtx,
+              const std::shared_ptr<VkGPUBuffer> &inputBuffer,
+              const std::shared_ptr<VkGPUBuffer> &outputBuffer);
 
-    ~CosOperator() override;
+  ~CosOperator() override;
 
-    std::shared_ptr<IComputeGraphNode> CreateComputeGraphNode() override;
+  std::shared_ptr<IComputeGraphNode> CreateComputeGraphNode() override;
 
-    void Destroy() override;
+  void Destroy() override;
 };
 
 #endif // COSOPERATOR_H

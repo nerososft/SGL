@@ -12,33 +12,32 @@
 #include "vendor/json.hpp"
 
 class Tokenizer {
-    int bosTokenId = -1;
-    int eosTokenId = -1;
-    std::unordered_map<std::string, int> vocab;
-    std::vector<std::pair<std::string, std::string> > merges;
-    std::unordered_map<std::string, std::string> bpeRanks;
+  int bosTokenId = -1;
+  int eosTokenId = -1;
+  std::unordered_map<std::string, int> vocab;
+  std::vector<std::pair<std::string, std::string>> merges;
+  std::unordered_map<std::string, std::string> bpeRanks;
 
 public:
-    Tokenizer() = default;
+  Tokenizer() = default;
 
-    ~Tokenizer() = default;
+  ~Tokenizer() = default;
 
-    bool LoadVocabularyFromJsonObject(nlohmann::json::const_reference array);
+  bool LoadVocabularyFromJsonObject(nlohmann::json::const_reference array);
 
-    bool LoadVocabularyFromJsonFile(nlohmann::json::const_reference str);
+  bool LoadVocabularyFromJsonFile(nlohmann::json::const_reference str);
 
-    bool LoadMergesFromJsonArray(nlohmann::json::const_reference array);
+  bool LoadMergesFromJsonArray(nlohmann::json::const_reference array);
 
-    bool LoadMergesFromJsonFile(nlohmann::json::const_reference str);
+  bool LoadMergesFromJsonFile(nlohmann::json::const_reference str);
 
-    bool LoadFromFile(const std::string &filePath);
+  bool LoadFromFile(const std::string &filePath);
 
-    bool MergeToken(std::vector<std::string> &tokens);
+  bool MergeToken(std::vector<std::string> &tokens);
 
-    [[nodiscard]] std::vector<int> Encode(const std::string &text);
+  [[nodiscard]] std::vector<int> Encode(const std::string &text);
 
-    [[nodiscard]] std::string DecodeOne(int prevToken, int token) const;
+  [[nodiscard]] std::string DecodeOne(int prevToken, int token) const;
 };
 
-
-#endif //TOKENIZER_H
+#endif // TOKENIZER_H

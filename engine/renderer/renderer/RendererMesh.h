@@ -4,51 +4,49 @@
 
 #ifndef MODEL_H
 #define MODEL_H
-#include <memory>
 #include <glm/glm.hpp>
+#include <memory>
 
-#include "examples/3d_renderer_demo/scene/Scene.h"
 #include "core/gpu/VkGPUBuffer.h"
 #include "core/gpu/compute_graph/IComputeGraphNode.h"
+#include "examples/3d_renderer_demo/scene/Scene.h"
 
 struct ModelMatrix {
-    glm::mat4 model;
+  glm::mat4 model;
 };
 
 class RendererMesh {
 public:
-    Mesh mesh{};
+  Mesh mesh{};
 
-    std::shared_ptr<VkGPUBuffer> vertexBuffer = nullptr;
-    std::shared_ptr<VkGPUBuffer> indicesBuffer = nullptr;
-    std::shared_ptr<VkGPUBuffer> materialBuffer = nullptr;
-    std::shared_ptr<VkGPUBuffer> transformMatrixBuffer = nullptr;
+  std::shared_ptr<VkGPUBuffer> vertexBuffer = nullptr;
+  std::shared_ptr<VkGPUBuffer> indicesBuffer = nullptr;
+  std::shared_ptr<VkGPUBuffer> materialBuffer = nullptr;
+  std::shared_ptr<VkGPUBuffer> transformMatrixBuffer = nullptr;
 
-    RendererMesh() = delete;
+  RendererMesh() = delete;
 
-    RendererMesh(const std::vector<Vertex> &vertices,
-                 const std::vector<uint32_t> &indices,
-                 const Material &material,
-                 const glm::mat4 &transform);
+  RendererMesh(const std::vector<Vertex> &vertices,
+               const std::vector<uint32_t> &indices, const Material &material,
+               const glm::mat4 &transform);
 
-    void SetMaterial(const Material &material);
+  void SetMaterial(const Material &material);
 
-    void SetTransformMatrix(const glm::mat4 &transform);
+  void SetTransformMatrix(const glm::mat4 &transform);
 
-    [[nodiscard]] PipelineNodeBuffer GetVertexBufferNode() const;
+  [[nodiscard]] PipelineNodeBuffer GetVertexBufferNode() const;
 
-    [[nodiscard]] PipelineNodeBuffer GetIndicesBufferNode() const;
+  [[nodiscard]] PipelineNodeBuffer GetIndicesBufferNode() const;
 
-    [[nodiscard]] PipelineNodeBuffer GetMaterialBufferNode() const;
+  [[nodiscard]] PipelineNodeBuffer GetMaterialBufferNode() const;
 
-    [[nodiscard]] PipelineNodeBuffer GetTransformMatrixBufferNode() const;
+  [[nodiscard]] PipelineNodeBuffer GetTransformMatrixBufferNode() const;
 
-    bool CreateGPUMesh(const std::shared_ptr<VkGPUContext> &gpuCtx);
+  bool CreateGPUMesh(const std::shared_ptr<VkGPUContext> &gpuCtx);
 
-    void Destroy();
+  void Destroy();
 
-    ~RendererMesh() = default;
+  ~RendererMesh() = default;
 };
 
-
-#endif //MODEL_H
+#endif // MODEL_H

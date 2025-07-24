@@ -9,38 +9,37 @@
 
 #include "VkGPUContext.h"
 
-
 class VkGPURenderPass {
-    std::shared_ptr<VkGPUContext> gpuCtx = nullptr;
-    VkRenderPass renderPass = VK_NULL_HANDLE;
+  std::shared_ptr<VkGPUContext> gpuCtx = nullptr;
+  VkRenderPass renderPass = VK_NULL_HANDLE;
 
-    std::vector<VkAttachmentDescription> attachments;
-    std::vector<VkSubpassDependency> dependencies;
-    std::vector<VkSubpassDescription> subPasses;
+  std::vector<VkAttachmentDescription> attachments;
+  std::vector<VkSubpassDependency> dependencies;
+  std::vector<VkSubpassDescription> subPasses;
 
-    VkRect2D renderArea{};
-    std::vector<VkClearValue> clearValues;
+  VkRect2D renderArea{};
+  std::vector<VkClearValue> clearValues;
 
 public:
-    explicit VkGPURenderPass(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                             const std::vector<VkAttachmentDescription> &attachments,
-                             const std::vector<VkSubpassDependency> &dependencies,
-                             const std::vector<VkSubpassDescription> &subPasses,
-                             VkRect2D renderArea,
-                             const std::vector<VkClearValue> &clearValues);
+  explicit VkGPURenderPass(
+      const std::shared_ptr<VkGPUContext> &gpuCtx,
+      const std::vector<VkAttachmentDescription> &attachments,
+      const std::vector<VkSubpassDependency> &dependencies,
+      const std::vector<VkSubpassDescription> &subPasses, VkRect2D renderArea,
+      const std::vector<VkClearValue> &clearValues);
 
-    ~VkGPURenderPass() = default;
+  ~VkGPURenderPass() = default;
 
-    VkResult CreateRenderPass();
+  VkResult CreateRenderPass();
 
-    void GPUCmdBeginRenderPass(const VkCommandBuffer &commandBuffer,
-                               const VkFramebuffer &framebuffer) const;
+  void GPUCmdBeginRenderPass(const VkCommandBuffer &commandBuffer,
+                             const VkFramebuffer &framebuffer) const;
 
-    static void GPUCmdEndRenderPass(const VkCommandBuffer &commandBuffer);
+  static void GPUCmdEndRenderPass(const VkCommandBuffer &commandBuffer);
 
-    void Destroy() const;
+  void Destroy() const;
 
-    [[nodiscard]] VkRenderPass GetRenderPass() const { return renderPass; }
+  [[nodiscard]] VkRenderPass GetRenderPass() const { return renderPass; }
 };
 
-#endif //VKGPURENDERPASS_H
+#endif // VKGPURENDERPASS_H

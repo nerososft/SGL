@@ -8,30 +8,30 @@
 #include "engine/compute/operators/UnaryOperator.h"
 
 struct SoftmaxOperatorParams {
-    float sum;
-    float max;
+  float sum;
+  float max;
 };
 
 class SoftmaxOperator final : public UnaryOperator {
-    SoftmaxOperatorParams params{};
+  SoftmaxOperatorParams params{};
 
-    float *sum = nullptr;
-    float *max = nullptr;
+  float *sum = nullptr;
+  float *max = nullptr;
 
 public:
-    SoftmaxOperator(const std::shared_ptr<VkGPUContext> &gpuCtx,
-                    const std::shared_ptr<VkGPUBuffer> &inputBuffer,
-                    const std::shared_ptr<VkGPUBuffer> &outputBuffer);
+  SoftmaxOperator(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                  const std::shared_ptr<VkGPUBuffer> &inputBuffer,
+                  const std::shared_ptr<VkGPUBuffer> &outputBuffer);
 
-    ~SoftmaxOperator() override;
+  ~SoftmaxOperator() override;
 
-    std::shared_ptr<IComputeGraphNode> CreateComputeGraphNode() override;
+  std::shared_ptr<IComputeGraphNode> CreateComputeGraphNode() override;
 
-    void SetSum(float *sum) { this->sum = sum; }
+  void SetSum(float *sum) { this->sum = sum; }
 
-    void SetMax(float *max) { this->max = max; }
+  void SetMax(float *max) { this->max = max; }
 
-    void Destroy() override;
+  void Destroy() override;
 };
 
-#endif //SOFTMAXOPERATOR_H
+#endif // SOFTMAXOPERATOR_H
