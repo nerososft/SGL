@@ -31,16 +31,6 @@ int main(int argc, char* argv[]) {
         mlir::spirv::VerCapExtAttr::get(mlir::spirv::Version::V_1_5, {mlir::spirv::Capability::Shader}, {}, &context));
 
     builder.setInsertionPointToEnd(spirvModule.getBody());
-    auto funcType = builder.getFunctionType({}, {});
-    auto funcOp   = builder.create<mlir::spirv::FuncOp>(builder.getUnknownLoc(), "main", funcType);
-
-    funcOp->setAttr(mlir::spirv::getEntryPointABIAttrName(),
-        builder.getDictionaryAttr({builder.getNamedAttr(
-            "main", mlir::spirv::ExecutionModelAttr::get(&context, mlir::spirv::ExecutionModel::GLCompute))}));
-
-    auto workgroupSize = {256, 1, 1};
-    builder.create<mlir::spirv::ExecutionModeOp>(
-        builder.getUnknownLoc(), funcOp, mlir::spirv::ExecutionMode::LocalSize, workgroupSize);
 
     auto uintType   = builder.getIntegerType(32);
     auto arrayType  = mlir::spirv::ArrayType::get(uintType, 1024);
@@ -81,6 +71,16 @@ int main(int argc, char* argv[]) {
 
     auto globalId = builder.create<mlir::spirv::LoadOp>(builder.getUnknownLoc(), vec3uintType, globalIdPtr.getResult());
 
+    auto funcType = builder.getFunctionType({}, {});
+    auto funcOp   = builder.create<mlir::spirv::FuncOp>(builder.getUnknownLoc(), "main", funcType);
+
+    funcOp->setAttr(mlir::spirv::getEntryPointABIAttrName(),
+        builder.getDictionaryAttr({builder.getNamedAttr(
+            "main", mlir::spirv::ExecutionModelAttr::get(&context, mlir::spirv::ExecutionModel::GLCompute))}));
+
+    auto workgroupSize = {256, 1, 1};
+    builder.create<mlir::spirv::ExecutionModeOp>(
+        builder.getUnknownLoc(), funcOp, mlir::spirv::ExecutionMode::LocalSize, workgroupSize);
     mlir::Block* entryBlock = funcOp.addEntryBlock();
     builder.setInsertionPointToEnd(entryBlock);
 
