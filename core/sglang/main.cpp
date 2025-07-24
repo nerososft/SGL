@@ -2,6 +2,8 @@
 // Created by neo on 25-7-23.
 //
 
+#include <fstream>
+#include <iostream>
 #include <mlir/Dialect/SPIRV/IR/SPIRVAttributes.h>
 #include <mlir/Dialect/SPIRV/IR/SPIRVDialect.h>
 #include <mlir/Dialect/SPIRV/IR/SPIRVEnums.h>
@@ -32,10 +34,13 @@ int main(int argc, char* argv[]) {
 
     builder.setInsertionPointToEnd(spirvModule.getBody());
 
-    auto uintType   = builder.getIntegerType(32);
-    auto arrayType  = mlir::spirv::ArrayType::get(uintType, 1024);
+    auto uint32Type = builder.getIntegerType(32, false);
+    auto int32Type = builder.getIntegerType(32, true);
+    auto vec3uintType = mlir::VectorType::get(3, uint32Type);
+    auto arrayType  = mlir::spirv::ArrayType::get(uint32Type, 1024);
     auto structType = mlir::spirv::StructType::get({arrayType}, {});
     auto ptrType    = mlir::spirv::PointerType::get(structType, mlir::spirv::StorageClass::StorageBuffer);
+    auto ptrToGlobalIdType = mlir::spirv::PointerType::get(vec3uintType, mlir::spirv::StorageClass::Input);
 
     auto var1Op = builder.create<mlir::spirv::GlobalVariableOp>(
         builder.getUnknownLoc(), ptrType, builder.getStringAttr("inputBuffer1"), nullptr);
@@ -55,10 +60,6 @@ int main(int argc, char* argv[]) {
     var3Op.setBinding(2);
     var3Op->setAttr("sym_name", builder.getStringAttr("outputBuffer"));
 
-    auto i32Type           = builder.getI32Type();
-    auto uint32Type        = builder.getIntegerType(32, false);
-    auto vec3uintType      = mlir::VectorType::get(3, uint32Type);
-    auto ptrToGlobalIdType = mlir::spirv::PointerType::get(vec3uintType, mlir::spirv::StorageClass::Input);
     auto globalIdOp        = builder.create<mlir::spirv::GlobalVariableOp>(
         builder.getUnknownLoc(), ptrToGlobalIdType, builder.getStringAttr("gl_GlobalInvocationID"), nullptr);
 
@@ -73,10 +74,8 @@ int main(int argc, char* argv[]) {
 
     auto funcType = builder.getFunctionType({}, {});
     auto funcOp   = builder.create<mlir::spirv::FuncOp>(builder.getUnknownLoc(), "main", funcType);
-
-    funcOp->setAttr(mlir::spirv::getEntryPointABIAttrName(),
-        builder.getDictionaryAttr({builder.getNamedAttr(
-            "main", mlir::spirv::ExecutionModelAttr::get(&context, mlir::spirv::ExecutionModel::GLCompute))}));
+    builder.create<mlir::spirv::EntryPointOp>(
+        builder.getUnknownLoc(), mlir::spirv::ExecutionModel::GLCompute, funcOp, mlir::ArrayRef<mlir::Attribute>());
 
     auto workgroupSize = {256, 1, 1};
     builder.create<mlir::spirv::ExecutionModeOp>(
@@ -85,7 +84,7 @@ int main(int argc, char* argv[]) {
     builder.setInsertionPointToEnd(entryBlock);
 
     auto indexX = builder.create<mlir::spirv::CompositeExtractOp>(
-        builder.getUnknownLoc(), i32Type, globalId.getResult(), builder.getI32ArrayAttr({0}));
+        builder.getUnknownLoc(), int32Type, globalId.getResult(), builder.getI32ArrayAttr({0}));
 
     auto addressOfInput1 =
         builder.create<mlir::spirv::AddressOfOp>(builder.getUnknownLoc(), ptrType, var1Op.getSymName());
@@ -94,32 +93,32 @@ int main(int argc, char* argv[]) {
     auto addressOfOutput =
         builder.create<mlir::spirv::AddressOfOp>(builder.getUnknownLoc(), ptrType, var3Op.getSymName());
 
-    auto zero = builder.create<mlir::spirv::ConstantOp>(builder.getUnknownLoc(), i32Type, builder.getI32IntegerAttr(0));
+    auto zero = builder.create<mlir::spirv::ConstantOp>(builder.getUnknownLoc(), int32Type, builder.getI32IntegerAttr(0));
 
     auto input1AccessChain = builder.create<mlir::spirv::AccessChainOp>(builder.getUnknownLoc(),
-        mlir::spirv::PointerType::get(i32Type, mlir::spirv::StorageClass::StorageBuffer), addressOfInput1.getResult(),
+        mlir::spirv::PointerType::get(int32Type, mlir::spirv::StorageClass::StorageBuffer), addressOfInput1.getResult(),
         mlir::ValueRange{zero, indexX});
 
     auto input2AccessChain = builder.create<mlir::spirv::AccessChainOp>(builder.getUnknownLoc(),
-        mlir::spirv::PointerType::get(i32Type, mlir::spirv::StorageClass::StorageBuffer), addressOfInput2.getResult(),
+        mlir::spirv::PointerType::get(int32Type, mlir::spirv::StorageClass::StorageBuffer), addressOfInput2.getResult(),
         mlir::ValueRange{zero, indexX});
 
     auto outputAccessChain = builder.create<mlir::spirv::AccessChainOp>(builder.getUnknownLoc(),
-        mlir::spirv::PointerType::get(i32Type, mlir::spirv::StorageClass::StorageBuffer), addressOfOutput.getResult(),
+        mlir::spirv::PointerType::get(int32Type, mlir::spirv::StorageClass::StorageBuffer), addressOfOutput.getResult(),
         mlir::ValueRange{zero, indexX});
 
     auto loadInput1 =
-        builder.create<mlir::spirv::LoadOp>(builder.getUnknownLoc(), i32Type, input1AccessChain.getResult(),
+        builder.create<mlir::spirv::LoadOp>(builder.getUnknownLoc(), int32Type, input1AccessChain.getResult(),
             mlir::spirv::MemoryAccessAttr::get(builder.getContext(), mlir::spirv::MemoryAccess::Aligned),
             builder.getI32IntegerAttr(4));
 
     auto loadInput2 =
-        builder.create<mlir::spirv::LoadOp>(builder.getUnknownLoc(), i32Type, input2AccessChain.getResult(),
+        builder.create<mlir::spirv::LoadOp>(builder.getUnknownLoc(), int32Type, input2AccessChain.getResult(),
             mlir::spirv::MemoryAccessAttr::get(builder.getContext(), mlir::spirv::MemoryAccess::Aligned),
             builder.getI32IntegerAttr(4));
 
     auto sum = builder.create<mlir::spirv::IAddOp>(
-        builder.getUnknownLoc(), i32Type, loadInput1.getResult(), loadInput2.getResult());
+        builder.getUnknownLoc(), int32Type, loadInput1.getResult(), loadInput2.getResult());
 
     builder.create<mlir::spirv::StoreOp>(builder.getUnknownLoc(), outputAccessChain, sum,
         mlir::spirv::MemoryAccessAttr::get(builder.getContext(), mlir::spirv::MemoryAccess::Aligned),
@@ -131,6 +130,14 @@ int main(int argc, char* argv[]) {
 
     mlir::SmallVector<uint32_t, 0> spirvBinary;
     serialize(spirvModule, spirvBinary);
+
+    std::ofstream outFile("../../../core/sglang/out.comp.spv", std::ios::binary);
+    if (outFile.is_open()) {
+        outFile.write(reinterpret_cast<const char*>(spirvBinary.data()), spirvBinary.size() * sizeof(uint32_t));
+        outFile.close();
+    } else {
+        llvm::errs() << "Failed to open file for writing\n";
+    }
 
     return 0;
 }
