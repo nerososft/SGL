@@ -27,7 +27,7 @@ int main(int argc, char* argv[]) {
 
     auto spirvModule = builder.create<mlir::spirv::ModuleOp>(
         builder.getUnknownLoc(), mlir::spirv::AddressingModel::Logical, mlir::spirv::MemoryModel::GLSL450);
-    spirvModule->setAttr("test",
+    spirvModule->setAttr("vce_triple",
         mlir::spirv::VerCapExtAttr::get(mlir::spirv::Version::V_1_5, {mlir::spirv::Capability::Shader}, {}, &context));
 
     builder.setInsertionPointToEnd(spirvModule.getBody());
