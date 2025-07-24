@@ -27,7 +27,7 @@ int main(int argc, char* argv[]) {
 
     auto spirvModule = builder.create<mlir::spirv::ModuleOp>(
         builder.getUnknownLoc(), mlir::spirv::AddressingModel::Logical, mlir::spirv::MemoryModel::GLSL450);
-    spirvModule->setAttr("vce_triple",
+    spirvModule->setAttr("test",
         mlir::spirv::VerCapExtAttr::get(mlir::spirv::Version::V_1_5, {mlir::spirv::Capability::Shader}, {}, &context));
 
     builder.setInsertionPointToEnd(spirvModule.getBody());
@@ -65,14 +65,10 @@ int main(int argc, char* argv[]) {
     var3Op.setBinding(2);
     var3Op->setAttr("sym_name", builder.getStringAttr("outputBuffer"));
 
-    mlir::Block* entryBlock = funcOp.addEntryBlock();
-    builder.setInsertionPointToEnd(entryBlock);
-
     auto i32Type           = builder.getI32Type();
     auto uint32Type        = builder.getIntegerType(32, false);
     auto vec3uintType      = mlir::VectorType::get(3, uint32Type);
     auto ptrToGlobalIdType = mlir::spirv::PointerType::get(vec3uintType, mlir::spirv::StorageClass::Input);
-
     auto globalIdOp = builder.create<mlir::spirv::GlobalVariableOp>(
         builder.getUnknownLoc(), ptrToGlobalIdType, builder.getStringAttr("gl_GlobalInvocationID"), nullptr);
 
@@ -84,6 +80,9 @@ int main(int argc, char* argv[]) {
         builder.getStringAttr("gl_GlobalInvocationID"));
 
     auto globalId = builder.create<mlir::spirv::LoadOp>(builder.getUnknownLoc(), vec3uintType, globalIdPtr.getResult());
+
+    mlir::Block* entryBlock = funcOp.addEntryBlock();
+    builder.setInsertionPointToEnd(entryBlock);
 
     auto indexX = builder.create<mlir::spirv::CompositeExtractOp>(
         builder.getUnknownLoc(), i32Type, globalId->getResult(0), builder.getI32ArrayAttr({0}));
