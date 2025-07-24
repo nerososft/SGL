@@ -69,7 +69,7 @@ int main(int argc, char* argv[]) {
     auto uint32Type        = builder.getIntegerType(32, false);
     auto vec3uintType      = mlir::VectorType::get(3, uint32Type);
     auto ptrToGlobalIdType = mlir::spirv::PointerType::get(vec3uintType, mlir::spirv::StorageClass::Input);
-    auto globalIdOp = builder.create<mlir::spirv::GlobalVariableOp>(
+    auto globalIdOp        = builder.create<mlir::spirv::GlobalVariableOp>(
         builder.getUnknownLoc(), ptrToGlobalIdType, builder.getStringAttr("gl_GlobalInvocationID"), nullptr);
 
     globalIdOp->setAttr(
@@ -85,7 +85,7 @@ int main(int argc, char* argv[]) {
     builder.setInsertionPointToEnd(entryBlock);
 
     auto indexX = builder.create<mlir::spirv::CompositeExtractOp>(
-        builder.getUnknownLoc(), i32Type, globalId->getResult(0), builder.getI32ArrayAttr({0}));
+        builder.getUnknownLoc(), i32Type, globalId.getResult(), builder.getI32ArrayAttr({0}));
 
     auto addressOfInput1 =
         builder.create<mlir::spirv::AddressOfOp>(builder.getUnknownLoc(), ptrType, var1Op.getSymName());
@@ -108,15 +108,18 @@ int main(int argc, char* argv[]) {
         mlir::spirv::PointerType::get(i32Type, mlir::spirv::StorageClass::StorageBuffer), addressOfOutput.getResult(),
         mlir::ValueRange{zero, indexX});
 
-    auto loadInput1 = builder.create<mlir::spirv::LoadOp>(builder.getUnknownLoc(), input1AccessChain,
-        mlir::spirv::MemoryAccessAttr::get(builder.getContext(), mlir::spirv::MemoryAccess::Aligned),
-        builder.getI32IntegerAttr(4));
+    auto loadInput1 =
+        builder.create<mlir::spirv::LoadOp>(builder.getUnknownLoc(), i32Type, input1AccessChain.getResult(),
+            mlir::spirv::MemoryAccessAttr::get(builder.getContext(), mlir::spirv::MemoryAccess::Aligned),
+            builder.getI32IntegerAttr(4));
 
-    auto loadInput2 = builder.create<mlir::spirv::LoadOp>(builder.getUnknownLoc(), input2AccessChain,
-        mlir::spirv::MemoryAccessAttr::get(builder.getContext(), mlir::spirv::MemoryAccess::Aligned),
-        builder.getI32IntegerAttr(4));
+    auto loadInput2 =
+        builder.create<mlir::spirv::LoadOp>(builder.getUnknownLoc(), i32Type, input2AccessChain.getResult(),
+            mlir::spirv::MemoryAccessAttr::get(builder.getContext(), mlir::spirv::MemoryAccess::Aligned),
+            builder.getI32IntegerAttr(4));
 
-    auto sum = builder.create<mlir::spirv::IAddOp>(builder.getUnknownLoc(), i32Type, loadInput1, loadInput2);
+    auto sum = builder.create<mlir::spirv::IAddOp>(
+        builder.getUnknownLoc(), i32Type, loadInput1.getResult(), loadInput2.getResult());
 
     builder.create<mlir::spirv::StoreOp>(builder.getUnknownLoc(), outputAccessChain, sum,
         mlir::spirv::MemoryAccessAttr::get(builder.getContext(), mlir::spirv::MemoryAccess::Aligned),
