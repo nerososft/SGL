@@ -8,7 +8,7 @@
 
 #include "SafeTensor.h"
 #include "TransformerBlock.h"
-#include "engine/compute/ComputeEngine.h"
+#include "core/compute/ComputeEngine.h"
 
 class Model {
   std::shared_ptr<Config> config = nullptr;

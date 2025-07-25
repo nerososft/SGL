@@ -8,8 +8,8 @@
 #include <memory>
 
 #include "SafeTensor.h"
-#include "engine/compute/ComputeEngine.h"
-#include "engine/compute/Matrix.h"
+#include "core/compute/ComputeEngine.h"
+#include "core/compute/Matrix.h"
 
 // "model.layers.0.input_layernorm.weight": 1024
 // "model.layers.0.self_attn.q_proj.weight": 2048, 1024

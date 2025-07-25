@@ -2,36 +2,36 @@
 // Created by neoyang on 2025/3/6.
 //
 
-#include <engine/image/blenders/impl/LighterColorBlender.h>
-#include <engine/image/filters/impl/MedianFilter.h>
-#include <engine/image/filters/impl/OldGaussianBlurFilter.h>
-#include <engine/image/filters/impl/RadialBlurFilter.h>
+#include <core/image/blenders/impl/LighterColorBlender.h>
+#include <core/image/filters/impl/MedianFilter.h>
+#include <core/image/filters/impl/OldGaussianBlurFilter.h>
+#include <core/image/filters/impl/RadialBlurFilter.h>
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
 #include <iostream>
 
-#include "engine/image/ImageEngine.h"
-#include "engine/image/blenders/impl/DissolveBlender.h"
-#include "engine/image/blenders/impl/LighterColorBlender.h"
-#include "engine/image/blenders/impl/MultiplyBlender.h"
-#include "engine/image/blenders/impl/OverlayBlender.h"
-#include "engine/image/filters/impl/ChinesePaintFilter.h"
-#include "engine/image/filters/impl/ColorPencilSketchFilter.h"
-#include "engine/image/filters/impl/ColorSeparationFilter.h"
-#include "engine/image/filters/impl/FastGaussianBlurFilter.h"
-#include "engine/image/filters/impl/FocusBlurFilter.h"
-#include "engine/image/filters/impl/GaussianBlurFilter.h"
-#include "engine/image/filters/impl/GrayFilter.h"
-#include "engine/image/filters/impl/NES8BitMosaicFilter.h"
-#include "engine/image/filters/impl/PaletteKnifeFilter.h"
-#include "engine/image/filters/impl/ScaleFilter.h"
-#include "engine/image/filters/impl/SurfaceBlurFilter.h"
-#include "engine/image/filters/impl/ThresholdSplitFilter.h"
-#include "engine/image/filters/impl/Transform3DFilter.h"
-#include "engine/image/filters/impl/TransformFilter.h"
-#include "engine/image/filters/impl/VibranceFilter.h"
-#include "engine/image/filters/impl/VoronoiFilter.h"
-#include "engine/image/utils/TransformUtils.h"
+#include "core/image/ImageEngine.h"
+#include "core/image/blenders/impl/DissolveBlender.h"
+#include "core/image/blenders/impl/LighterColorBlender.h"
+#include "core/image/blenders/impl/MultiplyBlender.h"
+#include "core/image/blenders/impl/OverlayBlender.h"
+#include "core/image/filters/impl/ChinesePaintFilter.h"
+#include "core/image/filters/impl/ColorPencilSketchFilter.h"
+#include "core/image/filters/impl/ColorSeparationFilter.h"
+#include "core/image/filters/impl/FastGaussianBlurFilter.h"
+#include "core/image/filters/impl/FocusBlurFilter.h"
+#include "core/image/filters/impl/GaussianBlurFilter.h"
+#include "core/image/filters/impl/GrayFilter.h"
+#include "core/image/filters/impl/NES8BitMosaicFilter.h"
+#include "core/image/filters/impl/PaletteKnifeFilter.h"
+#include "core/image/filters/impl/ScaleFilter.h"
+#include "core/image/filters/impl/SurfaceBlurFilter.h"
+#include "core/image/filters/impl/ThresholdSplitFilter.h"
+#include "core/image/filters/impl/Transform3DFilter.h"
+#include "core/image/filters/impl/TransformFilter.h"
+#include "core/image/filters/impl/VibranceFilter.h"
+#include "core/image/filters/impl/VoronoiFilter.h"
+#include "core/image/utils/TransformUtils.h"
 #include "runtime/log/Log.h"
 
 void effect_engine_main() {

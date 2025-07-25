@@ -5,7 +5,7 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <memory>
 
-#include "engine/renderer/renderer/Renderer.h"
+#include "core/renderer/renderer/Renderer.h"
 #include "runtime/log/Log.h"
 #include "scene/ModelLoader.h"
 

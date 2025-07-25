@@ -10,7 +10,7 @@
 #include "Model.h"
 #include "SafeTensor.h"
 #include "Tokenizer.h"
-#include "engine/compute/ComputeEngine.h"
+#include "core/compute/ComputeEngine.h"
 
 class Infer {
   std::shared_ptr<sgl::compute::ComputeEngine> ce = nullptr;
