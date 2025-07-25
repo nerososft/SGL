@@ -22,6 +22,13 @@ struct ImageInfo {
 class ImageEngine {
   std::shared_ptr<VkGPUContext> gpuCtx = nullptr;
 
+  VkResult Process(const std::shared_ptr<VkGPUBuffer> &inputBuffer,
+                   uint32_t inputWidth, uint32_t inputHeight,
+                   uint32_t outputWidth, uint32_t outputHeight,
+                   uint32_t channels, const void *uploadData,
+                   const std::shared_ptr<VkGPUBuffer> &outputBuffer,
+                   const std::shared_ptr<IFilter> &filter) const;
+
 public:
   ImageEngine() = default;
 
@@ -29,14 +36,7 @@ public:
 
   bool Init();
 
-  std::string GetGPUName() const;
-
-  VkResult Process(const std::shared_ptr<VkGPUBuffer> &inputBuffer,
-                   uint32_t inputWidth, uint32_t inputHeight,
-                   uint32_t outputWidth, uint32_t outputHeight,
-                   uint32_t channels, const void *uploadData,
-                   const std::shared_ptr<VkGPUBuffer> &outputBuffer,
-                   const std::shared_ptr<IFilter> &filter) const;
+  [[nodiscard]] std::string GetGPUName() const;
 
   void Process(const ImageInfo &input, const ImageInfo &output,
                const std::shared_ptr<IFilter> &filter) const;

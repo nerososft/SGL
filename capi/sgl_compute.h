@@ -7,7 +7,6 @@
 #include "sgl_error.h"
 
 typedef struct sgl_tensor {
-
 } sgl_tensor_t;
 
 typedef struct sgl_compute {

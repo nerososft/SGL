@@ -8,7 +8,7 @@
 typedef enum sgl_error {
   SGL_SUCCESS = 0,
   SGL_FAILURE = 1,
-  SGL_VULKAN_ERROR = 2,
+  SGL_GPU_ERROR = 2,
   SGL_OUT_OF_MEMORY = 3,
 } sgl_error_t;
 
