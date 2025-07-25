@@ -4,7 +4,7 @@
 
 #ifndef SGL_COMPUTE_H
 #define SGL_COMPUTE_H
-#include "sdl_error.h"
+#include "sgl_error.h"
 
 typedef struct sgl_tensor {
 

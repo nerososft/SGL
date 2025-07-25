@@ -1,7 +1,7 @@
 add_library(libSGL
         sgl.h
         sgl.cpp
-        sdl_error.h
+        sgl_error.h
         sgl_compute.h
         sgl_image.h
         sgl_image.cpp

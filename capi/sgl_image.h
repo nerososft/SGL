@@ -4,7 +4,7 @@
 
 #ifndef SGL_IMAGE_H
 #define SGL_IMAGE_H
-#include "sdl_error.h"
+#include "sgl_error.h"
 
 #include <cstdint>
 
