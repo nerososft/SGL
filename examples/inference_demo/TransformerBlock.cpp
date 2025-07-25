@@ -6,15 +6,16 @@
 
 #include "core/log/Log.h"
 
-TransformerBlock::TransformerBlock(const std::shared_ptr<ComputeEngine> &ce,
-                                   const uint64_t layerIdx) {
+TransformerBlock::TransformerBlock(
+    const std::shared_ptr<sgl::compute::ComputeEngine> &ce,
+    const uint64_t layerIdx) {
   this->ce = ce;
   this->layerIndex = layerIdx;
 }
 
-std::shared_ptr<Matrix> TransformerBlock::InitWeightMatrix(
+std::shared_ptr<sgl::compute::Matrix> TransformerBlock::InitWeightMatrix(
     const std::shared_ptr<SafeTensor> &safeTensor, const Weight &weight) const {
-  std::shared_ptr<Matrix> weightMatrix =
+  std::shared_ptr<sgl::compute::Matrix> weightMatrix =
       ce->CreateMatrix(weight.shape.width, weight.shape.height);
   const std::shared_ptr<VkGPUBuffer> matrixBuffer = weightMatrix->GetBuffer();
   if (matrixBuffer == nullptr) {
@@ -31,7 +32,7 @@ std::shared_ptr<Matrix> TransformerBlock::InitWeightMatrix(
   return weightMatrix;
 }
 
-std::shared_ptr<Matrix>
+std::shared_ptr<sgl::compute::Matrix>
 TransformerBlock::InitMatrix(const Weight &weight) const {
   return ce->CreateMatrix(weight.shape.width, weight.shape.height);
 }
@@ -94,12 +95,12 @@ bool TransformerBlock::Init(const std::shared_ptr<SafeTensor> &safeTensor,
 }
 
 void TransformerBlock::SetInputsMatrix(
-    const std::vector<std::shared_ptr<Matrix>> &inputs) {
+    const std::vector<std::shared_ptr<sgl::compute::Matrix>> &inputs) {
   this->inputsMatrix = inputs;
 }
 
 void TransformerBlock::SetOutputsMatrix(
-    const std::vector<std::shared_ptr<Matrix>> &outputs) {
+    const std::vector<std::shared_ptr<sgl::compute::Matrix>> &outputs) {
   this->outputsMatrix = outputs;
 }
 
@@ -347,7 +348,8 @@ void TransformerBlock::Attention() {
       ->Eval()
       ->Destroy();
 
-  std::vector<std::shared_ptr<Matrix>> qkvAttentionConcatOutputRows(seqLen);
+  std::vector<std::shared_ptr<sgl::compute::Matrix>>
+      qkvAttentionConcatOutputRows(seqLen);
   for (size_t tokenIdx = 0; tokenIdx < seqLen; tokenIdx++) {
     qkvAttentionConcatOutputRows[tokenIdx] =
         ce->CreateMatrix(config->GetHiddenSize(), 1);

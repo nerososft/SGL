@@ -13,7 +13,6 @@ void kernel() {}
 int main(int argc, char *argv[]) {
 
   const std::string source = R"(#version 450
-
 layout (local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
 
   layout (std430, binding = 0) buffer InputStorageBuffer {
@@ -29,9 +28,9 @@ layout (local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
   } outputBuffer;
 
   layout (push_constant) uniform Params {
-    uint width1;// width1 == height2
-    uint height1;// height1 = 输出矩阵行数
-    uint width2;// width2 = 输出矩阵列数
+    uint width1;
+    uint height1;
+    uint width2;
     uint height2;
     // TODO: params
   } params;
@@ -55,7 +54,7 @@ layout (local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
     outputBuffer.data[coord.x] = x1 + x2;
   })";
 
-  std::vector<uint32_t> spirv = ShaderCompiler::Compile(source);
+  const std::vector<uint32_t> spirv = ShaderCompiler::Compile(source);
   std::ofstream outputFile("../../../core/sglang/out.comp.spv",
                            std::ios::binary);
   if (outputFile.is_open()) {

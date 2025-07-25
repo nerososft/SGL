@@ -13,7 +13,7 @@
 #include "engine/compute/ComputeEngine.h"
 
 class Infer {
-  std::shared_ptr<ComputeEngine> ce = nullptr;
+  std::shared_ptr<sgl::compute::ComputeEngine> ce = nullptr;
 
   std::shared_ptr<Config> config = nullptr;
   std::shared_ptr<SafeTensor> safeTensor = nullptr;

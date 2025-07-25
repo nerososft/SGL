@@ -8,7 +8,7 @@
 
 #include "core/log/Log.h"
 
-Model::Model(const std::shared_ptr<ComputeEngine> &ce,
+Model::Model(const std::shared_ptr<sgl::compute::ComputeEngine> &ce,
              const std::shared_ptr<Config> &config,
              const std::shared_ptr<SafeTensor> &safeTensor) {
   this->safeTensor = safeTensor;
@@ -16,10 +16,10 @@ Model::Model(const std::shared_ptr<ComputeEngine> &ce,
   this->ce = ce;
 }
 
-std::shared_ptr<Matrix>
+std::shared_ptr<sgl::compute::Matrix>
 Model::InitWeightMatrix(const std::shared_ptr<SafeTensor> &safeTensor,
                         const Weight &weight) const {
-  std::shared_ptr<Matrix> weightMatrix =
+  std::shared_ptr<sgl::compute::Matrix> weightMatrix =
       ce->CreateMatrix(weight.shape.width, weight.shape.height);
   const std::shared_ptr<VkGPUBuffer> matrixBuffer = weightMatrix->GetBuffer();
   if (matrixBuffer == nullptr) {

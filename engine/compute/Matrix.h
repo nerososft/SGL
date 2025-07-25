@@ -7,7 +7,7 @@
 #include <memory>
 
 #include "core/gpu/VkGPUBuffer.h"
-
+namespace sgl::compute {
 class Matrix {
   uint32_t width = 0;
   uint32_t height = 0;
@@ -37,5 +37,5 @@ public:
 
   void Destroy() const;
 };
-
+} // namespace sgl::compute
 #endif // MATRIX_H

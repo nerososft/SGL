@@ -32,6 +32,7 @@
 #include "operators/impl/gpu/TanhOperator.h"
 #include "operators/impl/gpu/TransposeOperator.h"
 
+namespace sgl::compute {
 std::shared_ptr<Sequence> ComputeEngine::Seq() {
   auto seq = std::make_shared<Sequence>(this->gpuCtx);
   seq->Init();
@@ -610,3 +611,4 @@ ComputeEngine::Exp(const std::shared_ptr<Matrix> &input,
   }
   return node;
 }
+} // namespace sgl::compute

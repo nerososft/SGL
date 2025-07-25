@@ -49,13 +49,15 @@
 class TransformerBlock {
   uint64_t layerIndex = 0;
 
-  std::shared_ptr<ComputeEngine> ce = nullptr;
+  std::shared_ptr<sgl::compute::ComputeEngine> ce = nullptr;
   std::shared_ptr<Config> config = nullptr;
 
-  std::vector<std::shared_ptr<Matrix>> inputsMatrix;  // seq_len, 1024
-  std::vector<std::shared_ptr<Matrix>> outputsMatrix; // seq_len, 1024
+  std::vector<std::shared_ptr<sgl::compute::Matrix>>
+      inputsMatrix; // seq_len, 1024
+  std::vector<std::shared_ptr<sgl::compute::Matrix>>
+      outputsMatrix; // seq_len, 1024
 
-  std::shared_ptr<Matrix> biasMatrix = nullptr;
+  std::shared_ptr<sgl::compute::Matrix> biasMatrix = nullptr;
 
   Weight inputLayerNormWeight{};
   Weight selfAttnKNormWeight{};
@@ -70,69 +72,88 @@ class TransformerBlock {
   Weight mlpDownProjWeight{};
 
   // KQV
-  std::shared_ptr<Matrix> inputLayerNorm = nullptr;          // 1024
-  std::vector<std::shared_ptr<Matrix>> inputLayerNormOutput; // seq_len, 1024
+  std::shared_ptr<sgl::compute::Matrix> inputLayerNorm = nullptr; // 1024
+  std::vector<std::shared_ptr<sgl::compute::Matrix>>
+      inputLayerNormOutput; // seq_len, 1024
 
-  std::shared_ptr<Matrix> selfAttnQProj = nullptr;          // 2048, 1024
-  std::vector<std::shared_ptr<Matrix>> qProjOutput;         // seq_len, 2048
-  std::vector<std::vector<std::shared_ptr<Matrix>>> qHeads; // seq_len, 16, 128
-  std::shared_ptr<Matrix> selfAttnQNorm = nullptr;          // 128
-  std::vector<std::vector<std::shared_ptr<Matrix>>>
+  std::shared_ptr<sgl::compute::Matrix> selfAttnQProj = nullptr; // 2048, 1024
+  std::vector<std::shared_ptr<sgl::compute::Matrix>>
+      qProjOutput; // seq_len, 2048
+  std::vector<std::vector<std::shared_ptr<sgl::compute::Matrix>>>
+      qHeads; // seq_len, 16, 128
+  std::shared_ptr<sgl::compute::Matrix> selfAttnQNorm = nullptr; // 128
+  std::vector<std::vector<std::shared_ptr<sgl::compute::Matrix>>>
       qHeadLayerNormOutputs; // seq_len, 16, 128
 
-  std::shared_ptr<Matrix> selfAttnKProj = nullptr;          // 1024, 1024
-  std::vector<std::shared_ptr<Matrix>> kProjOutput;         // seq_len, 1024
-  std::vector<std::vector<std::shared_ptr<Matrix>>> kHeads; // seq_len, 8, 128
-  std::shared_ptr<Matrix> selfAttnKNorm = nullptr;          // 128
-  std::vector<std::vector<std::shared_ptr<Matrix>>>
+  std::shared_ptr<sgl::compute::Matrix> selfAttnKProj = nullptr; // 1024, 1024
+  std::vector<std::shared_ptr<sgl::compute::Matrix>>
+      kProjOutput; // seq_len, 1024
+  std::vector<std::vector<std::shared_ptr<sgl::compute::Matrix>>>
+      kHeads; // seq_len, 8, 128
+  std::shared_ptr<sgl::compute::Matrix> selfAttnKNorm = nullptr; // 128
+  std::vector<std::vector<std::shared_ptr<sgl::compute::Matrix>>>
       kHeadLayerNormOutputs; // seq_len, 8, 128
 
-  std::shared_ptr<Matrix> selfAttnVProj = nullptr;          // 1024, 1024
-  std::vector<std::shared_ptr<Matrix>> vProjOutput;         // seq_len, 1024
-  std::vector<std::vector<std::shared_ptr<Matrix>>> vHeads; // seq_len, 8, 128
-  std::vector<std::vector<std::shared_ptr<Matrix>>>
+  std::shared_ptr<sgl::compute::Matrix> selfAttnVProj = nullptr; // 1024, 1024
+  std::vector<std::shared_ptr<sgl::compute::Matrix>>
+      vProjOutput; // seq_len, 1024
+  std::vector<std::vector<std::shared_ptr<sgl::compute::Matrix>>>
+      vHeads; // seq_len, 8, 128
+  std::vector<std::vector<std::shared_ptr<sgl::compute::Matrix>>>
       vHeadLayerNormOutputs; // seq_len, 8, 128
 
-  std::vector<std::shared_ptr<Matrix>> qkvAttentionOutputs; // 16, seq_Len, 128
-  std::shared_ptr<Matrix> qkvAttentionConcatOutput;         // seq_len, 2048
+  std::vector<std::shared_ptr<sgl::compute::Matrix>>
+      qkvAttentionOutputs; // 16, seq_Len, 128
+  std::shared_ptr<sgl::compute::Matrix>
+      qkvAttentionConcatOutput; // seq_len, 2048
 
-  std::shared_ptr<Matrix> selfAttnOProj = nullptr; // 1024, 2048
-  std::shared_ptr<Matrix> selfAttnOProjOutput;     // seq_len, 1024
+  std::shared_ptr<sgl::compute::Matrix> selfAttnOProj = nullptr; // 1024, 2048
+  std::shared_ptr<sgl::compute::Matrix> selfAttnOProjOutput; // seq_len, 1024
 
-  std::vector<std::shared_ptr<Matrix>> add1Outputs;         // seq_len, 1024
-  std::shared_ptr<Matrix> postAttentionLayerNorm = nullptr; // 1024
-  std::vector<std::shared_ptr<Matrix>>
+  std::vector<std::shared_ptr<sgl::compute::Matrix>>
+      add1Outputs; // seq_len, 1024
+  std::shared_ptr<sgl::compute::Matrix> postAttentionLayerNorm =
+      nullptr; // 1024
+  std::vector<std::shared_ptr<sgl::compute::Matrix>>
       postAttentionLayerNormOutputs; // seq_len, 1024
 
-  std::shared_ptr<Matrix> mlpUpProj = nullptr;                // 3072, 1024
-  std::vector<std::shared_ptr<Matrix>> mlpUpProjOutputs;      // seq_len, 3072
-  std::shared_ptr<Matrix> mlpGateProj = nullptr;              // 3072, 1024
-  std::vector<std::shared_ptr<Matrix>> mlpGateProjOutputs;    // seq_len, 3072
-  std::vector<std::shared_ptr<Matrix>> mlpGateSigmoidOutputs; // seq_len, 3072
-  std::vector<std::shared_ptr<Matrix>> mlpGateOutputs;        // 3072
-  std::shared_ptr<Matrix> mlpDownProj = nullptr;              // 1024,3072
-  std::vector<std::shared_ptr<Matrix>> mlpOutputs;            // seq_len, 1024
+  std::shared_ptr<sgl::compute::Matrix> mlpUpProj = nullptr; // 3072, 1024
+  std::vector<std::shared_ptr<sgl::compute::Matrix>>
+      mlpUpProjOutputs;                                        // seq_len, 3072
+  std::shared_ptr<sgl::compute::Matrix> mlpGateProj = nullptr; // 3072, 1024
+  std::vector<std::shared_ptr<sgl::compute::Matrix>>
+      mlpGateProjOutputs; // seq_len, 3072
+  std::vector<std::shared_ptr<sgl::compute::Matrix>>
+      mlpGateSigmoidOutputs; // seq_len, 3072
+  std::vector<std::shared_ptr<sgl::compute::Matrix>> mlpGateOutputs; // 3072
+  std::shared_ptr<sgl::compute::Matrix> mlpDownProj = nullptr; // 1024,3072
+  std::vector<std::shared_ptr<sgl::compute::Matrix>>
+      mlpOutputs; // seq_len, 1024
 
 public:
-  explicit TransformerBlock(const std::shared_ptr<ComputeEngine> &ce,
-                            uint64_t layerIdx);
+  explicit TransformerBlock(
+      const std::shared_ptr<sgl::compute::ComputeEngine> &ce,
+      uint64_t layerIdx);
 
-  [[nodiscard]] std::shared_ptr<Matrix>
+  [[nodiscard]] std::shared_ptr<sgl::compute::Matrix>
   InitWeightMatrix(const std::shared_ptr<SafeTensor> &safeTensor,
                    const Weight &weight) const;
 
-  [[nodiscard]] std::shared_ptr<Matrix> InitMatrix(const Weight &weight) const;
+  [[nodiscard]] std::shared_ptr<sgl::compute::Matrix>
+  InitMatrix(const Weight &weight) const;
 
   bool Init(const std::shared_ptr<SafeTensor> &safeTensor,
             const std::shared_ptr<Config> &config);
 
   ~TransformerBlock() = default;
 
-  void SetInputsMatrix(const std::vector<std::shared_ptr<Matrix>> &inputs);
+  void SetInputsMatrix(
+      const std::vector<std::shared_ptr<sgl::compute::Matrix>> &inputs);
 
-  void SetOutputsMatrix(const std::vector<std::shared_ptr<Matrix>> &outputs);
+  void SetOutputsMatrix(
+      const std::vector<std::shared_ptr<sgl::compute::Matrix>> &outputs);
 
-  std::vector<std::shared_ptr<Matrix>> GetOutputsMatrix() {
+  std::vector<std::shared_ptr<sgl::compute::Matrix>> GetOutputsMatrix() {
     return outputsMatrix;
   }
 

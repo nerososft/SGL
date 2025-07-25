@@ -10,7 +10,7 @@
 bool Infer::Init() {
   Logger(Logger::DEBUG) << "Infer Init......" << std::endl;
   const uint64_t initTimeStart = TimeUtils::GetCurrentMonoMs();
-  ce = std::make_shared<ComputeEngine>();
+  ce = std::make_shared<sgl::compute::ComputeEngine>();
   if (!ce->Init()) {
     std::cerr << "Failed to initialize engine" << std::endl;
     return false;

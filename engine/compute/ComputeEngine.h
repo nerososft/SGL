@@ -17,7 +17,7 @@
 #include "operators/impl/cpu/SumOperator.h"
 #include "operators/impl/cpu/VarianceOperator.h"
 #include <memory>
-
+namespace sgl::compute {
 class ComputeEngine {
   std::shared_ptr<VkGPUContext> gpuCtx = nullptr;
 
@@ -151,5 +151,6 @@ public:
   std::shared_ptr<IComputeGraphNode> Exp(const std::shared_ptr<Matrix> &input,
                                          const std::shared_ptr<Matrix> &output);
 };
+} // namespace sgl::compute
 
 #endif // COMPUTE_ENGINE_H

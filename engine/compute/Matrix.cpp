@@ -6,6 +6,7 @@
 
 #include "core/log/Log.h"
 
+namespace sgl::compute {
 Matrix::Matrix(const uint32_t width, const uint32_t height) {
   this->width = width;
   this->height = height;
@@ -100,3 +101,4 @@ void Matrix::Destroy() const {
     this->buffer->Destroy();
   }
 }
+} // namespace sgl::compute
