@@ -148,78 +148,21 @@ bool distort_glass_filter_gpu(void *in, void *out, const float scale,
 bool adjust_saturation_gpu(void *in, void *out, const int v, const int s) {
   if (in == nullptr || out == nullptr)
     return false;
-  if (1) {
-    const auto filter = std::make_shared<VibranceFilter>();
 
-    filter->SetVibrance(v);
-    filter->SetSaturation(s);
+  const auto filter = std::make_shared<VibranceFilter>();
 
-    const auto *input = static_cast<sgl::image::ImageInfo *>(in);
-    const auto *output = static_cast<sgl::image::ImageInfo *>(out);
-    Logger() << "c_api adjust_saturation_gpu begin " << std::endl;
-    g_effect_engine.Process(*input, *output, filter);
-    Logger() << "c_api adjust_saturation_gpu end  " << std::endl;
+  filter->SetVibrance(v);
+  filter->SetSaturation(s);
 
-    Logger() << "c_api filter destory begin  " << std::endl;
+  const auto *input = static_cast<sgl::image::ImageInfo *>(in);
+  const auto *output = static_cast<sgl::image::ImageInfo *>(out);
+  Logger() << "c_api adjust_saturation_gpu begin " << std::endl;
+  g_effect_engine.Process(*input, *output, filter);
+  Logger() << "c_api adjust_saturation_gpu end  " << std::endl;
 
-    filter->Destroy();
-    Logger() << "c_api filter destory end  " << std::endl;
-  }
-
-  if (0) {
-    const auto filter = std::make_shared<DistortGlassFilter>();
-
-    float scale = v + 2;
-    float intensity = s + 2;
-
-    scale = scale / 50;
-    intensity = 45 - intensity * 3;
-
-    filter->SetScale(scale);
-    filter->SetIntensity(intensity);
-    filter->SetZoom(1);
-
-    const sgl::image::ImageInfo *input =
-        static_cast<sgl::image::ImageInfo *>(in);
-    const sgl::image::ImageInfo *output =
-        static_cast<sgl::image::ImageInfo *>(out);
-
-    g_effect_engine.Process(*input, *output, filter);
-  }
-
-  if (0) {
-    const auto filter = std::make_shared<RadialBlurNewFilter>();
-
-    const sgl::image::ImageInfo *input =
-        static_cast<sgl::image::ImageInfo *>(in);
-    const sgl::image::ImageInfo *output =
-        static_cast<sgl::image::ImageInfo *>(out);
-    // filter->SetAngle( (v + 4)/ 10.0);
-    // filter->SetStrength(s *2 +4);
-
-    filter->SetSharpness((v + 4) / 10.0);
-    filter->SetStrength(s * 2 + 4);
-    filter->SetCenter(0.5, 0.5);
-
-    g_effect_engine.Process(*input, *output, filter);
-  }
-
-  if (0) {
-    const auto filter = std::make_shared<RotationalBlurFilter>();
-
-    const sgl::image::ImageInfo *input =
-        static_cast<sgl::image::ImageInfo *>(in);
-    const sgl::image::ImageInfo *output =
-        static_cast<sgl::image::ImageInfo *>(out);
-    // filter->SetAngle( (v + 4)/ 10.0);
-    // filter->SetStrength(s *2 +4);
-
-    filter->SetAngle((v + 4));
-    filter->SetStrength(s + 4);
-    filter->SetCenter(0.3, 0.3);
-
-    g_effect_engine.Process(*input, *output, filter);
-  }
+  Logger() << "c_api filter destory begin  " << std::endl;
+  filter->Destroy();
+  Logger() << "c_api filter destory end  " << std::endl;
 
   return true;
 }
@@ -242,28 +185,6 @@ bool palette_knife_gpu(void *in, void *out, const int r, const int s) {
 bool hue_equal_filter_gpu(void *in, void *out) {
   if (in == nullptr || out == nullptr)
     return false;
-  // const auto filter = std::make_shared<HueEqualFilter>();
-  // const auto* input = static_cast<sgl::image::ImageInfo*>(in);
-  // const auto* output = static_cast<sgl::image::ImageInfo*>(out);
-
-  // g_effect_engine.Process(*input, *output, filter);
-
-  // const auto filter = std::make_shared<customKernelFilter>();
-  // const auto* input = static_cast<sgl::image::ImageInfo*>(in);
-  // const auto* output = static_cast<sgl::image::ImageInfo*>(out);
-
-  // int k[25] = {0 , 0 ,0 ,0 ,0,
-  //             0 , 0 ,-1 ,0 ,0,
-  //             0 , -1 ,5 ,-1 ,0,
-  //             0 , 0 ,-1 ,0 ,0,
-  //            0 , 0 ,0 ,0 ,0 };
-
-  // filter->SetK(k, 25);
-  // filter->SetOffset(0);
-  // filter->SetScale(1);
-  // filter->SetRadius(2);
-
-  // g_effect_engine.Process(*input, *output, filter);
 
   const auto filter = std::make_shared<ColorBalanceFilter>();
   const auto *input = static_cast<sgl::image::ImageInfo *>(in);
