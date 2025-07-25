@@ -53,8 +53,8 @@ VkResult VkGPUComputePipeline::CreateComputePipeline(
   if (cachedModule != VK_NULL_HANDLE) {
     this->computeShaderModule = cachedModule;
   } else {
-    ret = VkGPUHelper::CreateShaderModuleFromPath(device, computeShaderPath,
-                                                  &this->computeShaderModule);
+    ret = VkGPUHelper::CreateShaderModuleFromSpvPath(
+        device, computeShaderPath, &this->computeShaderModule);
     if (ret != VK_SUCCESS) {
       Logger() << "failed to create shader module, err=" << string_VkResult(ret)
                << std::endl;

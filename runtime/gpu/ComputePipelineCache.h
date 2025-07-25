@@ -22,8 +22,8 @@ public:
   void CacheComputePipeline(const std::string &shaderPath, VkPipeline pipeline);
 
   VkShaderModule GetShaderModule(const std::string &shaderPath);
-  void CacheShaderModule(const std::string &string,
-                         VkShaderModule vk_shader_module);
+  void CacheShaderModule(const std::string &shaderPath,
+                         VkShaderModule shaderModule);
 };
 
 #endif // COMPUTEPIPELINECACHE_H

@@ -180,9 +180,15 @@ public:
                                      const uint32_t *shaderSpvCode,
                                      VkShaderModule *shaderModule);
 
-  static VkResult CreateShaderModuleFromPath(VkDevice device,
-                                             const std::string &shaderFilePath,
-                                             VkShaderModule *shaderModule);
+  static VkResult
+  CreateShaderModuleFromSpvPath(VkDevice device,
+                                const std::string &shaderFilePath,
+                                VkShaderModule *shaderModule);
+  static VkResult
+  CreateShaderModuleFromSpvBinary(VkDevice device,
+                                                  const uint32_t *code,
+                                                  size_t codeSize,
+                                                  VkShaderModule *shaderModule);
 
   static VkResult CreateComputePipeline(VkDevice device,
                                         VkPipelineCache pipelineCache,

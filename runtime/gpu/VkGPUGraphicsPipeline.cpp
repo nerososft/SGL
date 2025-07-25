@@ -57,16 +57,16 @@ VkResult VkGPUGraphicsPipeline::CreateGraphicsPipeline(
     return ret;
   }
 
-  ret = VkGPUHelper::CreateShaderModuleFromPath(device, vertexShaderPath,
-                                                &this->vertexShaderModule);
+  ret = VkGPUHelper::CreateShaderModuleFromSpvPath(device, vertexShaderPath,
+                                                   &this->vertexShaderModule);
   if (ret != VK_SUCCESS) {
     Logger() << "failed to create vertex shader module, err="
              << string_VkResult(ret) << std::endl;
     return ret;
   }
 
-  ret = VkGPUHelper::CreateShaderModuleFromPath(device, fragShaderPath,
-                                                &this->fragmentShaderModule);
+  ret = VkGPUHelper::CreateShaderModuleFromSpvPath(device, fragShaderPath,
+                                                   &this->fragmentShaderModule);
   if (ret != VK_SUCCESS) {
     Logger() << "failed to create fragment shader module, err="
              << string_VkResult(ret) << std::endl;

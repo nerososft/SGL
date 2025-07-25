@@ -739,16 +739,23 @@ VkResult VkGPUHelper::CreateShaderModule(const VkDevice device,
 }
 
 VkResult
-VkGPUHelper::CreateShaderModuleFromPath(const VkDevice device,
-                                        const std::string &shaderFilePath,
-                                        VkShaderModule *shaderModule) {
-  std::vector<char> shaderSpvCode = IOUtils::ReadFile(shaderFilePath);
-  if (shaderSpvCode.empty()) {
+VkGPUHelper::CreateShaderModuleFromSpvPath(const VkDevice device,
+                                           const std::string &shaderFilePath,
+                                           VkShaderModule *shaderModule) {
+  const std::vector<char> shaderSpvCode = IOUtils::ReadFile(shaderFilePath);
+  return CreateShaderModuleFromSpvBinary(
+      device, reinterpret_cast<const uint32_t *>(shaderSpvCode.data()),
+      shaderSpvCode.size(), shaderModule);
+}
+
+VkResult VkGPUHelper::CreateShaderModuleFromSpvBinary(
+    const VkDevice device, const uint32_t *code, const size_t codeSize,
+    VkShaderModule *shaderModule) {
+  if (code == nullptr) {
     return VK_ERROR_INVALID_SHADER_NV;
   }
-  const VkResult result = CreateShaderModule(
-      device, shaderSpvCode.size(),
-      reinterpret_cast<uint32_t *>(shaderSpvCode.data()), shaderModule);
+  const VkResult result =
+      CreateShaderModule(device, codeSize, code, shaderModule);
   if (result != VK_SUCCESS) {
     Logger() << "Failed to create shader module, err="
              << string_VkResult(result) << std::endl;
