@@ -790,3 +790,18 @@ bool wave_filter_gpu(void *in, void *out, const int wavelength,
 
   return true;
 }
+sgl_image_t *sgl_image_create() {
+  const auto image = static_cast<sgl_image_t *>(malloc(sizeof(sgl_image_t)));
+  if (image == nullptr) {
+    return nullptr;
+  }
+
+  // TODO:
+  return nullptr;
+}
+void sgl_image_destroy(sgl_image_t *image) {
+  if (image == nullptr) {
+    return;
+  }
+  free(image);
+}

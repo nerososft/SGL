@@ -17,7 +17,8 @@ typedef struct sgl_image_info {
 } sgl_image_info_t;
 
 typedef struct sgl_image {
-  sgl_error_t (*gray)(sgl_image_info_t in, sgl_image_info_t out);
+  sgl_error_t (*gray)(sgl_image_info_t in, sgl_image_info_t out, const float r,
+                      const float g, const float b);
 } sgl_image_t;
 
 sgl_image_t *sgl_image_create();
