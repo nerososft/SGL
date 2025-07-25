@@ -5,7 +5,7 @@
 #endif
 
 #include "core/log/Log.h"
-#include "engine/image/EffectEngine.h"
+#include "engine/image/ImageEngine.h"
 #include "engine/image/filters/impl/AccentedEdgeFilter.h"
 #include "engine/image/filters/impl/BlackWhiteFilter.h"
 #include "engine/image/filters/impl/BlurEdgeFilter.h"
@@ -43,21 +43,22 @@
 #include "engine/image/filters/impl/WaveFilter.h"
 #include "engine/image/filters/impl/ZigzagFilter.h"
 
-sgl::image::EffectEngine g_effect_engine;
-bool g_effect_engine_inited = false;
+sgl::image::ImageEngine gImageEngine;
+bool gImageEngine_inited = false;
+
 
 bool init_core() {
-  if (!g_effect_engine_inited) {
-    g_effect_engine_inited = g_effect_engine.Init();
+  if (!gImageEngine_inited) {
+    gImageEngine_inited = gImageEngine.Init();
   }
-  return g_effect_engine_inited;
+  return gImageEngine_inited;
 }
 
 const char *get_gpu_engine_name() {
-  if (!g_effect_engine_inited) {
+  if (!gImageEngine_inited) {
     return "Not initialized";
   }
-  return g_effect_engine.GetGPUName().c_str();
+  return gImageEngine.GetGPUName().c_str();
 }
 
 bool destroy_gpu_engine() { return true; }
@@ -71,7 +72,7 @@ bool threshold_split_filter_gpu(void *in, void *out, const int bright) {
   const auto *input = static_cast<sgl::image::ImageInfo *>(in);
   const auto *output = static_cast<sgl::image::ImageInfo *>(out);
 
-  g_effect_engine.Process(*input, *output, filter);
+  gImageEngine.Process(*input, *output, filter);
   return true;
 }
 
@@ -85,11 +86,11 @@ bool gaussian_blur_filter_gpu(void *in, void *out, const int r) {
   if (r >= 3) {
     const auto filter = std::make_shared<FastGaussianBlurFilter>();
     filter->SetRadius(r);
-    g_effect_engine.Process(*input, *output, filter);
+    gImageEngine.Process(*input, *output, filter);
   } else {
     const auto filter = std::make_shared<OldGaussianBlurFilter>();
     filter->SetRadius(r);
-    g_effect_engine.Process(*input, *output, filter);
+    gImageEngine.Process(*input, *output, filter);
   }
   return true;
 }
@@ -103,7 +104,7 @@ bool gaussian_blur_filter_float_gpu(void *in, void *out, const int r) {
 
   const auto filter = std::make_shared<OldGaussianBlurFloatFilter>();
   filter->SetRadius(r);
-  g_effect_engine.Process(*input, *output, filter);
+  gImageEngine.Process(*input, *output, filter);
 
   return true;
 }
@@ -119,7 +120,7 @@ bool surface_blur_filter_gpu(void *in, void *out, const int r, const int th) {
   const sgl::image::ImageInfo *output =
       static_cast<sgl::image::ImageInfo *>(out);
 
-  g_effect_engine.Process(*input, *output, filter);
+  gImageEngine.Process(*input, *output, filter);
   return true;
 }
 
@@ -140,7 +141,7 @@ bool distort_glass_filter_gpu(void *in, void *out, const float scale,
   const sgl::image::ImageInfo *output =
       static_cast<sgl::image::ImageInfo *>(out);
 
-  g_effect_engine.Process(*input, *output, filter);
+  gImageEngine.Process(*input, *output, filter);
 
   return true;
 }
@@ -157,7 +158,7 @@ bool adjust_saturation_gpu(void *in, void *out, const int v, const int s) {
   const auto *input = static_cast<sgl::image::ImageInfo *>(in);
   const auto *output = static_cast<sgl::image::ImageInfo *>(out);
   Logger() << "c_api adjust_saturation_gpu begin " << std::endl;
-  g_effect_engine.Process(*input, *output, filter);
+  gImageEngine.Process(*input, *output, filter);
   Logger() << "c_api adjust_saturation_gpu end  " << std::endl;
 
   Logger() << "c_api filter destory begin  " << std::endl;
@@ -177,7 +178,7 @@ bool palette_knife_gpu(void *in, void *out, const int r, const int s) {
   const auto *input = static_cast<sgl::image::ImageInfo *>(in);
   const auto *output = static_cast<sgl::image::ImageInfo *>(out);
 
-  g_effect_engine.Process(*input, *output, filter);
+  gImageEngine.Process(*input, *output, filter);
 
   return true;
 }
@@ -198,7 +199,7 @@ bool hue_equal_filter_gpu(void *in, void *out) {
   filter->SetP(adjustP, 9);
   filter->SetL(0);
 
-  g_effect_engine.Process(*input, *output, filter);
+  gImageEngine.Process(*input, *output, filter);
 
   return true;
 }
@@ -215,7 +216,7 @@ bool blur_edge_filter_gpu(void *in, void *out, const int r, const int s,
 
   const auto *input = static_cast<sgl::image::ImageInfo *>(in);
   const auto *output = static_cast<sgl::image::ImageInfo *>(out);
-  g_effect_engine.Process(*input, *output, filter);
+  gImageEngine.Process(*input, *output, filter);
 
   filter->Destroy();
 
@@ -242,7 +243,7 @@ bool custom_kernel_filter_gpu(void *in, void *out, int *k, const int radius,
   filter->SetScale(scale);
   filter->SetRadius(radius);
 
-  g_effect_engine.Process(*input, *output, filter);
+  gImageEngine.Process(*input, *output, filter);
 
   return true;
 }
@@ -267,7 +268,7 @@ bool color_balance_filter_gpu(void *in, void *out, float *adjustP, int *p,
   filter->SetAdjustP(adjustP, 9);
   filter->SetL(l);
 
-  g_effect_engine.Process(*input, *output, filter);
+  gImageEngine.Process(*input, *output, filter);
 
   return true;
 }
@@ -281,7 +282,7 @@ bool black_white_filter_gpu(void *in, void *out, float *weight,
   const auto *output = static_cast<sgl::image::ImageInfo *>(out);
 
   filter->SetWeight(weight, wSize);
-  g_effect_engine.Process(*input, *output, filter);
+  gImageEngine.Process(*input, *output, filter);
   return true;
 }
 
@@ -297,7 +298,7 @@ bool scale_filter_gpu(void *in, void *out, const int weight, const int height,
   const auto *input = static_cast<sgl::image::ImageInfo *>(in);
   const auto *output = static_cast<sgl::image::ImageInfo *>(out);
 
-  g_effect_engine.Process(*input, *output, filter);
+  gImageEngine.Process(*input, *output, filter);
 
   unsigned char *data0 = (unsigned char *)output->data;
 
@@ -329,7 +330,7 @@ bool gray_filter_gpu(void *in, void *out, const float r, const float g,
   const auto *input = static_cast<sgl::image::ImageInfo *>(in);
   const auto *output = static_cast<sgl::image::ImageInfo *>(out);
 
-  g_effect_engine.Process(*input, *output, filter);
+  gImageEngine.Process(*input, *output, filter);
   return true;
 }
 
@@ -346,7 +347,7 @@ bool color_separation_filter_gpu(void *in, void *out, const int roff,
   const sgl::image::ImageInfo *output =
       static_cast<sgl::image::ImageInfo *>(out);
 
-  g_effect_engine.Process(*input, *output, filter);
+  gImageEngine.Process(*input, *output, filter);
   return true;
 }
 
@@ -361,7 +362,7 @@ bool midvalue_filter_gpu(void *in, void *out, const float radius,
   const auto *input = static_cast<sgl::image::ImageInfo *>(in);
   const auto *output = static_cast<sgl::image::ImageInfo *>(out);
 
-  g_effect_engine.Process(*input, *output, filter);
+  gImageEngine.Process(*input, *output, filter);
   return true;
 }
 
@@ -383,7 +384,7 @@ bool pathblur_filter_gpu(void *in, void *out, float *vec, const int amount,
   filter->SetEndPos(endpos, num);
   filter->SetStartVec(startvec, num);
   filter->SetEndVec(endvec, num);
-  g_effect_engine.Process(*input, *output, filter);
+  gImageEngine.Process(*input, *output, filter);
 
   return true;
 }
@@ -400,7 +401,7 @@ bool crystallize_filter_gpu(void *in, void *out, float *posx, float *posy,
   filter->SetPos(posx, posy, k_size);
   filter->SetN(n);
 
-  g_effect_engine.Process(*input, *output, filter);
+  gImageEngine.Process(*input, *output, filter);
 
   return true;
 }
@@ -432,7 +433,7 @@ bool rotationblur_filter_gpu(void *in, void *in2, void *out, const float x,
   filter->SetStrength(strength);
   filter->SetAngle(angle);
 
-  g_effect_engine.Process(inputs, outputs, filter);
+  gImageEngine.Process(inputs, outputs, filter);
 
   return true;
 }
@@ -446,7 +447,7 @@ bool facet_filter_gpu(void *in, void *out, const int radius,
   filter->SetRadius(radius);
   filter->SetLevel(intensitylevel);
 
-  g_effect_engine.Process(*input, *output, filter);
+  gImageEngine.Process(*input, *output, filter);
 
   return true;
 }
@@ -461,7 +462,7 @@ bool accented_edge_filter_gpu(void *in, void *out, int *sobelx, int *sobely,
   filter->SetSobely(sobely, size);
   filter->SetType(type);
 
-  g_effect_engine.Process(*input, *output, filter);
+  gImageEngine.Process(*input, *output, filter);
 
   return true;
 }
@@ -490,7 +491,7 @@ bool irisblur_filter_gpu(void *in, void *in2, void *out, const float x,
   filter->SetinB(inb);
   filter->SetAngle(angle);
 
-  g_effect_engine.Process(inputs, outputs, filter);
+  gImageEngine.Process(inputs, outputs, filter);
 
   return true;
 }
@@ -516,7 +517,7 @@ bool tiltshiftblur_filter_gpu(void *in, void *in2, void *out, float *A,
   filter->SetC(C, size);
   filter->SetOffset(xoffset, yoffset);
 
-  g_effect_engine.Process(inputs, outputs, filter);
+  gImageEngine.Process(inputs, outputs, filter);
 
   return true;
 }
@@ -535,7 +536,7 @@ bool radial_blur_filter_gpu(void *in, void *out, const int sharpness,
   const auto *input = static_cast<sgl::image::ImageInfo *>(in);
   const auto *output = static_cast<sgl::image::ImageInfo *>(out);
 
-  g_effect_engine.Process(*input, *output, filter);
+  gImageEngine.Process(*input, *output, filter);
 
   return true;
 }
@@ -553,7 +554,7 @@ bool rotational_blur_filter_gpu(void *in, void *out, const float angle,
   const auto *input = static_cast<sgl::image::ImageInfo *>(in);
   const auto *output = static_cast<sgl::image::ImageInfo *>(out);
 
-  g_effect_engine.Process(*input, *output, filter);
+  gImageEngine.Process(*input, *output, filter);
 
   return true;
 }
@@ -566,7 +567,7 @@ bool minmax_filter_gpu(void *in, void *out, const int radius, const int type) {
   filter->SetRadius(radius);
   filter->SetType(type);
 
-  g_effect_engine.Process(*input, *output, filter);
+  gImageEngine.Process(*input, *output, filter);
 
   return true;
 }
@@ -582,7 +583,7 @@ bool colorhalftone_filter_gpu(void *in, void *out, const float cyanAngle,
   filter->SetColor(cyanAngle, yellowAngle, magentaAngle, radius);
   filter->SetLookup(lookup, size);
 
-  g_effect_engine.Process(*input, *output, filter);
+  gImageEngine.Process(*input, *output, filter);
 
   return true;
 }
@@ -594,7 +595,7 @@ bool sharpen_filter_gpu(void *in, void *out, int *kernel, const int size) {
 
   filter->SetKernel(kernel, size);
 
-  g_effect_engine.Process(*input, *output, filter);
+  gImageEngine.Process(*input, *output, filter);
 
   return true;
 }
@@ -606,7 +607,7 @@ bool polarcoordinates_filter_gpu(void *in, void *out, const int type) {
 
   filter->SetType(type);
 
-  g_effect_engine.Process(*input, *output, filter);
+  gImageEngine.Process(*input, *output, filter);
 
   return true;
 }
@@ -620,7 +621,7 @@ bool clouds_filter_gpu(void *in, void *out, int *permuteLookup, const int size,
   filter->SetLookup(permuteLookup, size);
   filter->SetType(type);
 
-  g_effect_engine.Process(*input, *output, filter);
+  gImageEngine.Process(*input, *output, filter);
 
   return true;
 }
@@ -635,7 +636,7 @@ bool motionblur_filter_gpu(void *in, void *out, const int distance,
   filter->SetDistance(distance);
   filter->SetPro(proportion);
 
-  g_effect_engine.Process(*input, *output, filter);
+  gImageEngine.Process(*input, *output, filter);
 
   return true;
 }
@@ -647,7 +648,7 @@ bool twirlwarp_filter_gpu(void *in, void *out, int angle) {
 
   filter->SetAngle(angle);
 
-  g_effect_engine.Process(*input, *output, filter);
+  gImageEngine.Process(*input, *output, filter);
 
   return true;
 }
@@ -664,7 +665,7 @@ bool zigzag_filter_gpu(void *in, void *out, const int wavelength,
   filter->SetTypeWave(type_wave);
   filter->SetPro(proportion);
 
-  g_effect_engine.Process(*input, *output, filter);
+  gImageEngine.Process(*input, *output, filter);
 
   return true;
 }
@@ -677,7 +678,7 @@ bool spherize_filter_gpu(void *in, void *out, const int alpha, const int type) {
   filter->SetAlpha(alpha);
   filter->SetType(type);
 
-  g_effect_engine.Process(*input, *output, filter);
+  gImageEngine.Process(*input, *output, filter);
 
   return true;
 }
@@ -689,7 +690,7 @@ bool pinch_filter_gpu(void *in, void *out, int amount) {
 
   filter->SetAmount(amount);
 
-  g_effect_engine.Process(*input, *output, filter);
+  gImageEngine.Process(*input, *output, filter);
 
   return true;
 }
@@ -707,7 +708,7 @@ bool wave_filter_gpu(void *in, void *out, const int wavelength,
   filter->SetType(type);
   filter->SetMethod(method);
 
-  g_effect_engine.Process(*input, *output, filter);
+  gImageEngine.Process(*input, *output, filter);
 
   return true;
 }

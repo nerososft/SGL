@@ -46,13 +46,13 @@ std::string ImageEngine::GetGPUName() const {
 }
 
 VkResult ImageEngine::Process(const std::shared_ptr<VkGPUBuffer> &inputBuffer,
-                               const uint32_t inputWidth,
-                               const uint32_t inputHeight,
-                               const uint32_t outputWidth,
-                               const uint32_t outputHeight,
-                               const uint32_t channels, const void *uploadData,
-                               const std::shared_ptr<VkGPUBuffer> &outputBuffer,
-                               const std::shared_ptr<IFilter> &filter) const {
+                              const uint32_t inputWidth,
+                              const uint32_t inputHeight,
+                              const uint32_t outputWidth,
+                              const uint32_t outputHeight,
+                              const uint32_t channels, const void *uploadData,
+                              const std::shared_ptr<VkGPUBuffer> &outputBuffer,
+                              const std::shared_ptr<IFilter> &filter) const {
   const VkDeviceSize inputBufferSize = inputWidth * inputHeight * channels;
   const VkDeviceSize outputBufferSize = outputWidth * outputHeight * channels;
   const uint64_t imageBufferPrepareStart = TimeUtils::GetCurrentMonoMs();
@@ -123,7 +123,7 @@ VkResult ImageEngine::Process(const std::shared_ptr<VkGPUBuffer> &inputBuffer,
 }
 
 void ImageEngine::Process(const ImageInfo &input, const ImageInfo &output,
-                           const std::shared_ptr<IFilter> &filter) const {
+                          const std::shared_ptr<IFilter> &filter) const {
   if (input.channels != output.channels) {
     Logger() << "Input and output channel must be same size!" << std::endl;
     return;
@@ -160,8 +160,8 @@ void ImageEngine::Process(const ImageInfo &input, const ImageInfo &output,
 }
 
 void ImageEngine::Process(const std::vector<ImageInfo> &inputs,
-                           const std::vector<ImageInfo> &outputs,
-                           const std::shared_ptr<IFilter> &filter) const {
+                          const std::vector<ImageInfo> &outputs,
+                          const std::shared_ptr<IFilter> &filter) const {
   VkResult ret = VK_SUCCESS;
 
   std::vector<std::shared_ptr<VkGPUBuffer>> inputBuffers;
@@ -293,9 +293,8 @@ void ImageEngine::Process(const std::vector<ImageInfo> &inputs,
   outputBuffers.resize(0);
 }
 
-void ImageEngine::Process(const char *inputFilePath,
-                           const char *outputFilePath,
-                           const std::shared_ptr<IFilter> &filter) const {
+void ImageEngine::Process(const char *inputFilePath, const char *outputFilePath,
+                          const std::shared_ptr<IFilter> &filter) const {
   uint32_t imageWidth = 0, imageHeight = 0, channels = 0;
   std::vector<char> inputFileData = ImageUtils::ReadPngFile(
       inputFilePath, &imageWidth, &imageHeight, &channels);
@@ -336,10 +335,9 @@ void ImageEngine::Process(const char *inputFilePath,
   outputStorageBuffer->Destroy();
 }
 
-void ImageEngine::Process(const char *inputFilePath,
-                           const char *outputFilePath, const uint32_t newWidth,
-                           const uint32_t newHeight,
-                           const std::shared_ptr<IFilter> &filter) const {
+void ImageEngine::Process(const char *inputFilePath, const char *outputFilePath,
+                          const uint32_t newWidth, const uint32_t newHeight,
+                          const std::shared_ptr<IFilter> &filter) const {
   uint32_t imageWidth = 0, imageHeight = 0, channels = 0;
   std::vector<char> inputFileData = ImageUtils::ReadPngFile(
       inputFilePath, &imageWidth, &imageHeight, &channels);
@@ -381,9 +379,9 @@ void ImageEngine::Process(const char *inputFilePath,
 }
 
 void ImageEngine::Process(const char *baseFilePath, const char *blendFilePath,
-                           const uint32_t posX, const uint32_t posY,
-                           const char *outputFilePath,
-                           const std::shared_ptr<IBlender> &blender) const {
+                          const uint32_t posX, const uint32_t posY,
+                          const char *outputFilePath,
+                          const std::shared_ptr<IBlender> &blender) const {
   uint32_t baseImageWidth = 0, baseImageHeight = 0, baseImageChannels = 0;
   std::vector<char> baseImageFileData = ImageUtils::ReadPngFile(
       baseFilePath, &baseImageWidth, &baseImageHeight, &baseImageChannels);
