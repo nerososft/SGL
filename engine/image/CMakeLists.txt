@@ -40,8 +40,6 @@ add_custom_target(compile_image_shaders ALL DEPENDS ${COMPILED_SHADERS})
 
 set(ENGINE_SOURCE EffectEngine.cpp
         EffectEngine.h
-        c_api.cpp
-        c_api.h
         utils/TransformUtils.cpp
         utils/TransformUtils.h
         blenders/IBlender.h

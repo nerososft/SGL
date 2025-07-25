@@ -1,4 +1,4 @@
-// #include "c_api.h"
+#include "sgl_image.h"
 
 #if defined(OS_OPEN_HARMONY) || defined(ENABLE_WIN64)
 #include "psutil/imageprocess/GpuFilterCAPI.h"
@@ -79,7 +79,8 @@ bool gaussian_blur_filter_gpu(void *in, void *out, const int r) {
   if (in == nullptr || out == nullptr)
     return false;
   const sgl::image::ImageInfo *input = static_cast<sgl::image::ImageInfo *>(in);
-  const sgl::image::ImageInfo *output = static_cast<sgl::image::ImageInfo *>(out);
+  const sgl::image::ImageInfo *output =
+      static_cast<sgl::image::ImageInfo *>(out);
 
   if (r >= 3) {
     const auto filter = std::make_shared<FastGaussianBlurFilter>();
@@ -97,7 +98,8 @@ bool gaussian_blur_filter_float_gpu(void *in, void *out, const int r) {
   if (in == nullptr || out == nullptr)
     return false;
   const sgl::image::ImageInfo *input = static_cast<sgl::image::ImageInfo *>(in);
-  const sgl::image::ImageInfo *output = static_cast<sgl::image::ImageInfo *>(out);
+  const sgl::image::ImageInfo *output =
+      static_cast<sgl::image::ImageInfo *>(out);
 
   const auto filter = std::make_shared<OldGaussianBlurFloatFilter>();
   filter->SetRadius(r);
@@ -114,7 +116,8 @@ bool surface_blur_filter_gpu(void *in, void *out, const int r, const int th) {
   filter->SetThreshold(th);
 
   const sgl::image::ImageInfo *input = static_cast<sgl::image::ImageInfo *>(in);
-  const sgl::image::ImageInfo *output = static_cast<sgl::image::ImageInfo *>(out);
+  const sgl::image::ImageInfo *output =
+      static_cast<sgl::image::ImageInfo *>(out);
 
   g_effect_engine.Process(*input, *output, filter);
   return true;
@@ -134,7 +137,8 @@ bool distort_glass_filter_gpu(void *in, void *out, const float scale,
   filter->SetZoom(zoom);
 
   const sgl::image::ImageInfo *input = static_cast<sgl::image::ImageInfo *>(in);
-  const sgl::image::ImageInfo *output = static_cast<sgl::image::ImageInfo *>(out);
+  const sgl::image::ImageInfo *output =
+      static_cast<sgl::image::ImageInfo *>(out);
 
   g_effect_engine.Process(*input, *output, filter);
 
@@ -175,8 +179,10 @@ bool adjust_saturation_gpu(void *in, void *out, const int v, const int s) {
     filter->SetIntensity(intensity);
     filter->SetZoom(1);
 
-    const sgl::image::ImageInfo *input = static_cast<sgl::image::ImageInfo *>(in);
-    const sgl::image::ImageInfo *output = static_cast<sgl::image::ImageInfo *>(out);
+    const sgl::image::ImageInfo *input =
+        static_cast<sgl::image::ImageInfo *>(in);
+    const sgl::image::ImageInfo *output =
+        static_cast<sgl::image::ImageInfo *>(out);
 
     g_effect_engine.Process(*input, *output, filter);
   }
@@ -184,8 +190,10 @@ bool adjust_saturation_gpu(void *in, void *out, const int v, const int s) {
   if (0) {
     const auto filter = std::make_shared<RadialBlurNewFilter>();
 
-    const sgl::image::ImageInfo *input = static_cast<sgl::image::ImageInfo *>(in);
-    const sgl::image::ImageInfo *output = static_cast<sgl::image::ImageInfo *>(out);
+    const sgl::image::ImageInfo *input =
+        static_cast<sgl::image::ImageInfo *>(in);
+    const sgl::image::ImageInfo *output =
+        static_cast<sgl::image::ImageInfo *>(out);
     // filter->SetAngle( (v + 4)/ 10.0);
     // filter->SetStrength(s *2 +4);
 
@@ -199,8 +207,10 @@ bool adjust_saturation_gpu(void *in, void *out, const int v, const int s) {
   if (0) {
     const auto filter = std::make_shared<RotationalBlurFilter>();
 
-    const sgl::image::ImageInfo *input = static_cast<sgl::image::ImageInfo *>(in);
-    const sgl::image::ImageInfo *output = static_cast<sgl::image::ImageInfo *>(out);
+    const sgl::image::ImageInfo *input =
+        static_cast<sgl::image::ImageInfo *>(in);
+    const sgl::image::ImageInfo *output =
+        static_cast<sgl::image::ImageInfo *>(out);
     // filter->SetAngle( (v + 4)/ 10.0);
     // filter->SetStrength(s *2 +4);
 
@@ -412,7 +422,8 @@ bool color_separation_filter_gpu(void *in, void *out, const int roff,
   filter->SetGreenOffsetX(goff);
   filter->SetBlueOffsetX(boff);
   const sgl::image::ImageInfo *input = static_cast<sgl::image::ImageInfo *>(in);
-  const sgl::image::ImageInfo *output = static_cast<sgl::image::ImageInfo *>(out);
+  const sgl::image::ImageInfo *output =
+      static_cast<sgl::image::ImageInfo *>(out);
 
   g_effect_engine.Process(*input, *output, filter);
   return true;
