@@ -1,174 +1,68 @@
 //
-// Created by neo on 25-7-23.
+// Created by neo on 25-7-25.
 //
+#include "compiler/ShaderCompiler.h"
 
 #include <fstream>
 #include <iostream>
-#include <mlir/Dialect/SPIRV/IR/SPIRVAttributes.h>
-#include <mlir/Dialect/SPIRV/IR/SPIRVDialect.h>
-#include <mlir/Dialect/SPIRV/IR/SPIRVEnums.h>
-#include <mlir/Dialect/SPIRV/IR/SPIRVOps.h>
-#include <mlir/Dialect/SPIRV/IR/SPIRVSerialization.inc>
-#include <mlir/Dialect/SPIRV/IR/SPIRVTypes.h>
-#include <mlir/Dialect/SPIRV/Transforms/SPIRVConversion.h>
-#include <mlir/IR/BuiltinOps.h>
-#include <mlir/IR/MLIRContext.h>
-#include <mlir/Parser/Parser.h>
-#include <mlir/Pass/PassManager.h>
-#include <mlir/Target/SPIRV/Serialization.h>
-#include <mlir/Transforms/Passes.h>
+#include <shaderc/shaderc.hpp>
+#include <sstream>
+
+void kernel() {}
 
 int main(int argc, char *argv[]) {
-  mlir::MLIRContext context;
-  mlir::DialectRegistry registry;
-  registry.insert<mlir::spirv::SPIRVDialect>();
-  context.appendDialectRegistry(registry);
-  context.loadAllAvailableDialects();
 
-  mlir::OpBuilder builder(&context);
+  const std::string source = R"(#version 450
 
-  auto spirvModule = builder.create<mlir::spirv::ModuleOp>(
-      builder.getUnknownLoc(), mlir::spirv::AddressingModel::Logical,
-      mlir::spirv::MemoryModel::GLSL450);
-  spirvModule->setAttr("vce_triple",
-                       mlir::spirv::VerCapExtAttr::get(
-                           mlir::spirv::Version::V_1_5,
-                           {mlir::spirv::Capability::Shader}, {}, &context));
+layout (local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
 
-  builder.setInsertionPointToEnd(spirvModule.getBody());
+  layout (std430, binding = 0) buffer InputStorageBuffer {
+    float data[];
+  } inputBuffer;
 
-  auto uint32Type = builder.getIntegerType(32, false);
-  auto int32Type = builder.getIntegerType(32, true);
-  auto vec3uintType = mlir::VectorType::get(3, uint32Type);
-  auto arrayType = mlir::spirv::ArrayType::get(uint32Type, 1024);
-  auto structType = mlir::spirv::StructType::get({arrayType}, {});
-  auto ptrType = mlir::spirv::PointerType::get(
-      structType, mlir::spirv::StorageClass::StorageBuffer);
+  layout (std430, binding = 1) buffer InputStorageBuffer2 {
+    float data[];
+  } inputBuffer2;
 
-  auto ptrToGlobalIdType = mlir::spirv::PointerType::get(
-      vec3uintType, mlir::spirv::StorageClass::Input);
+  layout (std430, binding = 2) buffer OutputStorageBuffer {
+    float data[];
+  } outputBuffer;
 
-  auto var1Op = builder.create<mlir::spirv::GlobalVariableOp>(
-      builder.getUnknownLoc(), ptrType, builder.getStringAttr("inputBuffer1"),
-      nullptr);
-  var1Op.setDescriptorSet(0);
-  var1Op.setBinding(0);
-  var1Op->setAttr("sym_name", builder.getStringAttr("inputBuffer1"));
+  layout (push_constant) uniform Params {
+    uint width1;// width1 == height2
+    uint height1;// height1 = 输出矩阵行数
+    uint width2;// width2 = 输出矩阵列数
+    uint height2;
+    // TODO: params
+  } params;
 
-  auto var2Op = builder.create<mlir::spirv::GlobalVariableOp>(
-      builder.getUnknownLoc(), ptrType, builder.getStringAttr("inputBuffer2"),
-      nullptr);
-  var2Op.setDescriptorSet(0);
-  var2Op.setBinding(1);
-  var2Op->setAttr("sym_name", builder.getStringAttr("inputBuffer2"));
+  void main() {
+    uvec2 coord = gl_GlobalInvocationID.xy;
 
-  auto var3Op = builder.create<mlir::spirv::GlobalVariableOp>(
-      builder.getUnknownLoc(), ptrType, builder.getStringAttr("outputBuffer"),
-      nullptr);
-  var3Op.setDescriptorSet(0);
-  var3Op.setBinding(2);
-  var3Op->setAttr("sym_name", builder.getStringAttr("outputBuffer"));
+    if (inputBuffer.data.length() != inputBuffer2.data.length()) {
+      outputBuffer.data[0] = 0xDE;
+      outputBuffer.data[1] = 0xAD;
+      outputBuffer.data[2] = 0x1;// for vec
+      outputBuffer.data[3] = inputBuffer.data.length();
+      outputBuffer.data[4] = inputBuffer2.data.length();
+      return;
+    }
+    if (coord.x >= inputBuffer.data.length()) {
+      return;
+    }
+    float x1 = inputBuffer.data[coord.x];
+    float x2 = inputBuffer2.data[coord.x];
+    outputBuffer.data[coord.x] = x1 + x2;
+  })";
 
-  auto globalIdOp = builder.create<mlir::spirv::GlobalVariableOp>(
-      builder.getUnknownLoc(), ptrToGlobalIdType,
-      builder.getStringAttr("gl_GlobalInvocationID"), nullptr);
-
-  globalIdOp->setAttr("builtin", mlir::spirv::BuiltInAttr::get(
-                                     builder.getContext(),
-                                     mlir::spirv::BuiltIn::GlobalInvocationId));
-
-  auto globalIdPtr = builder.create<mlir::spirv::AddressOfOp>(
-      builder.getUnknownLoc(),
-      mlir::spirv::PointerType::get(vec3uintType,
-                                    mlir::spirv::StorageClass::Input),
-      builder.getStringAttr("gl_GlobalInvocationID"));
-
-  auto globalId = builder.create<mlir::spirv::LoadOp>(
-      builder.getUnknownLoc(), vec3uintType, globalIdPtr.getResult());
-
-  auto funcType = builder.getFunctionType({}, {});
-  auto funcOp = builder.create<mlir::spirv::FuncOp>(builder.getUnknownLoc(),
-                                                    "main", funcType);
-  builder.create<mlir::spirv::EntryPointOp>(
-      builder.getUnknownLoc(), mlir::spirv::ExecutionModel::GLCompute, funcOp,
-      mlir::ArrayRef<mlir::Attribute>());
-
-  auto workgroupSize = {256, 1, 1};
-  builder.create<mlir::spirv::ExecutionModeOp>(
-      builder.getUnknownLoc(), funcOp, mlir::spirv::ExecutionMode::LocalSize,
-      workgroupSize);
-  mlir::Block *entryBlock = funcOp.addEntryBlock();
-  builder.setInsertionPointToEnd(entryBlock);
-
-  auto indexX = builder.create<mlir::spirv::CompositeExtractOp>(
-      builder.getUnknownLoc(), int32Type, globalId.getResult(),
-      builder.getI32ArrayAttr({0}));
-
-  auto addressOfInput1 = builder.create<mlir::spirv::AddressOfOp>(
-      builder.getUnknownLoc(), ptrType, var1Op.getSymName());
-  auto addressOfInput2 = builder.create<mlir::spirv::AddressOfOp>(
-      builder.getUnknownLoc(), ptrType, var2Op.getSymName());
-  auto addressOfOutput = builder.create<mlir::spirv::AddressOfOp>(
-      builder.getUnknownLoc(), ptrType, var3Op.getSymName());
-
-  auto zero = builder.create<mlir::spirv::ConstantOp>(
-      builder.getUnknownLoc(), int32Type, builder.getI32IntegerAttr(0));
-
-  auto input1AccessChain = builder.create<mlir::spirv::AccessChainOp>(
-      builder.getUnknownLoc(),
-      mlir::spirv::PointerType::get(int32Type,
-                                    mlir::spirv::StorageClass::StorageBuffer),
-      addressOfInput1.getResult(), mlir::ValueRange{zero, indexX});
-
-  auto input2AccessChain = builder.create<mlir::spirv::AccessChainOp>(
-      builder.getUnknownLoc(),
-      mlir::spirv::PointerType::get(int32Type,
-                                    mlir::spirv::StorageClass::StorageBuffer),
-      addressOfInput2.getResult(), mlir::ValueRange{zero, indexX});
-
-  auto outputAccessChain = builder.create<mlir::spirv::AccessChainOp>(
-      builder.getUnknownLoc(),
-      mlir::spirv::PointerType::get(int32Type,
-                                    mlir::spirv::StorageClass::StorageBuffer),
-      addressOfOutput.getResult(), mlir::ValueRange{zero, indexX});
-
-  auto loadInput1 = builder.create<mlir::spirv::LoadOp>(
-      builder.getUnknownLoc(), int32Type, input1AccessChain.getResult(),
-      mlir::spirv::MemoryAccessAttr::get(builder.getContext(),
-                                         mlir::spirv::MemoryAccess::Aligned),
-      builder.getI32IntegerAttr(4));
-
-  auto loadInput2 = builder.create<mlir::spirv::LoadOp>(
-      builder.getUnknownLoc(), int32Type, input2AccessChain.getResult(),
-      mlir::spirv::MemoryAccessAttr::get(builder.getContext(),
-                                         mlir::spirv::MemoryAccess::Aligned),
-      builder.getI32IntegerAttr(4));
-
-  auto sum = builder.create<mlir::spirv::IAddOp>(
-      builder.getUnknownLoc(), int32Type, loadInput1.getResult(),
-      loadInput2.getResult());
-
-  builder.create<mlir::spirv::StoreOp>(
-      builder.getUnknownLoc(), outputAccessChain, sum,
-      mlir::spirv::MemoryAccessAttr::get(builder.getContext(),
-                                         mlir::spirv::MemoryAccess::Aligned),
-      builder.getI32IntegerAttr(4));
-
-  builder.create<mlir::spirv::ReturnOp>(builder.getUnknownLoc());
-
-  spirvModule->dump();
-
-  mlir::SmallVector<uint32_t, 0> spirvBinary;
-  serialize(spirvModule, spirvBinary);
-
-  std::ofstream outFile("../../../core/sglang/out.comp.spv", std::ios::binary);
-  if (outFile.is_open()) {
-    outFile.write(reinterpret_cast<const char *>(spirvBinary.data()),
-                  spirvBinary.size() * sizeof(uint32_t));
-    outFile.close();
-  } else {
-    llvm::errs() << "Failed to open file for writing\n";
+  std::vector<uint32_t> spirv = ShaderCompiler::Compile(source);
+  std::ofstream outputFile("../../../core/sglang/out.comp.spv",
+                           std::ios::binary);
+  if (outputFile.is_open()) {
+    outputFile.write(reinterpret_cast<const char *>(spirv.data()),
+                     spirv.size() * sizeof(uint32_t));
+    outputFile.close();
   }
 
-  return 0;
+  return 1;
 }
