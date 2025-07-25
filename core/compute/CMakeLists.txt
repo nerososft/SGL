@@ -99,4 +99,4 @@ add_library(compute_engine
         operators/impl/gpu/ExpOperator.cpp
         operators/impl/gpu/ExpOperator.h
 )
-target_link_libraries(compute_engine core)
+target_link_libraries(compute_engine runtime)

@@ -2,16 +2,11 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     message(STATUS "Running on Linux")
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     message(STATUS "Running on Windows")
-    include_directories(".")
-    #include_directories("D:/vcpkg_install/vcpkg/installed/x64-windows/include/libpng16")
-    #link_directories("$D:/vcpkg_install/vcpkg/installed/x64-windows/lib")
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     message(STATUS "Running on macOS")
-    link_directories("/opt/homebrew/Cellar/libpng/1.6.50/lib")
-    include_directories("/opt/homebrew/Cellar/libpng/1.6.50/include")
 endif ()
 
-set(ENGINE_GPU_SOURCE gpu/VkGPUHelper.cpp
+set(RUNTIME_GPU_SOURCE gpu/VkGPUHelper.cpp
         gpu/VkGPUHelper.h
         gpu/VkGPUContext.cpp
         gpu/VkGPUContext.h
@@ -49,34 +44,33 @@ set(ENGINE_GPU_SOURCE gpu/VkGPUHelper.cpp
         gpu/compute_graph/ImageToBufferCopyNode.cpp
         gpu/compute_graph/ImageToBufferCopyNode.h)
 
-set(ENGINE_SOURCE ${ENGINE_GPU_SOURCE} utils/IOUtils.cpp
-        utils/IOUtils.h
+set(RUNTIME_SOURCE ${RUNTIME_GPU_SOURCE}
         utils/TimeUtils.cpp
         utils/TimeUtils.h
-        utils/ImageUtils.cpp
-        utils/ImageUtils.h
+        utils/IOUtils.cpp
+        utils/IOUtils.h
         log/Log.h
         config.h)
 
 include_directories(".")
 
 if (CMAKE_SYSTEM_NAME MATCHES "OHOS")
-    add_library(core
+    add_library(runtime
             ${ENGINE_SOURCE}
     )
 else ()
-    add_library(core SHARED
-            ${ENGINE_SOURCE}
+    add_library(runtime SHARED
+            ${RUNTIME_SOURCE}
     )
-    target_link_libraries(core png)
+    target_link_libraries(runtime png)
 endif ()
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    target_link_libraries(core vulkan-1)
+    target_link_libraries(runtime vulkan-1)
 else ()
-    target_link_libraries(core vulkan)
+    target_link_libraries(runtime vulkan)
 endif ()
 
 if (CMAKE_SYSTEM_NAME MATCHES "OHOS")
-    target_link_libraries(core hilog_ndk.z)
+    target_link_libraries(runtime hilog_ndk.z)
 endif ()

@@ -7,7 +7,7 @@
 #include <fstream>
 #include <iostream>
 
-#include "log/Log.h"
+#include "runtime/log/Log.h"
 
 std::vector<char> IOUtils::ReadFile(const std::string &path) {
   std::vector<char> data;

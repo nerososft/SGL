@@ -7,8 +7,8 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     #link_directories("$D:/vcpkg_install/vcpkg/installed/x64-windows/lib")
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     message(STATUS "Running on macOS")
-    link_directories("/opt/homebrew/Cellar/libpng/1.6.47/lib")
-    include_directories("/opt/homebrew/Cellar/libpng/1.6.47/include")
+    link_directories("/opt/homebrew/Cellar/libpng/1.6.50/lib")
+    include_directories("/opt/homebrew/Cellar/libpng/1.6.50/include")
 elseif (CMAKE_SYSTEM_NAME MATCHES "OHOS")
     message(STATUS "Running on OHOS")
     include_directories("../../..")
@@ -40,6 +40,8 @@ add_custom_target(compile_image_shaders ALL DEPENDS ${COMPILED_SHADERS})
 
 set(ENGINE_SOURCE ImageEngine.cpp
         ImageEngine.h
+        ../utils/ImageUtils.h
+        ../utils/ImageUtils.cpp
         utils/TransformUtils.cpp
         utils/TransformUtils.h
         blenders/IBlender.h
@@ -161,7 +163,7 @@ endif ()
 add_library(image_engine SHARED
         ${ENGINE_SOURCE}
 )
-target_link_libraries(image_engine core)
+target_link_libraries(image_engine runtime)
 target_link_libraries(image_engine vulkan)
 if (CMAKE_SYSTEM_NAME MATCHES "OHOS")
 elseif (CMAKE_SYSTEM_NAME MATCHES "Windows")

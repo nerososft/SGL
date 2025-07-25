@@ -47,7 +47,7 @@ add_executable(3d_renderer_demo
         scene/ModelLoader.h
         scene/Scene.h
 )
-target_link_libraries(3d_renderer_demo core)
+target_link_libraries(3d_renderer_demo runtime)
 target_link_libraries(3d_renderer_demo render_engine)
 target_link_libraries(3d_renderer_demo glfw)
 target_link_libraries(3d_renderer_demo png)
@@ -58,7 +58,7 @@ add_executable(renderer_offscreen_demo
         scene/ModelLoader.h
         offscreen.cpp
 )
-target_link_libraries(renderer_offscreen_demo core)
+target_link_libraries(renderer_offscreen_demo runtime)
 target_link_libraries(renderer_offscreen_demo render_engine)
 target_link_libraries(renderer_offscreen_demo png)
 target_link_libraries(renderer_offscreen_demo assimp)

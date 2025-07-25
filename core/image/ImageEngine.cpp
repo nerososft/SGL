@@ -16,7 +16,7 @@
 #include "runtime/gpu/VkGPUBuffer.h"
 #include "runtime/gpu/VkGPUHelper.h"
 #include "runtime/log/Log.h"
-#include "runtime/utils/ImageUtils.h"
+#include "core/utils/ImageUtils.h"
 #include "runtime/utils/TimeUtils.h"
 
 namespace sgl::image {

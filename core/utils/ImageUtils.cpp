@@ -13,8 +13,8 @@
 #endif
 #include <cstring>
 
-#include "TimeUtils.h"
-#include "log/Log.h"
+#include "runtime/utils/TimeUtils.h"
+#include "runtime/log/Log.h"
 
 #ifdef ENABLE_PNG
 typedef struct {
