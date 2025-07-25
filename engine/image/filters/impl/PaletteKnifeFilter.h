@@ -4,7 +4,7 @@
 
 #ifndef PPALETTEKNIFEFILTER_H
 #define PPALETTEKNIFEFILTER_H
-#include <core/gpu/VkGPUBuffer.h>
+#include <runtime/gpu/VkGPUBuffer.h>
 
 #include "engine/image/filters/BasicFilter.h"
 

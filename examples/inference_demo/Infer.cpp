@@ -4,8 +4,8 @@
 
 #include "Infer.h"
 
-#include "core/log/Log.h"
-#include "core/utils/TimeUtils.h"
+#include "runtime/log/Log.h"
+#include "runtime/utils/TimeUtils.h"
 
 bool Infer::Init() {
   Logger(Logger::DEBUG) << "Infer Init......" << std::endl;

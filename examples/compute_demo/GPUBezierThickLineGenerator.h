@@ -6,9 +6,9 @@
 #define BEZIER_THICK_LINE_UTILS_H
 #include <vector>
 
-#include "core/gpu/VkGPUBuffer.h"
-#include "core/gpu/compute_graph/ComputeGraph.h"
-#include "core/gpu/compute_graph/ComputePipelineNode.h"
+#include "runtime/gpu/VkGPUBuffer.h"
+#include "runtime/gpu/compute_graph/ComputeGraph.h"
+#include "runtime/gpu/compute_graph/ComputePipelineNode.h"
 
 #define MAX_LINE_NUMS (10240)
 

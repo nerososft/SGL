@@ -4,7 +4,7 @@
 
 #include "TransformerBlock.h"
 
-#include "core/log/Log.h"
+#include "runtime/log/Log.h"
 
 TransformerBlock::TransformerBlock(
     const std::shared_ptr<sgl::compute::ComputeEngine> &ce,

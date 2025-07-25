@@ -4,12 +4,12 @@
 
 #include "GPUBezierThickLineGenerator.h"
 
-#include "core/gpu/VkGPUHelper.h"
-#include "core/gpu/compute_graph/ComputeGraph.h"
-#include "core/gpu/compute_graph/ComputePipelineNode.h"
-#include "core/log/Log.h"
-#include "core/utils/ImageUtils.h"
-#include "core/utils/TimeUtils.h"
+#include "runtime/gpu/VkGPUHelper.h"
+#include "runtime/gpu/compute_graph/ComputeGraph.h"
+#include "runtime/gpu/compute_graph/ComputePipelineNode.h"
+#include "runtime/log/Log.h"
+#include "runtime/utils/ImageUtils.h"
+#include "runtime/utils/TimeUtils.h"
 
 GPUBezierThickLineGenerator::~GPUBezierThickLineGenerator() {
   if (this->outputBuffer != nullptr) {

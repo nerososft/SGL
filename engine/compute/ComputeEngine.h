@@ -5,10 +5,6 @@
 #ifndef COMPUTE_ENGINE_H
 #define COMPUTE_ENGINE_H
 #include "Matrix.h"
-#include "core/gpu/VkGPUBuffer.h"
-#include "core/gpu/VkGPUContext.h"
-#include "core/gpu/compute_graph/ComputeGraph.h"
-#include "core/gpu/compute_graph/Sequence.h"
 #include "operators/IOperator.h"
 #include "operators/impl/cpu/AvgOperator.h"
 #include "operators/impl/cpu/ExpSumOperator.h"
@@ -16,6 +12,10 @@
 #include "operators/impl/cpu/RMSOperator.h"
 #include "operators/impl/cpu/SumOperator.h"
 #include "operators/impl/cpu/VarianceOperator.h"
+#include "runtime/gpu/VkGPUBuffer.h"
+#include "runtime/gpu/VkGPUContext.h"
+#include "runtime/gpu/compute_graph/ComputeGraph.h"
+#include "runtime/gpu/compute_graph/Sequence.h"
 #include <memory>
 namespace sgl::compute {
 class ComputeEngine {

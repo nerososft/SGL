@@ -4,17 +4,17 @@
 
 #include "YuvToRgbFilter.h"
 
-#include <core/log/Log.h>
+#include <runtime/log/Log.h>
 #ifdef OS_OPEN_HARMONY
 #include <core/gpu/utils/vk_enum_string_helper.h>
 #else
 #include <vulkan/vk_enum_string_helper.h>
 #endif
 
-#include <core/gpu/VkGPUHelper.h>
-#include <core/gpu/compute_graph/ComputePipelineNode.h>
+#include <runtime/gpu/VkGPUHelper.h>
+#include <runtime/gpu/compute_graph/ComputePipelineNode.h>
 
-#include "core/config.h"
+#include "runtime/config.h"
 
 VkResult
 YuvToRgbFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,

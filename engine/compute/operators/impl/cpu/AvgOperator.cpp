@@ -4,7 +4,7 @@
 
 #include "AvgOperator.h"
 
-#include "core/log/Log.h"
+#include "runtime/log/Log.h"
 
 CPUAvgNode::CPUAvgNode() {
   this->type = COMPUTE_GRAPH_NODE_CPU;

@@ -5,7 +5,7 @@
 #ifndef OPERATOR_H
 #define OPERATOR_H
 #include "IOperator.h"
-#include "core/gpu/VkGPUContext.h"
+#include "runtime/gpu/VkGPUContext.h"
 
 class Operator : public IOperator {
 public:

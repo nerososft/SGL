@@ -4,7 +4,7 @@
 
 #include "ShaderCompiler.h"
 
-#include "core/log/Log.h"
+#include "runtime/log/Log.h"
 
 #include <shaderc/shaderc.hpp>
 

@@ -7,8 +7,8 @@
 #include <fstream>
 #include <iostream>
 
-#include "core/log/Log.h"
-#include "core/utils/IOUtils.h"
+#include "runtime/log/Log.h"
+#include "runtime/utils/IOUtils.h"
 #include "vendor/json.hpp"
 
 bool Tokenizer::LoadVocabularyFromJsonObject(

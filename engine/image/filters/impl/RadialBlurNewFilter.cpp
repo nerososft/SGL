@@ -4,7 +4,7 @@
 
 #include "RadialBlurNewFilter.h"
 
-#include "core/config.h"
+#include "runtime/config.h"
 
 VkResult RadialBlurNewFilter::Apply(
     const std::shared_ptr<VkGPUContext> &gpuCtx,

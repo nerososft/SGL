@@ -7,7 +7,7 @@
 
 #include "ComputePipelineNode.h"
 #include "IComputeGraphNode.h"
-#include "core/gpu/VkGPUContext.h"
+#include "runtime/gpu/VkGPUContext.h"
 
 typedef struct {
   VkDeviceSize bufferSize;

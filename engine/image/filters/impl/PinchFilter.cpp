@@ -1,6 +1,6 @@
 #include "PinchFilter.h"
 
-#include "core/config.h"
+#include "runtime/config.h"
 
 VkResult
 PinchFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,

@@ -7,9 +7,9 @@
 #include <glm/glm.hpp>
 #include <memory>
 
-#include "core/gpu/VkGPUBuffer.h"
-#include "core/gpu/compute_graph/IComputeGraphNode.h"
 #include "examples/renderer_demo/scene/Scene.h"
+#include "runtime/gpu/VkGPUBuffer.h"
+#include "runtime/gpu/compute_graph/IComputeGraphNode.h"
 
 struct ModelMatrix {
   glm::mat4 model;

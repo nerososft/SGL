@@ -6,10 +6,10 @@
 #define ROPEMULOPERATOR_H
 #include <cstdint>
 
-#include "core/gpu/VkGPUBuffer.h"
-#include "core/gpu/VkGPUContext.h"
 #include "engine/compute/operators/BinaryOperator.h"
 #include "engine/compute/operators/IOperator.h"
+#include "runtime/gpu/VkGPUBuffer.h"
+#include "runtime/gpu/VkGPUContext.h"
 
 struct RoPEMulOperatorParams {
   uint32_t ropeTheta;

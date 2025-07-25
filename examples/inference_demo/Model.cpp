@@ -6,7 +6,7 @@
 
 #include <iostream>
 
-#include "core/log/Log.h"
+#include "runtime/log/Log.h"
 
 Model::Model(const std::shared_ptr<sgl::compute::ComputeEngine> &ce,
              const std::shared_ptr<Config> &config,

@@ -4,7 +4,7 @@
 
 #include "GrayFilter.h"
 
-#include "core/config.h"
+#include "runtime/config.h"
 
 VkResult
 GrayFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,

@@ -1,6 +1,6 @@
 #include "MotionblurFilter.h"
 
-#include "core/config.h"
+#include "runtime/config.h"
 
 VkResult
 MotionBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,

@@ -6,8 +6,8 @@
 #define RENDERERCAMERA_H
 #include <glm/glm.hpp>
 
-#include "core/gpu/VkGPUBuffer.h"
-#include "core/gpu/compute_graph/IComputeGraphNode.h"
+#include "runtime/gpu/VkGPUBuffer.h"
+#include "runtime/gpu/compute_graph/IComputeGraphNode.h"
 
 struct ViewProjectionMatrix {
   glm::mat4 view;

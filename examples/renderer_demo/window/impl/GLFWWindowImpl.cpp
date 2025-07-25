@@ -6,7 +6,7 @@
 
 #include <iostream>
 
-#include "core/log/Log.h"
+#include "runtime/log/Log.h"
 
 static IEventHandler *gHandler = nullptr;
 

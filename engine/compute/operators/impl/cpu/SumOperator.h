@@ -5,8 +5,8 @@
 #ifndef SUMOPERATOR_H
 #define SUMOPERATOR_H
 #include "CPUComputeNode.h"
-#include "core/gpu/VkGPUBuffer.h"
 #include "engine/compute/operators/IOperator.h"
+#include "runtime/gpu/VkGPUBuffer.h"
 
 class CPUSumNode final : public CPUComputeNode {
   std::shared_ptr<VkGPUBuffer> inputBuffer = nullptr;

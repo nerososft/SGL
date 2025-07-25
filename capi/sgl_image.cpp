@@ -4,7 +4,6 @@
 #include "psutil/imageprocess/GpuFilterCAPI.h"
 #endif
 
-#include "core/log/Log.h"
 #include "engine/image/ImageEngine.h"
 #include "engine/image/filters/impl/AccentedEdgeFilter.h"
 #include "engine/image/filters/impl/BlackWhiteFilter.h"
@@ -42,6 +41,7 @@
 #include "engine/image/filters/impl/VibranceFilter.h"
 #include "engine/image/filters/impl/WaveFilter.h"
 #include "engine/image/filters/impl/ZigzagFilter.h"
+#include "runtime/log/Log.h"
 
 sgl::image::ImageEngine gImageEngine;
 bool gImageEngine_inited = false;

@@ -6,10 +6,10 @@
 
 #include <cassert>
 
-#include "core/config.h"
-#include "core/gpu/VkGPUHelper.h"
-#include "core/gpu/compute_graph/ComputePipelineNode.h"
-#include "core/log/Log.h"
+#include "runtime/config.h"
+#include "runtime/gpu/VkGPUHelper.h"
+#include "runtime/gpu/compute_graph/ComputePipelineNode.h"
+#include "runtime/log/Log.h"
 
 SoftmaxOperator::SoftmaxOperator(
     const std::shared_ptr<VkGPUContext> &gpuCtx,

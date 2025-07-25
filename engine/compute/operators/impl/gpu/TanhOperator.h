@@ -5,9 +5,9 @@
 #ifndef TANHOPERATOR_H
 #define TANHOPERATOR_H
 
-#include "core/gpu/VkGPUBuffer.h"
-#include "core/gpu/VkGPUContext.h"
 #include "engine/compute/operators/UnaryOperator.h"
+#include "runtime/gpu/VkGPUBuffer.h"
+#include "runtime/gpu/VkGPUContext.h"
 
 class TanhOperator final : public UnaryOperator {
 public:

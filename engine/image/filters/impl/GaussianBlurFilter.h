@@ -4,10 +4,10 @@
 
 #ifndef GAUSSIANBLURFILTER_H
 #define GAUSSIANBLURFILTER_H
-#include "core/gpu/VkGPUBuffer.h"
-#include "core/gpu/compute_graph/ComputeGraph.h"
 #include "engine/image/filters/BasicFilter.h"
 #include "engine/image/filters/IFilter.h"
+#include "runtime/gpu/VkGPUBuffer.h"
+#include "runtime/gpu/compute_graph/ComputeGraph.h"
 
 #define MAX_RADIUS (256)
 

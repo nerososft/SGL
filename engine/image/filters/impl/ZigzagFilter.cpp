@@ -1,6 +1,6 @@
 #include "ZigzagFilter.h"
 
-#include "core/config.h"
+#include "runtime/config.h"
 
 VkResult
 ZigzagFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,

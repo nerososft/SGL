@@ -4,9 +4,9 @@
 
 #include "ScaleOperator.h"
 
-#include "core/gpu/VkGPUHelper.h"
-#include "core/gpu/compute_graph/ComputePipelineNode.h"
-#include "core/log/Log.h"
+#include "runtime/gpu/VkGPUHelper.h"
+#include "runtime/gpu/compute_graph/ComputePipelineNode.h"
+#include "runtime/log/Log.h"
 
 ScaleOperator::ScaleOperator(const std::shared_ptr<VkGPUContext> &gpuCtx,
                              const std::shared_ptr<VkGPUBuffer> &inputBuffer,

@@ -8,11 +8,11 @@
 #include <queue>
 #include <vulkan/vk_enum_string_helper.h>
 
-#include "core/gpu/VkGPUBuffer.h"
-#include "core/gpu/VkGPUHelper.h"
-#include "core/gpu/compute_graph/ImageToBufferCopyNode.h"
-#include "core/log/Log.h"
-#include "core/utils/ImageUtils.h"
+#include "runtime/gpu/VkGPUBuffer.h"
+#include "runtime/gpu/VkGPUHelper.h"
+#include "runtime/gpu/compute_graph/ImageToBufferCopyNode.h"
+#include "runtime/log/Log.h"
+#include "runtime/utils/ImageUtils.h"
 
 Renderer::Renderer(const uint32_t width, const uint32_t height) {
   this->width = width;

@@ -4,7 +4,7 @@
 
 #include "CPUComputeNode.h"
 
-#include "core/log/Log.h"
+#include "runtime/log/Log.h"
 
 void CPUComputeNode::Compute(const VkCommandBuffer commandBuffer) {
   if (!this->dependencies.empty()) {

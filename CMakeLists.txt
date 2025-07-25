@@ -39,9 +39,9 @@ if (CMAKE_SYSTEM_PROCESSOR MATCHES "arm64")
     add_compile_options(-O3 -march=armv8-a+simd)
 endif ()
 
-add_subdirectory(core)
+add_subdirectory(runtime)
 if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-add_subdirectory(core/sglang) # Testing
+add_subdirectory(runtime/sglang) # Testing
 endif ()
 add_subdirectory(engine/image)
 add_subdirectory(engine/renderer)

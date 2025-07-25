@@ -9,7 +9,7 @@
 
 #include "GaussianSplatting3DRenderer.h"
 #include "GuassianModel.h"
-#include "core/utils/IOUtils.h"
+#include "runtime/utils/IOUtils.h"
 
 #define SPZ_HEADER_MAGIC (0x5053474e)
 

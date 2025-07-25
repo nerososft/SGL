@@ -4,7 +4,7 @@
 
 #include "DissolveBlender.h"
 
-#include "core/config.h"
+#include "runtime/config.h"
 
 VkResult DissolveBlender::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                                 const BlendImageInfo baseImageInfo,

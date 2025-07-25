@@ -6,9 +6,9 @@
 #define RENDERERLIGHT_H
 #include <glm/vec4.hpp>
 
-#include "core/gpu/VkGPUBuffer.h"
-#include "core/gpu/compute_graph/IComputeGraphNode.h"
 #include "examples/renderer_demo/scene/Scene.h"
+#include "runtime/gpu/VkGPUBuffer.h"
+#include "runtime/gpu/compute_graph/IComputeGraphNode.h"
 
 class RendererLight {
   Light light{};

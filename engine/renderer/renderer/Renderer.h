@@ -4,19 +4,19 @@
 
 #ifndef RENDERER_H
 #define RENDERER_H
-#include "core/gpu/VkGPUBuffer.h"
-#include "core/gpu/VkGPUContext.h"
-#include "core/gpu/VkGPUFramebuffer.h"
-#include "core/gpu/compute_graph/ComputeGraph.h"
-#include "core/gpu/compute_graph/GraphicsPipelineNode.h"
-#include "core/gpu/compute_graph/GraphicsRenderPassNode.h"
-#include "core/gpu/compute_graph/ImageToBufferCopyNode.h"
+#include "runtime/gpu/VkGPUBuffer.h"
+#include "runtime/gpu/VkGPUContext.h"
+#include "runtime/gpu/VkGPUFramebuffer.h"
+#include "runtime/gpu/compute_graph/ComputeGraph.h"
+#include "runtime/gpu/compute_graph/GraphicsPipelineNode.h"
+#include "runtime/gpu/compute_graph/GraphicsRenderPassNode.h"
+#include "runtime/gpu/compute_graph/ImageToBufferCopyNode.h"
 #include <glm/glm.hpp>
 
 #include "RendererCamera.h"
 #include "RendererLight.h"
 #include "RendererMesh.h"
-#include "core/gpu/VkGPUSwapChain.h"
+#include "runtime/gpu/VkGPUSwapChain.h"
 
 struct FrameInfo {
   uint32_t frameIndex;

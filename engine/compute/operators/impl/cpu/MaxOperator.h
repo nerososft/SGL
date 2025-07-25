@@ -6,8 +6,8 @@
 #define MAXOPERATOR_H
 
 #include "CPUComputeNode.h"
-#include "core/gpu/VkGPUBuffer.h"
 #include "engine/compute/operators/IOperator.h"
+#include "runtime/gpu/VkGPUBuffer.h"
 
 class CPUMaxNode final : public CPUComputeNode {
   std::shared_ptr<VkGPUBuffer> inputBuffer = nullptr;

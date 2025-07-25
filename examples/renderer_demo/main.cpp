@@ -3,7 +3,7 @@
 //
 
 #include "GraphicsApp.h"
-#include "core/log/Log.h"
+#include "runtime/log/Log.h"
 
 int main(int argc, char *argv[]) {
   Logger() << "Hello World!\n";

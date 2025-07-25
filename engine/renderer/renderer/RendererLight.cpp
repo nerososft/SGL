@@ -4,7 +4,7 @@
 
 #include "RendererLight.h"
 
-#include "core/log/Log.h"
+#include "runtime/log/Log.h"
 
 bool RendererLight::CreateGPULight(
     const std::shared_ptr<VkGPUContext> &gpuCtx) {

@@ -4,7 +4,7 @@
 
 #include "Matrix.h"
 
-#include "core/log/Log.h"
+#include "runtime/log/Log.h"
 
 namespace sgl::compute {
 Matrix::Matrix(const uint32_t width, const uint32_t height) {

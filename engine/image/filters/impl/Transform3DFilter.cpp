@@ -6,9 +6,9 @@
 
 #include <glm/ext/matrix_clip_space.hpp>
 
-#include "core/config.h"
-#include "core/gpu/VkGPUHelper.h"
-#include "core/log/Log.h"
+#include "runtime/config.h"
+#include "runtime/gpu/VkGPUHelper.h"
+#include "runtime/log/Log.h"
 
 PipelineNodeBuffer Transform3DFilter::GetVertexBufferNode() const {
   PipelineNodeBuffer vertexBufferNode = {};

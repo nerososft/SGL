@@ -6,9 +6,9 @@
 #define KFILTER_H
 #include <vulkan/vulkan_core.h>
 
-#include "core/gpu/VkGPUContext.h"
 #include "engine/image/filters/BasicFilter.h"
-#include <core/gpu/VkGPUBuffer.h>
+#include "runtime/gpu/VkGPUContext.h"
+#include <runtime/gpu/VkGPUBuffer.h>
 
 struct customKernelFilterParams {
   BasicFilterParam imageSize;

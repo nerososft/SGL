@@ -4,7 +4,7 @@
 
 #ifndef IOPERATOR_H
 #define IOPERATOR_H
-#include "core/gpu/compute_graph/IComputeGraphNode.h"
+#include "runtime/gpu/compute_graph/IComputeGraphNode.h"
 
 class IOperator {
 public:

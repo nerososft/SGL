@@ -4,7 +4,7 @@
 
 #include "VibranceFilter.h"
 
-#include "core/config.h"
+#include "runtime/config.h"
 
 VkResult
 VibranceFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,

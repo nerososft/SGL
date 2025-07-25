@@ -3,8 +3,8 @@
 #define MINMAXFILTER_H
 #include <vulkan/vulkan_core.h>
 
-#include "core/gpu/VkGPUContext.h"
 #include "engine/image/filters/BasicFilter.h"
+#include "runtime/gpu/VkGPUContext.h"
 
 struct MinMaxFilterParams {
   BasicFilterParam imageSize;

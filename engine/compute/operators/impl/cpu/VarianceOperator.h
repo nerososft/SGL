@@ -5,8 +5,8 @@
 #ifndef VARIANCEOPERATOR_H
 #define VARIANCEOPERATOR_H
 #include "CPUComputeNode.h"
-#include "core/gpu/VkGPUBuffer.h"
 #include "engine/compute/operators/IOperator.h"
+#include "runtime/gpu/VkGPUBuffer.h"
 
 class CPUVarianceNode final : public CPUComputeNode {
   std::shared_ptr<VkGPUBuffer> inputBuffer = nullptr;

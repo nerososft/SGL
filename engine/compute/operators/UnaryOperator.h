@@ -5,7 +5,7 @@
 #ifndef UNARYOPERATOR_H
 #define UNARYOPERATOR_H
 #include "IOperator.h"
-#include "core/gpu/VkGPUBuffer.h"
+#include "runtime/gpu/VkGPUBuffer.h"
 
 class UnaryOperator : public IOperator {
 public:

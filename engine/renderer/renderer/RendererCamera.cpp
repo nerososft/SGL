@@ -7,7 +7,7 @@
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
 
-#include "core/log/Log.h"
+#include "runtime/log/Log.h"
 
 RendererCamera::RendererCamera(const glm::vec3 position, const glm::vec3 up) {
   this->viewProjectionMatrix.position = glm::vec4(position, 1.0f);

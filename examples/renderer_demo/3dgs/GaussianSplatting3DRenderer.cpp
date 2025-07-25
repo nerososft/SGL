@@ -4,13 +4,13 @@
 
 #include "GaussianSplatting3DRenderer.h"
 
-#include "core/gpu/VkGPUHelper.h"
-#include "core/gpu/compute_graph/ComputeGraph.h"
-#include "core/gpu/compute_graph/ComputePipelineNode.h"
-#include "core/log/Log.h"
-#include "core/utils/ImageUtils.h"
-#include "core/utils/TimeUtils.h"
 #include "examples/compute_demo/GPUBezierThickLineGenerator.h"
+#include "runtime/gpu/VkGPUHelper.h"
+#include "runtime/gpu/compute_graph/ComputeGraph.h"
+#include "runtime/gpu/compute_graph/ComputePipelineNode.h"
+#include "runtime/log/Log.h"
+#include "runtime/utils/ImageUtils.h"
+#include "runtime/utils/TimeUtils.h"
 
 GaussianSplatting3DRenderer::~GaussianSplatting3DRenderer() {
   if (this->pixelMapBuffer != nullptr) {

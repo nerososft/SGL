@@ -5,7 +5,7 @@
 #include "VarianceOperator.h"
 
 #include "CPUComputeNode.h"
-#include "core/log/Log.h"
+#include "runtime/log/Log.h"
 
 CPUVarianceNode::CPUVarianceNode() {
   this->type = COMPUTE_GRAPH_NODE_CPU;

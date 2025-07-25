@@ -6,7 +6,7 @@
 #define LOG_H
 #include <string>
 
-#include "core/config.h"
+#include "runtime/config.h"
 #include <fstream>
 #include <iostream>
 #include <sstream>

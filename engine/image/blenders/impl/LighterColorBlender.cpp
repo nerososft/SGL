@@ -4,7 +4,7 @@
 
 #include "LighterColorBlender.h"
 
-#include "core/config.h"
+#include "runtime/config.h"
 
 VkResult LighterColorBlender::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                                     const BlendImageInfo baseImageInfo,

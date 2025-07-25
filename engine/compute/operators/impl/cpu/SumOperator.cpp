@@ -4,7 +4,7 @@
 
 #include "SumOperator.h"
 
-#include "core/log/Log.h"
+#include "runtime/log/Log.h"
 
 CPUSumNode::CPUSumNode() {
   this->type = COMPUTE_GRAPH_NODE_CPU;

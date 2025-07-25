@@ -4,7 +4,7 @@
 
 #include "Sequence.h"
 
-#include "core/log/Log.h"
+#include "runtime/log/Log.h"
 
 Sequence::Sequence(const std::shared_ptr<VkGPUContext> &gpuCtx) {
   this->gpuCtx = gpuCtx;

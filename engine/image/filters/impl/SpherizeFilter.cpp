@@ -1,6 +1,6 @@
 #include "SpherizeFilter.h"
 
-#include "core/config.h"
+#include "runtime/config.h"
 
 VkResult
 SpherizeFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,

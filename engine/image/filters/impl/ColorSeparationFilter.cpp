@@ -5,7 +5,7 @@
 #include "ColorSeparationFilter.h"
 
 #include "ColorPencilSketchFilter.h"
-#include "core/config.h"
+#include "runtime/config.h"
 
 VkResult ColorSeparationFilter::Apply(
     const std::shared_ptr<VkGPUContext> &gpuCtx,

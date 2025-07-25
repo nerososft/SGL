@@ -1,6 +1,6 @@
 #include "MinMaxFilter.h"
 
-#include "core/config.h"
+#include "runtime/config.h"
 
 VkResult
 MinMaxFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,

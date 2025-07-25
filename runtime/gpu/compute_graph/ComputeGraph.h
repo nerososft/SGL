@@ -8,7 +8,7 @@
 #include <vulkan/vulkan_core.h>
 
 #include "SubComputeGraph.h"
-#include "core/gpu/VkGPURenderPass.h"
+#include "runtime/gpu/VkGPURenderPass.h"
 
 class VkGPUContext;
 

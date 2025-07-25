@@ -6,10 +6,10 @@
 #define SCALEOPERATOR_H
 #include <memory>
 
-#include "core/gpu/VkGPUBuffer.h"
-#include "core/gpu/VkGPUContext.h"
-#include "core/gpu/compute_graph/IComputeGraphNode.h"
 #include "engine/compute/operators/UnaryOperator.h"
+#include "runtime/gpu/VkGPUBuffer.h"
+#include "runtime/gpu/VkGPUContext.h"
+#include "runtime/gpu/compute_graph/IComputeGraphNode.h"
 
 struct ScaleOperatorParams {
   float delta;

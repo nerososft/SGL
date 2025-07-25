@@ -1,6 +1,6 @@
 #include "TwirlWarpFilter.h"
 
-#include "core/config.h"
+#include "runtime/config.h"
 
 VkResult
 TwirlWarpFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,

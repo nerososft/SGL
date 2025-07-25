@@ -8,9 +8,9 @@
 #include <functional>
 
 #include "IComputeGraphNode.h"
-#include "core/gpu/VkGPUComputePipeline.h"
-#include "core/gpu/VkGPUContext.h"
-#include "core/gpu/VkGPUDescriptorSet.h"
+#include "runtime/gpu/VkGPUComputePipeline.h"
+#include "runtime/gpu/VkGPUContext.h"
+#include "runtime/gpu/VkGPUDescriptorSet.h"
 
 struct ComputeElement {
   PushConstantInfo pushConstantInfo;

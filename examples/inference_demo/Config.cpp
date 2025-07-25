@@ -4,7 +4,7 @@
 
 #include "Config.h"
 
-#include "core/log/Log.h"
+#include "runtime/log/Log.h"
 #include "vendor/json.hpp"
 
 bool Config::LoadFromFile(const std::string &configFilePath) {

@@ -4,7 +4,7 @@
 
 #ifndef SEQUENCE_H
 #define SEQUENCE_H
-#include "core/gpu/compute_graph/ComputeGraph.h"
+#include "runtime/gpu/compute_graph/ComputeGraph.h"
 
 class Sequence : public std::enable_shared_from_this<Sequence> {
   std::shared_ptr<VkGPUContext> gpuCtx = nullptr;

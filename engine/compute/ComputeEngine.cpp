@@ -4,7 +4,6 @@
 
 #include "ComputeEngine.h"
 
-#include "core/log/Log.h"
 #include "operators/impl/cpu/AvgOperator.h"
 #include "operators/impl/cpu/ExpSumOperator.h"
 #include "operators/impl/cpu/MaxOperator.h"
@@ -31,6 +30,7 @@
 #include "operators/impl/gpu/SplitOperator.h"
 #include "operators/impl/gpu/TanhOperator.h"
 #include "operators/impl/gpu/TransposeOperator.h"
+#include "runtime/log/Log.h"
 
 namespace sgl::compute {
 std::shared_ptr<Sequence> ComputeEngine::Seq() {

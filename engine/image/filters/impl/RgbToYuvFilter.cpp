@@ -4,10 +4,10 @@
 
 #include "RgbToYuvFilter.h"
 
-#include <core/config.h>
-#include <core/gpu/VkGPUHelper.h>
-#include <core/gpu/compute_graph/ComputePipelineNode.h>
-#include <core/log/Log.h>
+#include <runtime/config.h>
+#include <runtime/gpu/VkGPUHelper.h>
+#include <runtime/gpu/compute_graph/ComputePipelineNode.h>
+#include <runtime/log/Log.h>
 #ifdef OS_OPEN_HARMONY
 #include <core/gpu/utils/vk_enum_string_helper.h>
 #else

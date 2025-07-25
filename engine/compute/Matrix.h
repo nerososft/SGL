@@ -6,7 +6,7 @@
 #define MATRIX_H
 #include <memory>
 
-#include "core/gpu/VkGPUBuffer.h"
+#include "runtime/gpu/VkGPUBuffer.h"
 namespace sgl::compute {
 class Matrix {
   uint32_t width = 0;

@@ -4,7 +4,7 @@
 
 #include "MaxOperator.h"
 
-#include "core/log/Log.h"
+#include "runtime/log/Log.h"
 
 CPUMaxNode::CPUMaxNode() {
   this->type = COMPUTE_GRAPH_NODE_CPU;

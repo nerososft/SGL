@@ -4,7 +4,7 @@
 
 #include "FocusBlurFilter.h"
 
-#include "core/config.h"
+#include "runtime/config.h"
 
 VkResult
 FocusBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,

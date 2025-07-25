@@ -7,11 +7,11 @@
 #include <functional>
 
 #include "IComputeGraphNode.h"
-#include "core/gpu/VkGPUComputePipeline.h"
-#include "core/gpu/VkGPUContext.h"
-#include "core/gpu/VkGPUDescriptorSet.h"
-#include "core/gpu/VkGPUGraphicsPipeline.h"
-#include "core/gpu/VkGPURenderPass.h"
+#include "runtime/gpu/VkGPUComputePipeline.h"
+#include "runtime/gpu/VkGPUContext.h"
+#include "runtime/gpu/VkGPUDescriptorSet.h"
+#include "runtime/gpu/VkGPUGraphicsPipeline.h"
+#include "runtime/gpu/VkGPURenderPass.h"
 
 struct GraphicsElement {
   PushConstantInfo pushConstantInfo;

@@ -6,7 +6,7 @@
 
 #include <cassert>
 
-#include "core/log/Log.h"
+#include "runtime/log/Log.h"
 
 CPUExpSumNode::CPUExpSumNode() {
   this->type = COMPUTE_GRAPH_NODE_CPU;

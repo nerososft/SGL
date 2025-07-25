@@ -4,7 +4,7 @@
 
 #include "SpzModel.h"
 
-#include "core/log/Log.h"
+#include "runtime/log/Log.h"
 
 float float24(const uint8_t val[3], const uint32_t fractionalBits) {
   int32_t fixed = (static_cast<int32_t>(val[0]) << 16) |

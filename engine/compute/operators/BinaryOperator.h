@@ -5,7 +5,7 @@
 #ifndef BINARYOPERATOR_H
 #define BINARYOPERATOR_H
 #include "IOperator.h"
-#include "core/gpu/VkGPUBuffer.h"
+#include "runtime/gpu/VkGPUBuffer.h"
 
 class BinaryOperator : public IOperator {
 public:

@@ -5,9 +5,9 @@
 #ifndef GRAPHICSRENDERPASSNODE_H
 #define GRAPHICSRENDERPASSNODE_H
 #include "IComputeGraphNode.h"
-#include "core/gpu/VkGPUContext.h"
-#include "core/gpu/VkGPUFramebuffer.h"
-#include "core/gpu/VkGPURenderPass.h"
+#include "runtime/gpu/VkGPUContext.h"
+#include "runtime/gpu/VkGPUFramebuffer.h"
+#include "runtime/gpu/VkGPURenderPass.h"
 
 class GraphicsRenderPassNode final : public IComputeGraphNode {
   float width = 1.0f;

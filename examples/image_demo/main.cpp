@@ -10,7 +10,6 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <iostream>
 
-#include "core/log/Log.h"
 #include "engine/image/ImageEngine.h"
 #include "engine/image/blenders/impl/DissolveBlender.h"
 #include "engine/image/blenders/impl/LighterColorBlender.h"
@@ -33,6 +32,7 @@
 #include "engine/image/filters/impl/VibranceFilter.h"
 #include "engine/image/filters/impl/VoronoiFilter.h"
 #include "engine/image/utils/TransformUtils.h"
+#include "runtime/log/Log.h"
 
 void effect_engine_main() {
   sgl::image::ImageEngine effectEngine;

@@ -7,8 +7,8 @@
 
 #define MAX_RADIUS (256)
 #include "ScaleFilter.h"
-#include "core/gpu/VkGPUBuffer.h"
 #include "engine/image/filters/BasicFilter.h"
+#include "runtime/gpu/VkGPUBuffer.h"
 
 struct FastGaussianBlurFilterParams {
   BasicFilterParam imageSize;

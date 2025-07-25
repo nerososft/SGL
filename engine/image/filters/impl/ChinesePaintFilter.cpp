@@ -4,7 +4,7 @@
 
 #include "ChinesePaintFilter.h"
 
-#include "core/config.h"
+#include "runtime/config.h"
 
 VkResult
 ChinesePaintFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,

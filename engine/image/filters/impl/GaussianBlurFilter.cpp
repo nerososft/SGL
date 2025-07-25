@@ -12,12 +12,12 @@
 #endif
 #include <cmath>
 
-#include "core/config.h"
-#include "core/gpu/VkGPUHelper.h"
-#include "core/gpu/compute_graph/BufferCopyNode.h"
-#include "core/gpu/compute_graph/ComputePipelineNode.h"
-#include "core/log/Log.h"
 #include "engine/image/filters/BasicFilter.h"
+#include "runtime/config.h"
+#include "runtime/gpu/VkGPUHelper.h"
+#include "runtime/gpu/compute_graph/BufferCopyNode.h"
+#include "runtime/gpu/compute_graph/ComputePipelineNode.h"
+#include "runtime/log/Log.h"
 
 std::vector<float> GaussianBlurFilter::CalculateWeights() {
   std::vector<float> weights(2 * MAX_RADIUS + 1);

@@ -7,7 +7,7 @@
 #include <vulkan/vulkan_core.h>
 
 #include "IComputeGraphNode.h"
-#include "core/gpu/VkGPUContext.h"
+#include "runtime/gpu/VkGPUContext.h"
 
 class SubComputeGraph {
   std::shared_ptr<VkGPUContext> gpuCtx = nullptr;

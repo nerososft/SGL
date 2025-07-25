@@ -4,7 +4,7 @@
 
 #include "RMSOperator.h"
 
-#include "core/log/Log.h"
+#include "runtime/log/Log.h"
 
 CPURmsNode::CPURmsNode() {
   this->type = COMPUTE_GRAPH_NODE_CPU;

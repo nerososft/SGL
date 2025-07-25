@@ -6,8 +6,8 @@
 
 #include <fstream>
 
-#include "core/log/Log.h"
-#include "core/utils/IOUtils.h"
+#include "runtime/log/Log.h"
+#include "runtime/utils/IOUtils.h"
 #include "vendor/json.hpp"
 
 float BF16ToFP32(const uint16_t bf16) {

@@ -1,6 +1,6 @@
 #include "ColorhalftoneFilter.h"
 
-#include "core/config.h"
+#include "runtime/config.h"
 
 #include <iostream>
 #ifdef OS_OPEN_HARMONY
@@ -9,11 +9,11 @@
 #include <vulkan/vk_enum_string_helper.h>
 #endif
 
-#include "core/gpu/VkGPUHelper.h"
-#include "core/gpu/compute_graph/BufferCopyNode.h"
-#include "core/gpu/compute_graph/ComputePipelineNode.h"
-#include "core/log/Log.h"
 #include "engine/image/filters/BasicFilter.h"
+#include "runtime/gpu/VkGPUHelper.h"
+#include "runtime/gpu/compute_graph/BufferCopyNode.h"
+#include "runtime/gpu/compute_graph/ComputePipelineNode.h"
+#include "runtime/log/Log.h"
 
 VkResult ColorhalftoneFilter::Apply(
     const std::shared_ptr<VkGPUContext> &gpuCtx,

@@ -7,12 +7,12 @@
 #include <glm/glm.hpp>
 #include <vulkan/vulkan_core.h>
 
-#include "core/gpu/VkGPUBuffer.h"
-#include "core/gpu/VkGPUContext.h"
-#include "core/gpu/compute_graph/GraphicsPipelineNode.h"
-#include "core/gpu/compute_graph/GraphicsRenderPassNode.h"
-#include "core/gpu/compute_graph/ImageToBufferCopyNode.h"
 #include "engine/image/filters/BasicFilter.h"
+#include "runtime/gpu/VkGPUBuffer.h"
+#include "runtime/gpu/VkGPUContext.h"
+#include "runtime/gpu/compute_graph/GraphicsPipelineNode.h"
+#include "runtime/gpu/compute_graph/GraphicsRenderPassNode.h"
+#include "runtime/gpu/compute_graph/ImageToBufferCopyNode.h"
 
 struct Vertex {
   glm::vec3 position;

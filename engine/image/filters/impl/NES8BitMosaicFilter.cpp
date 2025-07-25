@@ -4,7 +4,7 @@
 
 #include "NES8BitMosaicFilter.h"
 
-#include "core/config.h"
+#include "runtime/config.h"
 
 VkResult NES8BitMosaicFilter::Apply(
     const std::shared_ptr<VkGPUContext> &gpuCtx,

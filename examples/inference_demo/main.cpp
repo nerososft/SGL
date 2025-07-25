@@ -4,7 +4,7 @@
 #include <iostream>
 
 #include "Infer.h"
-#include "core/log/Log.h"
+#include "runtime/log/Log.h"
 
 int main(int argc, char *argv[]) {
   std::cout << "Inference demo" << std::endl;

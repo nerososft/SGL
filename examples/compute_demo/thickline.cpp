@@ -2,13 +2,13 @@
 // Created by neo on 25-5-20.
 //
 
-#include <core/gpu/compute_graph/ComputeGraph.h>
 #include <iostream>
 #include <ostream>
+#include <runtime/gpu/compute_graph/ComputeGraph.h>
 #include <vector>
 
 #include "GPUBezierThickLineGenerator.h"
-#include "core/utils/TimeUtils.h"
+#include "runtime/utils/TimeUtils.h"
 
 int main(int argc, char *argv[]) {
   std::cout << "mindmaster_demo" << std::endl;
