@@ -28,11 +28,11 @@ ce->Seq()->Record(ce->MatMul(mat1, mat2, matOutput))->Eval()->Destroy();
 
 ---
 
-## 基础框架使用
+## Base Framework usage
 
-以两个浮点向量`float input1[100000000]`, `float input2[100000000]`逐元素相加为例
+Taking the element-wise addition of two floating-point vectors `float input1[100000000]` and `float input2[100000000]` as an example
 
-### 1. 初始化GPU与计算图
+### 1. initialize device and compute graph
 
 ```c++
 std::vector<const char *> extensions = {};
@@ -44,7 +44,7 @@ computeSubGraph.Init();
 computeGraph.AddSubGraph(computeSubGraph);
 ```
 
-### 2. 创建计算/渲染节点
+### 2. Create compute/renderer node
 
 ```c++
 std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
@@ -56,7 +56,7 @@ ComputePipelineNode addNode(gpuCtx, "Add", SHADER(add.comp.glsl.spv), 0, descrip
 addNode->CreateComputeGraphNode();
 ```
 
-编写`shader`
+write `shader`
 
 ```glsl
 #version 450
@@ -82,7 +82,7 @@ void main() {
 }
 ```
 
-### 3. GPU内存申请/数据上传下载
+### 3. GPU buffer allocation and data upload download
 
 ```c++
 VkGPUBuffer inputBuffer(gpuCtx);
@@ -103,13 +103,13 @@ addNode->AddComputeElement({ .pushConstantInfo = {}, .buffers = ppBuffers, .cust
 computeSubGraph->AddComputeGraphNode(bezierNode);
 ```
 
-### 4. 计算
+### 4. compute
 
 ```c++
 computeGraph.Compute();
 ```
 
-### 5. 获取结果
+### 5. result
 
 ```c++
 outputBuffer.MapBuffer();
@@ -118,18 +118,18 @@ float *result = outputBuffer.GetMappedAddr();
 
 ---
 
-## 图像处理算子使用
+## Image processing usage
 
-### 1. 初始化滤镜框架
+### 1. initialize image engine
 
 ```c++
-EffectEngine effectEngine;
-effectEngine.Init();
+ImageEngine imageEngine;
+imageEngine.Init();
 ```
 
-### 2. 使用内置滤镜
+### 2. use builtin filters
 
-以高斯模糊为例
+e.g.
 
 ```c++
 const auto filter = std::make_shared<FastGaussianBlurFilter>();
@@ -137,7 +137,7 @@ filter->SetRadius(120);
 effectEngine.Process({.width = 1024, .height = 768, .channels = 4 .bytesPerLine = 4 * 1024, .data = inputPixelData}, {.width = 1024, .height = 768, .channels = 4 .bytesPerLine = 4 * 1024, .data = outputPixelData}, filter);
 ```
 
-目前内置的效果有
+builtin filters:
 
 - [chinese_paint](https://gitcode.com/OpenHarmonyPerfSquad/SGL/blob/main/engine/effect/assets/builtin.shaders/effects/chinese_paint.comp.glsl)
 - [color_pencil_sketch](https://gitcode.com/OpenHarmonyPerfSquad/SGL/blob/main/engine/effect/assets/builtin.shaders/effects/color_pencil_sketch.comp.glsl)
@@ -167,24 +167,24 @@ effectEngine.Process({.width = 1024, .height = 768, .channels = 4 .bytesPerLine 
 - [vibrance](https://gitcode.com/OpenHarmonyPerfSquad/SGL/blob/main/engine/effect/assets/builtin.shaders/effects/vibrance.comp.glsl)
 - [voronoi](https://gitcode.com/OpenHarmonyPerfSquad/SGL/blob/main/engine/effect/assets/builtin.shaders/effects/voronoi.comp.glsl)
 
-### 3. 自定义滤镜
+### 3. custom filter
 
-参考`基础框架使用`即可
+Refer to `Basic Framework Usage` for implementation.
 
 ---
 
-## 计算库算子使用
+## Compute engine usage
 
-### 1. 初始化
+### 1. Initialize
 ```c++
 auto ce = std::make_shared<ComputeEngine>();
 ce->Init()
 ```
-### 2. 矩阵初始化
+### 2. Initialize matrix
 ```c++
 auto mat = ce->CreateMatrix(width, height);
 ```
-### 3. 使用内置算子
+### 3. Use builtin operators
 ```c++
  const std::shared_ptr<Sequence> seq = ce->Seq()
             ->Record(ce->LayerNorm(inputsMatrix[tokenPos],
@@ -202,7 +202,7 @@ auto mat = ce->CreateMatrix(width, height);
             ->Destroy();
 ```
 
-目前内置的算子有：
+builtin operators：
 
 - [add](https://gitcode.com/OpenHarmonyPerfSquad/SGL/blob/main/engine/ml/assets/builtin.shaders/operators/add.comp.glsl)
 - [concat8](https://gitcode.com/OpenHarmonyPerfSquad/SGL/blob/main/engine/ml/assets/builtin.shaders/operators/concat8.comp.glsl)
@@ -224,13 +224,13 @@ auto mat = ce->CreateMatrix(width, height);
 - [sin](https://gitcode.com/OpenHarmonyPerfSquad/SGL/blob/main/engine/ml/assets/builtin.shaders/operators/sin.comp.glsl)
 - [cos](https://gitcode.com/OpenHarmonyPerfSquad/SGL/blob/main/engine/ml/assets/builtin.shaders/operators/cos.comp.glsl)
 - [exp](https://gitcode.com/OpenHarmonyPerfSquad/SGL/blob/main/engine/ml/assets/builtin.shaders/operators/exp.comp.glsl)
-### 4. 自定义算子
+### 4. custom operator
 
-参考`基础框架使用`即可
+Refer to `Basic Framework Usage` for implementation.
 
-## 渲染与可视化使用
+## render and visualization
 
-### 1. 设置场景加载回调
+### 1. setup callback of scene load
 ```c++
 const auto renderer = std::make_shared<Renderer>(768, 768);
 renderer->SetOnLoadScene([](Renderer *rdr) -> bool {
@@ -243,8 +243,8 @@ renderer->SetOnLoadScene([](Renderer *rdr) -> bool {
 );
 ```
 
-### 2. 设置初始化成功回调
-初始化相机
+### 2. setup callback of camera init
+initialize camera
 ```c++
 renderer->SetOnRendererReady([](Renderer *rdr) -> bool {
     const std::shared_ptr<RendererCamera> camera = rdr->GetCamera();
@@ -254,12 +254,12 @@ renderer->SetOnRendererReady([](Renderer *rdr) -> bool {
 });
 ```
 
-### 3. 初始化渲染器
+### 3. initialize renderer
 ```c++
 renderer->Init();
 ```
 
-### 4. 离屏渲染
+### 4. render offscreen
 ```c++
 renderer->RenderFrameOffScreen("./render_offscreen1.png");
 ```
