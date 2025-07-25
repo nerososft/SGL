@@ -2,8 +2,8 @@
 // Created by 1234 on 2025/3/6.
 //
 
-#ifndef EFFECTENGINE_H
-#define EFFECTENGINE_H
+#ifndef IMAGENGINE_H
+#define IMAGENGINE_H
 #include "blenders/IBlender.h"
 #include "core/gpu/VkGPUBuffer.h"
 #include "core/gpu/VkGPUContext.h"
@@ -19,13 +19,13 @@ struct ImageInfo {
   void *data;
 };
 
-class EffectEngine {
+class ImageEngine {
   std::shared_ptr<VkGPUContext> gpuCtx = nullptr;
 
 public:
-  EffectEngine() = default;
+  ImageEngine() = default;
 
-  ~EffectEngine() = default;
+  ~ImageEngine() = default;
 
   bool Init();
 
@@ -58,4 +58,4 @@ public:
 };
 } // namespace sgl::image
 
-#endif // EFFECTENGINE_H
+#endif // IMAGENGINE_H

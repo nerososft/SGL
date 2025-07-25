@@ -2,7 +2,7 @@
 // Created by 1234 on 2025/3/6.
 //
 
-#include "EffectEngine.h"
+#include "ImageEngine.h"
 
 #include <iostream>
 #include <ostream>
@@ -20,7 +20,7 @@
 #include "core/utils/TimeUtils.h"
 
 namespace sgl::image {
-bool EffectEngine::Init() {
+bool ImageEngine::Init() {
   std::vector<const char *> requiredExtensions;
   this->gpuCtx = std::make_shared<VkGPUContext>(requiredExtensions);
   // this->gpuCtx->AddInstanceEnableLayer("VK_LAYER_KHRONOS_validation");
@@ -33,19 +33,19 @@ bool EffectEngine::Init() {
              << std::endl;
     return false;
   }
-  Logger() << Logger::INFO << "Initialized EffectEngine, version: " << VERSION
+  Logger() << Logger::INFO << "Initialized ImageEngine, version: " << VERSION
            << std::endl;
   return true;
 }
 
-std::string EffectEngine::GetGPUName() const {
+std::string ImageEngine::GetGPUName() const {
   if (this->gpuCtx == nullptr) {
     return "";
   }
   return this->gpuCtx->GetPhysicalDeviceProperties().deviceName;
 }
 
-VkResult EffectEngine::Process(const std::shared_ptr<VkGPUBuffer> &inputBuffer,
+VkResult ImageEngine::Process(const std::shared_ptr<VkGPUBuffer> &inputBuffer,
                                const uint32_t inputWidth,
                                const uint32_t inputHeight,
                                const uint32_t outputWidth,
@@ -122,7 +122,7 @@ VkResult EffectEngine::Process(const std::shared_ptr<VkGPUBuffer> &inputBuffer,
   return ret;
 }
 
-void EffectEngine::Process(const ImageInfo &input, const ImageInfo &output,
+void ImageEngine::Process(const ImageInfo &input, const ImageInfo &output,
                            const std::shared_ptr<IFilter> &filter) const {
   if (input.channels != output.channels) {
     Logger() << "Input and output channel must be same size!" << std::endl;
@@ -159,7 +159,7 @@ void EffectEngine::Process(const ImageInfo &input, const ImageInfo &output,
   outputStorageBuffer->Destroy();
 }
 
-void EffectEngine::Process(const std::vector<ImageInfo> &inputs,
+void ImageEngine::Process(const std::vector<ImageInfo> &inputs,
                            const std::vector<ImageInfo> &outputs,
                            const std::shared_ptr<IFilter> &filter) const {
   VkResult ret = VK_SUCCESS;
@@ -293,7 +293,7 @@ void EffectEngine::Process(const std::vector<ImageInfo> &inputs,
   outputBuffers.resize(0);
 }
 
-void EffectEngine::Process(const char *inputFilePath,
+void ImageEngine::Process(const char *inputFilePath,
                            const char *outputFilePath,
                            const std::shared_ptr<IFilter> &filter) const {
   uint32_t imageWidth = 0, imageHeight = 0, channels = 0;
@@ -336,7 +336,7 @@ void EffectEngine::Process(const char *inputFilePath,
   outputStorageBuffer->Destroy();
 }
 
-void EffectEngine::Process(const char *inputFilePath,
+void ImageEngine::Process(const char *inputFilePath,
                            const char *outputFilePath, const uint32_t newWidth,
                            const uint32_t newHeight,
                            const std::shared_ptr<IFilter> &filter) const {
@@ -380,7 +380,7 @@ void EffectEngine::Process(const char *inputFilePath,
   outputStorageBuffer->Destroy();
 }
 
-void EffectEngine::Process(const char *baseFilePath, const char *blendFilePath,
+void ImageEngine::Process(const char *baseFilePath, const char *blendFilePath,
                            const uint32_t posX, const uint32_t posY,
                            const char *outputFilePath,
                            const std::shared_ptr<IBlender> &blender) const {

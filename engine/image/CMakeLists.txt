@@ -38,8 +38,8 @@ endforeach ()
 message("Need: ${COMPILED_SHADERS}")
 add_custom_target(compile_image_shaders ALL DEPENDS ${COMPILED_SHADERS})
 
-set(ENGINE_SOURCE EffectEngine.cpp
-        EffectEngine.h
+set(ENGINE_SOURCE ImageEngine.cpp
+        ImageEngine.h
         utils/TransformUtils.cpp
         utils/TransformUtils.h
         blenders/IBlender.h
