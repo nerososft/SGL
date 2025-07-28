@@ -46,7 +46,6 @@
 sgl::image::ImageEngine gImageEngine;
 bool gImageEngine_inited = false;
 
-
 bool init_core() {
   if (!gImageEngine_inited) {
     gImageEngine_inited = gImageEngine.Init();
@@ -712,7 +711,11 @@ bool wave_filter_gpu(void *in, void *out, const int wavelength,
 
   return true;
 }
-sgl_image_t *sgl_image_create() {
+sgl_image_t *sgl_image_create(const sgl_gpu_ctx_t *gpu_ctx) {
+  if (gpu_ctx == nullptr) {
+    Logger() << "gpu_ctx is null." << std::endl;
+    return nullptr;
+  }
   const auto image = static_cast<sgl_image_t *>(malloc(sizeof(sgl_image_t)));
   if (image == nullptr) {
     return nullptr;

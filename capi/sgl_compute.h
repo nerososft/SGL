@@ -5,6 +5,7 @@
 #ifndef SGL_COMPUTE_H
 #define SGL_COMPUTE_H
 #include "sgl_error.h"
+#include "sgl_gpu_ctx.h"
 
 typedef struct sgl_tensor {
 } sgl_tensor_t;
@@ -15,7 +16,7 @@ typedef struct sgl_compute {
   // TODO: more func
 } sgl_compute_t;
 
-sgl_compute_t *sgl_compute_create();
+sgl_compute_t *sgl_compute_create(sgl_gpu_ctx_t *gpu_ctx);
 
 void sgl_compute_destroy(sgl_compute_t *image);
 

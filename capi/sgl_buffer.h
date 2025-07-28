@@ -5,6 +5,8 @@
 #ifndef SGL_BUFFER_H
 #define SGL_BUFFER_H
 #include "sgl_error.h"
+#include "sgl_gpu_ctx.h"
+
 #include <stddef.h>
 
 typedef enum sgl_buffer_type {
@@ -24,11 +26,11 @@ typedef struct sgl_buffer {
 } sgl_buffer_t;
 
 typedef struct sgl_buffer_manager {
-  sgl_buffer_t (*allocateBuf)(size_t size);
-  sgl_error_t (*destroyBuf)(size_t size);
+  sgl_buffer_t (*allocate_buf)(sgl_buffer_manager *mgr, size_t size);
+  sgl_error_t (*destroy_buf)(sgl_buffer_manager *mgr, sgl_buffer_t *buf);
 } sgl_buffer_manager_t;
 
-sgl_buffer_manager_t *sgl_buffer_manager_create();
+sgl_buffer_manager_t *sgl_buffer_manager_create(const sgl_gpu_ctx_t *gpu_ctx);
 
 void sgl_buffer_manager_destroy(sgl_buffer_manager_t *bufMgr);
 

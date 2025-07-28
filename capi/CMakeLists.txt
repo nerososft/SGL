@@ -8,6 +8,8 @@ add_library(libSGL
         sgl_buffer.h
         sgl_buffer.cpp
         sgl_buffer.cpp
+        sgl_gpu_ctx.h
+        sgl_compute.cpp
 )
 target_link_libraries(libSGL compute_engine)
 target_link_libraries(libSGL image_engine)

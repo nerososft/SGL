@@ -6,6 +6,7 @@
 #define SGL_IMAGE_H
 #include "sgl_buffer.h"
 #include "sgl_error.h"
+#include "sgl_gpu_ctx.h"
 
 #include <cstdint>
 
@@ -44,7 +45,7 @@ typedef struct sgl_image {
                       const float g, const float b);
 } sgl_image_t;
 
-sgl_image_t *sgl_image_create();
+sgl_image_t *sgl_image_create(const sgl_gpu_ctx_t *gpu_ctx);
 
 void sgl_image_destroy(sgl_image_t *image);
 
