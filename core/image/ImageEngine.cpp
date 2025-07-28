@@ -44,6 +44,57 @@ std::string ImageEngine::GetGPUName() const {
   }
   return this->gpuCtx->GetPhysicalDeviceProperties().deviceName;
 }
+VkResult ImageEngine::ProcessGpu(
+    const BufferGpu &inputBuffer, const uint32_t inputWidth,
+    const uint32_t inputHeight, const BufferGpu &outputBuffer,
+    const uint32_t outputWidth, const uint32_t outputHeight,
+    const uint32_t channels, const std::shared_ptr<IFilter> &filter) const {
+  const VkDeviceSize inputBufferSize = inputWidth * inputHeight * channels;
+  const VkDeviceSize outputBufferSize = outputWidth * outputHeight * channels;
+
+  std::vector<FilterImageInfo> filterInputImages;
+  FilterImageInfo inputImageInfo{};
+  inputImageInfo.width = inputWidth;
+  inputImageInfo.height = inputHeight;
+  inputImageInfo.channels = channels;
+  inputImageInfo.bufferSize = inputBufferSize;
+  inputImageInfo.posX = 0;
+  inputImageInfo.posY = 0;
+  inputImageInfo.storageBuffer = static_cast<VkBuffer>(inputBuffer.bufHandle);
+  inputImageInfo.storageBufferMemory =
+      static_cast<VkDeviceMemory>(inputBuffer.memHandle);
+  filterInputImages.push_back(inputImageInfo);
+
+  std::vector<FilterImageInfo> filterOutputImages;
+  FilterImageInfo outputImageInfo{};
+  outputImageInfo.width = outputWidth;
+  outputImageInfo.height = outputHeight;
+  outputImageInfo.channels = channels;
+  outputImageInfo.bufferSize = outputBufferSize;
+  outputImageInfo.posX = 0;
+  outputImageInfo.posY = 0;
+  outputImageInfo.storageBuffer = static_cast<VkBuffer>(outputBuffer.bufHandle);
+  outputImageInfo.storageBufferMemory =
+      static_cast<VkDeviceMemory>(outputBuffer.memHandle);
+  filterInputImages.push_back(inputImageInfo);
+  filterOutputImages.push_back(outputImageInfo);
+
+  const uint64_t gpuProcessTimeStart = TimeUtils::GetCurrentMonoMs();
+  const VkResult ret =
+      filter->Apply(gpuCtx, filterInputImages, filterOutputImages);
+  if (ret != VK_SUCCESS) {
+    Logger() << "Failed to apply filter!" << std::endl;
+    return ret;
+  }
+  const uint64_t gpuProcessTimeEnd = TimeUtils::GetCurrentMonoMs();
+  Logger() << "GPU Process Time: " << gpuProcessTimeEnd - gpuProcessTimeStart
+           << "ms" << std::endl;
+
+  filter->Destroy();
+  this->gpuCtx->Reset();
+
+  return ret;
+}
 
 VkResult ImageEngine::Process(const std::shared_ptr<VkGPUBuffer> &inputBuffer,
                               const uint32_t inputWidth,
@@ -164,14 +215,12 @@ void ImageEngine::Process(const ImageInfo &input, const ImageInfo &output,
                           const std::shared_ptr<IFilter> &filter) const {
   if (input.type == SGL_IMAGE_TYPE_CPU && output.type == SGL_IMAGE_TYPE_CPU) {
     return ProcessFromCpuAddr(input.info.cpu, output.info.cpu, filter);
-
-  } else if (input.type == SGL_IMAGE_TYPE_GPU &&
-             output.type == SGL_IMAGE_TYPE_GPU) {
-    // TODO: Process with GPU addr
-  } else {
-    Logger() << Logger::ERROR << "type of in and out should all be GPU/CPU"
-             << std::endl;
   }
+  if (input.type == SGL_IMAGE_TYPE_GPU && output.type == SGL_IMAGE_TYPE_GPU) {
+    return ProcessFromGpuAddr(input.info.gpu, output.info.gpu, filter);
+  }
+  Logger() << Logger::ERROR << "type of in and out should all be GPU/CPU"
+           << std::endl;
 }
 
 void ImageEngine::ProcessFromCpuAddr(
@@ -308,6 +357,29 @@ void ImageEngine::ProcessFromCpuAddr(
   outputBuffers.resize(0);
 }
 
+void ImageEngine::ProcessFromGpuAddr(
+    const ImageInfoGpu &input, const ImageInfoGpu &output,
+    const std::shared_ptr<IFilter> &filter) const {
+  if (input.channels != output.channels) {
+    Logger() << "Input and output channel must be same size!" << std::endl;
+    return;
+  }
+  if (input.width != output.width || input.height != output.height) {
+    Logger() << "Scale from (" << input.width << "," << input.height << ") to ("
+             << output.width << "," << output.height << ")" << std::endl;
+  }
+
+  Logger() << "[IMAGE SIZE]" << "WIDTH " << input.width << ", HEIGHT "
+           << input.height << std::endl;
+  const VkResult ret =
+      ProcessGpu(input.gpuBuf, input.width, input.height, output.gpuBuf,
+                 output.width, output.height, input.channels, filter);
+  if (ret != VK_SUCCESS) {
+    Logger() << "Failed to process input storage buffer, err="
+             << string_VkResult(ret) << std::endl;
+  }
+}
+
 void ImageEngine::Process(const std::vector<ImageInfo> &inputs,
                           const std::vector<ImageInfo> &outputs,
                           const std::shared_ptr<IFilter> &filter) const {
@@ -317,17 +389,19 @@ void ImageEngine::Process(const std::vector<ImageInfo> &inputs,
     std::vector<ImageInfoCpu> cpuInputs;
     std::vector<ImageInfoCpu> cpuOutputs;
 
-    for (size_t i = 0; i < inputs.size(); i++) {
-      cpuInputs.push_back(inputs[i].info.cpu);
+    cpuInputs.reserve(inputs.size());
+    for (const auto &[type, info] : inputs) {
+      cpuInputs.push_back(info.cpu);
     }
-    for (size_t i = 0; i < outputs.size(); i++) {
-      cpuOutputs.push_back(outputs[i].info.cpu);
+    cpuOutputs.reserve(outputs.size());
+    for (const auto &[type, info] : outputs) {
+      cpuOutputs.push_back(info.cpu);
     }
 
     return ProcessFromCpuAddr(cpuInputs, cpuOutputs, filter);
-
-  } else if (inputs[0].type == SGL_IMAGE_TYPE_GPU &&
-             outputs[0].type == SGL_IMAGE_TYPE_GPU) {
+  }
+  if (inputs[0].type == SGL_IMAGE_TYPE_GPU &&
+      outputs[0].type == SGL_IMAGE_TYPE_GPU) {
     // TODO: Process with GPU addr
   } else {
     Logger() << Logger::ERROR << "type of in and out should all be GPU/CPU"

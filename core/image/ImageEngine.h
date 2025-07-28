@@ -15,6 +15,7 @@ namespace sgl::image {
 using ImageInfo = sgl_image_info_t;
 using ImageInfoCpu = sgl_image_cpu_info_t;
 using ImageInfoGpu = sgl_image_gpu_info_t;
+using BufferGpu = sgl_buffer_t;
 
 class ImageEngine {
   std::shared_ptr<VkGPUContext> gpuCtx = nullptr;
@@ -25,7 +26,15 @@ class ImageEngine {
                    uint32_t channels, const void *uploadData,
                    const std::shared_ptr<VkGPUBuffer> &outputBuffer,
                    const std::shared_ptr<IFilter> &filter) const;
+
   void ProcessFromCpuAddr(const ImageInfoCpu &input, const ImageInfoCpu &output,
+                          const std::shared_ptr<IFilter> &filter) const;
+
+  void ProcessFromGpuAddr(const ImageInfoGpu &input, const ImageInfoGpu &output,
+                          const std::shared_ptr<IFilter> &filter) const;
+
+  void ProcessFromCpuAddr(const std::vector<ImageInfoCpu> &inputs,
+                          const std::vector<ImageInfoCpu> &outputs,
                           const std::shared_ptr<IFilter> &filter) const;
 
 public:
@@ -37,11 +46,14 @@ public:
 
   [[nodiscard]] std::string GetGPUName() const;
 
+  [[nodiscard]] VkResult
+  ProcessGpu(const BufferGpu &inputBuffer, uint32_t inputWidth,
+             uint32_t inputHeight, const BufferGpu &outputBuffer,
+             uint32_t outputWidth, uint32_t outputHeight, uint32_t channels,
+             const std::shared_ptr<IFilter> &filter) const;
+
   void Process(const ImageInfo &input, const ImageInfo &output,
                const std::shared_ptr<IFilter> &filter) const;
-  void ProcessFromCpuAddr(const std::vector<ImageInfoCpu> &inputs,
-                          const std::vector<ImageInfoCpu> &outputs,
-                          const std::shared_ptr<IFilter> &filter) const;
 
   void Process(const std::vector<ImageInfo> &inputs,
                const std::vector<ImageInfo> &outputs,

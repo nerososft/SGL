@@ -4,8 +4,8 @@
 
 #ifndef SGL_BUFFER_H
 #define SGL_BUFFER_H
-#include "sgl_gpu_ctx.h"
 #include "sgl_error.h"
+#include "sgl_gpu_ctx.h"
 
 #include <stddef.h>
 
@@ -20,7 +20,8 @@ typedef enum sgl_buffer_type {
 
 typedef struct sgl_buffer {
   sgl_buffer_type_t type = SGL_BUFFER_TYPE_UNKNOWN;
-  void *handle = nullptr;
+  void *bufHandle = nullptr;
+  void *memHandle = nullptr;
   void *data = nullptr;
   size_t bufferSize = 0;
 } sgl_buffer_t;
