@@ -12,11 +12,11 @@
 #include <vulkan/vk_enum_string_helper.h>
 #endif
 
+#include "core/utils/ImageUtils.h"
 #include "runtime/config.h"
 #include "runtime/gpu/VkGPUBuffer.h"
 #include "runtime/gpu/VkGPUHelper.h"
 #include "runtime/log/Log.h"
-#include "core/utils/ImageUtils.h"
 #include "runtime/utils/TimeUtils.h"
 
 namespace sgl::image {
@@ -122,8 +122,9 @@ VkResult ImageEngine::Process(const std::shared_ptr<VkGPUBuffer> &inputBuffer,
   return ret;
 }
 
-void ImageEngine::Process(const ImageInfo &input, const ImageInfo &output,
-                          const std::shared_ptr<IFilter> &filter) const {
+void ImageEngine::ProcessFromCpuAddr(
+    const ImageInfoCpu &input, const ImageInfoCpu &output,
+    const std::shared_ptr<IFilter> &filter) const {
   if (input.channels != output.channels) {
     Logger() << "Input and output channel must be same size!" << std::endl;
     return;
@@ -159,15 +160,29 @@ void ImageEngine::Process(const ImageInfo &input, const ImageInfo &output,
   outputStorageBuffer->Destroy();
 }
 
-void ImageEngine::Process(const std::vector<ImageInfo> &inputs,
-                          const std::vector<ImageInfo> &outputs,
+void ImageEngine::Process(const ImageInfo &input, const ImageInfo &output,
                           const std::shared_ptr<IFilter> &filter) const {
-  VkResult ret = VK_SUCCESS;
+  if (input.type == SGL_IMAGE_TYPE_CPU && output.type == SGL_IMAGE_TYPE_CPU) {
+    return ProcessFromCpuAddr(input.info.cpu, output.info.cpu, filter);
 
+  } else if (input.type == SGL_IMAGE_TYPE_GPU &&
+             output.type == SGL_IMAGE_TYPE_GPU) {
+    // TODO: Process with GPU addr
+  } else {
+    Logger() << Logger::ERROR << "type of in and out should all be GPU/CPU"
+             << std::endl;
+  }
+}
+
+void ImageEngine::ProcessFromCpuAddr(
+    const std::vector<ImageInfoCpu> &inputs,
+    const std::vector<ImageInfoCpu> &outputs,
+    const std::shared_ptr<IFilter> &filter) const {
+  VkResult ret = VK_SUCCESS;
   std::vector<std::shared_ptr<VkGPUBuffer>> inputBuffers;
   std::vector<FilterImageInfo> filterInputImages;
   const uint64_t inputBufferPrepareStart = TimeUtils::GetCurrentMonoMs();
-  for (const ImageInfo &input : inputs) {
+  for (const ImageInfoCpu &input : inputs) {
     const auto inputBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
     const VkDeviceSize inputBufferSize =
         input.width * input.height * input.channels;
@@ -208,7 +223,7 @@ void ImageEngine::Process(const std::vector<ImageInfo> &inputs,
   std::vector<std::shared_ptr<VkGPUBuffer>> outputBuffers;
   std::vector<FilterImageInfo> filterOutputImages;
   const uint64_t outputBufferPrepareStart = TimeUtils::GetCurrentMonoMs();
-  for (const ImageInfo &output : outputs) {
+  for (const ImageInfoCpu &output : outputs) {
     const auto outputBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
     const VkDeviceSize outputBufferSize =
         output.width * output.height * output.channels;
@@ -291,6 +306,33 @@ void ImageEngine::Process(const std::vector<ImageInfo> &inputs,
   inputBuffers.resize(0);
   outputBuffers.clear();
   outputBuffers.resize(0);
+}
+
+void ImageEngine::Process(const std::vector<ImageInfo> &inputs,
+                          const std::vector<ImageInfo> &outputs,
+                          const std::shared_ptr<IFilter> &filter) const {
+  if (inputs[0].type == SGL_IMAGE_TYPE_CPU &&
+      outputs[0].type == SGL_IMAGE_TYPE_CPU) {
+
+    std::vector<ImageInfoCpu> cpuInputs;
+    std::vector<ImageInfoCpu> cpuOutputs;
+
+    for (size_t i = 0; i < inputs.size(); i++) {
+      cpuInputs.push_back(inputs[i].info.cpu);
+    }
+    for (size_t i = 0; i < outputs.size(); i++) {
+      cpuOutputs.push_back(outputs[i].info.cpu);
+    }
+
+    return ProcessFromCpuAddr(cpuInputs, cpuOutputs, filter);
+
+  } else if (inputs[0].type == SGL_IMAGE_TYPE_GPU &&
+             outputs[0].type == SGL_IMAGE_TYPE_GPU) {
+    // TODO: Process with GPU addr
+  } else {
+    Logger() << Logger::ERROR << "type of in and out should all be GPU/CPU"
+             << std::endl;
+  }
 }
 
 void ImageEngine::Process(const char *inputFilePath, const char *outputFilePath,

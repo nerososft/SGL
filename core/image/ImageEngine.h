@@ -5,19 +5,16 @@
 #ifndef IMAGENGINE_H
 #define IMAGENGINE_H
 #include "blenders/IBlender.h"
+#include "capi/sgl_image.h"
 #include "filters/IFilter.h"
 #include "runtime/gpu/VkGPUBuffer.h"
 #include "runtime/gpu/VkGPUContext.h"
 #include <string>
 
 namespace sgl::image {
-struct ImageInfo {
-  uint32_t width;
-  uint32_t height;
-  uint32_t channels;
-  uint32_t bytesPerLine;
-  void *data;
-};
+using ImageInfo = sgl_image_info_t;
+using ImageInfoCpu = sgl_image_cpu_info_t;
+using ImageInfoGpu = sgl_image_gpu_info_t;
 
 class ImageEngine {
   std::shared_ptr<VkGPUContext> gpuCtx = nullptr;
@@ -28,6 +25,8 @@ class ImageEngine {
                    uint32_t channels, const void *uploadData,
                    const std::shared_ptr<VkGPUBuffer> &outputBuffer,
                    const std::shared_ptr<IFilter> &filter) const;
+  void ProcessFromCpuAddr(const ImageInfoCpu &input, const ImageInfoCpu &output,
+                          const std::shared_ptr<IFilter> &filter) const;
 
 public:
   ImageEngine() = default;
@@ -40,6 +39,9 @@ public:
 
   void Process(const ImageInfo &input, const ImageInfo &output,
                const std::shared_ptr<IFilter> &filter) const;
+  void ProcessFromCpuAddr(const std::vector<ImageInfoCpu> &inputs,
+                          const std::vector<ImageInfoCpu> &outputs,
+                          const std::shared_ptr<IFilter> &filter) const;
 
   void Process(const std::vector<ImageInfo> &inputs,
                const std::vector<ImageInfo> &outputs,

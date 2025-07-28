@@ -44,24 +44,8 @@
 #include "runtime/log/Log.h"
 
 sgl::image::ImageEngine gImageEngine;
-bool gImageEngine_inited = false;
 
-bool init_core() {
-  if (!gImageEngine_inited) {
-    gImageEngine_inited = gImageEngine.Init();
-  }
-  return gImageEngine_inited;
-}
-
-const char *get_gpu_engine_name() {
-  if (!gImageEngine_inited) {
-    return "Not initialized";
-  }
-  return gImageEngine.GetGPUName().c_str();
-}
-
-bool destroy_gpu_engine() { return true; }
-
+/*
 bool threshold_split_filter_gpu(void *in, void *out, const int bright) {
   if (in == nullptr || out == nullptr)
     return false;
@@ -711,6 +695,18 @@ bool wave_filter_gpu(void *in, void *out, const int wavelength,
 
   return true;
 }
+*/
+
+sgl_error_t sgl_image_gray(const sgl_image_info_t &in,
+                           const sgl_image_info_t &out, const float r,
+                           const float g, const float b) {
+  const auto filter = std::make_shared<GrayFilter>();
+  filter->SetRedFactor(r);
+  filter->SetGreenFactor(g);
+  filter->SetBlueFactor(b);
+  gImageEngine.Process(in, out, filter);
+}
+
 sgl_image_t *sgl_image_create(const sgl_gpu_ctx_t *gpu_ctx) {
   if (gpu_ctx == nullptr) {
     Logger() << "gpu_ctx is null." << std::endl;
@@ -720,6 +716,17 @@ sgl_image_t *sgl_image_create(const sgl_gpu_ctx_t *gpu_ctx) {
   if (image == nullptr) {
     return nullptr;
   }
+
+  if (!image->initialized) {
+    image->initialized = gImageEngine.Init();
+  }
+  if (!image->initialized) {
+    Logger() << "Failed to initialize image engine." << std::endl;
+    free(image);
+    return nullptr;
+  }
+
+  image->gray = sgl_image_gray;
 
   // TODO:
   return nullptr;
