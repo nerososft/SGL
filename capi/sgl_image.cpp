@@ -45,7 +45,6 @@
 
 sgl::image::ImageEngine gImageEngine;
 
-/*
 bool threshold_split_filter_gpu(void *in, void *out, const int bright) {
   if (in == nullptr || out == nullptr)
     return false;
@@ -283,7 +282,7 @@ bool scale_filter_gpu(void *in, void *out, const int weight, const int height,
 
   gImageEngine.Process(*input, *output, filter);
 
-  unsigned char *data0 = (unsigned char *)output->data;
+  unsigned char *data0 = (unsigned char *)output->info.cpu.data;
 
   int p0 = data0[0];
   int p1 = data0[1];
@@ -291,7 +290,7 @@ bool scale_filter_gpu(void *in, void *out, const int weight, const int height,
   int p3 = data0[3];
 
   unsigned char *data1 =
-      (unsigned char *)output->data + weight * height / 2 * 4;
+      (unsigned char *)output->info.cpu.data + weight * height / 2 * 4;
 
   int p4 = data1[0];
   int p5 = data1[1];
@@ -695,7 +694,6 @@ bool wave_filter_gpu(void *in, void *out, const int wavelength,
 
   return true;
 }
-*/
 
 sgl_error_t sgl_image_gray(const sgl_image_info_t &in,
                            const sgl_image_info_t &out, const float r,
