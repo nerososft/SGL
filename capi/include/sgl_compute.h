@@ -4,8 +4,8 @@
 
 #ifndef SGL_COMPUTE_H
 #define SGL_COMPUTE_H
-#include "sgl_error.h"
 #include "sgl_gpu_ctx.h"
+#include "sgl_error.h"
 
 typedef struct sgl_tensor {
 } sgl_tensor_t;

@@ -4,8 +4,8 @@
 
 #ifndef SGL_BUFFER_H
 #define SGL_BUFFER_H
-#include "sgl_error.h"
 #include "sgl_gpu_ctx.h"
+#include "sgl_error.h"
 
 #include <stddef.h>
 

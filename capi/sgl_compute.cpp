@@ -2,7 +2,7 @@
 // Created by neo on 25-7-28.
 //
 
-#include "sgl_compute.h"
+#include "include/sgl_compute.h"
 #include "runtime/log/Log.h"
 
 sgl_compute_t *sgl_buffer_manager_create(const sgl_gpu_ctx_t *gpu_ctx) {

@@ -4,8 +4,8 @@
 
 #ifndef SGL_H
 #define SGL_H
-#include "sgl_buffer.h"
 #include "sgl_compute.h"
+#include "sgl_buffer.h"
 #include "sgl_gpu_ctx.h"
 #include "sgl_image.h"
 

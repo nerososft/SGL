@@ -1,4 +1,4 @@
-#include "sgl_image.h"
+#include "include/sgl_image.h"
 
 #if defined(OS_OPEN_HARMONY) || defined(ENABLE_WIN64)
 #include "psutil/imageprocess/GpuFilterCAPI.h"

@@ -2,7 +2,7 @@
 // Created by neo on 25-7-23.
 //
 
-#include "sgl.h"
+#include "include/sgl.h"
 
 #include <cstdlib>
 
