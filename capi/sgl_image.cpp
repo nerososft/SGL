@@ -698,11 +698,37 @@ bool wave_filter_gpu(void *in, void *out, const int wavelength,
 sgl_error_t sgl_image_gray(const sgl_image_info_t &in,
                            const sgl_image_info_t &out, const float r,
                            const float g, const float b) {
+
+  if (sgl_image_check_args(in) != SGL_SUCCESS ||
+      sgl_image_check_args(out) != SGL_SUCCESS) {
+    return SGL_INVALID_ARGUMENT;
+  }
+
   const auto filter = std::make_shared<GrayFilter>();
   filter->SetRedFactor(r);
   filter->SetGreenFactor(g);
   filter->SetBlueFactor(b);
   gImageEngine.Process(in, out, filter);
+  return SGL_SUCCESS;
+}
+
+sgl_error_t sgl_image_check_args(const sgl_image_info_t &info) {
+  if (info.type == SGL_IMAGE_TYPE_GPU) {
+    if (info.info.gpu.gpuBuf.bufHandle == nullptr) {
+      return SGL_INVALID_ARGUMENT;
+    }
+    if (info.info.gpu.gpuBuf.memHandle == nullptr) {
+      return SGL_INVALID_ARGUMENT;
+    }
+  }
+
+  if (info.type == SGL_IMAGE_TYPE_CPU) {
+    if (info.info.cpu.data == nullptr) {
+      return SGL_INVALID_ARGUMENT;
+    }
+  }
+
+  return SGL_SUCCESS;
 }
 
 sgl_image_t *sgl_image_create(const sgl_gpu_ctx_t *gpu_ctx) {

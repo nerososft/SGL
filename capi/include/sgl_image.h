@@ -47,6 +47,8 @@ typedef struct sgl_image {
                       const float r, const float g, const float b);
 } sgl_image_t;
 
+sgl_error_t sgl_image_check_args(const sgl_image_info_t &info);
+
 sgl_image_t *sgl_image_create(const sgl_gpu_ctx_t *gpu_ctx);
 
 void sgl_image_destroy(sgl_image_t *image);

@@ -10,6 +10,7 @@ typedef enum sgl_error {
   SGL_FAILURE = 1,
   SGL_GPU_ERROR = 2,
   SGL_OUT_OF_MEMORY = 3,
+  SGL_INVALID_ARGUMENT = 4,
 } sgl_error_t;
 
-#endif //SDL_ERROR_H
+#endif // SDL_ERROR_H
