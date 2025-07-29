@@ -580,7 +580,7 @@ sgl_error_t sgl_image_colorhalftone(const sgl_image_info_t &in,
     return SGL_INVALID_ARGUMENT;
   }
 
-  const int size = 256;
+  constexpr int size = 256;
   const auto filter = std::make_shared<ColorhalftoneFilter>();
   filter->SetColor(cyanAngle, yellowAngle, magentaAngle, radius);
   filter->SetLookup(lookup, size);
