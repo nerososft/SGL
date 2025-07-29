@@ -322,9 +322,9 @@ sgl_error_t sgl_image_color_separation(const sgl_image_info_t &in,
   return SGL_SUCCESS;
 }
 
-sgl_error_t sgl_image_midvalue(const sgl_image_info_t &in,
-                               const sgl_image_info_t &out, const float radius,
-                               const float threshold) {
+sgl_error_t sgl_image_mid_value(const sgl_image_info_t &in,
+                                const sgl_image_info_t &out, const float radius,
+                                const float threshold) {
   if (sgl_image_check_args(in) != SGL_SUCCESS ||
       sgl_image_check_args(out) != SGL_SUCCESS) {
     return SGL_INVALID_ARGUMENT;
@@ -337,11 +337,12 @@ sgl_error_t sgl_image_midvalue(const sgl_image_info_t &in,
   return SGL_SUCCESS;
 }
 
-sgl_error_t sgl_image_pathblur(const sgl_image_info_t &in,
-                               const sgl_image_info_t &out, float *vec,
-                               const int amount, const int width,
-                               const int height, float *startpos, float *endpos,
-                               float *startvec, float *endvec, const int num) {
+sgl_error_t sgl_image_path_blur(const sgl_image_info_t &in,
+                                const sgl_image_info_t &out, float *vec,
+                                const int amount, const int width,
+                                const int height, float *startpos,
+                                float *endpos, float *startvec, float *endvec,
+                                const int num) {
   if (sgl_image_check_args(in) != SGL_SUCCESS ||
       sgl_image_check_args(out) != SGL_SUCCESS) {
     return SGL_INVALID_ARGUMENT;
@@ -385,12 +386,12 @@ sgl_error_t sgl_image_crystallize(const sgl_image_info_t &in,
   return SGL_SUCCESS;
 }
 
-sgl_error_t sgl_image_rotationblur(const sgl_image_info_t &in,
-                                   const sgl_image_info_t &in2,
-                                   const sgl_image_info_t &out, const float x,
-                                   const float y, const float a, const float b,
-                                   const float ina, const float inb,
-                                   const int strength, const float angle) {
+sgl_error_t sgl_image_rotation_blur(const sgl_image_info_t &in,
+                                    const sgl_image_info_t &in2,
+                                    const sgl_image_info_t &out, const float x,
+                                    const float y, const float a, const float b,
+                                    const float ina, const float inb,
+                                    const int strength, const float angle) {
   if (sgl_image_check_args(in) != SGL_SUCCESS ||
       sgl_image_check_args(in2) != SGL_SUCCESS ||
       sgl_image_check_args(out) != SGL_SUCCESS) {
@@ -486,11 +487,11 @@ sgl_error_t sgl_image_irisblur(const sgl_image_info_t &in,
   return SGL_SUCCESS;
 }
 
-sgl_error_t sgl_image_tiltshiftblur(const sgl_image_info_t &in,
-                                    const sgl_image_info_t &in2,
-                                    const sgl_image_info_t &out, float *A,
-                                    float *B, float *C, const float xoffset,
-                                    const float yoffset, const int size) {
+sgl_error_t sgl_image_tilt_shift_blur(const sgl_image_info_t &in,
+                                      const sgl_image_info_t &in2,
+                                      const sgl_image_info_t &out, float *A,
+                                      float *B, float *C, const float xoffset,
+                                      const float yoffset, const int size) {
   if (sgl_image_check_args(in) != SGL_SUCCESS ||
       sgl_image_check_args(in2) != SGL_SUCCESS ||
       sgl_image_check_args(out) != SGL_SUCCESS) {
@@ -569,12 +570,12 @@ sgl_error_t sgl_image_minmax(const sgl_image_info_t &in,
   return SGL_SUCCESS;
 }
 
-sgl_error_t sgl_image_colorhalftone(const sgl_image_info_t &in,
-                                    const sgl_image_info_t &out,
-                                    const float cyanAngle,
-                                    const float yellowAngle,
-                                    const float magentaAngle,
-                                    const float radius, float *lookup) {
+sgl_error_t sgl_image_color_halftone(const sgl_image_info_t &in,
+                                     const sgl_image_info_t &out,
+                                     const float cyanAngle,
+                                     const float yellowAngle,
+                                     const float magentaAngle,
+                                     const float radius, float *lookup) {
   if (sgl_image_check_args(in) != SGL_SUCCESS ||
       sgl_image_check_args(out) != SGL_SUCCESS) {
     return SGL_INVALID_ARGUMENT;
@@ -606,9 +607,9 @@ sgl_error_t sgl_image_sharpen(const sgl_image_info_t &in,
   return SGL_SUCCESS;
 }
 
-sgl_error_t sgl_image_polarcoordinates(const sgl_image_info_t &in,
-                                       const sgl_image_info_t &out,
-                                       const int type) {
+sgl_error_t sgl_image_polar_coordinates(const sgl_image_info_t &in,
+                                        const sgl_image_info_t &out,
+                                        const int type) {
   if (sgl_image_check_args(in) != SGL_SUCCESS ||
       sgl_image_check_args(out) != SGL_SUCCESS) {
     return SGL_INVALID_ARGUMENT;
@@ -639,10 +640,10 @@ sgl_error_t sgl_image_clouds(const sgl_image_info_t &in,
   return SGL_SUCCESS;
 }
 
-sgl_error_t sgl_image_motionblur(const sgl_image_info_t &in,
-                                 const sgl_image_info_t &out,
-                                 const int distance, const int angle,
-                                 const float proportion) {
+sgl_error_t sgl_image_motion_blur(const sgl_image_info_t &in,
+                                  const sgl_image_info_t &out,
+                                  const int distance, const int angle,
+                                  const float proportion) {
   if (sgl_image_check_args(in) != SGL_SUCCESS ||
       sgl_image_check_args(out) != SGL_SUCCESS) {
     return SGL_INVALID_ARGUMENT;
@@ -658,8 +659,8 @@ sgl_error_t sgl_image_motionblur(const sgl_image_info_t &in,
   return SGL_SUCCESS;
 }
 
-sgl_error_t sgl_image_twirlwarp(const sgl_image_info_t &in,
-                                const sgl_image_info_t &out, const int angle) {
+sgl_error_t sgl_image_twirl_warp(const sgl_image_info_t &in,
+                                 const sgl_image_info_t &out, const int angle) {
   if (sgl_image_check_args(in) != SGL_SUCCESS ||
       sgl_image_check_args(out) != SGL_SUCCESS) {
     return SGL_INVALID_ARGUMENT;
@@ -799,23 +800,23 @@ sgl_image_t *sgl_image_create(const sgl_gpu_ctx_t *gpu_ctx) {
   image->black_white = sgl_image_black_white;
   image->scale = sgl_image_scale;
   image->color_separation = sgl_image_color_separation;
-  image->mid_value = sgl_image_midvalue;
-  image->path_blur = sgl_image_pathblur;
+  image->mid_value = sgl_image_mid_value;
+  image->path_blur = sgl_image_path_blur;
   image->crystallize = sgl_image_crystallize;
-  image->rotation_blur = sgl_image_rotationblur;
+  image->rotation_blur = sgl_image_rotation_blur;
   image->facet = sgl_image_facet;
   image->accented_edge = sgl_image_accented_edge;
   image->iris_blur = sgl_image_irisblur;
-  image->tilt_shift_blur = sgl_image_tiltshiftblur;
+  image->tilt_shift_blur = sgl_image_tilt_shift_blur;
   image->radial_blur = sgl_image_radial_blur;
   image->rotational_blur = sgl_image_rotational_blur;
   image->minmax = sgl_image_minmax;
-  image->color_halftone = sgl_image_colorhalftone;
+  image->color_halftone = sgl_image_color_halftone;
   image->sharpen = sgl_image_sharpen;
-  image->polar_coordinates = sgl_image_polarcoordinates;
+  image->polar_coordinates = sgl_image_polar_coordinates;
   image->clouds = sgl_image_clouds;
-  image->motion_blur = sgl_image_motionblur;
-  image->twirl_warp = sgl_image_twirlwarp;
+  image->motion_blur = sgl_image_motion_blur;
+  image->twirl_warp = sgl_image_twirl_warp;
   image->zigzag = sgl_image_zigzag;
   image->spherize = sgl_image_spherize;
   image->pinch = sgl_image_pinch;
