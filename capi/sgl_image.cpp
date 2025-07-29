@@ -421,8 +421,12 @@ sgl_error_t sgl_image_rotationblur(const sgl_image_info_t &in,
 sgl_error_t sgl_image_facet(const sgl_image_info_t &in,
                             const sgl_image_info_t &out, const int radius,
                             const int intensitylevel) {
-  const auto filter = std::make_shared<FacetFilter>();
+  if (sgl_image_check_args(in) != SGL_SUCCESS ||
+      sgl_image_check_args(out) != SGL_SUCCESS) {
+    return SGL_INVALID_ARGUMENT;
+  }
 
+  const auto filter = std::make_shared<FacetFilter>();
   filter->SetRadius(radius);
   filter->SetLevel(intensitylevel);
 
@@ -435,8 +439,12 @@ sgl_error_t sgl_image_accented_edge(const sgl_image_info_t &in,
                                     const sgl_image_info_t &out, int *sobelx,
                                     int *sobely, const int size,
                                     const int type) {
-  const auto filter = std::make_shared<AccentedEdgeFilter>();
+  if (sgl_image_check_args(in) != SGL_SUCCESS ||
+      sgl_image_check_args(out) != SGL_SUCCESS) {
+    return SGL_INVALID_ARGUMENT;
+  }
 
+  const auto filter = std::make_shared<AccentedEdgeFilter>();
   filter->SetSobelx(sobelx, size);
   filter->SetSobely(sobely, size);
   filter->SetType(type);
@@ -547,8 +555,12 @@ sgl_error_t sgl_image_rotational_blur(const sgl_image_info_t &in,
 sgl_error_t sgl_image_minmax(const sgl_image_info_t &in,
                              const sgl_image_info_t &out, const int radius,
                              const int type) {
-  const auto filter = std::make_shared<MinMaxFilter>();
+  if (sgl_image_check_args(in) != SGL_SUCCESS ||
+      sgl_image_check_args(out) != SGL_SUCCESS) {
+    return SGL_INVALID_ARGUMENT;
+  }
 
+  const auto filter = std::make_shared<MinMaxFilter>();
   filter->SetRadius(radius);
   filter->SetType(type);
 
@@ -563,9 +575,13 @@ sgl_error_t sgl_image_colorhalftone(const sgl_image_info_t &in,
                                     const float yellowAngle,
                                     const float magentaAngle,
                                     const float radius, float *lookup) {
-  const auto filter = std::make_shared<ColorhalftoneFilter>();
+  if (sgl_image_check_args(in) != SGL_SUCCESS ||
+      sgl_image_check_args(out) != SGL_SUCCESS) {
+    return SGL_INVALID_ARGUMENT;
+  }
 
   const int size = 256;
+  const auto filter = std::make_shared<ColorhalftoneFilter>();
   filter->SetColor(cyanAngle, yellowAngle, magentaAngle, radius);
   filter->SetLookup(lookup, size);
 
@@ -577,8 +593,12 @@ sgl_error_t sgl_image_colorhalftone(const sgl_image_info_t &in,
 sgl_error_t sgl_image_sharpen(const sgl_image_info_t &in,
                               const sgl_image_info_t &out, int *kernel,
                               const int size) {
-  const auto filter = std::make_shared<SharpenFilter>();
+  if (sgl_image_check_args(in) != SGL_SUCCESS ||
+      sgl_image_check_args(out) != SGL_SUCCESS) {
+    return SGL_INVALID_ARGUMENT;
+  }
 
+  const auto filter = std::make_shared<SharpenFilter>();
   filter->SetKernel(kernel, size);
 
   gImageEngine.Process(in, out, filter);
@@ -589,8 +609,12 @@ sgl_error_t sgl_image_sharpen(const sgl_image_info_t &in,
 sgl_error_t sgl_image_polarcoordinates(const sgl_image_info_t &in,
                                        const sgl_image_info_t &out,
                                        const int type) {
-  const auto filter = std::make_shared<PolarCoordinatesFilter>();
+  if (sgl_image_check_args(in) != SGL_SUCCESS ||
+      sgl_image_check_args(out) != SGL_SUCCESS) {
+    return SGL_INVALID_ARGUMENT;
+  }
 
+  const auto filter = std::make_shared<PolarCoordinatesFilter>();
   filter->SetType(type);
 
   gImageEngine.Process(in, out, filter);
@@ -601,8 +625,12 @@ sgl_error_t sgl_image_polarcoordinates(const sgl_image_info_t &in,
 sgl_error_t sgl_image_clouds(const sgl_image_info_t &in,
                              const sgl_image_info_t &out, int *permuteLookup,
                              const int size, const int type) {
-  const auto filter = std::make_shared<CloudsFilter>();
+  if (sgl_image_check_args(in) != SGL_SUCCESS ||
+      sgl_image_check_args(out) != SGL_SUCCESS) {
+    return SGL_INVALID_ARGUMENT;
+  }
 
+  const auto filter = std::make_shared<CloudsFilter>();
   filter->SetLookup(permuteLookup, size);
   filter->SetType(type);
 
@@ -615,8 +643,12 @@ sgl_error_t sgl_image_motionblur(const sgl_image_info_t &in,
                                  const sgl_image_info_t &out,
                                  const int distance, const int angle,
                                  const float proportion) {
-  const auto filter = std::make_shared<MotionBlurFilter>();
+  if (sgl_image_check_args(in) != SGL_SUCCESS ||
+      sgl_image_check_args(out) != SGL_SUCCESS) {
+    return SGL_INVALID_ARGUMENT;
+  }
 
+  const auto filter = std::make_shared<MotionBlurFilter>();
   filter->SetAngle(angle);
   filter->SetDistance(distance);
   filter->SetPro(proportion);
@@ -627,9 +659,13 @@ sgl_error_t sgl_image_motionblur(const sgl_image_info_t &in,
 }
 
 sgl_error_t sgl_image_twirlwarp(const sgl_image_info_t &in,
-                                const sgl_image_info_t &out, int angle) {
-  const auto filter = std::make_shared<TwirlWarpFilter>();
+                                const sgl_image_info_t &out, const int angle) {
+  if (sgl_image_check_args(in) != SGL_SUCCESS ||
+      sgl_image_check_args(out) != SGL_SUCCESS) {
+    return SGL_INVALID_ARGUMENT;
+  }
 
+  const auto filter = std::make_shared<TwirlWarpFilter>();
   filter->SetAngle(angle);
 
   gImageEngine.Process(in, out, filter);
@@ -641,8 +677,12 @@ sgl_error_t sgl_image_zigzag(const sgl_image_info_t &in,
                              const sgl_image_info_t &out, const int wavelength,
                              const int amplitude, const int type_wave,
                              const float proportion) {
-  const auto filter = std::make_shared<ZigzagFilter>();
+  if (sgl_image_check_args(in) != SGL_SUCCESS ||
+      sgl_image_check_args(out) != SGL_SUCCESS) {
+    return SGL_INVALID_ARGUMENT;
+  }
 
+  const auto filter = std::make_shared<ZigzagFilter>();
   filter->SetWavelength(wavelength);
   filter->SetAmplitude(amplitude);
   filter->SetTypeWave(type_wave);
@@ -656,8 +696,12 @@ sgl_error_t sgl_image_zigzag(const sgl_image_info_t &in,
 sgl_error_t sgl_image_spherize(const sgl_image_info_t &in,
                                const sgl_image_info_t &out, const int alpha,
                                const int type) {
-  const auto filter = std::make_shared<SpherizeFilter>();
+  if (sgl_image_check_args(in) != SGL_SUCCESS ||
+      sgl_image_check_args(out) != SGL_SUCCESS) {
+    return SGL_INVALID_ARGUMENT;
+  }
 
+  const auto filter = std::make_shared<SpherizeFilter>();
   filter->SetAlpha(alpha);
   filter->SetType(type);
 
@@ -667,9 +711,13 @@ sgl_error_t sgl_image_spherize(const sgl_image_info_t &in,
 }
 
 sgl_error_t sgl_image_pinch(const sgl_image_info_t &in,
-                            const sgl_image_info_t &out, int amount) {
-  const auto filter = std::make_shared<PinchFilter>();
+                            const sgl_image_info_t &out, const int amount) {
+  if (sgl_image_check_args(in) != SGL_SUCCESS ||
+      sgl_image_check_args(out) != SGL_SUCCESS) {
+    return SGL_INVALID_ARGUMENT;
+  }
 
+  const auto filter = std::make_shared<PinchFilter>();
   filter->SetAmount(amount);
 
   gImageEngine.Process(in, out, filter);
@@ -681,8 +729,12 @@ sgl_error_t sgl_image_wave(const sgl_image_info_t &in,
                            const sgl_image_info_t &out, const int wavelength,
                            const int amplitude, const int x_pro,
                            const int y_pro, const int type, const int method) {
-  const auto filter = std::make_shared<WaveFilter>();
+  if (sgl_image_check_args(in) != SGL_SUCCESS ||
+      sgl_image_check_args(out) != SGL_SUCCESS) {
+    return SGL_INVALID_ARGUMENT;
+  }
 
+  const auto filter = std::make_shared<WaveFilter>();
   filter->SetWavelength(wavelength);
   filter->SetAmplitude(amplitude);
   filter->SetPro(x_pro, y_pro);
