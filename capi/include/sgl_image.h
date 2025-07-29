@@ -62,7 +62,8 @@ typedef struct sgl_image {
                                float intensity, float zoom);
 
   sgl_error_t (*adjust_saturation)(const sgl_image_info_t &in,
-                                   const sgl_image_info_t &out, int v, int s);
+                                   const sgl_image_info_t &out, float v,
+                                   float s);
 
   sgl_error_t (*palette_knife)(const sgl_image_info_t &in,
                                const sgl_image_info_t &out, int r, int s);
@@ -90,8 +91,8 @@ typedef struct sgl_image {
                        int weight, int height, int type);
 
   sgl_error_t (*color_separation)(const sgl_image_info_t &in,
-                                  const sgl_image_info_t &out, int roff,
-                                  int goff, int boff);
+                                  const sgl_image_info_t &out, float roff,
+                                  float goff, float boff);
 
   sgl_error_t (*midvalue)(const sgl_image_info_t &in,
                           const sgl_image_info_t &out, float radius,
@@ -129,7 +130,7 @@ typedef struct sgl_image {
                                int size);
 
   sgl_error_t (*radial_blur)(const sgl_image_info_t &in,
-                             const sgl_image_info_t &out, int sharpness,
+                             const sgl_image_info_t &out, float sharpness,
                              int strength, float xCenter, float yCenter);
 
   sgl_error_t (*rotational_blur)(const sgl_image_info_t &in,
