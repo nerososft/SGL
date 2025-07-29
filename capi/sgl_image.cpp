@@ -820,6 +820,7 @@ sgl_image_t *sgl_image_create(const sgl_gpu_ctx_t *gpu_ctx) {
   image->spherize = sgl_image_spherize;
   image->pinch = sgl_image_pinch;
   image->wave = sgl_image_wave;
+
   return image;
 }
 void sgl_image_destroy(sgl_image_t *image) {
