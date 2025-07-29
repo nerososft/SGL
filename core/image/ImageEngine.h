@@ -40,6 +40,8 @@ class ImageEngine {
 public:
   ImageEngine() = default;
 
+  explicit ImageEngine(const std::shared_ptr<VkGPUContext> &gpuCtx);
+
   ~ImageEngine() = default;
 
   bool Init();

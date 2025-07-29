@@ -351,7 +351,7 @@ sgl_error_t sgl_image_pathblur(const sgl_image_info_t &in,
   }
   const auto filter = std::make_shared<pathBlurFilter>();
 
-  int k_size = width * height * 2;
+  const int k_size = width * height * 2;
   filter->SetK1(vec, k_size);
   filter->SetK(k_size);
   filter->SetAmount(amount);
@@ -376,7 +376,7 @@ sgl_error_t sgl_image_crystallize(const sgl_image_info_t &in,
   }
   const auto filter = std::make_shared<CrystallizeFilter>();
 
-  int k_size = n;
+  const int k_size = n;
   filter->SetPos(posx, posy, k_size);
   filter->SetN(n);
 
