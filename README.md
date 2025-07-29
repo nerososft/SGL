@@ -18,7 +18,6 @@
 
  [Documentation](https://gitcode.com/OpenHarmonyPerfSquad/SGL/blob/main/README.md) [Examples](https://gitcode.com/OpenHarmonyPerfSquad/SGL/tree/main/examples) 
 
-
 ```c++
 auto mat1 = ce->CreateMatrix(width, height, data1);
 auto mat2 = ce->CreateMatrix(width, height, data2);

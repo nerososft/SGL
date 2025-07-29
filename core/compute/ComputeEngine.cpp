@@ -16,6 +16,7 @@
 #include "operators/impl/gpu/ExpOperator.h"
 #include "operators/impl/gpu/GELUOperator.h"
 #include "operators/impl/gpu/LayerNormOperator.h"
+#include "operators/impl/gpu/LogOperator.h"
 #include "operators/impl/gpu/LogSoftmaxOperator.h"
 #include "operators/impl/gpu/MatMulOperator.h"
 #include "operators/impl/gpu/MulOperator.h"
@@ -604,6 +605,20 @@ ComputeEngine::Exp(const std::shared_ptr<Matrix> &input,
       this->gpuCtx, input->GetBuffer(), output->GetBuffer());
   this->operators.push_back(expOp);
   const auto node = expOp->CreateComputeGraphNode();
+  if (node == nullptr) {
+    Logger() << Logger::ERROR << "Failed to create compute graph node!"
+             << std::endl;
+    throw std::runtime_error("Failed to create compute graph node!");
+  }
+  return node;
+}
+std::shared_ptr<IComputeGraphNode>
+ComputeEngine::Log(const std::shared_ptr<Matrix> &input,
+                   const std::shared_ptr<Matrix> &output) {
+  const auto logOp = std::make_shared<LogOperator>(
+      this->gpuCtx, input->GetBuffer(), output->GetBuffer());
+  this->operators.push_back(logOp);
+  const auto node = logOp->CreateComputeGraphNode();
   if (node == nullptr) {
     Logger() << Logger::ERROR << "Failed to create compute graph node!"
              << std::endl;

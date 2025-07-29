@@ -98,5 +98,7 @@ add_library(compute_engine
         operators/impl/gpu/CosOperator.h
         operators/impl/gpu/ExpOperator.cpp
         operators/impl/gpu/ExpOperator.h
+        operators/impl/gpu/LogOperator.cpp
+        operators/impl/gpu/LogOperator.h
 )
 target_link_libraries(compute_engine runtime)

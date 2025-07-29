@@ -150,6 +150,8 @@ public:
                                          const std::shared_ptr<Matrix> &output);
   std::shared_ptr<IComputeGraphNode> Exp(const std::shared_ptr<Matrix> &input,
                                          const std::shared_ptr<Matrix> &output);
+  std::shared_ptr<IComputeGraphNode> Log(const std::shared_ptr<Matrix> &input,
+                                         const std::shared_ptr<Matrix> &output);
 };
 } // namespace sgl::compute
 
