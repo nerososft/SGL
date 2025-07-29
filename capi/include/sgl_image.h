@@ -46,139 +46,133 @@ typedef struct sgl_image {
   sgl_error_t (*gray)(const sgl_image_info_t &in, const sgl_image_info_t &out,
                       float r, float g, float b);
   sgl_error_t (*threshold_split)(const sgl_image_info_t &in,
-                                 const sgl_image_info_t &out, const int bright);
+                                 const sgl_image_info_t &out, int bright);
 
   sgl_error_t (*gaussian_blur)(const sgl_image_info_t &in,
-                               const sgl_image_info_t &out, const int r);
+                               const sgl_image_info_t &out, int r);
 
   sgl_error_t (*gaussian_blur_float)(const sgl_image_info_t &in,
-                                     const sgl_image_info_t &out, const int r);
+                                     const sgl_image_info_t &out, int r);
 
   sgl_error_t (*surface_blur)(const sgl_image_info_t &in,
-                              const sgl_image_info_t &out, const int r,
-                              const int th);
+                              const sgl_image_info_t &out, int r, int th);
 
   sgl_error_t (*distort_glass)(const sgl_image_info_t &in,
-                               const sgl_image_info_t &out, const float scale,
-                               const float intensity, const float zoom);
+                               const sgl_image_info_t &out, float scale,
+                               float intensity, float zoom);
 
   sgl_error_t (*adjust_saturation)(const sgl_image_info_t &in,
-                                   const sgl_image_info_t &out, const int v,
-                                   const int s);
+                                   const sgl_image_info_t &out, int v, int s);
 
   sgl_error_t (*palette_knife)(const sgl_image_info_t &in,
-                               const sgl_image_info_t &out, const int r,
-                               const int s);
+                               const sgl_image_info_t &out, int r, int s);
 
-  sgl_error_t (*hue_equal)(void *in, void *out);
+  sgl_error_t (*hue_equal)(const sgl_image_info_t &in,
+                           const sgl_image_info_t &out);
 
   sgl_error_t (*blur_edge)(const sgl_image_info_t &in,
-                           const sgl_image_info_t &out, const int r,
-                           const int s, const int kernel_type);
+                           const sgl_image_info_t &out, int r, int s,
+                           int kernel_type);
 
   sgl_error_t (*custom_kernel)(const sgl_image_info_t &in,
-                               const sgl_image_info_t &out, int *k,
-                               const int radius, const int offset,
-                               const int scale);
+                               const sgl_image_info_t &out, int *k, int radius,
+                               int offset, int scale);
 
   sgl_error_t (*color_balance)(const sgl_image_info_t &in,
                                const sgl_image_info_t &out, float *adjustP,
-                               int *p, const int l);
+                               int *p, int l);
 
   sgl_error_t (*black_white)(const sgl_image_info_t &in,
                              const sgl_image_info_t &out, float *weight,
-                             const int wSize);
+                             int wSize);
 
   sgl_error_t (*scale)(const sgl_image_info_t &in, const sgl_image_info_t &out,
-                       const int weight, const int height, const int type);
+                       int weight, int height, int type);
 
   sgl_error_t (*color_separation)(const sgl_image_info_t &in,
-                                  const sgl_image_info_t &out, const int roff,
-                                  const int goff, const int boff);
+                                  const sgl_image_info_t &out, int roff,
+                                  int goff, int boff);
 
   sgl_error_t (*midvalue)(const sgl_image_info_t &in,
-                          const sgl_image_info_t &out, const float radius,
-                          const float threshold);
+                          const sgl_image_info_t &out, float radius,
+                          float threshold);
 
   sgl_error_t (*pathblur)(const sgl_image_info_t &in,
-                          const sgl_image_info_t &out, float *vec,
-                          const int amount, const int width, const int height,
-                          float *startpos, float *endpos, float *startvec,
-                          float *endvec, const int num);
+                          const sgl_image_info_t &out, float *vec, int amount,
+                          int width, int height, float *startpos, float *endpos,
+                          float *startvec, float *endvec, int num);
 
   sgl_error_t (*crystallize)(const sgl_image_info_t &in,
                              const sgl_image_info_t &out, float *posx,
-                             float *posy, const int n);
+                             float *posy, int n);
 
-  sgl_error_t (*rotationblur)(void *in, void *in2, void *out, const float x,
-                              const float y, const float a, const float b,
-                              const float ina, const float inb,
-                              const int strength, const float angle);
+  sgl_error_t (*rotationblur)(const sgl_image_info_t &in,
+                              const sgl_image_info_t &in2,
+                              const sgl_image_info_t &out, float x, float y,
+                              float a, float b, float ina, float inb,
+                              int strength, float angle);
 
   sgl_error_t (*facet)(const sgl_image_info_t &in, const sgl_image_info_t &out,
-                       const int radius, const int intensitylevel);
+                       int radius, int intensitylevel);
 
   sgl_error_t (*accented_edge)(const sgl_image_info_t &in,
                                const sgl_image_info_t &out, int *sobelx,
-                               int *sobely, const int size, const int type);
-  sgl_error_t (*irisblur)(void *in, void *in2, void *out, const float x,
-                          const float y, const float a, const float b,
-                          const float ina, const float inb, const float angle);
-  sgl_error_t (*tiltshiftblur)(void *in, void *in2, void *out, float *A,
-                               float *B, float *C, const float xoffset,
-                               const float yoffset, const int size);
+                               int *sobely, int size, int type);
+  sgl_error_t (*irisblur)(const sgl_image_info_t &in,
+                          const sgl_image_info_t &in2,
+                          const sgl_image_info_t &out, float x, float y,
+                          float a, float b, float ina, float inb, float angle);
+  sgl_error_t (*tiltshiftblur)(const sgl_image_info_t &in,
+                               const sgl_image_info_t &in2,
+                               const sgl_image_info_t &out, float *A, float *B,
+                               float *C, float xoffset, float yoffset,
+                               int size);
 
   sgl_error_t (*radial_blur)(const sgl_image_info_t &in,
-                             const sgl_image_info_t &out, const int sharpness,
-                             const int strength, const float xCenter,
-                             const float yCenter);
+                             const sgl_image_info_t &out, int sharpness,
+                             int strength, float xCenter, float yCenter);
 
   sgl_error_t (*rotational_blur)(const sgl_image_info_t &in,
-                                 const sgl_image_info_t &out, const float angle,
-                                 const int strength, const float x,
-                                 const float y);
+                                 const sgl_image_info_t &out, float angle,
+                                 int strength, float x, float y);
 
   sgl_error_t (*minmax)(const sgl_image_info_t &in, const sgl_image_info_t &out,
-                        const int radius, const int type);
+                        int radius, int type);
 
   sgl_error_t (*colorhalftone)(const sgl_image_info_t &in,
-                               const sgl_image_info_t &out,
-                               const float cyanAngle, const float yellowAngle,
-                               const float magentaAngle, const float radius,
-                               float *lookup);
+                               const sgl_image_info_t &out, float cyanAngle,
+                               float yellowAngle, float magentaAngle,
+                               float radius, float *lookup);
 
   sgl_error_t (*sharpen)(const sgl_image_info_t &in,
-                         const sgl_image_info_t &out, int *kernel,
-                         const int size);
+                         const sgl_image_info_t &out, int *kernel, int size);
 
   sgl_error_t (*polarcoordinates)(const sgl_image_info_t &in,
-                                  const sgl_image_info_t &out, const int type);
+                                  const sgl_image_info_t &out, int type);
 
   sgl_error_t (*clouds)(const sgl_image_info_t &in, const sgl_image_info_t &out,
-                        int *permuteLookup, const int size, const int type);
+                        int *permuteLookup, int size, int type);
 
   sgl_error_t (*motionblur)(const sgl_image_info_t &in,
-                            const sgl_image_info_t &out, const int distance,
-                            const int angle, const float proportion);
+                            const sgl_image_info_t &out, int distance,
+                            int angle, float proportion);
 
   sgl_error_t (*twirlwarp)(const sgl_image_info_t &in,
                            const sgl_image_info_t &out, int angle);
 
   sgl_error_t (*zigzag)(const sgl_image_info_t &in, const sgl_image_info_t &out,
-                        const int wavelength, const int amplitude,
-                        const int type_wave, const float proportion);
+                        int wavelength, int amplitude, int type_wave,
+                        float proportion);
 
   sgl_error_t (*spherize)(const sgl_image_info_t &in,
-                          const sgl_image_info_t &out, const int alpha,
-                          const int type);
+                          const sgl_image_info_t &out, int alpha, int type);
 
   sgl_error_t (*pinch)(const sgl_image_info_t &in, const sgl_image_info_t &out,
                        int amount);
 
   sgl_error_t (*wave)(const sgl_image_info_t &in, const sgl_image_info_t &out,
-                      const int wavelength, const int amplitude,
-                      const int x_pro, const int y_pro, const int type,
-                      const int method);
+                      int wavelength, int amplitude, int x_pro, int y_pro,
+                      int type, int method);
 } sgl_image_t;
 
 sgl_error_t sgl_image_check_args(const sgl_image_info_t &info);

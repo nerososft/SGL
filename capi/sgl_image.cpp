@@ -45,133 +45,136 @@
 
 sgl::image::ImageEngine gImageEngine;
 
-bool threshold_split_filter_gpu(void *in, void *out, const int bright) {
-  if (in == nullptr || out == nullptr)
-    return false;
+sgl_error_t sgl_image_threshold_split(const sgl_image_info_t &in,
+                                      const sgl_image_info_t &out,
+                                      const int bright) {
+  if (sgl_image_check_args(in) != SGL_SUCCESS ||
+      sgl_image_check_args(out) != SGL_SUCCESS) {
+    return SGL_INVALID_ARGUMENT;
+  }
   const auto filter = std::make_shared<ThresholdSplitFilter>();
   filter->SetBright(bright);
 
-  const auto *input = static_cast<sgl::image::ImageInfo *>(in);
-  const auto *output = static_cast<sgl::image::ImageInfo *>(out);
-
-  gImageEngine.Process(*input, *output, filter);
-  return true;
+  gImageEngine.Process(in, out, filter);
+  return SGL_SUCCESS;
 }
 
-bool gaussian_blur_filter_gpu(void *in, void *out, const int r) {
-  if (in == nullptr || out == nullptr)
-    return false;
-  const sgl::image::ImageInfo *input = static_cast<sgl::image::ImageInfo *>(in);
-  const sgl::image::ImageInfo *output =
-      static_cast<sgl::image::ImageInfo *>(out);
+sgl_error_t sgl_image_gaussian_blur(const sgl_image_info_t &in,
+                                    const sgl_image_info_t &out, const int r) {
+  if (sgl_image_check_args(in) != SGL_SUCCESS ||
+      sgl_image_check_args(out) != SGL_SUCCESS) {
+    return SGL_INVALID_ARGUMENT;
+  }
 
   if (r >= 3) {
     const auto filter = std::make_shared<FastGaussianBlurFilter>();
     filter->SetRadius(r);
-    gImageEngine.Process(*input, *output, filter);
+    gImageEngine.Process(in, out, filter);
   } else {
     const auto filter = std::make_shared<OldGaussianBlurFilter>();
     filter->SetRadius(r);
-    gImageEngine.Process(*input, *output, filter);
+    gImageEngine.Process(in, out, filter);
   }
-  return true;
+  return SGL_SUCCESS;
 }
 
-bool gaussian_blur_filter_float_gpu(void *in, void *out, const int r) {
-  if (in == nullptr || out == nullptr)
-    return false;
-  const sgl::image::ImageInfo *input = static_cast<sgl::image::ImageInfo *>(in);
-  const sgl::image::ImageInfo *output =
-      static_cast<sgl::image::ImageInfo *>(out);
+sgl_error_t sgl_image_gaussian_blur_float(const sgl_image_info_t &in,
+                                          const sgl_image_info_t &out,
+                                          const int r) {
+  if (sgl_image_check_args(in) != SGL_SUCCESS ||
+      sgl_image_check_args(out) != SGL_SUCCESS) {
+    return SGL_INVALID_ARGUMENT;
+  }
 
   const auto filter = std::make_shared<OldGaussianBlurFloatFilter>();
   filter->SetRadius(r);
-  gImageEngine.Process(*input, *output, filter);
+  gImageEngine.Process(in, out, filter);
 
-  return true;
+  return SGL_SUCCESS;
 }
 
-bool surface_blur_filter_gpu(void *in, void *out, const int r, const int th) {
-  if (in == nullptr || out == nullptr)
-    return false;
+sgl_error_t sgl_image_surface_blur(const sgl_image_info_t &in,
+                                   const sgl_image_info_t &out, const int r,
+                                   const int th) {
+  if (sgl_image_check_args(in) != SGL_SUCCESS ||
+      sgl_image_check_args(out) != SGL_SUCCESS) {
+    return SGL_INVALID_ARGUMENT;
+  }
   const auto filter = std::make_shared<SurfaceBlurFilter>();
   filter->SetBlurRadius(r);
   filter->SetThreshold(th);
 
-  const sgl::image::ImageInfo *input = static_cast<sgl::image::ImageInfo *>(in);
-  const sgl::image::ImageInfo *output =
-      static_cast<sgl::image::ImageInfo *>(out);
-
-  gImageEngine.Process(*input, *output, filter);
-  return true;
+  gImageEngine.Process(in, out, filter);
+  return SGL_SUCCESS;
 }
 
-bool distort_glass_filter_gpu(void *in, void *out, const float scale,
-                              const float intensity, const float zoom) {
-  if (in == nullptr || out == nullptr)
-    return false;
+sgl_error_t sgl_image_distort_glass(const sgl_image_info_t &in,
+                                    const sgl_image_info_t &out,
+                                    const float scale, const float intensity,
+                                    const float zoom) {
+  if (sgl_image_check_args(in) != SGL_SUCCESS ||
+      sgl_image_check_args(out) != SGL_SUCCESS) {
+    return SGL_INVALID_ARGUMENT;
+  }
   const auto filter = std::make_shared<DistortGlassFilter>();
-
-  //   scale = scale / 50;
-  //    intensity = 45 - intensity * 3;
 
   filter->SetScale(scale);
   filter->SetIntensity(intensity);
   filter->SetZoom(zoom);
 
-  const sgl::image::ImageInfo *input = static_cast<sgl::image::ImageInfo *>(in);
-  const sgl::image::ImageInfo *output =
-      static_cast<sgl::image::ImageInfo *>(out);
+  gImageEngine.Process(in, out, filter);
 
-  gImageEngine.Process(*input, *output, filter);
-
-  return true;
+  return SGL_SUCCESS;
 }
 
-bool adjust_saturation_gpu(void *in, void *out, const int v, const int s) {
-  if (in == nullptr || out == nullptr)
-    return false;
+sgl_error_t sgl_image_adjust_saturation(const sgl_image_info_t &in,
+                                        const sgl_image_info_t &out,
+                                        const int v, const int s) {
+  if (sgl_image_check_args(in) != SGL_SUCCESS ||
+      sgl_image_check_args(out) != SGL_SUCCESS) {
+    return SGL_INVALID_ARGUMENT;
+  }
 
   const auto filter = std::make_shared<VibranceFilter>();
 
   filter->SetVibrance(v);
   filter->SetSaturation(s);
 
-  const auto *input = static_cast<sgl::image::ImageInfo *>(in);
-  const auto *output = static_cast<sgl::image::ImageInfo *>(out);
   Logger() << "c_api adjust_saturation_gpu begin " << std::endl;
-  gImageEngine.Process(*input, *output, filter);
+  gImageEngine.Process(in, out, filter);
   Logger() << "c_api adjust_saturation_gpu end  " << std::endl;
 
   Logger() << "c_api filter destory begin  " << std::endl;
   filter->Destroy();
   Logger() << "c_api filter destory end  " << std::endl;
 
-  return true;
+  return SGL_SUCCESS;
 }
 
-bool palette_knife_gpu(void *in, void *out, const int r, const int s) {
-  if (in == nullptr || out == nullptr)
-    return false;
+sgl_error_t sgl_image_palette_knife(const sgl_image_info_t &in,
+                                    const sgl_image_info_t &out, const int r,
+                                    const int s) {
+  if (sgl_image_check_args(in) != SGL_SUCCESS ||
+      sgl_image_check_args(out) != SGL_SUCCESS) {
+    return SGL_INVALID_ARGUMENT;
+  }
   const auto filter = std::make_shared<PaletteKnifeFilter>();
   filter->SetRadius(r);
   filter->SetQuantScale(s);
 
-  const auto *input = static_cast<sgl::image::ImageInfo *>(in);
-  const auto *output = static_cast<sgl::image::ImageInfo *>(out);
+  gImageEngine.Process(in, out, filter);
 
-  gImageEngine.Process(*input, *output, filter);
-
-  return true;
+  return SGL_SUCCESS;
 }
 
-bool hue_equal_filter_gpu(void *in, void *out) {
-  if (in == nullptr || out == nullptr)
-    return false;
+sgl_error_t sgl_image_hue_equal(const sgl_image_info_t &in,
+                                const sgl_image_info_t &out) {
+  if (sgl_image_check_args(in) != SGL_SUCCESS ||
+      sgl_image_check_args(out) != SGL_SUCCESS) {
+    return SGL_INVALID_ARGUMENT;
+  }
 
   const auto filter = std::make_shared<ColorBalanceFilter>();
-  const auto *input = static_cast<sgl::image::ImageInfo *>(in);
-  const auto *output = static_cast<sgl::image::ImageInfo *>(out);
 
   int p[9] = {0, 100, 0, 0, 100, 0, 0, 100, 0};
 
@@ -181,182 +184,172 @@ bool hue_equal_filter_gpu(void *in, void *out) {
   filter->SetP(adjustP, 9);
   filter->SetL(0);
 
-  gImageEngine.Process(*input, *output, filter);
+  gImageEngine.Process(in, out, filter);
 
-  return true;
+  return SGL_SUCCESS;
 }
 
-bool blur_edge_filter_gpu(void *in, void *out, const int r, const int s,
-                          const int kernel_type) {
-  if (in == nullptr || out == nullptr)
-    return false;
+sgl_error_t sgl_image_blur_edge(const sgl_image_info_t &in,
+                                const sgl_image_info_t &out, const int r,
+                                const int s, const int kernel_type) {
+  if (sgl_image_check_args(in) != SGL_SUCCESS ||
+      sgl_image_check_args(out) != SGL_SUCCESS) {
+    return SGL_INVALID_ARGUMENT;
+  }
   const auto filter = std::make_shared<BlurEdgeFilter>();
 
   filter->SetRadius(r);
   filter->SetSigma(s);
   filter->SetKernel(kernel_type);
 
-  const auto *input = static_cast<sgl::image::ImageInfo *>(in);
-  const auto *output = static_cast<sgl::image::ImageInfo *>(out);
-  gImageEngine.Process(*input, *output, filter);
+  gImageEngine.Process(in, out, filter);
 
   filter->Destroy();
 
-  return true;
+  return SGL_SUCCESS;
 }
 
-bool custom_kernel_filter_gpu(void *in, void *out, int *k, const int radius,
-                              const int offset, const int scale) {
-  if (in == nullptr || out == nullptr | k == nullptr)
-    return false;
+sgl_error_t sgl_image_custom_kernel(const sgl_image_info_t &in,
+                                    const sgl_image_info_t &out, int *k,
+                                    const int radius, const int offset,
+                                    const int scale) {
+  if (sgl_image_check_args(in) != SGL_SUCCESS ||
+      sgl_image_check_args(out) != SGL_SUCCESS) {
+    return SGL_INVALID_ARGUMENT;
+  }
+  if (k == nullptr) {
+    return SGL_INVALID_ARGUMENT;
+  }
   const auto filter = std::make_shared<CustomKernelFilter>();
-  const auto *input = static_cast<sgl::image::ImageInfo *>(in);
-  const auto *output = static_cast<sgl::image::ImageInfo *>(out);
 
-  // int k[25] = { 0 , 0 ,0 ,0 ,0,
-  //             0 , 0 ,-1 ,0 ,0,
-  //             0 , -1 ,5 ,-1 ,0,
-  //             0 , 0 ,-1 ,0 ,0,
-  //            0 , 0 ,0 ,0 ,0 };
-
-  int k_size = 2 * radius + 1;
+  const int k_size = 2 * radius + 1;
   filter->SetK(k, k_size * k_size);
   filter->SetOffset(offset);
   filter->SetScale(scale);
   filter->SetRadius(radius);
 
-  gImageEngine.Process(*input, *output, filter);
+  gImageEngine.Process(in, out, filter);
 
-  return true;
+  return SGL_SUCCESS;
 }
 
-bool color_balance_filter_gpu(void *in, void *out, float *adjustP, int *p,
-                              const int l) {
-  if (in == nullptr || out == nullptr || adjustP == nullptr || p == nullptr)
-    return false;
+sgl_error_t sgl_image_color_balance(const sgl_image_info_t &in,
+                                    const sgl_image_info_t &out, float *adjustP,
+                                    int *p, const int l) {
+  if (sgl_image_check_args(in) != SGL_SUCCESS ||
+      sgl_image_check_args(out) != SGL_SUCCESS) {
+    return SGL_INVALID_ARGUMENT;
+  }
+  if (adjustP == nullptr || p == nullptr) {
+    return SGL_INVALID_ARGUMENT;
+  }
   const auto filter = std::make_shared<ColorBalanceFilter>();
-  const auto *input = static_cast<sgl::image::ImageInfo *>(in);
-  const auto *output = static_cast<sgl::image::ImageInfo *>(out);
-
-  // int p[9] = { 0 , 50 ,0 ,
-  //             0 , 50 ,0 ,
-  //             0 , 50 ,0 };
-
-  // int adjustP[9] = { 0 , 0 ,0 ,
-  //                    0 , 0 ,0 ,
-  //                    0 , 0 ,0 };
 
   filter->SetP(p, 9);
   filter->SetAdjustP(adjustP, 9);
   filter->SetL(l);
 
-  gImageEngine.Process(*input, *output, filter);
+  gImageEngine.Process(in, out, filter);
 
-  return true;
+  return SGL_SUCCESS;
 }
 
-bool black_white_filter_gpu(void *in, void *out, float *weight,
-                            const int wSize) {
-  if (in == nullptr || out == nullptr || weight == nullptr)
-    return false;
+sgl_error_t sgl_image_black_white(const sgl_image_info_t &in,
+                                  const sgl_image_info_t &out, float *weight,
+                                  const int wSize) {
+  if (sgl_image_check_args(in) != SGL_SUCCESS ||
+      sgl_image_check_args(out) != SGL_SUCCESS) {
+    return SGL_INVALID_ARGUMENT;
+  }
+  if (weight == nullptr) {
+    return SGL_INVALID_ARGUMENT;
+  }
   const auto filter = std::make_shared<BlackWhiteFilter>();
-  const auto *input = static_cast<sgl::image::ImageInfo *>(in);
-  const auto *output = static_cast<sgl::image::ImageInfo *>(out);
 
   filter->SetWeight(weight, wSize);
-  gImageEngine.Process(*input, *output, filter);
-  return true;
+  gImageEngine.Process(in, out, filter);
+  return SGL_SUCCESS;
 }
 
-bool scale_filter_gpu(void *in, void *out, const int weight, const int height,
-                      const int type) {
-  if (in == nullptr || out == nullptr)
-    return false;
+sgl_error_t sgl_image_scale(const sgl_image_info_t &in,
+                            const sgl_image_info_t &out, const int weight,
+                            const int height, const int type) {
+  if (sgl_image_check_args(in) != SGL_SUCCESS ||
+      sgl_image_check_args(out) != SGL_SUCCESS) {
+    return SGL_INVALID_ARGUMENT;
+  }
   const auto filter = std::make_shared<ScaleFilter>();
   filter->SetTargetWidth(weight);
   filter->SetTargetHeight(height);
   filter->SetInterpType(type);
 
-  const auto *input = static_cast<sgl::image::ImageInfo *>(in);
-  const auto *output = static_cast<sgl::image::ImageInfo *>(out);
+  gImageEngine.Process(in, out, filter);
 
-  gImageEngine.Process(*input, *output, filter);
-
-  unsigned char *data0 = (unsigned char *)output->info.cpu.data;
-
-  int p0 = data0[0];
-  int p1 = data0[1];
-  int p2 = data0[2];
-  int p3 = data0[3];
-
-  unsigned char *data1 =
-      (unsigned char *)output->info.cpu.data + weight * height / 2 * 4;
-
-  int p4 = data1[0];
-  int p5 = data1[1];
-  int p6 = data1[2];
-  int p7 = data1[3];
-
-  return true;
+  return SGL_SUCCESS;
 }
 
-bool gray_filter_gpu(void *in, void *out, const float r, const float g,
-                     const float b) {
-  if (in == nullptr || out == nullptr)
-    return false;
+sgl_error_t sgl_image_gray(const sgl_image_info_t &in,
+                           const sgl_image_info_t &out, const float r,
+                           const float g, const float b) {
+  if (sgl_image_check_args(in) != SGL_SUCCESS ||
+      sgl_image_check_args(out) != SGL_SUCCESS) {
+    return SGL_INVALID_ARGUMENT;
+  }
   const auto filter = std::make_shared<GrayFilter>();
   filter->SetRedFactor(r);
   filter->SetGreenFactor(g);
   filter->SetBlueFactor(b);
 
-  const auto *input = static_cast<sgl::image::ImageInfo *>(in);
-  const auto *output = static_cast<sgl::image::ImageInfo *>(out);
-
-  gImageEngine.Process(*input, *output, filter);
-  return true;
+  gImageEngine.Process(in, out, filter);
+  return SGL_SUCCESS;
 }
 
-bool color_separation_filter_gpu(void *in, void *out, const int roff,
-                                 const int goff, const int boff) {
-  if (in == nullptr || out == nullptr)
-    return false;
+sgl_error_t sgl_image_color_separation(const sgl_image_info_t &in,
+                                       const sgl_image_info_t &out,
+                                       const int roff, const int goff,
+                                       const int boff) {
+  if (sgl_image_check_args(in) != SGL_SUCCESS ||
+      sgl_image_check_args(out) != SGL_SUCCESS) {
+    return SGL_INVALID_ARGUMENT;
+  }
   const auto filter = std::make_shared<ColorSeparationFilter>();
 
   filter->SetRedOffsetX(roff);
   filter->SetGreenOffsetX(goff);
   filter->SetBlueOffsetX(boff);
-  const sgl::image::ImageInfo *input = static_cast<sgl::image::ImageInfo *>(in);
-  const sgl::image::ImageInfo *output =
-      static_cast<sgl::image::ImageInfo *>(out);
 
-  gImageEngine.Process(*input, *output, filter);
-  return true;
+  gImageEngine.Process(in, out, filter);
+  return SGL_SUCCESS;
 }
 
-bool midvalue_filter_gpu(void *in, void *out, const float radius,
-                         const float threshold) {
-  if (in == nullptr || out == nullptr)
-    return false;
+sgl_error_t sgl_image_midvalue(const sgl_image_info_t &in,
+                               const sgl_image_info_t &out, const float radius,
+                               const float threshold) {
+  if (sgl_image_check_args(in) != SGL_SUCCESS ||
+      sgl_image_check_args(out) != SGL_SUCCESS) {
+    return SGL_INVALID_ARGUMENT;
+  }
   const auto filter = std::make_shared<MidValueFilter>();
   filter->SetRadius(radius);
   filter->SetThreshold(threshold);
 
-  const auto *input = static_cast<sgl::image::ImageInfo *>(in);
-  const auto *output = static_cast<sgl::image::ImageInfo *>(out);
-
-  gImageEngine.Process(*input, *output, filter);
-  return true;
+  gImageEngine.Process(in, out, filter);
+  return SGL_SUCCESS;
 }
 
-bool pathblur_filter_gpu(void *in, void *out, float *vec, const int amount,
-                         const int width, const int height, float *startpos,
-                         float *endpos, float *startvec, float *endvec,
-                         const int num) {
-  if (in == nullptr || out == nullptr || vec == nullptr)
-    return false;
+sgl_error_t sgl_image_pathblur(const sgl_image_info_t &in,
+                               const sgl_image_info_t &out, float *vec,
+                               const int amount, const int width,
+                               const int height, float *startpos, float *endpos,
+                               float *startvec, float *endvec, const int num) {
+  if (sgl_image_check_args(in) != SGL_SUCCESS ||
+      sgl_image_check_args(out) != SGL_SUCCESS) {
+    return SGL_INVALID_ARGUMENT;
+  }
+  if (vec == nullptr) {
+    return SGL_INVALID_ARGUMENT;
+  }
   const auto filter = std::make_shared<pathBlurFilter>();
-  const auto *input = static_cast<sgl::image::ImageInfo *>(in);
-  const auto *output = static_cast<sgl::image::ImageInfo *>(out);
 
   int k_size = width * height * 2;
   filter->SetK1(vec, k_size);
@@ -366,46 +359,51 @@ bool pathblur_filter_gpu(void *in, void *out, float *vec, const int amount,
   filter->SetEndPos(endpos, num);
   filter->SetStartVec(startvec, num);
   filter->SetEndVec(endvec, num);
-  gImageEngine.Process(*input, *output, filter);
+  gImageEngine.Process(in, out, filter);
 
-  return true;
+  return SGL_SUCCESS;
 }
 
-bool crystallize_filter_gpu(void *in, void *out, float *posx, float *posy,
-                            const int n) {
-  if (in == nullptr || out == nullptr || posx == nullptr)
-    return false;
+sgl_error_t sgl_image_crystallize(const sgl_image_info_t &in,
+                                  const sgl_image_info_t &out, float *posx,
+                                  float *posy, const int n) {
+  if (sgl_image_check_args(in) != SGL_SUCCESS ||
+      sgl_image_check_args(out) != SGL_SUCCESS) {
+    return SGL_INVALID_ARGUMENT;
+  }
+  if (posx == nullptr) {
+    return SGL_INVALID_ARGUMENT;
+  }
   const auto filter = std::make_shared<CrystallizeFilter>();
-  const auto *input = static_cast<sgl::image::ImageInfo *>(in);
-  const auto *output = static_cast<sgl::image::ImageInfo *>(out);
 
   int k_size = n;
   filter->SetPos(posx, posy, k_size);
   filter->SetN(n);
 
-  gImageEngine.Process(*input, *output, filter);
+  gImageEngine.Process(in, out, filter);
 
-  return true;
+  return SGL_SUCCESS;
 }
 
-bool rotationblur_filter_gpu(void *in, void *in2, void *out, const float x,
-                             const float y, const float a, const float b,
-                             const float ina, const float inb,
-                             const int strength, const float angle) {
-  // return true;
-  if (in == nullptr || out == nullptr)
-    return false;
-  const auto filter = std::make_shared<RotationBlurFilter>();
-  const auto *input = static_cast<sgl::image::ImageInfo *>(in);
-  const auto *output = static_cast<sgl::image::ImageInfo *>(out);
-  const auto *input2 = static_cast<sgl::image::ImageInfo *>(in2);
+sgl_error_t sgl_image_rotationblur(const sgl_image_info_t &in,
+                                   const sgl_image_info_t &in2,
+                                   const sgl_image_info_t &out, const float x,
+                                   const float y, const float a, const float b,
+                                   const float ina, const float inb,
+                                   const int strength, const float angle) {
+  if (sgl_image_check_args(in) != SGL_SUCCESS ||
+      sgl_image_check_args(in2) != SGL_SUCCESS ||
+      sgl_image_check_args(out) != SGL_SUCCESS) {
+    return SGL_INVALID_ARGUMENT;
+  }
 
   std::vector<sgl::image::ImageInfo> inputs;
-  inputs.push_back(*input);
-  inputs.push_back(*input2);
+  inputs.push_back(in);
+  inputs.push_back(in2);
   std::vector<sgl::image::ImageInfo> outputs;
-  outputs.push_back(*output);
+  outputs.push_back(out);
 
+  const auto filter = std::make_shared<RotationBlurFilter>();
   filter->SetCenterX(x);
   filter->SetCenterY(y);
   filter->SetA(a);
@@ -417,54 +415,56 @@ bool rotationblur_filter_gpu(void *in, void *in2, void *out, const float x,
 
   gImageEngine.Process(inputs, outputs, filter);
 
-  return true;
+  return SGL_SUCCESS;
 }
 
-bool facet_filter_gpu(void *in, void *out, const int radius,
-                      const int intensitylevel) {
+sgl_error_t sgl_image_facet(const sgl_image_info_t &in,
+                            const sgl_image_info_t &out, const int radius,
+                            const int intensitylevel) {
   const auto filter = std::make_shared<FacetFilter>();
-  const auto *input = static_cast<sgl::image::ImageInfo *>(in);
-  const auto *output = static_cast<sgl::image::ImageInfo *>(out);
 
   filter->SetRadius(radius);
   filter->SetLevel(intensitylevel);
 
-  gImageEngine.Process(*input, *output, filter);
+  gImageEngine.Process(in, out, filter);
 
-  return true;
+  return SGL_SUCCESS;
 }
 
-bool accented_edge_filter_gpu(void *in, void *out, int *sobelx, int *sobely,
-                              const int size, const int type) {
+sgl_error_t sgl_image_accented_edge(const sgl_image_info_t &in,
+                                    const sgl_image_info_t &out, int *sobelx,
+                                    int *sobely, const int size,
+                                    const int type) {
   const auto filter = std::make_shared<AccentedEdgeFilter>();
-  const auto *input = static_cast<sgl::image::ImageInfo *>(in);
-  const auto *output = static_cast<sgl::image::ImageInfo *>(out);
 
   filter->SetSobelx(sobelx, size);
   filter->SetSobely(sobely, size);
   filter->SetType(type);
 
-  gImageEngine.Process(*input, *output, filter);
+  gImageEngine.Process(in, out, filter);
 
-  return true;
+  return SGL_SUCCESS;
 }
 
-bool irisblur_filter_gpu(void *in, void *in2, void *out, const float x,
-                         const float y, const float a, const float b,
-                         const float ina, const float inb, const float angle) {
-  if (in == nullptr || out == nullptr)
-    return false;
-  const auto filter = std::make_shared<IrisBlurFilter>();
-  const auto *input = static_cast<sgl::image::ImageInfo *>(in);
-  const auto *output = static_cast<sgl::image::ImageInfo *>(out);
-  const auto *input2 = static_cast<sgl::image::ImageInfo *>(in2);
+sgl_error_t sgl_image_irisblur(const sgl_image_info_t &in,
+                               const sgl_image_info_t &in2,
+                               const sgl_image_info_t &out, const float x,
+                               const float y, const float a, const float b,
+                               const float ina, const float inb,
+                               const float angle) {
+  if (sgl_image_check_args(in) != SGL_SUCCESS ||
+      sgl_image_check_args(in2) != SGL_SUCCESS ||
+      sgl_image_check_args(out) != SGL_SUCCESS) {
+    return SGL_INVALID_ARGUMENT;
+  }
 
   std::vector<sgl::image::ImageInfo> inputs;
-  inputs.push_back(*input);
-  inputs.push_back(*input2);
+  inputs.push_back(in);
+  inputs.push_back(in2);
   std::vector<sgl::image::ImageInfo> outputs;
-  outputs.push_back(*output);
+  outputs.push_back(out);
 
+  const auto filter = std::make_shared<IrisBlurFilter>();
   filter->SetCenterX(x);
   filter->SetCenterY(y);
   filter->SetA(a);
@@ -475,25 +475,27 @@ bool irisblur_filter_gpu(void *in, void *in2, void *out, const float x,
 
   gImageEngine.Process(inputs, outputs, filter);
 
-  return true;
+  return SGL_SUCCESS;
 }
 
-bool tiltshiftblur_filter_gpu(void *in, void *in2, void *out, float *A,
-                              float *B, float *C, const float xoffset,
-                              const float yoffset, const int size) {
-  if (in == nullptr || out == nullptr)
-    return false;
-  const auto filter = std::make_shared<TiltshiftBlurFilter>();
-  const auto *input = static_cast<sgl::image::ImageInfo *>(in);
-  const auto *output = static_cast<sgl::image::ImageInfo *>(out);
-  const auto *input2 = static_cast<sgl::image::ImageInfo *>(in2);
+sgl_error_t sgl_image_tiltshiftblur(const sgl_image_info_t &in,
+                                    const sgl_image_info_t &in2,
+                                    const sgl_image_info_t &out, float *A,
+                                    float *B, float *C, const float xoffset,
+                                    const float yoffset, const int size) {
+  if (sgl_image_check_args(in) != SGL_SUCCESS ||
+      sgl_image_check_args(in2) != SGL_SUCCESS ||
+      sgl_image_check_args(out) != SGL_SUCCESS) {
+    return SGL_INVALID_ARGUMENT;
+  }
 
   std::vector<sgl::image::ImageInfo> inputs;
-  inputs.push_back(*input);
-  inputs.push_back(*input2);
+  inputs.push_back(in);
+  inputs.push_back(in2);
   std::vector<sgl::image::ImageInfo> outputs;
-  outputs.push_back(*output);
+  outputs.push_back(out);
 
+  const auto filter = std::make_shared<TiltshiftBlurFilter>();
   filter->SetA(A, size);
   filter->SetB(B, size);
   filter->SetC(C, size);
@@ -501,188 +503,185 @@ bool tiltshiftblur_filter_gpu(void *in, void *in2, void *out, float *A,
 
   gImageEngine.Process(inputs, outputs, filter);
 
-  return true;
+  return SGL_SUCCESS;
 }
 
-bool radial_blur_filter_gpu(void *in, void *out, const int sharpness,
-                            const int strength, const float xCenter,
-                            const float yCenter) {
-  if (in == nullptr || out == nullptr)
-    return false;
+sgl_error_t sgl_image_radial_blur(const sgl_image_info_t &in,
+                                  const sgl_image_info_t &out,
+                                  const int sharpness, const int strength,
+                                  const float xCenter, const float yCenter) {
+  if (sgl_image_check_args(in) != SGL_SUCCESS ||
+      sgl_image_check_args(out) != SGL_SUCCESS) {
+    return SGL_INVALID_ARGUMENT;
+  }
   const auto filter = std::make_shared<RadialBlurNewFilter>();
 
   filter->SetSharpness(sharpness);
   filter->SetStrength(strength);
   filter->SetCenter(xCenter, yCenter);
 
-  const auto *input = static_cast<sgl::image::ImageInfo *>(in);
-  const auto *output = static_cast<sgl::image::ImageInfo *>(out);
+  gImageEngine.Process(in, out, filter);
 
-  gImageEngine.Process(*input, *output, filter);
-
-  return true;
+  return SGL_SUCCESS;
 }
 
-bool rotational_blur_filter_gpu(void *in, void *out, const float angle,
-                                const int strength, const float x,
-                                const float y) {
-  if (in == nullptr || out == nullptr)
-    return false;
+sgl_error_t sgl_image_rotational_blur(const sgl_image_info_t &in,
+                                      const sgl_image_info_t &out,
+                                      const float angle, const int strength,
+                                      const float x, const float y) {
+  if (sgl_image_check_args(in) != SGL_SUCCESS ||
+      sgl_image_check_args(out) != SGL_SUCCESS) {
+    return SGL_INVALID_ARGUMENT;
+  }
   const auto filter = std::make_shared<RotationalBlurFilter>();
 
   filter->SetAngle(angle);
   filter->SetStrength(strength);
   filter->SetCenter(x, y);
-  const auto *input = static_cast<sgl::image::ImageInfo *>(in);
-  const auto *output = static_cast<sgl::image::ImageInfo *>(out);
 
-  gImageEngine.Process(*input, *output, filter);
+  gImageEngine.Process(in, out, filter);
 
-  return true;
+  return SGL_SUCCESS;
 }
 
-bool minmax_filter_gpu(void *in, void *out, const int radius, const int type) {
+sgl_error_t sgl_image_minmax(const sgl_image_info_t &in,
+                             const sgl_image_info_t &out, const int radius,
+                             const int type) {
   const auto filter = std::make_shared<MinMaxFilter>();
-  const auto *input = static_cast<sgl::image::ImageInfo *>(in);
-  const auto *output = static_cast<sgl::image::ImageInfo *>(out);
 
   filter->SetRadius(radius);
   filter->SetType(type);
 
-  gImageEngine.Process(*input, *output, filter);
+  gImageEngine.Process(in, out, filter);
 
-  return true;
+  return SGL_SUCCESS;
 }
 
-bool colorhalftone_filter_gpu(void *in, void *out, const float cyanAngle,
-                              const float yellowAngle, const float magentaAngle,
-                              const float radius, float *lookup) {
+sgl_error_t sgl_image_colorhalftone(const sgl_image_info_t &in,
+                                    const sgl_image_info_t &out,
+                                    const float cyanAngle,
+                                    const float yellowAngle,
+                                    const float magentaAngle,
+                                    const float radius, float *lookup) {
   const auto filter = std::make_shared<ColorhalftoneFilter>();
-  const auto *input = static_cast<sgl::image::ImageInfo *>(in);
-  const auto *output = static_cast<sgl::image::ImageInfo *>(out);
 
   const int size = 256;
   filter->SetColor(cyanAngle, yellowAngle, magentaAngle, radius);
   filter->SetLookup(lookup, size);
 
-  gImageEngine.Process(*input, *output, filter);
+  gImageEngine.Process(in, out, filter);
 
-  return true;
+  return SGL_SUCCESS;
 }
 
-bool sharpen_filter_gpu(void *in, void *out, int *kernel, const int size) {
+sgl_error_t sgl_image_sharpen(const sgl_image_info_t &in,
+                              const sgl_image_info_t &out, int *kernel,
+                              const int size) {
   const auto filter = std::make_shared<SharpenFilter>();
-  const auto *input = static_cast<sgl::image::ImageInfo *>(in);
-  const auto *output = static_cast<sgl::image::ImageInfo *>(out);
 
   filter->SetKernel(kernel, size);
 
-  gImageEngine.Process(*input, *output, filter);
+  gImageEngine.Process(in, out, filter);
 
-  return true;
+  return SGL_SUCCESS;
 }
 
-bool polarcoordinates_filter_gpu(void *in, void *out, const int type) {
+sgl_error_t sgl_image_polarcoordinates(const sgl_image_info_t &in,
+                                       const sgl_image_info_t &out,
+                                       const int type) {
   const auto filter = std::make_shared<PolarCoordinatesFilter>();
-  const auto *input = static_cast<sgl::image::ImageInfo *>(in);
-  const auto *output = static_cast<sgl::image::ImageInfo *>(out);
 
   filter->SetType(type);
 
-  gImageEngine.Process(*input, *output, filter);
+  gImageEngine.Process(in, out, filter);
 
-  return true;
+  return SGL_SUCCESS;
 }
 
-bool clouds_filter_gpu(void *in, void *out, int *permuteLookup, const int size,
-                       const int type) {
+sgl_error_t sgl_image_clouds(const sgl_image_info_t &in,
+                             const sgl_image_info_t &out, int *permuteLookup,
+                             const int size, const int type) {
   const auto filter = std::make_shared<CloudsFilter>();
-  const auto *input = static_cast<sgl::image::ImageInfo *>(in);
-  const auto *output = static_cast<sgl::image::ImageInfo *>(out);
 
   filter->SetLookup(permuteLookup, size);
   filter->SetType(type);
 
-  gImageEngine.Process(*input, *output, filter);
+  gImageEngine.Process(in, out, filter);
 
-  return true;
+  return SGL_SUCCESS;
 }
 
-bool motionblur_filter_gpu(void *in, void *out, const int distance,
-                           const int angle, const float proportion) {
+sgl_error_t sgl_image_motionblur(const sgl_image_info_t &in,
+                                 const sgl_image_info_t &out,
+                                 const int distance, const int angle,
+                                 const float proportion) {
   const auto filter = std::make_shared<MotionBlurFilter>();
-  const auto *input = static_cast<sgl::image::ImageInfo *>(in);
-  const auto *output = static_cast<sgl::image::ImageInfo *>(out);
 
   filter->SetAngle(angle);
   filter->SetDistance(distance);
   filter->SetPro(proportion);
 
-  gImageEngine.Process(*input, *output, filter);
+  gImageEngine.Process(in, out, filter);
 
-  return true;
+  return SGL_SUCCESS;
 }
 
-bool twirlwarp_filter_gpu(void *in, void *out, int angle) {
+sgl_error_t sgl_image_twirlwarp(const sgl_image_info_t &in,
+                                const sgl_image_info_t &out, int angle) {
   const auto filter = std::make_shared<TwirlWarpFilter>();
-  const auto *input = static_cast<sgl::image::ImageInfo *>(in);
-  const auto *output = static_cast<sgl::image::ImageInfo *>(out);
 
   filter->SetAngle(angle);
 
-  gImageEngine.Process(*input, *output, filter);
+  gImageEngine.Process(in, out, filter);
 
-  return true;
+  return SGL_SUCCESS;
 }
 
-bool zigzag_filter_gpu(void *in, void *out, const int wavelength,
-                       const int amplitude, const int type_wave,
-                       const float proportion) {
+sgl_error_t sgl_image_zigzag(const sgl_image_info_t &in,
+                             const sgl_image_info_t &out, const int wavelength,
+                             const int amplitude, const int type_wave,
+                             const float proportion) {
   const auto filter = std::make_shared<ZigzagFilter>();
-  const auto *input = static_cast<sgl::image::ImageInfo *>(in);
-  const auto *output = static_cast<sgl::image::ImageInfo *>(out);
 
   filter->SetWavelength(wavelength);
   filter->SetAmplitude(amplitude);
   filter->SetTypeWave(type_wave);
   filter->SetPro(proportion);
 
-  gImageEngine.Process(*input, *output, filter);
+  gImageEngine.Process(in, out, filter);
 
-  return true;
+  return SGL_SUCCESS;
 }
 
-bool spherize_filter_gpu(void *in, void *out, const int alpha, const int type) {
+sgl_error_t sgl_image_spherize(const sgl_image_info_t &in,
+                               const sgl_image_info_t &out, const int alpha,
+                               const int type) {
   const auto filter = std::make_shared<SpherizeFilter>();
-  const auto *input = static_cast<sgl::image::ImageInfo *>(in);
-  const auto *output = static_cast<sgl::image::ImageInfo *>(out);
 
   filter->SetAlpha(alpha);
   filter->SetType(type);
 
-  gImageEngine.Process(*input, *output, filter);
+  gImageEngine.Process(in, out, filter);
 
-  return true;
+  return SGL_SUCCESS;
 }
 
-bool pinch_filter_gpu(void *in, void *out, int amount) {
+sgl_error_t sgl_image_pinch(const sgl_image_info_t &in,
+                            const sgl_image_info_t &out, int amount) {
   const auto filter = std::make_shared<PinchFilter>();
-  const auto *input = static_cast<sgl::image::ImageInfo *>(in);
-  const auto *output = static_cast<sgl::image::ImageInfo *>(out);
 
   filter->SetAmount(amount);
 
-  gImageEngine.Process(*input, *output, filter);
+  gImageEngine.Process(in, out, filter);
 
-  return true;
+  return SGL_SUCCESS;
 }
 
-bool wave_filter_gpu(void *in, void *out, const int wavelength,
-                     const int amplitude, const int x_pro, const int y_pro,
-                     const int type, const int method) {
+sgl_error_t sgl_image_wave(const sgl_image_info_t &in,
+                           const sgl_image_info_t &out, const int wavelength,
+                           const int amplitude, const int x_pro,
+                           const int y_pro, const int type, const int method) {
   const auto filter = std::make_shared<WaveFilter>();
-  const auto *input = static_cast<sgl::image::ImageInfo *>(in);
-  const auto *output = static_cast<sgl::image::ImageInfo *>(out);
 
   filter->SetWavelength(wavelength);
   filter->SetAmplitude(amplitude);
@@ -690,25 +689,8 @@ bool wave_filter_gpu(void *in, void *out, const int wavelength,
   filter->SetType(type);
   filter->SetMethod(method);
 
-  gImageEngine.Process(*input, *output, filter);
-
-  return true;
-}
-
-sgl_error_t sgl_image_gray(const sgl_image_info_t &in,
-                           const sgl_image_info_t &out, const float r,
-                           const float g, const float b) {
-
-  if (sgl_image_check_args(in) != SGL_SUCCESS ||
-      sgl_image_check_args(out) != SGL_SUCCESS) {
-    return SGL_INVALID_ARGUMENT;
-  }
-
-  const auto filter = std::make_shared<GrayFilter>();
-  filter->SetRedFactor(r);
-  filter->SetGreenFactor(g);
-  filter->SetBlueFactor(b);
   gImageEngine.Process(in, out, filter);
+
   return SGL_SUCCESS;
 }
 
@@ -751,9 +733,42 @@ sgl_image_t *sgl_image_create(const sgl_gpu_ctx_t *gpu_ctx) {
   }
 
   image->gray = sgl_image_gray;
-
-  // TODO:
-  return nullptr;
+  image->threshold_split = sgl_image_threshold_split;
+  image->gaussian_blur = sgl_image_gaussian_blur;
+  image->gaussian_blur_float = sgl_image_gaussian_blur_float;
+  image->surface_blur = sgl_image_surface_blur;
+  image->distort_glass = sgl_image_distort_glass;
+  image->adjust_saturation = sgl_image_adjust_saturation;
+  image->palette_knife = sgl_image_palette_knife;
+  image->hue_equal = sgl_image_hue_equal;
+  image->blur_edge = sgl_image_blur_edge;
+  image->custom_kernel = sgl_image_custom_kernel;
+  image->color_balance = sgl_image_color_balance;
+  image->black_white = sgl_image_black_white;
+  image->scale = sgl_image_scale;
+  image->color_separation = sgl_image_color_separation;
+  image->midvalue = sgl_image_midvalue;
+  image->pathblur = sgl_image_pathblur;
+  image->crystallize = sgl_image_crystallize;
+  image->rotationblur = sgl_image_rotationblur;
+  image->facet = sgl_image_facet;
+  image->accented_edge = sgl_image_accented_edge;
+  image->irisblur = sgl_image_irisblur;
+  image->tiltshiftblur = sgl_image_tiltshiftblur;
+  image->radial_blur = sgl_image_radial_blur;
+  image->rotational_blur = sgl_image_rotational_blur;
+  image->minmax = sgl_image_minmax;
+  image->colorhalftone = sgl_image_colorhalftone;
+  image->sharpen = sgl_image_sharpen;
+  image->polarcoordinates = sgl_image_polarcoordinates;
+  image->clouds = sgl_image_clouds;
+  image->motionblur = sgl_image_motionblur;
+  image->twirlwarp = sgl_image_twirlwarp;
+  image->zigzag = sgl_image_zigzag;
+  image->spherize = sgl_image_spherize;
+  image->pinch = sgl_image_pinch;
+  image->wave = sgl_image_wave;
+  return image;
 }
 void sgl_image_destroy(sgl_image_t *image) {
   if (image == nullptr) {
