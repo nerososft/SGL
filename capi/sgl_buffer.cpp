@@ -12,6 +12,7 @@ sgl_buffer_t sgl_buffer_manager_allocate_buf(sgl_buffer_manager *mgr,
   // TODO:
   return (sgl_buffer_t){};
 }
+
 sgl_error_t sgl_buffer_manager_destroy_buf(sgl_buffer_manager *mgr,
                                            sgl_buffer_t *buf) {
   // TODO:

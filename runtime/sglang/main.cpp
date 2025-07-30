@@ -2,16 +2,12 @@
 // Created by neo on 25-7-25.
 //
 #include "compiler/ShaderCompiler.h"
-
 #include <fstream>
 #include <iostream>
 #include <shaderc/shaderc.hpp>
 #include <sstream>
 
-void kernel() {}
-
 int main(int argc, char *argv[]) {
-
   const std::string source = R"(#version 450
 layout (local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
 
