@@ -17,7 +17,7 @@ struct ModelMatrix {
 
 class RendererMesh {
 public:
-  Mesh mesh{};
+  std::shared_ptr<Mesh> mesh = nullptr;
 
   std::shared_ptr<VkGPUBuffer> vertexBuffer = nullptr;
   std::shared_ptr<VkGPUBuffer> indicesBuffer = nullptr;
@@ -26,13 +26,11 @@ public:
 
   RendererMesh() = delete;
 
-  RendererMesh(const std::vector<Vertex> &vertices,
-               const std::vector<uint32_t> &indices, const Material &material,
-               const glm::mat4 &transform);
+  explicit RendererMesh(const std::shared_ptr<Mesh> &mesh);
 
-  void SetMaterial(const Material &material);
+  void SetMaterial(const Material &material) const;
 
-  void SetTransformMatrix(const glm::mat4 &transform);
+  void SetTransformMatrix(const glm::mat4 &transform) const;
 
   [[nodiscard]] PipelineNodeBuffer GetVertexBufferNode() const;
 

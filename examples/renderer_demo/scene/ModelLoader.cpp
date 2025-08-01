@@ -150,6 +150,11 @@ ModelLoader::LoadModel(const std::string &path) {
                    << aiTextureTypeToString(
                           static_cast<aiTextureType>(textureType))
                    << "texture '" << texturePath.C_Str() << "'" << std::endl;
+
+          model->textures.push_back({
+              .type = static_cast<TextureType>(textureType),
+              .path = std::string(texturePath.C_Str()),
+          });
         }
       }
     } else {

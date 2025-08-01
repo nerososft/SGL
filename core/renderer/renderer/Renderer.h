@@ -64,9 +64,7 @@ class Renderer {
 public:
   Renderer(uint32_t width, uint32_t height);
 
-  bool AddDrawElement(const std::vector<Vertex> &vertexData,
-                      const std::vector<uint32_t> &indicesData,
-                      const Material &material, const glm::mat4 &transform);
+  bool AddDrawElement(const std::shared_ptr<Mesh> &mesh);
 
   [[nodiscard]] bool ConstructMainGraphicsPipeline();
 

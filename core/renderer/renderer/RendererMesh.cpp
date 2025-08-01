@@ -6,24 +6,17 @@
 
 #include "runtime/log/Log.h"
 
-RendererMesh::RendererMesh(const std::vector<Vertex> &vertices,
-                           const std::vector<uint32_t> &indices,
-                           const Material &material,
-                           const glm::mat4 &transform) {
-  this->mesh.vertexData = vertices;
-  this->mesh.indicesData = indices;
-  this->mesh.material = material;
-  this->mesh.transform = transform;
+RendererMesh::RendererMesh(const std::shared_ptr<Mesh> &mesh) {
+  this->mesh = mesh;
 }
-
-void RendererMesh::SetMaterial(const Material &material) {
-  this->mesh.material = material;
+void RendererMesh::SetMaterial(const Material &material) const {
+  this->mesh->material = material;
   this->materialBuffer->UploadData(&material, sizeof(Material));
 }
 
-void RendererMesh::SetTransformMatrix(const glm::mat4 &transform) {
-  this->mesh.transform = transform;
-  this->transformMatrixBuffer->UploadData(&mesh.transform, sizeof(glm::mat4));
+void RendererMesh::SetTransformMatrix(const glm::mat4 &transform) const {
+  this->mesh->transform = transform;
+  this->transformMatrixBuffer->UploadData(&mesh->transform, sizeof(glm::mat4));
 }
 
 PipelineNodeBuffer RendererMesh::GetVertexBufferNode() const {
@@ -68,14 +61,15 @@ bool RendererMesh::CreateGPUMesh(const std::shared_ptr<VkGPUContext> &gpuCtx) {
     Logger() << "vertexBuffer is null" << std::endl;
     return false;
   }
-  const VkDeviceSize vertexBufferSize = mesh.vertexData.size() * sizeof(Vertex);
+  const VkDeviceSize vertexBufferSize =
+      mesh->vertexData.size() * sizeof(Vertex);
   VkResult ret =
       vertexBuffer->AllocateAndBind(GPU_BUFFER_TYPE_VERTEX, vertexBufferSize);
   if (ret != VK_SUCCESS) {
     Logger() << "Vertex buffer allocate and bind failed" << std::endl;
     return false;
   }
-  ret = vertexBuffer->UploadData(mesh.vertexData.data(), vertexBufferSize);
+  ret = vertexBuffer->UploadData(mesh->vertexData.data(), vertexBufferSize);
   if (ret != VK_SUCCESS) {
     Logger() << "Vertex buffer upload failed" << std::endl;
     return false;
@@ -91,14 +85,14 @@ bool RendererMesh::CreateGPUMesh(const std::shared_ptr<VkGPUContext> &gpuCtx) {
   }
 
   const VkDeviceSize indicesBufferSize =
-      mesh.indicesData.size() * sizeof(uint32_t);
+      mesh->indicesData.size() * sizeof(uint32_t);
   ret =
       indicesBuffer->AllocateAndBind(GPU_BUFFER_TYPE_INDEX, indicesBufferSize);
   if (ret != VK_SUCCESS) {
     Logger() << "Index buffer allocate and bind failed" << std::endl;
     return false;
   }
-  ret = indicesBuffer->UploadData(mesh.indicesData.data(), indicesBufferSize);
+  ret = indicesBuffer->UploadData(mesh->indicesData.data(), indicesBufferSize);
   if (ret != VK_SUCCESS) {
     Logger() << "Index buffer upload failed" << std::endl;
     return false;
@@ -119,7 +113,7 @@ bool RendererMesh::CreateGPUMesh(const std::shared_ptr<VkGPUContext> &gpuCtx) {
     Logger() << "Material buffer allocate and bind failed" << std::endl;
     return false;
   }
-  ret = materialBuffer->UploadData(&mesh.material, materialBufferSize);
+  ret = materialBuffer->UploadData(&mesh->material, materialBufferSize);
   if (ret != VK_SUCCESS) {
     Logger() << "Material buffer upload failed" << std::endl;
     return false;
@@ -141,7 +135,7 @@ bool RendererMesh::CreateGPUMesh(const std::shared_ptr<VkGPUContext> &gpuCtx) {
     return false;
   }
 
-  ret = transformMatrixBuffer->UploadData(&mesh.transform,
+  ret = transformMatrixBuffer->UploadData(&mesh->transform,
                                           transformMatrixBufferSize);
   if (ret != VK_SUCCESS) {
     Logger() << "transform matrix buffer upload failed" << std::endl;

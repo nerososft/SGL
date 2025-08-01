@@ -26,8 +26,7 @@ void GraphicsApp::Init() {
         ModelLoader::LoadModel("../../../examples/renderer_demo/assets/"
                                "builtin.models/Helmet/DamagedHelmet.gltf");
     for (auto &mesh : models) {
-      if (!rdr->AddDrawElement(mesh->vertexData, mesh->indicesData,
-                               mesh->material, mesh->transform)) {
+      if (!rdr->AddDrawElement(mesh)) {
         Logger() << "draw mesh add failed" << std::endl;
         return false;
       }

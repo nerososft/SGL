@@ -8,26 +8,21 @@
 #include <queue>
 #include <vulkan/vk_enum_string_helper.h>
 
+#include "core/utils/ImageUtils.h"
 #include "runtime/gpu/VkGPUBuffer.h"
 #include "runtime/gpu/VkGPUHelper.h"
 #include "runtime/gpu/compute_graph/ImageToBufferCopyNode.h"
 #include "runtime/log/Log.h"
-#include "core/utils/ImageUtils.h"
 
 Renderer::Renderer(const uint32_t width, const uint32_t height) {
   this->width = width;
   this->height = height;
 }
 
-bool Renderer::AddDrawElement(const std::vector<Vertex> &vertexData,
-                              const std::vector<uint32_t> &indicesData,
-                              const Material &material,
-                              const glm::mat4 &transform) {
-  // TODO: maybe this should be created at outer and passed into renderer?
+bool Renderer::AddDrawElement(const std::shared_ptr<Mesh> &mesh) {
   std::vector<PipelineNodeBuffer> buffers;
 
-  const auto renderMesh = std::make_shared<RendererMesh>(
-      vertexData, indicesData, material, transform);
+  const auto renderMesh = std::make_shared<RendererMesh>(mesh);
   if (!renderMesh->CreateGPUMesh(this->gpuCtx)) {
     return false;
   }
@@ -39,6 +34,7 @@ bool Renderer::AddDrawElement(const std::vector<Vertex> &vertexData,
   buffers.push_back(renderMesh->GetTransformMatrixBufferNode());  // uniform 1
   buffers.push_back(camera->GetViewProjectionMatrixBufferNode()); // uniform 2
   buffers.push_back(rendererLights[0]->GetLightBufferNode());     // uniform 3
+
   const GraphicsElement element{
       .pushConstantInfo = {.size = sizeof(FrameInfo), .data = &this->frameInfo},
       .buffers = buffers,
