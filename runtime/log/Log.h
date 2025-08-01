@@ -68,7 +68,7 @@ private:
       return;
     if (buffer->tellp() > 0 && level >= LOG_SHOW_LEVEL) {
 #ifdef OS_OPEN_HARMONY
-      OH_LOG_Print(LOG_APP, LOG_INFO, 0xFF00, "[EffectEngine]", "%{public}s",
+      OH_LOG_Print(LOG_APP, LOG_INFO, 0xFF00, "[SGL]", "%{public}s",
                    buffer->str().c_str());
 #else
       std::cout << getLevelStr() << buffer->str();
