@@ -142,6 +142,15 @@ bool RendererMesh::CreateGPUMesh(const std::shared_ptr<VkGPUContext> &gpuCtx) {
     return false;
   }
 
+  /*
+   * Textures
+   */
+  for (auto &[type, path] : mesh->textures) {
+    Logger() << "Create texture " << string_TextureType(type) << ":" << path
+             << "..." << std::endl;
+    // TODO: read file and create gpu buffer & image
+  }
+
   return true;
 }
 

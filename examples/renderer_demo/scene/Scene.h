@@ -55,6 +55,94 @@ enum TextureType {
   TextureType_GLTF_METALLIC_ROUGHNESS = 27,
 };
 
+static std::string string_TextureType(const TextureType type) {
+  if (type == TextureType_DIFFUSE) {
+    return "TextureType_DIFFUSE";
+  }
+  if (type == TextureType_NONE) {
+    return "TextureType_NONE";
+  }
+  if (type == TextureType_SPECULAR) {
+    return "TextureType_SPECULAR";
+  }
+  if (type == TextureType_AMBIENT) {
+    return "TextureType_AMBIENT";
+  }
+  if (type == TextureType_EMISSIVE) {
+    return "TextureType_EMISSIVE";
+  }
+  if (type == TextureType_HEIGHT) {
+    return "TextureType_HEIGHT";
+  }
+  if (type == TextureType_NORMALS) {
+    return "TextureType_NORMALS";
+  }
+  if (type == TextureType_SHININESS) {
+    return "TextureType_SHININESS";
+  }
+  if (type == TextureType_OPACITY) {
+    return "TextureType_OPACITY";
+  }
+  if (type == TextureType_DISPLACEMENT) {
+    return "TextureType_DISPLACEMENT";
+  }
+  if (type == TextureType_LIGHTMAP) {
+    return "TextureType_LIGHTMAP";
+  }
+  if (type == TextureType_REFLECTION) {
+    return "TextureType_REFLECTION";
+  }
+  if (type == TextureType_BASE_COLOR) {
+    return "TextureType_BASE_COLOR";
+  }
+  if (type == TextureType_NORMAL_CAMERA) {
+    return "TextureType_NORMAL_CAMERA";
+  }
+  if (type == TextureType_EMISSION_COLOR) {
+    return "TextureType_EMISSION_COLOR";
+  }
+  if (type == TextureType_METALNESS) {
+    return "TextureType_METALNESS";
+  }
+  if (type == TextureType_DIFFUSE_ROUGHNESS) {
+    return "TextureType_DIFFUSE_ROUGHNESS";
+  }
+  if (type == TextureType_AMBIENT_OCCLUSION) {
+    return "TextureType_AMBIENT_OCCLUSION";
+  }
+  if (type == TextureType_UNKNOWN) {
+    return "TextureType_UNKNOWN";
+  }
+  if (type == TextureType_SHEEN) {
+    return "TextureType_SHEEN";
+  }
+  if (type == TextureType_CLEARCOAT) {
+    return "TextureType_CLEARCOAT";
+  }
+  if (type == TextureType_TRANSMISSION) {
+    return "TextureType_TRANSMISSION";
+  }
+  if (type == TextureType_MAYA_BASE) {
+    return "TextureType_MAYA_BASE";
+  }
+  if (type == TextureType_MAYA_SPECULAR) {
+    return "TextureType_MAYA_SPECULAR";
+  }
+  if (type == TextureType_MAYA_SPECULAR_COLOR) {
+    return "TextureType_MAYA_SPECULAR_COLOR";
+  }
+  if (type == TextureType_MAYA_SPECULAR_ROUGHNESS) {
+    return "TextureType_MAYA_SPECULAR_ROUGHNESS";
+  }
+  if (type == TextureType_ANISOTROPY) {
+    return "TextureType_ANISOTROPY";
+  }
+  if (type == TextureType_GLTF_METALLIC_ROUGHNESS) {
+    return "TextureType_GLTF_METALLIC_ROUGHNESS";
+  }
+  return "TextureType_UNKNOWN";
+}
+
 struct Texture {
   TextureType type;
   std::string path;
