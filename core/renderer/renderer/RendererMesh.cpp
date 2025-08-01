@@ -52,6 +52,29 @@ PipelineNodeBuffer RendererMesh::GetTransformMatrixBufferNode() const {
   return transformMatrixBufferNode;
 }
 
+PipelineNodeBuffer
+RendererMesh::GetTextureBufferNode(const TextureType type) const {
+  PipelineNodeBuffer textureBufferNode = {};
+  if (!textures.contains(type)) {
+    textureBufferNode.type = PIPELINE_NODE_UNKNOW;
+    return textureBufferNode;
+  }
+
+  const std::shared_ptr<VkGPUTexture> texture = textures.at(type);
+
+  textureBufferNode.type = PIPELINE_NODE_SAMPLER;
+  textureBufferNode.sampler.image = texture->GetTextureImage();
+  textureBufferNode.sampler.imageView = texture->GetTextureImageView();
+  textureBufferNode.sampler.imageBuffer =
+      texture->GetImageBuffer()->GetBuffer();
+  textureBufferNode.sampler.imageBufferMemory =
+      texture->GetImageBuffer()->GetDeviceMemory();
+  textureBufferNode.sampler.imageLayout =
+      VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+  textureBufferNode.sampler.sampler = texture->GetTextureSampler();
+  return textureBufferNode;
+}
+
 bool RendererMesh::CreateGPUMesh(const std::shared_ptr<VkGPUContext> &gpuCtx) {
   /*
    * Vertex upload

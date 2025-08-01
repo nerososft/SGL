@@ -24,6 +24,8 @@ set(RUNTIME_GPU_SOURCE gpu/VkGPUHelper.cpp
         gpu/VkGPUFramebuffer.h
         gpu/VkGPUSwapChain.cpp
         gpu/VkGPUSwapChain.h
+        gpu/VkGPUTexture.cpp
+        gpu/VkGPUTexture.h
         gpu/compute_graph/ComputeGraph.cpp
         gpu/compute_graph/ComputeGraph.h
         gpu/compute_graph/IComputeGraphNode.h

@@ -9,7 +9,10 @@
 
 #include "examples/renderer_demo/scene/Scene.h"
 #include "runtime/gpu/VkGPUBuffer.h"
+#include "runtime/gpu/VkGPUTexture.h"
 #include "runtime/gpu/compute_graph/IComputeGraphNode.h"
+
+#include <map>
 
 struct ModelMatrix {
   glm::mat4 model;
@@ -23,6 +26,8 @@ public:
   std::shared_ptr<VkGPUBuffer> indicesBuffer = nullptr;
   std::shared_ptr<VkGPUBuffer> materialBuffer = nullptr;
   std::shared_ptr<VkGPUBuffer> transformMatrixBuffer = nullptr;
+
+  std::map<TextureType, std::shared_ptr<VkGPUTexture>> textures;
 
   RendererMesh() = delete;
 
@@ -39,6 +44,8 @@ public:
   [[nodiscard]] PipelineNodeBuffer GetMaterialBufferNode() const;
 
   [[nodiscard]] PipelineNodeBuffer GetTransformMatrixBufferNode() const;
+
+  PipelineNodeBuffer GetTextureBufferNode(TextureType type) const;
 
   bool CreateGPUMesh(const std::shared_ptr<VkGPUContext> &gpuCtx);
 

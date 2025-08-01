@@ -1,0 +1,41 @@
+//
+// Created by neo on 25-8-1.
+//
+
+#ifndef VKGPUTEXTURE_H
+#define VKGPUTEXTURE_H
+#include "VkGPUBuffer.h"
+#include "VkGPUContext.h"
+
+#include <memory>
+
+class VkGPUTexture {
+  std::shared_ptr<VkGPUContext> gpuCtx = nullptr;
+  VkImage textureImage = VK_NULL_HANDLE;
+  VkImageView textureImageView = VK_NULL_HANDLE;
+  VkSampler textureSampler = VK_NULL_HANDLE;
+  std::shared_ptr<VkGPUBuffer> imageBuffer = nullptr;
+
+  float width;
+  float height;
+
+public:
+  VkGPUTexture(const std::shared_ptr<VkGPUContext> &gpuCtx, float width,
+               float height);
+
+  VkImage GetTextureImage() const { return textureImage; }
+
+  VkImageView GetTextureImageView() const { return textureImageView; }
+
+  VkSampler GetTextureSampler() const { return textureSampler; }
+
+  std::shared_ptr<VkGPUBuffer> GetImageBuffer() { return imageBuffer; }
+
+  ~VkGPUTexture() = default;
+
+  VkResult CreateTexture();
+
+  void Destroy();
+};
+
+#endif // VKGPUTEXTURE_H
