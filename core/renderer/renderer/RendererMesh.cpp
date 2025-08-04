@@ -4,6 +4,7 @@
 
 #include "RendererMesh.h"
 
+#include "core/utils/ImageUtils.h"
 #include "runtime/log/Log.h"
 
 RendererMesh::RendererMesh(const std::shared_ptr<Mesh> &mesh) {

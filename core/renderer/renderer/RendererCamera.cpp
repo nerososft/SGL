@@ -86,3 +86,27 @@ PipelineNodeBuffer RendererCamera::GetViewProjectionMatrixBufferNode() const {
   vpBufferNode.buf.bufferSize = viewProjectionBuffer->GetBufferSize();
   return vpBufferNode;
 }
+
+void RendererCamera::MoveForward() {
+  this->viewProjectionMatrix.view = glm::translate(
+      this->viewProjectionMatrix.view, glm::vec3(0, this->moveSpeed, 0));
+  this->SetViewMatrix(this->viewProjectionMatrix.view);
+}
+
+void RendererCamera::MoveBackward() {
+  this->viewProjectionMatrix.view = glm::translate(
+      this->viewProjectionMatrix.view, glm::vec3(0, -this->moveSpeed, 0));
+  this->SetViewMatrix(this->viewProjectionMatrix.view);
+}
+
+void RendererCamera::MoveLeft() {
+  this->viewProjectionMatrix.view = glm::translate(
+      this->viewProjectionMatrix.view, glm::vec3(-this->moveSpeed, 0, 0));
+  this->SetViewMatrix(this->viewProjectionMatrix.view);
+}
+
+void RendererCamera::MoveRight() {
+  this->viewProjectionMatrix.view = glm::translate(
+      this->viewProjectionMatrix.view, glm::vec3(this->moveSpeed, 0, 0));
+  this->SetViewMatrix(this->viewProjectionMatrix.view);
+}

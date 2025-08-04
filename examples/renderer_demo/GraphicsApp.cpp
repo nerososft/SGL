@@ -81,6 +81,28 @@ void GraphicsApp::OnKeyUp(const uint32_t key) {
 }
 
 void GraphicsApp::OnKeyDown(const uint32_t key) {
+  auto camera = renderer->GetCamera();
+  switch (key) {
+  case GLFW_KEY_W:
+  case GLFW_KEY_UP:
+    camera->MoveForward();
+    break;
+  case GLFW_KEY_S:
+  case GLFW_KEY_DOWN:
+    camera->MoveBackward();
+    break;
+  case GLFW_KEY_A:
+  case GLFW_KEY_LEFT:
+    camera->MoveLeft();
+    break;
+  case GLFW_KEY_D:
+  case GLFW_KEY_RIGHT:
+    camera->MoveRight();
+    break;
+  default:
+    break;
+  }
+
   Logger() << "Key down: " << key << std::endl;
 }
 

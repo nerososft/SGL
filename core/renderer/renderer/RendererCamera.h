@@ -21,7 +21,9 @@ class RendererCamera {
 
   std::shared_ptr<VkGPUBuffer> viewProjectionBuffer = nullptr;
 
-  glm::mat4 GetInitialViewMatrix() const;
+  float moveSpeed = 0.05;
+
+  [[nodiscard]] glm::mat4 GetInitialViewMatrix() const;
 
   static glm::mat4 GetInitialProjectionMatrix(float aspectRatio);
 
@@ -35,23 +37,31 @@ public:
   }
 
   [[nodiscard]] glm::vec3 GetPosition() const {
-    return glm::vec3(this->viewProjectionMatrix.position.x,
-                     this->viewProjectionMatrix.position.y,
-                     this->viewProjectionMatrix.position.z);
+    return {this->viewProjectionMatrix.position.x,
+            this->viewProjectionMatrix.position.y,
+            this->viewProjectionMatrix.position.z};
   }
 
   [[nodiscard]] glm::mat4 GetViewMatrix() const;
 
   void SetViewMatrix(const glm::mat4 &viewMatrix);
 
-  glm::mat4 GetProjectionMatrix() const;
+  [[nodiscard]] glm::mat4 GetProjectionMatrix() const;
 
   void Destroy();
 
   bool CreateGPUCamera(const std::shared_ptr<VkGPUContext> &gpuCtx,
                        float aspectRatio);
 
-  PipelineNodeBuffer GetViewProjectionMatrixBufferNode() const;
+  [[nodiscard]] PipelineNodeBuffer GetViewProjectionMatrixBufferNode() const;
+
+  void MoveForward();
+
+  void MoveBackward();
+
+  void MoveLeft();
+
+  void MoveRight();
 };
 
 #endif // RENDERERCAMERA_H
