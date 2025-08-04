@@ -76,10 +76,7 @@ RendererMesh::GetTextureBufferNode(const TextureType type) const {
   return textureBufferNode;
 }
 
-bool RendererMesh::CreateGPUMesh(const std::shared_ptr<VkGPUContext> &gpuCtx) {
-  /*
-   * Vertex upload
-   */
+bool RendererMesh::CreateVertex(const std::shared_ptr<VkGPUContext> &gpuCtx) {
   vertexBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
   if (vertexBuffer == nullptr) {
     Logger() << Logger::ERROR << "vertexBuffer is null" << std::endl;
@@ -99,10 +96,10 @@ bool RendererMesh::CreateGPUMesh(const std::shared_ptr<VkGPUContext> &gpuCtx) {
     Logger() << Logger::ERROR << "Vertex buffer upload failed" << std::endl;
     return false;
   }
+  return true;
+}
 
-  /*
-   * Indices upload
-   */
+bool RendererMesh::CreateIndices(const std::shared_ptr<VkGPUContext> &gpuCtx) {
   indicesBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
   if (indicesBuffer == nullptr) {
     Logger() << Logger::ERROR << "indexBuffer is null" << std::endl;
@@ -111,7 +108,7 @@ bool RendererMesh::CreateGPUMesh(const std::shared_ptr<VkGPUContext> &gpuCtx) {
 
   const VkDeviceSize indicesBufferSize =
       mesh->indicesData.size() * sizeof(uint32_t);
-  ret =
+  VkResult ret =
       indicesBuffer->AllocateAndBind(GPU_BUFFER_TYPE_INDEX, indicesBufferSize);
   if (ret != VK_SUCCESS) {
     Logger() << Logger::ERROR << "Index buffer allocate and bind failed"
@@ -123,18 +120,17 @@ bool RendererMesh::CreateGPUMesh(const std::shared_ptr<VkGPUContext> &gpuCtx) {
     Logger() << Logger::ERROR << "Index buffer upload failed" << std::endl;
     return false;
   }
-
-  /*
-   * Material upload
-   */
+  return true;
+}
+bool RendererMesh::CreateMaterial(const std::shared_ptr<VkGPUContext> &gpuCtx) {
   materialBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
   if (materialBuffer == nullptr) {
     Logger() << Logger::ERROR << "material is null" << std::endl;
     return false;
   }
   const VkDeviceSize materialBufferSize = sizeof(Material);
-  ret = materialBuffer->AllocateAndBind(GPU_BUFFER_TYPE_UNIFORM,
-                                        materialBufferSize);
+  VkResult ret = materialBuffer->AllocateAndBind(GPU_BUFFER_TYPE_UNIFORM,
+                                                 materialBufferSize);
   if (ret != VK_SUCCESS) {
     Logger() << Logger::ERROR << "Material buffer allocate and bind failed"
              << std::endl;
@@ -145,18 +141,18 @@ bool RendererMesh::CreateGPUMesh(const std::shared_ptr<VkGPUContext> &gpuCtx) {
     Logger() << Logger::ERROR << "Material buffer upload failed" << std::endl;
     return false;
   }
-
-  /*
-   * Transform matrix
-   */
+  return true;
+}
+bool RendererMesh::CreateTransform(
+    const std::shared_ptr<VkGPUContext> &gpuCtx) {
   transformMatrixBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
   if (transformMatrixBuffer == nullptr) {
     Logger() << Logger::ERROR << "transform matrix is null" << std::endl;
     return false;
   }
   const VkDeviceSize transformMatrixBufferSize = sizeof(glm::mat4);
-  ret = transformMatrixBuffer->AllocateAndBind(GPU_BUFFER_TYPE_UNIFORM,
-                                               transformMatrixBufferSize);
+  VkResult ret = transformMatrixBuffer->AllocateAndBind(
+      GPU_BUFFER_TYPE_UNIFORM, transformMatrixBufferSize);
   if (ret != VK_SUCCESS) {
     Logger() << Logger::ERROR
              << "transform matrix buffer allocate and bind failed" << std::endl;
@@ -170,10 +166,10 @@ bool RendererMesh::CreateGPUMesh(const std::shared_ptr<VkGPUContext> &gpuCtx) {
              << std::endl;
     return false;
   }
+  return true;
+}
 
-  /*
-   * Textures
-   */
+bool RendererMesh::CreateTexture(const std::shared_ptr<VkGPUContext> &gpuCtx) {
   for (auto &[type, path, width, height, channels] : mesh->textures) {
     std::string texturePath = mesh->path + path;
     std::vector<char> data =
@@ -197,6 +193,49 @@ bool RendererMesh::CreateGPUMesh(const std::shared_ptr<VkGPUContext> &gpuCtx) {
     }
 
     this->textures.emplace(std::pair(type, texture));
+  }
+  return true;
+}
+
+bool RendererMesh::CreateGPUMesh(const std::shared_ptr<VkGPUContext> &gpuCtx) {
+  /*
+   * Vertex upload
+   */
+  if (!CreateVertex(gpuCtx)) {
+    Logger() << Logger::ERROR << "Vertex create failed" << std::endl;
+    return false;
+  }
+
+  /*
+   * Indices upload
+   */
+  if (!CreateIndices(gpuCtx)) {
+    Logger() << Logger::ERROR << "Index create failed" << std::endl;
+    return false;
+  }
+
+  /*
+   * Material upload
+   */
+  if (!CreateMaterial(gpuCtx)) {
+    Logger() << Logger::ERROR << "Material create failed" << std::endl;
+    return false;
+  }
+
+  /*
+   * Transform matrix
+   */
+  if (!CreateTransform(gpuCtx)) {
+    Logger() << Logger::ERROR << "Transform create failed" << std::endl;
+    return false;
+  }
+
+  /*
+   * Textures
+   */
+  if (!CreateTexture(gpuCtx)) {
+    Logger() << Logger::ERROR << "Texture create failed" << std::endl;
+    return false;
   }
 
   return true;

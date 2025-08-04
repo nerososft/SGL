@@ -46,6 +46,11 @@ public:
   [[nodiscard]] PipelineNodeBuffer GetTransformMatrixBufferNode() const;
 
   PipelineNodeBuffer GetTextureBufferNode(TextureType type) const;
+  bool CreateVertex(const std::shared_ptr<VkGPUContext> &gpuCtx);
+  bool CreateIndices(const std::shared_ptr<VkGPUContext> &gpuCtx);
+  bool CreateMaterial(const std::shared_ptr<VkGPUContext> &gpuCtx);
+  bool CreateTransform(const std::shared_ptr<VkGPUContext> &gpuCtx);
+  bool CreateTexture(const std::shared_ptr<VkGPUContext> &gpuCtx);
 
   bool CreateGPUMesh(const std::shared_ptr<VkGPUContext> &gpuCtx);
 
