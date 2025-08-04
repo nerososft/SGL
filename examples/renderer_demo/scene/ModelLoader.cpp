@@ -29,21 +29,23 @@ aiMatrix4x4 ModelLoader::GetMeshTransform(const aiScene *scene,
 }
 
 std::vector<std::shared_ptr<Mesh>>
-ModelLoader::LoadModel(const std::string &path) {
+ModelLoader::LoadModel(const std::string &path, const std::string &name) {
   Assimp::Importer importer;
   const aiScene *scene =
-      importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
+      importer.ReadFile(path + name, aiProcess_Triangulate | aiProcess_FlipUVs);
   if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE ||
       !scene->mRootNode) {
-    Logger() << "Failed to load model '" << path << "'" << std::endl;
+    Logger() << "Failed to load model '" << path + name << "'" << std::endl;
     return {};
   }
 
   std::vector<std::shared_ptr<Mesh>> meshes;
-  Logger() << "Loading model '" << path << "'" << std::endl;
+  Logger() << "Loading model '" << path + name << "'" << std::endl;
 
   for (int meshIndex = 0; meshIndex < scene->mNumMeshes; meshIndex++) {
     auto model = std::make_shared<Mesh>();
+    model->path = path;
+    model->name = name;
     const aiMesh *mesh = scene->mMeshes[meshIndex];
     Logger() << "Loading mesh '" << mesh->mName.C_Str()
              << "', Vertices:" << mesh->mNumVertices

@@ -22,12 +22,12 @@ void GraphicsApp::Init() {
   renderer = std::make_shared<Renderer>(this->windowWidth, this->windowHeight);
 
   renderer->SetOnLoadScene([](Renderer *rdr) -> bool {
-    const std::vector<std::shared_ptr<Mesh>> models =
-        ModelLoader::LoadModel("../../../examples/renderer_demo/assets/"
-                               "builtin.models/Helmet/DamagedHelmet.gltf");
+    const std::vector<std::shared_ptr<Mesh>> models = ModelLoader::LoadModel(
+        "../../../examples/renderer_demo/assets/builtin.models/Helmet/",
+        "DamagedHelmet.gltf");
     for (auto &mesh : models) {
       if (!rdr->AddDrawElement(mesh)) {
-        Logger() << "draw mesh add failed" << std::endl;
+        Logger() << Logger::ERROR << "draw mesh add failed" << std::endl;
         return false;
       }
     }
@@ -36,7 +36,7 @@ void GraphicsApp::Init() {
   window->CreateWindow(this->windowPosX, this->windowPosY, this->windowWidth,
                        this->windowHeight, this->windowTitle);
   if (!renderer->Init(requiredExtensions, GetWindowSurface)) {
-    Logger() << "Failed to initialize renderer" << std::endl;
+    Logger() << Logger::ERROR << "Failed to initialize renderer" << std::endl;
   }
 }
 

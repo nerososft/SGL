@@ -70,7 +70,7 @@ void *Matrix::GetDataAddr() const {
     return nullptr;
   }
   if (this->buffer->MapBuffer() != VK_SUCCESS) {
-    Logger() << "failed to map buffer" << std::endl;
+    Logger() << Logger::ERROR << "failed to map buffer" << std::endl;
     return nullptr;
   }
   return this->buffer->GetMappedAddr();

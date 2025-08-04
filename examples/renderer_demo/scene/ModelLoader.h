@@ -22,7 +22,8 @@ public:
 
   ~ModelLoader() = default;
 
-  static std::vector<std::shared_ptr<Mesh>> LoadModel(const std::string &path);
+  static std::vector<std::shared_ptr<Mesh>> LoadModel(const std::string &path,
+                                                      const std::string &name);
 };
 
 #endif // MODELLOADER_H

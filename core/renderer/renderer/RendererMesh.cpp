@@ -82,7 +82,7 @@ bool RendererMesh::CreateGPUMesh(const std::shared_ptr<VkGPUContext> &gpuCtx) {
    */
   vertexBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
   if (vertexBuffer == nullptr) {
-    Logger() << "vertexBuffer is null" << std::endl;
+    Logger() << Logger::ERROR << "vertexBuffer is null" << std::endl;
     return false;
   }
   const VkDeviceSize vertexBufferSize =
@@ -90,12 +90,13 @@ bool RendererMesh::CreateGPUMesh(const std::shared_ptr<VkGPUContext> &gpuCtx) {
   VkResult ret =
       vertexBuffer->AllocateAndBind(GPU_BUFFER_TYPE_VERTEX, vertexBufferSize);
   if (ret != VK_SUCCESS) {
-    Logger() << "Vertex buffer allocate and bind failed" << std::endl;
+    Logger() << Logger::ERROR << "Vertex buffer allocate and bind failed"
+             << std::endl;
     return false;
   }
   ret = vertexBuffer->UploadData(mesh->vertexData.data(), vertexBufferSize);
   if (ret != VK_SUCCESS) {
-    Logger() << "Vertex buffer upload failed" << std::endl;
+    Logger() << Logger::ERROR << "Vertex buffer upload failed" << std::endl;
     return false;
   }
 
@@ -104,7 +105,7 @@ bool RendererMesh::CreateGPUMesh(const std::shared_ptr<VkGPUContext> &gpuCtx) {
    */
   indicesBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
   if (indicesBuffer == nullptr) {
-    Logger() << "indexBuffer is null" << std::endl;
+    Logger() << Logger::ERROR << "indexBuffer is null" << std::endl;
     return false;
   }
 
@@ -113,12 +114,13 @@ bool RendererMesh::CreateGPUMesh(const std::shared_ptr<VkGPUContext> &gpuCtx) {
   ret =
       indicesBuffer->AllocateAndBind(GPU_BUFFER_TYPE_INDEX, indicesBufferSize);
   if (ret != VK_SUCCESS) {
-    Logger() << "Index buffer allocate and bind failed" << std::endl;
+    Logger() << Logger::ERROR << "Index buffer allocate and bind failed"
+             << std::endl;
     return false;
   }
   ret = indicesBuffer->UploadData(mesh->indicesData.data(), indicesBufferSize);
   if (ret != VK_SUCCESS) {
-    Logger() << "Index buffer upload failed" << std::endl;
+    Logger() << Logger::ERROR << "Index buffer upload failed" << std::endl;
     return false;
   }
 
@@ -127,19 +129,20 @@ bool RendererMesh::CreateGPUMesh(const std::shared_ptr<VkGPUContext> &gpuCtx) {
    */
   materialBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
   if (materialBuffer == nullptr) {
-    Logger() << "material is null" << std::endl;
+    Logger() << Logger::ERROR << "material is null" << std::endl;
     return false;
   }
   const VkDeviceSize materialBufferSize = sizeof(Material);
   ret = materialBuffer->AllocateAndBind(GPU_BUFFER_TYPE_UNIFORM,
                                         materialBufferSize);
   if (ret != VK_SUCCESS) {
-    Logger() << "Material buffer allocate and bind failed" << std::endl;
+    Logger() << Logger::ERROR << "Material buffer allocate and bind failed"
+             << std::endl;
     return false;
   }
   ret = materialBuffer->UploadData(&mesh->material, materialBufferSize);
   if (ret != VK_SUCCESS) {
-    Logger() << "Material buffer upload failed" << std::endl;
+    Logger() << Logger::ERROR << "Material buffer upload failed" << std::endl;
     return false;
   }
 
@@ -148,31 +151,52 @@ bool RendererMesh::CreateGPUMesh(const std::shared_ptr<VkGPUContext> &gpuCtx) {
    */
   transformMatrixBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
   if (transformMatrixBuffer == nullptr) {
-    Logger() << "transform matrix is null" << std::endl;
+    Logger() << Logger::ERROR << "transform matrix is null" << std::endl;
     return false;
   }
   const VkDeviceSize transformMatrixBufferSize = sizeof(glm::mat4);
   ret = transformMatrixBuffer->AllocateAndBind(GPU_BUFFER_TYPE_UNIFORM,
                                                transformMatrixBufferSize);
   if (ret != VK_SUCCESS) {
-    Logger() << "transform matrix buffer allocate and bind failed" << std::endl;
+    Logger() << Logger::ERROR
+             << "transform matrix buffer allocate and bind failed" << std::endl;
     return false;
   }
 
   ret = transformMatrixBuffer->UploadData(&mesh->transform,
                                           transformMatrixBufferSize);
   if (ret != VK_SUCCESS) {
-    Logger() << "transform matrix buffer upload failed" << std::endl;
+    Logger() << Logger::ERROR << "transform matrix buffer upload failed"
+             << std::endl;
     return false;
   }
 
   /*
    * Textures
    */
-  for (auto &[type, path] : mesh->textures) {
-    Logger() << "Create texture " << string_TextureType(type) << ":" << path
-             << "..." << std::endl;
-    // TODO: read file and create gpu buffer & image
+  for (auto &[type, path, width, height, channels] : mesh->textures) {
+    std::string texturePath = mesh->path + path;
+    std::vector<char> data =
+        ImageUtils::ReadPngFile(texturePath, &width, &height, &channels);
+    Logger() << "Create texture " << string_TextureType(type) << ":"
+             << mesh->path + path << ", width=" << width << ",height=" << height
+             << ",channels=" << channels << std::endl;
+
+    auto texture = std::make_shared<VkGPUTexture>(gpuCtx, width, height);
+    VkResult result = texture->CreateTexture();
+    if (result != VK_SUCCESS) {
+      Logger() << Logger::ERROR << "Texture create failed" << std::endl;
+      return false;
+    }
+
+    const auto buffer = texture->GetImageBuffer();
+    result = buffer->UploadData(data.data(), data.size());
+    if (result != VK_SUCCESS) {
+      Logger() << Logger::ERROR << "Texture upload failed" << std::endl;
+      return false;
+    }
+
+    this->textures.emplace(std::pair(type, texture));
   }
 
   return true;

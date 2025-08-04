@@ -52,7 +52,7 @@ VkResult VkGPUBuffer::AllocateAndBind(const VkGPUBufferType type,
     result = VK_ERROR_UNKNOWN;
   }
   if (result != VK_SUCCESS) {
-    Logger() << "Failed to allocate buffer and bind, err ="
+    Logger() << Logger::ERROR << "Failed to allocate buffer and bind, err ="
              << string_VkResult(result) << std::endl;
     return result;
   }
@@ -61,27 +61,34 @@ VkResult VkGPUBuffer::AllocateAndBind(const VkGPUBufferType type,
 }
 
 VkResult VkGPUBuffer::MapBuffer(const VkDeviceSize size) {
+  if (this->mapped) {
+    Logger() << "Already mapped!" << std::endl;
+    return VK_SUCCESS;
+  }
   if (bufferMemory == VK_NULL_HANDLE) {
-    Logger() << "GPU buffer not allocated!" << std::endl;
+    Logger() << Logger::ERROR << "GPU buffer not allocated!" << std::endl;
     return VK_ERROR_INITIALIZATION_FAILED;
   }
   if (this->type == GPU_BUFFER_TYPE_STORAGE_LOCAL) {
-    Logger() << "can not map device local memory!" << std::endl;
+    Logger() << Logger::ERROR << "can not map device local memory!"
+             << std::endl;
     return VK_ERROR_MEMORY_MAP_FAILED;
   }
   const VkResult result = vkMapMemory(this->gpuCtx->GetCurrentDevice(),
-                                      bufferMemory, 0, size, 0, &data);
+                                      bufferMemory, 0, size, 0, &mapAddr);
   if (result != VK_SUCCESS) {
-    Logger() << "Failed to map buffer memory, err =" << string_VkResult(result)
+    Logger() << Logger::ERROR
+             << "Failed to map buffer memory, err =" << string_VkResult(result)
              << std::endl;
     return result;
   }
+  this->mapped = true;
   return result;
 }
 
 VkResult VkGPUBuffer::MapBuffer() { return this->MapBuffer(this->bufferSize); }
 
-void VkGPUBuffer::UnMapBuffer() const {
+void VkGPUBuffer::UnMapBuffer() {
   if (bufferMemory == VK_NULL_HANDLE) {
     return;
   }
@@ -90,6 +97,7 @@ void VkGPUBuffer::UnMapBuffer() const {
     return;
   }
   vkUnmapMemory(this->gpuCtx->GetCurrentDevice(), bufferMemory);
+  this->mapped = false;
 }
 
 VkGPUBuffer::VkGPUBuffer(const std::shared_ptr<VkGPUContext> &gpuCtx)
@@ -103,11 +111,12 @@ VkResult VkGPUBuffer::UploadData(const void *uploadData,
                                  const VkDeviceSize size) {
   const VkResult result = MapBuffer(size);
   if (result != VK_SUCCESS) {
-    Logger() << "Failed to map buffer, err =" << string_VkResult(result)
+    Logger() << Logger::ERROR
+             << "Failed to map buffer, err =" << string_VkResult(result)
              << std::endl;
     return result;
   }
-  memcpy(data, uploadData, size);
+  memcpy(mapAddr, uploadData, size);
   UnMapBuffer();
   return VK_SUCCESS;
 }
@@ -116,13 +125,14 @@ VkResult VkGPUBuffer::AllocateAndUploadVectorF(const std::vector<float> &data) {
   VkResult result = this->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED,
                                           data.size() * sizeof(float));
   if (result != VK_SUCCESS) {
-    Logger() << "Failed to allocate buffer data, err ="
+    Logger() << Logger::ERROR << "Failed to allocate buffer data, err ="
              << string_VkResult(result) << std::endl;
     return result;
   }
   result = this->UploadData(data.data(), sizeof(float) * data.size());
   if (result != VK_SUCCESS) {
-    Logger() << "Failed to upload buffer, err =" << string_VkResult(result)
+    Logger() << Logger::ERROR
+             << "Failed to upload buffer, err =" << string_VkResult(result)
              << std::endl;
     this->Destroy();
     return result;
@@ -150,17 +160,18 @@ VkResult VkGPUBuffer::DownloadData(void *downloadAddr,
                                    const VkDeviceSize size) {
   const VkResult result = MapBuffer(size);
   if (result != VK_SUCCESS) {
-    Logger() << "Failed to map buffer, err =" << string_VkResult(result)
+    Logger() << Logger::ERROR
+             << "Failed to map buffer, err =" << string_VkResult(result)
              << std::endl;
     return result;
   }
   if (size <= MIN_BLOCK_SIZE) {
-    memcpy(downloadAddr, data, size);
+    memcpy(downloadAddr, mapAddr, size);
   } else {
     uint32_t numThreads = size / MIN_BLOCK_SIZE;
     numThreads += (numThreads % MIN_BLOCK_SIZE) > 0 ? 1 : 0;
     numThreads = numThreads > MAX_THREADS ? MAX_THREADS : numThreads;
-    ParallelCopy(downloadAddr, data, size, numThreads);
+    ParallelCopy(downloadAddr, mapAddr, size, numThreads);
   }
 
   UnMapBuffer();

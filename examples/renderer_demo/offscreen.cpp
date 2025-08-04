@@ -17,7 +17,8 @@ int main(int argc, char *argv[]) {
   renderer->SetOnLoadScene([](Renderer *rdr) -> bool {
     const std::vector<std::shared_ptr<Mesh>> models =
         ModelLoader::LoadModel("../../../examples/renderer_demo/assets/"
-                               "builtin.models/Helmet/DamagedHelmet.gltf");
+                               "builtin.models/Helmet/DamagedHelmet.gltf",
+                               TODO);
 
     for (auto &mesh : models) {
       if (!rdr->AddDrawElement(mesh->vertexData, mesh->indicesData,

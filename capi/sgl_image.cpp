@@ -780,7 +780,7 @@ sgl_image_t *sgl_image_create(const sgl_gpu_ctx_t *gpu_ctx) {
     image->initialized = gImageEngine.Init();
   }
   if (!image->initialized) {
-    Logger() << "Failed to initialize image engine." << std::endl;
+    Logger() << Logger::ERROR << "Failed to initialize image engine." << std::endl;
     free(image);
     return nullptr;
   }

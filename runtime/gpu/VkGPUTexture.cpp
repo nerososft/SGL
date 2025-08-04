@@ -23,7 +23,7 @@ VkResult VkGPUTexture::CreateTexture() {
       VK_SHARING_MODE_EXCLUSIVE, queueFamilies, VK_IMAGE_LAYOUT_UNDEFINED,
       &this->textureImage);
   if (ret != VK_SUCCESS) {
-    Logger() << "failed to create texture image" << std::endl;
+    Logger() << "Failed to create texture image" << std::endl;
     return ret;
   }
 
@@ -32,13 +32,13 @@ VkResult VkGPUTexture::CreateTexture() {
                                      this->width * this->height *
                                          sizeof(uint32_t));
   if (ret != VK_SUCCESS) {
-    Logger() << "failed to allocate image buffer" << std::endl;
+    Logger() << "Failed to allocate image buffer" << std::endl;
   }
 
   ret = vkBindImageMemory(this->gpuCtx->GetCurrentDevice(), this->textureImage,
                           imageBuffer->GetDeviceMemory(), 0);
   if (ret != VK_SUCCESS) {
-    Logger() << "failed to bind image memory" << std::endl;
+    Logger() << "Failed to bind image memory" << std::endl;
     return ret;
   }
 
@@ -47,14 +47,14 @@ VkResult VkGPUTexture::CreateTexture() {
       VK_IMAGE_VIEW_TYPE_2D, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT,
       &this->textureImageView);
   if (ret != VK_SUCCESS) {
-    Logger() << "failed to create texture imageview" << std::endl;
+    Logger() << "Failed to create texture imageview" << std::endl;
     return ret;
   }
 
   ret = VkGPUHelper::CreateSampler(this->gpuCtx->GetCurrentDevice(),
                                    &this->textureSampler);
   if (ret != VK_SUCCESS) {
-    Logger() << "failed to create texture sampler" << std::endl;
+    Logger() << "Failed to create texture sampler" << std::endl;
     return ret;
   }
 
