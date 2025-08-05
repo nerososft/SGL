@@ -83,10 +83,12 @@ void VkGPUTexture::Destroy() {
     vkDestroySampler(this->gpuCtx->GetCurrentDevice(), textureSampler, nullptr);
     textureSampler = VK_NULL_HANDLE;
   }
-  if (this->imageBindBuffer != VK_NULL_HANDLE) {
-    this->imageBindBuffer->Destroy();
+  if (textureImageMemory != VK_NULL_HANDLE) {
+    vkFreeMemory(this->gpuCtx->GetCurrentDevice(), textureImageMemory, nullptr);
+    textureImageMemory = VK_NULL_HANDLE;
   }
   if (this->imageStageBuffer != VK_NULL_HANDLE) {
     this->imageStageBuffer->Destroy();
+    this->imageStageBuffer = nullptr;
   }
 }

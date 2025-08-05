@@ -15,7 +15,7 @@ class VkGPUTexture {
   VkDeviceMemory textureImageMemory = VK_NULL_HANDLE;
   VkImageView textureImageView = VK_NULL_HANDLE;
   VkSampler textureSampler = VK_NULL_HANDLE;
-  std::shared_ptr<VkGPUBuffer> imageBindBuffer = nullptr;
+
   std::shared_ptr<VkGPUBuffer> imageStageBuffer = nullptr;
 
   float width;

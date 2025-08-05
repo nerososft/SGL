@@ -7,6 +7,8 @@
 #include "core/utils/ImageUtils.h"
 #include "runtime/log/Log.h"
 
+#include <ranges>
+
 RendererMesh::RendererMesh(const std::shared_ptr<Mesh> &mesh) {
   this->mesh = mesh;
 }
@@ -265,4 +267,8 @@ void RendererMesh::Destroy() {
     transformMatrixBuffer->Destroy();
     transformMatrixBuffer = nullptr;
   }
+  for (const auto &texture : textures | std::views::values) {
+    texture->Destroy();
+  }
+  textures.clear();
 }
