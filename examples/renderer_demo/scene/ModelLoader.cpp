@@ -31,8 +31,9 @@ aiMatrix4x4 ModelLoader::GetMeshTransform(const aiScene *scene,
 std::vector<std::shared_ptr<Mesh>>
 ModelLoader::LoadModel(const std::string &path, const std::string &name) {
   Assimp::Importer importer;
-  const aiScene *scene =
-      importer.ReadFile(path + name, aiProcess_Triangulate | aiProcess_FlipUVs);
+  const aiScene *scene = importer.ReadFile(
+      path + name, aiProcess_Triangulate | aiProcess_FlipUVs |
+                       aiProcess_GenNormals | aiProcess_OptimizeMeshes);
   if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE ||
       !scene->mRootNode) {
     Logger() << "Failed to load model '" << path + name << "'" << std::endl;
@@ -47,49 +48,53 @@ ModelLoader::LoadModel(const std::string &path, const std::string &name) {
     model->path = path;
     model->name = name;
     const aiMesh *mesh = scene->mMeshes[meshIndex];
+
+    uint32_t uvChannels = mesh->GetNumUVChannels();
+
     Logger() << "Loading mesh '" << mesh->mName.C_Str()
              << "', Vertices:" << mesh->mNumVertices
-             << ", Faces:" << mesh->mNumFaces << std::endl;
+             << ", Faces:" << mesh->mNumFaces << ", uvChannels: " << uvChannels
+             << std::endl;
     for (int faceIndex = 0; faceIndex < mesh->mNumFaces; faceIndex++) {
       const aiFace face = mesh->mFaces[faceIndex];
-      aiVector3D normal;
-      // if (!mesh->HasNormals()) {
-      aiVector3D v0 = mesh->mVertices[face.mIndices[0]];
-      aiVector3D v1 = mesh->mVertices[face.mIndices[1]];
-      aiVector3D v2 = mesh->mVertices[face.mIndices[2]];
-      aiVector3D edge1 = v1 - v0;
-      aiVector3D edge2 = v2 - v0;
-      normal = edge1 ^ edge2;
-      normal.Normalize();
-      // } else {
-      // normal = mesh->mNormals[faceIndex];
-      // }
+      aiVector3D normal(0, 0, 0);
+      if (!mesh->HasNormals()) {
+        aiVector3D v0 = mesh->mVertices[face.mIndices[0]];
+        aiVector3D v1 = mesh->mVertices[face.mIndices[1]];
+        aiVector3D v2 = mesh->mVertices[face.mIndices[2]];
+        normal = (v1 - v0) ^ (v2 - v0);
+        normal.Normalize();
+      }
       for (int faceIndices = 0; faceIndices < face.mNumIndices; faceIndices++) {
+        unsigned int vertexIndex = face.mIndices[faceIndices];
         Vertex vertex{};
-        vertex.position.x = mesh->mVertices[face.mIndices[faceIndices]].x;
-        vertex.position.y = mesh->mVertices[face.mIndices[faceIndices]].y;
-        vertex.position.z = mesh->mVertices[face.mIndices[faceIndices]].z;
 
-        vertex.normal.x = normal.x;
-        vertex.normal.y = normal.y;
-        vertex.normal.z = normal.z;
+        const aiVector3D &pos = mesh->mVertices[vertexIndex];
+        vertex.position = {pos.x, pos.y, pos.z};
 
-        vertex.color.r = 1.0f;
-        vertex.color.g = 1.0f;
-        vertex.color.b = 1.0f;
+        if (mesh->HasNormals()) {
+          const aiVector3D &nrm = mesh->mNormals[vertexIndex];
+          vertex.normal = {nrm.x, nrm.y, nrm.z};
+        } else {
+          vertex.normal = {normal.x, normal.y, normal.z};
+        }
+
+        if (mesh->mTextureCoords[0]) {
+          const aiVector3D &uv = mesh->mTextureCoords[0][vertexIndex];
+          vertex.texCoords = {uv.x, uv.y};
+        } else {
+          vertex.texCoords = {0.0f, 0.0f};
+        }
+
+        vertex.color = {1.0f, 1.0f, 1.0f};
 
         model->vertexData.push_back(vertex);
+        model->indicesData.push_back(model->vertexData.size() - 1);
       }
 
       model->indicesData.push_back(faceIndex * face.mNumIndices + 0);
       model->indicesData.push_back(faceIndex * face.mNumIndices + 1);
       model->indicesData.push_back(faceIndex * face.mNumIndices + 2);
-    }
-
-    if (scene->HasTextures()) {
-      aiTexture *texture = scene->mTextures[meshIndex];
-      Logger() << "Loading texture '" << texture->mFilename.C_Str() << "'"
-               << std::endl;
     }
 
     if (scene->HasMaterials()) {

@@ -57,7 +57,8 @@ PipelineNodeBuffer
 RendererMesh::GetTextureBufferNode(const TextureType type) const {
   PipelineNodeBuffer textureBufferNode = {};
   if (!textures.contains(type)) {
-    Logger() << Logger::ERROR << "texture type " << type << " not found" << std::endl;
+    Logger() << Logger::ERROR << "texture type " << type << " not found"
+             << std::endl;
     textureBufferNode.type = PIPELINE_NODE_UNKNOW;
     return textureBufferNode;
   }
@@ -178,6 +179,11 @@ bool RendererMesh::CreateTexture(const std::shared_ptr<VkGPUContext> &gpuCtx) {
     Logger() << "Create texture " << string_TextureType(type) << ":"
              << mesh->path + path << ", width=" << width << ",height=" << height
              << ",channels=" << channels << std::endl;
+    if (data.empty()) {
+      Logger() << Logger::ERROR << "Texture file : '" << texturePath + "' empty"
+               << std::endl;
+      return false;
+    }
 
     auto texture = std::make_shared<VkGPUTexture>(gpuCtx, width, height);
     VkResult result = texture->CreateTexture();

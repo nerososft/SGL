@@ -207,9 +207,13 @@ void GraphicsPipelineNode::Compute(const VkCommandBuffer commandBuffer) {
         VkGPUHelper::GPUCmdPipelineMemBarrier(
             commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT,
             VK_PIPELINE_STAGE_TRANSFER_BIT, 0, memoryBarriers);
-        vkCmdCopyBufferToImage(commandBuffer, buffer.sampler.imageBuffer,
-                               buffer.sampler.image, buffer.sampler.imageLayout,
-                               regions.size(), regions.data());
+        static bool uploaded = false; // FIXME: tempory change
+        if (!uploaded) {
+          vkCmdCopyBufferToImage(
+              commandBuffer, buffer.sampler.imageBuffer, buffer.sampler.image,
+              buffer.sampler.imageLayout, regions.size(), regions.data());
+          uploaded = true;
+        }
 
         memoryBarriers.clear();
         memoryBarriers.push_back(VkGPUHelper::BuildMemoryBarrier(
