@@ -81,7 +81,7 @@ void GraphicsApp::OnKeyUp(const uint32_t key) {
 }
 
 void GraphicsApp::OnKeyDown(const uint32_t key) {
-  auto camera = renderer->GetCamera();
+  const auto camera = renderer->GetCamera();
   switch (key) {
   case GLFW_KEY_W:
   case GLFW_KEY_UP:
