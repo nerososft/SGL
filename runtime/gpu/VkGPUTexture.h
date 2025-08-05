@@ -12,6 +12,7 @@
 class VkGPUTexture {
   std::shared_ptr<VkGPUContext> gpuCtx = nullptr;
   VkImage textureImage = VK_NULL_HANDLE;
+  VkDeviceMemory textureImageMemory = VK_NULL_HANDLE;
   VkImageView textureImageView = VK_NULL_HANDLE;
   VkSampler textureSampler = VK_NULL_HANDLE;
   std::shared_ptr<VkGPUBuffer> imageBindBuffer = nullptr;
@@ -24,11 +25,13 @@ public:
   VkGPUTexture(const std::shared_ptr<VkGPUContext> &gpuCtx, float width,
                float height);
 
-  VkImage GetTextureImage() const { return textureImage; }
+  [[nodiscard]] VkImage GetTextureImage() const { return textureImage; }
 
-  VkImageView GetTextureImageView() const { return textureImageView; }
+  [[nodiscard]] VkImageView GetTextureImageView() const {
+    return textureImageView;
+  }
 
-  VkSampler GetTextureSampler() const { return textureSampler; }
+  [[nodiscard]] VkSampler GetTextureSampler() const { return textureSampler; }
 
   std::shared_ptr<VkGPUBuffer> GetImageStageBuffer() {
     return imageStageBuffer;

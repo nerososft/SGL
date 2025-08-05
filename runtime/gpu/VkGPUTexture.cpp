@@ -35,18 +35,18 @@ VkResult VkGPUTexture::CreateTexture() {
     Logger() << "Failed to allocate image stage buffer" << std::endl;
   }
 
-  imageBindBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
-  ret = imageBindBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_LOCAL,
-                                         this->width * this->height *
-                                             sizeof(uint32_t));
-  if (ret != VK_SUCCESS) {
-    Logger() << "Failed to allocate image bind buffer" << std::endl;
-  }
+  const VkPhysicalDeviceMemoryProperties memoryProperties =
+      gpuCtx->GetMemoryProperties();
 
-  ret = vkBindImageMemory(this->gpuCtx->GetCurrentDevice(), this->textureImage,
-                          imageBindBuffer->GetDeviceMemory(), 0);
+  ret = VkGPUHelper::CreateImageAndBindMem(
+      gpuCtx->GetCurrentDevice(), this->width, this->height, VK_IMAGE_TYPE_2D,
+      VK_FORMAT_R8G8B8A8_SRGB,
+      VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
+      VK_SHARING_MODE_EXCLUSIVE, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+      &memoryProperties, queueFamilies, &this->textureImage,
+      &this->textureImageMemory);
   if (ret != VK_SUCCESS) {
-    Logger() << "Failed to bind image memory" << std::endl;
+    Logger() << Logger::ERROR << "Failed to create texture image" << std::endl;
     return ret;
   }
 
