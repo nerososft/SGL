@@ -110,9 +110,7 @@ std::shared_ptr<VkGPUDescriptorSet> GraphicsPipelineNode::CreateDescriptorSet(
 void GraphicsPipelineNode::AddGraphicsElement(
     const GraphicsElement &graphicsElement) {
   this->graphicsElements.push_back(graphicsElement);
-  const std::shared_ptr<VkGPUDescriptorSet> descriptorSet =
-      CreateDescriptorSet(graphicsElement);
-  pipelineDescriptorSets.push_back(descriptorSet);
+  pipelineDescriptorSets.push_back(CreateDescriptorSet(graphicsElement));
 }
 
 VkResult GraphicsPipelineNode::CreateComputeGraphNode() {

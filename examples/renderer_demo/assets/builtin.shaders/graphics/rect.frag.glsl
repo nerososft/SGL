@@ -3,6 +3,7 @@
 layout(location = 0) in vec3 color;
 layout(location = 1) in vec3 normal;
 layout(location = 2) in vec3 position;
+layout(location = 3) in vec2 texCoord;
 
 layout(location = 0) out vec4 FragColor;
 
@@ -16,11 +17,9 @@ layout (binding = 0) uniform Material {
     vec3 shininess;
 } material;
 
-layout (binding = 3) uniform Light {
-    vec3 position;
-    vec3 color;
-    vec3 direction;
-} light;
+layout (binding = 1) uniform ModelMatrix {
+    mat4 model;
+} modelMatrix;
 
 layout (binding = 2) uniform ViewProjectionMatrix {
     mat4 view;
@@ -28,6 +27,14 @@ layout (binding = 2) uniform ViewProjectionMatrix {
     vec3 cameraPosition;
     vec3 up;
 } vpMatrix;
+
+layout (binding = 3) uniform Light {
+    vec3 position;
+    vec3 color;
+    vec3 direction;
+} light;
+
+layout (binding = 4) uniform sampler2D texSampler;
 
 layout (push_constant) uniform FrameInfo {
     uint frameIndex;
@@ -58,5 +65,5 @@ void main() {
     vec3 norm = normalize(normal);
 
     vec3 phongLighting = calculatePhongLighting(lightPos, viewPos, norm, position);
-    FragColor = vec4(phongLighting, 1.0);
+    FragColor = vec4(phongLighting, 1.0) + texture(texSampler, texCoord);;
 }

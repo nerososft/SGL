@@ -57,6 +57,7 @@ PipelineNodeBuffer
 RendererMesh::GetTextureBufferNode(const TextureType type) const {
   PipelineNodeBuffer textureBufferNode = {};
   if (!textures.contains(type)) {
+    Logger() << Logger::ERROR << "texture type " << type << " not found" << std::endl;
     textureBufferNode.type = PIPELINE_NODE_UNKNOW;
     return textureBufferNode;
   }
@@ -67,9 +68,9 @@ RendererMesh::GetTextureBufferNode(const TextureType type) const {
   textureBufferNode.sampler.image = texture->GetTextureImage();
   textureBufferNode.sampler.imageView = texture->GetTextureImageView();
   textureBufferNode.sampler.imageBuffer =
-      texture->GetImageBuffer()->GetBuffer();
+      texture->GetImageStageBuffer()->GetBuffer();
   textureBufferNode.sampler.imageBufferMemory =
-      texture->GetImageBuffer()->GetDeviceMemory();
+      texture->GetImageStageBuffer()->GetDeviceMemory();
   textureBufferNode.sampler.imageLayout =
       VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
   textureBufferNode.sampler.sampler = texture->GetTextureSampler();
@@ -185,7 +186,7 @@ bool RendererMesh::CreateTexture(const std::shared_ptr<VkGPUContext> &gpuCtx) {
       return false;
     }
 
-    const auto buffer = texture->GetImageBuffer();
+    const auto buffer = texture->GetImageStageBuffer();
     result = buffer->UploadData(data.data(), data.size());
     if (result != VK_SUCCESS) {
       Logger() << Logger::ERROR << "Texture upload failed" << std::endl;

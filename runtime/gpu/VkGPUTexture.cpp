@@ -27,16 +27,24 @@ VkResult VkGPUTexture::CreateTexture() {
     return ret;
   }
 
-  imageBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
-  ret = imageBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_LOCAL,
-                                     this->width * this->height *
-                                         sizeof(uint32_t));
+  imageStageBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
+  ret = imageStageBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED,
+                                          this->width * this->height *
+                                              sizeof(uint32_t));
   if (ret != VK_SUCCESS) {
-    Logger() << "Failed to allocate image buffer" << std::endl;
+    Logger() << "Failed to allocate image stage buffer" << std::endl;
+  }
+
+  imageBindBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
+  ret = imageBindBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_LOCAL,
+                                         this->width * this->height *
+                                             sizeof(uint32_t));
+  if (ret != VK_SUCCESS) {
+    Logger() << "Failed to allocate image bind buffer" << std::endl;
   }
 
   ret = vkBindImageMemory(this->gpuCtx->GetCurrentDevice(), this->textureImage,
-                          imageBuffer->GetDeviceMemory(), 0);
+                          imageBindBuffer->GetDeviceMemory(), 0);
   if (ret != VK_SUCCESS) {
     Logger() << "Failed to bind image memory" << std::endl;
     return ret;
@@ -75,7 +83,10 @@ void VkGPUTexture::Destroy() {
     vkDestroySampler(this->gpuCtx->GetCurrentDevice(), textureSampler, nullptr);
     textureSampler = VK_NULL_HANDLE;
   }
-  if (this->imageBuffer != VK_NULL_HANDLE) {
-    this->imageBuffer->Destroy();
+  if (this->imageBindBuffer != VK_NULL_HANDLE) {
+    this->imageBindBuffer->Destroy();
+  }
+  if (this->imageStageBuffer != VK_NULL_HANDLE) {
+    this->imageStageBuffer->Destroy();
   }
 }

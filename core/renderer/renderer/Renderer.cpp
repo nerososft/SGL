@@ -34,6 +34,8 @@ bool Renderer::AddDrawElement(const std::shared_ptr<Mesh> &mesh) {
   buffers.push_back(renderMesh->GetTransformMatrixBufferNode());  // uniform 1
   buffers.push_back(camera->GetViewProjectionMatrixBufferNode()); // uniform 2
   buffers.push_back(rendererLights[0]->GetLightBufferNode());     // uniform 3
+  buffers.push_back(
+      renderMesh->GetTextureBufferNode(TextureType_BASE_COLOR)); // sampler 4
 
   const GraphicsElement element{
       .pushConstantInfo = {.size = sizeof(FrameInfo), .data = &this->frameInfo},
@@ -94,6 +96,10 @@ bool Renderer::ConstructMainGraphicsPipeline() {
   descriptorSetLayoutBindings.push_back(
       VkGPUHelper::BuildDescriptorSetLayoutBinding(
           3, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1,
+          VK_SHADER_STAGE_ALL_GRAPHICS));
+  descriptorSetLayoutBindings.push_back(
+      VkGPUHelper::BuildDescriptorSetLayoutBinding(
+          4, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1,
           VK_SHADER_STAGE_ALL_GRAPHICS));
 
   this->graphicsPipelineNode = std::make_shared<GraphicsPipelineNode>(

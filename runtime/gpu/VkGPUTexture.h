@@ -14,7 +14,8 @@ class VkGPUTexture {
   VkImage textureImage = VK_NULL_HANDLE;
   VkImageView textureImageView = VK_NULL_HANDLE;
   VkSampler textureSampler = VK_NULL_HANDLE;
-  std::shared_ptr<VkGPUBuffer> imageBuffer = nullptr;
+  std::shared_ptr<VkGPUBuffer> imageBindBuffer = nullptr;
+  std::shared_ptr<VkGPUBuffer> imageStageBuffer = nullptr;
 
   float width;
   float height;
@@ -29,7 +30,9 @@ public:
 
   VkSampler GetTextureSampler() const { return textureSampler; }
 
-  std::shared_ptr<VkGPUBuffer> GetImageBuffer() { return imageBuffer; }
+  std::shared_ptr<VkGPUBuffer> GetImageStageBuffer() {
+    return imageStageBuffer;
+  }
 
   ~VkGPUTexture() = default;
 
