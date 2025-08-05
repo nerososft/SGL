@@ -15,14 +15,12 @@ int main(int argc, char *argv[]) {
   const auto renderer = std::make_shared<Renderer>(768, 768);
 
   renderer->SetOnLoadScene([](Renderer *rdr) -> bool {
-    const std::vector<std::shared_ptr<Mesh>> models =
-        ModelLoader::LoadModel("../../../examples/renderer_demo/assets/"
-                               "builtin.models/Helmet/DamagedHelmet.gltf",
-                               TODO);
+    const std::vector<std::shared_ptr<Mesh>> models = ModelLoader::LoadModel(
+        "../../../examples/renderer_demo/assets/builtin.models/Helmet/",
+        "DamagedHelmet.gltf");
 
     for (auto &mesh : models) {
-      if (!rdr->AddDrawElement(mesh->vertexData, mesh->indicesData,
-                               mesh->material, mesh->transform)) {
+      if (!rdr->AddDrawElement(mesh)) {
         Logger() << "draw mash add failed" << std::endl;
         return false;
       }
