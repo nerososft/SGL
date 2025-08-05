@@ -45,9 +45,9 @@ public:
                        const std::shared_ptr<VkGPURenderPass> &renderPass,
                        const std::string &vertexShaderPath,
                        const std::string &fragmentShaderPath,
-                       const uint32_t pushConstantSize,
+                       uint32_t pushConstantSize,
                        const std::vector<VkDescriptorSetLayoutBinding>
-                           descriptorSetLayoutBindings,
+                           &descriptorSetLayoutBindings,
                        const std::vector<VkVertexInputBindingDescription>
                            &vertexInputBindingDescriptions,
                        const std::vector<VkVertexInputAttributeDescription>

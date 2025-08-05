@@ -19,7 +19,8 @@ GraphicsPipelineNode::GraphicsPipelineNode(
     const std::shared_ptr<VkGPURenderPass> &renderPass,
     const std::string &vertexShaderPath, const std::string &fragmentShaderPath,
     const uint32_t pushConstantSize,
-    const std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings,
+    const std::vector<VkDescriptorSetLayoutBinding>
+        &descriptorSetLayoutBindings,
     const std::vector<VkVertexInputBindingDescription>
         &vertexInputBindingDescriptions,
     const std::vector<VkVertexInputAttributeDescription>
@@ -192,7 +193,7 @@ void GraphicsPipelineNode::Compute(const VkCommandBuffer commandBuffer) {
         region.imageSubresource.mipLevel = 0;
         region.imageSubresource.baseArrayLayer = 0;
         region.imageSubresource.layerCount = 1;
-        region.imageOffset = {0, 0, 1};
+        region.imageOffset = {0, 0, 0};
         region.imageExtent.depth = 1;
         region.imageExtent.width = static_cast<uint32_t>(width);
         region.imageExtent.height = static_cast<uint32_t>(height);
