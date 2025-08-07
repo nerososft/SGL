@@ -169,11 +169,12 @@ void effect_engine_main() {
   // sgl::image::ImageEngine::Process("../../../examples/image_demo/images/colorful.png",
   // "../../../examples/image_demo/images/colorful_vibrance.png", filter);
 
-  // const auto filter = std::make_shared<PaletteKnifeFilter>();
-  // filter->SetRadius(10);
-  // filter->SetQuantScale(5);
-  // sgl::image::ImageEngine::Process("../../../examples/image_demo/images/colorful.png",
-  // "../../../examples/image_demo/images/colorful_palette_knife.png", filter);
+  const auto filter = std::make_shared<PaletteKnifeFilter>();
+  filter->SetRadius(10);
+  filter->SetQuantScale(5);
+  sgl::image::ImageEngine::Process(
+      "../../../examples/image_demo/images/colorful.png",
+      "../../../examples/image_demo/images/colorful_palette_knife.png", filter);
 
   // const auto filter = std::make_shared<NES8BitMosaicFilter>();
   // filter->SetBlockSize(64);
@@ -206,22 +207,22 @@ void effect_engine_main() {
   // sgl::image::ImageEngine::Process("../../../examples/image_demo/images/test.png",
   // "../../../examples/image_demo/images/test_median.png", filter);
 
-  const auto filter = std::make_shared<TransformFilter>();
+  // const auto filter = std::make_shared<TransformFilter>();
   // const auto filter = std::make_shared<Transform3DFilter>();
-  std::vector<glm::vec3> from;
-  from.emplace_back(100.0f, 100.0f, 0.0f);
-  from.emplace_back(300.0f, 100.0f, 0.0f);
-  from.emplace_back(100.0f, 300.0f, 0.0f);
-  from.emplace_back(300.0f, 300.0f, 0.0f);
-  std::vector<glm::vec3> to;
-  to.emplace_back(100.0f, 100.0f, 0.0f);
-  to.emplace_back(300.0f, 100.0f, 0.0f);
-  to.emplace_back(100.0f, 300.0f, 0.0f);
-  to.emplace_back(500.0f, 500.0f, 0.0f);
-  filter->SetTransformMatrix(TransformUtils::Transform(from, to));
-  sgl::image::ImageEngine::Process(
-      "../../../examples/image_demo/images/girl.png",
-      "../../../examples/image_demo/images/girl_transform.png", filter);
+  // std::vector<glm::vec3> from;
+  // from.emplace_back(100.0f, 100.0f, 0.0f);
+  // from.emplace_back(300.0f, 100.0f, 0.0f);
+  // from.emplace_back(100.0f, 300.0f, 0.0f);
+  // from.emplace_back(300.0f, 300.0f, 0.0f);
+  // std::vector<glm::vec3> to;
+  // to.emplace_back(100.0f, 100.0f, 0.0f);
+  // to.emplace_back(300.0f, 100.0f, 0.0f);
+  // to.emplace_back(100.0f, 300.0f, 0.0f);
+  // to.emplace_back(500.0f, 500.0f, 0.0f);
+  // filter->SetTransformMatrix(TransformUtils::Transform(from, to));
+  // sgl::image::ImageEngine::Process(
+  //     "../../../examples/image_demo/images/girl.png",
+  //     "../../../examples/image_demo/images/girl_transform.png", filter);
 }
 
 int main(int argc, char *argv[]) {

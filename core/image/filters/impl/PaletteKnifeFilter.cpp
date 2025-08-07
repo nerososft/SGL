@@ -126,15 +126,15 @@ PaletteKnifeFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
       pushConstantInfo.size, descriptorSetLayoutBindings,
       (outputImageInfo[0].width + 31) / 32,
       (outputImageInfo[0].height + 31) / 32, 1);
-  paletteKnifeNode->AddComputeElement(
-      {.pushConstantInfo = pushConstantInfo, .buffers = pkPipelineBuffers});
-
   ret = paletteKnifeNode->CreateComputeGraphNode();
   if (ret != VK_SUCCESS) {
     Logger() << "Failed to create compute graph, err =" << string_VkResult(ret)
              << std::endl;
     return ret;
   }
+
+  paletteKnifeNode->AddComputeElement(
+      {.pushConstantInfo = pushConstantInfo, .buffers = pkPipelineBuffers});
 
   paletteKnifeNode->AddDependenceNode(qCalculateNode);
   computeSubGraph->AddComputeGraphNode(paletteKnifeNode);
