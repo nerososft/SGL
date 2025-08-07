@@ -17,8 +17,9 @@
 </table>
 
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/nerososft/SGL)
-[![Documentation](https://img.shields.io/github/license/nerososft/SGL)](https://gitcode.com/OpenHarmonyPerfSquad/SGL/blob/main/README.md) 
-[![Examples](https://img.shields.io/github/license/nerososft/SGL)](https://gitcode.com/OpenHarmonyPerfSquad/SGL/tree/main/examples) 
+
+[Documentation](https://gitcode.com/OpenHarmonyPerfSquad/SGL/blob/main/README.md) 
+[Examples](https://gitcode.com/OpenHarmonyPerfSquad/SGL/tree/main/examples) 
 
 ```c++
 auto mat1 = ce->CreateMatrix(width, height, data1);
