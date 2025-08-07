@@ -198,7 +198,7 @@ void ImageEngine::ProcessFromCpuAddr(const ImageInfoCpu &input,
 }
 
 void ImageEngine::Process(const ImageInfo &input, const ImageInfo &output,
-                          const std::shared_ptr<IFilter> &filter) const {
+                          const std::shared_ptr<IFilter> &filter) {
   if (input.type == SGL_IMAGE_TYPE_CPU && output.type == SGL_IMAGE_TYPE_CPU) {
     return ProcessFromCpuAddr(input.info.cpu, output.info.cpu, filter);
   }

@@ -49,8 +49,8 @@ public:
              uint32_t outputWidth, uint32_t outputHeight, uint32_t channels,
              const std::shared_ptr<IFilter> &filter);
 
-  void Process(const ImageInfo &input, const ImageInfo &output,
-               const std::shared_ptr<IFilter> &filter) const;
+  static void Process(const ImageInfo &input, const ImageInfo &output,
+               const std::shared_ptr<IFilter> &filter);
 
   static void Process(const std::vector<ImageInfo> &inputs,
                       const std::vector<ImageInfo> &outputs,
