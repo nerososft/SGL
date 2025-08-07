@@ -58,7 +58,7 @@ include_directories(".")
 
 if (CMAKE_SYSTEM_NAME MATCHES "OHOS")
     add_library(runtime
-            ${ENGINE_SOURCE}
+            ${RUNTIME_SOURCE}
     )
 else ()
     add_library(runtime SHARED
