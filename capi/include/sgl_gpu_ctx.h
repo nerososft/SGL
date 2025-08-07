@@ -6,11 +6,6 @@
 #define SGL_GPUCTX_H
 
 typedef struct sgl_gpu_ctx {
-  void *instance = nullptr;
-  void *physicalDevice = nullptr;
-  void *logicalDevice = nullptr;
-  void *queue = nullptr;
-
   const char *(*get_gpu_name)();
 } sgl_gpu_ctx_t;
 

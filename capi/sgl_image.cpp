@@ -43,8 +43,6 @@
 #include "core/image/filters/impl/ZigzagFilter.h"
 #include "runtime/log/Log.h"
 
-sgl::image::ImageEngine gImageEngine;
-
 sgl_error_t sgl_image_threshold_split(const sgl_image_info_t &in,
                                       const sgl_image_info_t &out,
                                       const int bright) {
@@ -55,7 +53,7 @@ sgl_error_t sgl_image_threshold_split(const sgl_image_info_t &in,
   const auto filter = std::make_shared<ThresholdSplitFilter>();
   filter->SetBright(bright);
 
-  gImageEngine.Process(in, out, filter);
+  sgl::image::ImageEngine::Process(in, out, filter);
   return SGL_SUCCESS;
 }
 
@@ -69,11 +67,11 @@ sgl_error_t sgl_image_gaussian_blur(const sgl_image_info_t &in,
   if (r >= 3) {
     const auto filter = std::make_shared<FastGaussianBlurFilter>();
     filter->SetRadius(r);
-    gImageEngine.Process(in, out, filter);
+    sgl::image::ImageEngine::Process(in, out, filter);
   } else {
     const auto filter = std::make_shared<OldGaussianBlurFilter>();
     filter->SetRadius(r);
-    gImageEngine.Process(in, out, filter);
+    sgl::image::ImageEngine::Process(in, out, filter);
   }
   return SGL_SUCCESS;
 }
@@ -88,7 +86,7 @@ sgl_error_t sgl_image_gaussian_blur_float(const sgl_image_info_t &in,
 
   const auto filter = std::make_shared<OldGaussianBlurFloatFilter>();
   filter->SetRadius(r);
-  gImageEngine.Process(in, out, filter);
+  sgl::image::ImageEngine::Process(in, out, filter);
 
   return SGL_SUCCESS;
 }
@@ -104,7 +102,7 @@ sgl_error_t sgl_image_surface_blur(const sgl_image_info_t &in,
   filter->SetBlurRadius(r);
   filter->SetThreshold(th);
 
-  gImageEngine.Process(in, out, filter);
+  sgl::image::ImageEngine::Process(in, out, filter);
   return SGL_SUCCESS;
 }
 
@@ -122,7 +120,7 @@ sgl_error_t sgl_image_distort_glass(const sgl_image_info_t &in,
   filter->SetIntensity(intensity);
   filter->SetZoom(zoom);
 
-  gImageEngine.Process(in, out, filter);
+  sgl::image::ImageEngine::Process(in, out, filter);
 
   return SGL_SUCCESS;
 }
@@ -141,7 +139,7 @@ sgl_error_t sgl_image_adjust_saturation(const sgl_image_info_t &in,
   filter->SetSaturation(s);
 
   Logger() << "c_api adjust_saturation_gpu begin " << std::endl;
-  gImageEngine.Process(in, out, filter);
+  sgl::image::ImageEngine::Process(in, out, filter);
   Logger() << "c_api adjust_saturation_gpu end  " << std::endl;
 
   Logger() << "c_api filter destory begin  " << std::endl;
@@ -162,7 +160,7 @@ sgl_error_t sgl_image_palette_knife(const sgl_image_info_t &in,
   filter->SetRadius(r);
   filter->SetQuantScale(s);
 
-  gImageEngine.Process(in, out, filter);
+  sgl::image::ImageEngine::Process(in, out, filter);
 
   return SGL_SUCCESS;
 }
@@ -184,7 +182,7 @@ sgl_error_t sgl_image_hue_equal(const sgl_image_info_t &in,
   filter->SetP(adjustP, 9);
   filter->SetL(0);
 
-  gImageEngine.Process(in, out, filter);
+  sgl::image::ImageEngine::Process(in, out, filter);
 
   return SGL_SUCCESS;
 }
@@ -202,7 +200,7 @@ sgl_error_t sgl_image_blur_edge(const sgl_image_info_t &in,
   filter->SetSigma(s);
   filter->SetKernel(kernel_type);
 
-  gImageEngine.Process(in, out, filter);
+  sgl::image::ImageEngine::Process(in, out, filter);
 
   filter->Destroy();
 
@@ -228,7 +226,7 @@ sgl_error_t sgl_image_custom_kernel(const sgl_image_info_t &in,
   filter->SetScale(scale);
   filter->SetRadius(radius);
 
-  gImageEngine.Process(in, out, filter);
+  sgl::image::ImageEngine::Process(in, out, filter);
 
   return SGL_SUCCESS;
 }
@@ -249,7 +247,7 @@ sgl_error_t sgl_image_color_balance(const sgl_image_info_t &in,
   filter->SetAdjustP(adjustP, 9);
   filter->SetL(l);
 
-  gImageEngine.Process(in, out, filter);
+  sgl::image::ImageEngine::Process(in, out, filter);
 
   return SGL_SUCCESS;
 }
@@ -267,7 +265,7 @@ sgl_error_t sgl_image_black_white(const sgl_image_info_t &in,
   const auto filter = std::make_shared<BlackWhiteFilter>();
 
   filter->SetWeight(weight, wSize);
-  gImageEngine.Process(in, out, filter);
+  sgl::image::ImageEngine::Process(in, out, filter);
   return SGL_SUCCESS;
 }
 
@@ -283,7 +281,7 @@ sgl_error_t sgl_image_scale(const sgl_image_info_t &in,
   filter->SetTargetHeight(height);
   filter->SetInterpType(type);
 
-  gImageEngine.Process(in, out, filter);
+  sgl::image::ImageEngine::Process(in, out, filter);
 
   return SGL_SUCCESS;
 }
@@ -300,7 +298,7 @@ sgl_error_t sgl_image_gray(const sgl_image_info_t &in,
   filter->SetGreenFactor(g);
   filter->SetBlueFactor(b);
 
-  gImageEngine.Process(in, out, filter);
+  sgl::image::ImageEngine::Process(in, out, filter);
   return SGL_SUCCESS;
 }
 
@@ -318,7 +316,7 @@ sgl_error_t sgl_image_color_separation(const sgl_image_info_t &in,
   filter->SetGreenOffsetX(goff);
   filter->SetBlueOffsetX(boff);
 
-  gImageEngine.Process(in, out, filter);
+  sgl::image::ImageEngine::Process(in, out, filter);
   return SGL_SUCCESS;
 }
 
@@ -333,7 +331,7 @@ sgl_error_t sgl_image_mid_value(const sgl_image_info_t &in,
   filter->SetRadius(radius);
   filter->SetThreshold(threshold);
 
-  gImageEngine.Process(in, out, filter);
+  sgl::image::ImageEngine::Process(in, out, filter);
   return SGL_SUCCESS;
 }
 
@@ -360,7 +358,7 @@ sgl_error_t sgl_image_path_blur(const sgl_image_info_t &in,
   filter->SetEndPos(endpos, num);
   filter->SetStartVec(startvec, num);
   filter->SetEndVec(endvec, num);
-  gImageEngine.Process(in, out, filter);
+  sgl::image::ImageEngine::Process(in, out, filter);
 
   return SGL_SUCCESS;
 }
@@ -381,7 +379,7 @@ sgl_error_t sgl_image_crystallize(const sgl_image_info_t &in,
   filter->SetPos(posx, posy, k_size);
   filter->SetN(n);
 
-  gImageEngine.Process(in, out, filter);
+  sgl::image::ImageEngine::Process(in, out, filter);
 
   return SGL_SUCCESS;
 }
@@ -414,7 +412,7 @@ sgl_error_t sgl_image_rotation_blur(const sgl_image_info_t &in,
   filter->SetStrength(strength);
   filter->SetAngle(angle);
 
-  gImageEngine.Process(inputs, outputs, filter);
+  sgl::image::ImageEngine::Process(inputs, outputs, filter);
 
   return SGL_SUCCESS;
 }
@@ -431,7 +429,7 @@ sgl_error_t sgl_image_facet(const sgl_image_info_t &in,
   filter->SetRadius(radius);
   filter->SetLevel(intensitylevel);
 
-  gImageEngine.Process(in, out, filter);
+  sgl::image::ImageEngine::Process(in, out, filter);
 
   return SGL_SUCCESS;
 }
@@ -450,7 +448,7 @@ sgl_error_t sgl_image_accented_edge(const sgl_image_info_t &in,
   filter->SetSobely(sobely, size);
   filter->SetType(type);
 
-  gImageEngine.Process(in, out, filter);
+  sgl::image::ImageEngine::Process(in, out, filter);
 
   return SGL_SUCCESS;
 }
@@ -482,7 +480,7 @@ sgl_error_t sgl_image_irisblur(const sgl_image_info_t &in,
   filter->SetinB(inb);
   filter->SetAngle(angle);
 
-  gImageEngine.Process(inputs, outputs, filter);
+  sgl::image::ImageEngine::Process(inputs, outputs, filter);
 
   return SGL_SUCCESS;
 }
@@ -510,7 +508,7 @@ sgl_error_t sgl_image_tilt_shift_blur(const sgl_image_info_t &in,
   filter->SetC(C, size);
   filter->SetOffset(xoffset, yoffset);
 
-  gImageEngine.Process(inputs, outputs, filter);
+  sgl::image::ImageEngine::Process(inputs, outputs, filter);
 
   return SGL_SUCCESS;
 }
@@ -529,7 +527,7 @@ sgl_error_t sgl_image_radial_blur(const sgl_image_info_t &in,
   filter->SetStrength(strength);
   filter->SetCenter(xCenter, yCenter);
 
-  gImageEngine.Process(in, out, filter);
+  sgl::image::ImageEngine::Process(in, out, filter);
 
   return SGL_SUCCESS;
 }
@@ -548,7 +546,7 @@ sgl_error_t sgl_image_rotational_blur(const sgl_image_info_t &in,
   filter->SetStrength(strength);
   filter->SetCenter(x, y);
 
-  gImageEngine.Process(in, out, filter);
+  sgl::image::ImageEngine::Process(in, out, filter);
 
   return SGL_SUCCESS;
 }
@@ -565,7 +563,7 @@ sgl_error_t sgl_image_minmax(const sgl_image_info_t &in,
   filter->SetRadius(radius);
   filter->SetType(type);
 
-  gImageEngine.Process(in, out, filter);
+  sgl::image::ImageEngine::Process(in, out, filter);
 
   return SGL_SUCCESS;
 }
@@ -586,7 +584,7 @@ sgl_error_t sgl_image_color_halftone(const sgl_image_info_t &in,
   filter->SetColor(cyanAngle, yellowAngle, magentaAngle, radius);
   filter->SetLookup(lookup, size);
 
-  gImageEngine.Process(in, out, filter);
+  sgl::image::ImageEngine::Process(in, out, filter);
 
   return SGL_SUCCESS;
 }
@@ -602,7 +600,7 @@ sgl_error_t sgl_image_sharpen(const sgl_image_info_t &in,
   const auto filter = std::make_shared<SharpenFilter>();
   filter->SetKernel(kernel, size);
 
-  gImageEngine.Process(in, out, filter);
+  sgl::image::ImageEngine::Process(in, out, filter);
 
   return SGL_SUCCESS;
 }
@@ -618,7 +616,7 @@ sgl_error_t sgl_image_polar_coordinates(const sgl_image_info_t &in,
   const auto filter = std::make_shared<PolarCoordinatesFilter>();
   filter->SetType(type);
 
-  gImageEngine.Process(in, out, filter);
+  sgl::image::ImageEngine::Process(in, out, filter);
 
   return SGL_SUCCESS;
 }
@@ -635,7 +633,7 @@ sgl_error_t sgl_image_clouds(const sgl_image_info_t &in,
   filter->SetLookup(permuteLookup, size);
   filter->SetType(type);
 
-  gImageEngine.Process(in, out, filter);
+  sgl::image::ImageEngine::Process(in, out, filter);
 
   return SGL_SUCCESS;
 }
@@ -654,7 +652,7 @@ sgl_error_t sgl_image_motion_blur(const sgl_image_info_t &in,
   filter->SetDistance(distance);
   filter->SetPro(proportion);
 
-  gImageEngine.Process(in, out, filter);
+  sgl::image::ImageEngine::Process(in, out, filter);
 
   return SGL_SUCCESS;
 }
@@ -669,7 +667,7 @@ sgl_error_t sgl_image_twirl_warp(const sgl_image_info_t &in,
   const auto filter = std::make_shared<TwirlWarpFilter>();
   filter->SetAngle(angle);
 
-  gImageEngine.Process(in, out, filter);
+  sgl::image::ImageEngine::Process(in, out, filter);
 
   return SGL_SUCCESS;
 }
@@ -689,7 +687,7 @@ sgl_error_t sgl_image_zigzag(const sgl_image_info_t &in,
   filter->SetTypeWave(type_wave);
   filter->SetPro(proportion);
 
-  gImageEngine.Process(in, out, filter);
+  sgl::image::ImageEngine::Process(in, out, filter);
 
   return SGL_SUCCESS;
 }
@@ -706,7 +704,7 @@ sgl_error_t sgl_image_spherize(const sgl_image_info_t &in,
   filter->SetAlpha(alpha);
   filter->SetType(type);
 
-  gImageEngine.Process(in, out, filter);
+  sgl::image::ImageEngine::Process(in, out, filter);
 
   return SGL_SUCCESS;
 }
@@ -721,7 +719,7 @@ sgl_error_t sgl_image_pinch(const sgl_image_info_t &in,
   const auto filter = std::make_shared<PinchFilter>();
   filter->SetAmount(amount);
 
-  gImageEngine.Process(in, out, filter);
+  sgl::image::ImageEngine::Process(in, out, filter);
 
   return SGL_SUCCESS;
 }
@@ -742,7 +740,7 @@ sgl_error_t sgl_image_wave(const sgl_image_info_t &in,
   filter->SetType(type);
   filter->SetMethod(method);
 
-  gImageEngine.Process(in, out, filter);
+  sgl::image::ImageEngine::Process(in, out, filter);
 
   return SGL_SUCCESS;
 }
@@ -773,15 +771,6 @@ sgl_image_t *sgl_image_create(const sgl_gpu_ctx_t *gpu_ctx) {
   }
   const auto image = static_cast<sgl_image_t *>(malloc(sizeof(sgl_image_t)));
   if (image == nullptr) {
-    return nullptr;
-  }
-
-  if (!image->initialized) {
-    image->initialized = gImageEngine.Init();
-  }
-  if (!image->initialized) {
-    Logger() << Logger::ERROR << "Failed to initialize image engine." << std::endl;
-    free(image);
     return nullptr;
   }
 

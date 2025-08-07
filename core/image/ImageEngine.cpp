@@ -4,56 +4,26 @@
 
 #include "ImageEngine.h"
 
-#include <iostream>
-#include <ostream>
 #ifdef OS_OPEN_HARMONY
 #include <core/gpu/utils/vk_enum_string_helper.h>
 #else
 #include <vulkan/vk_enum_string_helper.h>
 #endif
 
+#include "core/context/Context.h"
 #include "core/utils/ImageUtils.h"
-#include "runtime/config.h"
 #include "runtime/gpu/VkGPUBuffer.h"
 #include "runtime/gpu/VkGPUHelper.h"
 #include "runtime/log/Log.h"
 #include "runtime/utils/TimeUtils.h"
 
 namespace sgl::image {
-ImageEngine::ImageEngine(const std::shared_ptr<VkGPUContext> &gpuCtx) {
-  this->gpuCtx = gpuCtx;
-}
 
-bool ImageEngine::Init() {
-  if (this->gpuCtx == nullptr) {
-    std::vector<const char *> requiredExtensions;
-    this->gpuCtx = std::make_shared<VkGPUContext>(requiredExtensions);
-    // this->gpuCtx->AddInstanceEnableLayer("VK_LAYER_KHRONOS_validation");
-    // this->gpuCtx->AddInstanceEnableLayer("VK_LAYER_LUNARG_api_dump");
-    // this->gpuCtx->AddInstanceEnableLayer("VK_LAYER_KHRONOS_synchronization2");
-    // this->gpuCtx->AddDeviceEnabledExtension("VK_KHR_synchronization2");
-  }
-  if (this->gpuCtx->Init() != VK_SUCCESS) {
-    Logger() << Logger::ERROR << "Failed to initialize Vulkan GPU context!"
-             << std::endl;
-    return false;
-  }
-  Logger() << Logger::INFO << "Initialized ImageEngine, version: " << VERSION
-           << std::endl;
-  return true;
-}
-
-std::string ImageEngine::GetGPUName() const {
-  if (this->gpuCtx == nullptr) {
-    return "";
-  }
-  return this->gpuCtx->GetPhysicalDeviceProperties().deviceName;
-}
 VkResult ImageEngine::ProcessGpu(
     const BufferGpu &inputBuffer, const uint32_t inputWidth,
     const uint32_t inputHeight, const BufferGpu &outputBuffer,
     const uint32_t outputWidth, const uint32_t outputHeight,
-    const uint32_t channels, const std::shared_ptr<IFilter> &filter) const {
+    const uint32_t channels, const std::shared_ptr<IFilter> &filter) {
   const VkDeviceSize inputBufferSize = inputWidth * inputHeight * channels;
   const VkDeviceSize outputBufferSize = outputWidth * outputHeight * channels;
 
@@ -85,8 +55,8 @@ VkResult ImageEngine::ProcessGpu(
   filterOutputImages.push_back(outputImageInfo);
 
   const uint64_t gpuProcessTimeStart = TimeUtils::GetCurrentMonoMs();
-  const VkResult ret =
-      filter->Apply(gpuCtx, filterInputImages, filterOutputImages);
+  const VkResult ret = filter->Apply(Context::GetInstance()->GetContext(),
+                                     filterInputImages, filterOutputImages);
   if (ret != VK_SUCCESS) {
     Logger() << "Failed to apply filter!" << std::endl;
     return ret;
@@ -96,9 +66,17 @@ VkResult ImageEngine::ProcessGpu(
            << "ms" << std::endl;
 
   filter->Destroy();
-  this->gpuCtx->Reset();
+  Context::GetInstance()->GetContext()->Reset();
 
   return ret;
+}
+
+static std::shared_ptr<ImageEngine> instance = nullptr;
+std::shared_ptr<ImageEngine> ImageEngine::GetInstance() {
+  if (instance == nullptr) {
+    instance = std::make_shared<ImageEngine>();
+  }
+  return instance;
 }
 
 VkResult ImageEngine::Process(const std::shared_ptr<VkGPUBuffer> &inputBuffer,
@@ -108,7 +86,7 @@ VkResult ImageEngine::Process(const std::shared_ptr<VkGPUBuffer> &inputBuffer,
                               const uint32_t outputHeight,
                               const uint32_t channels, const void *uploadData,
                               const std::shared_ptr<VkGPUBuffer> &outputBuffer,
-                              const std::shared_ptr<IFilter> &filter) const {
+                              const std::shared_ptr<IFilter> &filter) {
   const VkDeviceSize inputBufferSize = inputWidth * inputHeight * channels;
   const VkDeviceSize outputBufferSize = outputWidth * outputHeight * channels;
   const uint64_t imageBufferPrepareStart = TimeUtils::GetCurrentMonoMs();
@@ -163,7 +141,8 @@ VkResult ImageEngine::Process(const std::shared_ptr<VkGPUBuffer> &inputBuffer,
   filterOutputImages.push_back(outputImageInfo);
 
   const uint64_t gpuProcessTimeStart = TimeUtils::GetCurrentMonoMs();
-  ret = filter->Apply(gpuCtx, filterInputImages, filterOutputImages);
+  ret = filter->Apply(Context::GetInstance()->GetContext(), filterInputImages,
+                      filterOutputImages);
   if (ret != VK_SUCCESS) {
     Logger() << "Failed to apply filter!" << std::endl;
     return ret;
@@ -173,14 +152,14 @@ VkResult ImageEngine::Process(const std::shared_ptr<VkGPUBuffer> &inputBuffer,
            << "ms" << std::endl;
 
   filter->Destroy();
-  this->gpuCtx->Reset();
+  Context::GetInstance()->GetContext()->Reset();
 
   return ret;
 }
 
-void ImageEngine::ProcessFromCpuAddr(
-    const ImageInfoCpu &input, const ImageInfoCpu &output,
-    const std::shared_ptr<IFilter> &filter) const {
+void ImageEngine::ProcessFromCpuAddr(const ImageInfoCpu &input,
+                                     const ImageInfoCpu &output,
+                                     const std::shared_ptr<IFilter> &filter) {
   if (input.channels != output.channels) {
     Logger() << "Input and output channel must be same size!" << std::endl;
     return;
@@ -194,8 +173,10 @@ void ImageEngine::ProcessFromCpuAddr(
            << input.height << std::endl;
   const VkDeviceSize outputBufferSize =
       output.width * output.height * output.channels;
-  const auto inputStorageBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
-  const auto outputStorageBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
+  const auto inputStorageBuffer =
+      std::make_shared<VkGPUBuffer>(Context::GetInstance()->GetContext());
+  const auto outputStorageBuffer =
+      std::make_shared<VkGPUBuffer>(Context::GetInstance()->GetContext());
 
   const VkResult ret = Process(inputStorageBuffer, input.width, input.height,
                                output.width, output.height, input.channels,
@@ -228,16 +209,16 @@ void ImageEngine::Process(const ImageInfo &input, const ImageInfo &output,
            << std::endl;
 }
 
-void ImageEngine::ProcessFromCpuAddr(
-    const std::vector<ImageInfoCpu> &inputs,
-    const std::vector<ImageInfoCpu> &outputs,
-    const std::shared_ptr<IFilter> &filter) const {
+void ImageEngine::ProcessFromCpuAddr(const std::vector<ImageInfoCpu> &inputs,
+                                     const std::vector<ImageInfoCpu> &outputs,
+                                     const std::shared_ptr<IFilter> &filter) {
   VkResult ret = VK_SUCCESS;
   std::vector<std::shared_ptr<VkGPUBuffer>> inputBuffers;
   std::vector<FilterImageInfo> filterInputImages;
   const uint64_t inputBufferPrepareStart = TimeUtils::GetCurrentMonoMs();
   for (const ImageInfoCpu &input : inputs) {
-    const auto inputBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
+    const auto inputBuffer =
+        std::make_shared<VkGPUBuffer>(Context::GetInstance()->GetContext());
     const VkDeviceSize inputBufferSize =
         input.width * input.height * input.channels;
     ret = inputBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED,
@@ -278,7 +259,8 @@ void ImageEngine::ProcessFromCpuAddr(
   std::vector<FilterImageInfo> filterOutputImages;
   const uint64_t outputBufferPrepareStart = TimeUtils::GetCurrentMonoMs();
   for (const ImageInfoCpu &output : outputs) {
-    const auto outputBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
+    const auto outputBuffer =
+        std::make_shared<VkGPUBuffer>(Context::GetInstance()->GetContext());
     const VkDeviceSize outputBufferSize =
         output.width * output.height * output.channels;
     ret = outputBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED,
@@ -312,7 +294,8 @@ void ImageEngine::ProcessFromCpuAddr(
            << std::endl;
 
   const uint64_t gpuProcessTimeStart = TimeUtils::GetCurrentMonoMs();
-  ret = filter->Apply(gpuCtx, filterInputImages, filterOutputImages);
+  ret = filter->Apply(Context::GetInstance()->GetContext(), filterInputImages,
+                      filterOutputImages);
   if (ret != VK_SUCCESS) {
     Logger() << "Failed to apply blender!" << std::endl;
     for (const std::shared_ptr<VkGPUBuffer> &buffer : inputBuffers) {
@@ -322,7 +305,7 @@ void ImageEngine::ProcessFromCpuAddr(
       buffer->Destroy();
     }
     filter->Destroy();
-    this->gpuCtx->Reset();
+    Context::GetInstance()->GetContext()->Reset();
     return;
   }
   const uint64_t gpuProcessTimeEnd = TimeUtils::GetCurrentMonoMs();
@@ -354,7 +337,7 @@ void ImageEngine::ProcessFromCpuAddr(
     buffer->Destroy();
   }
   filter->Destroy();
-  this->gpuCtx->Reset();
+  Context::GetInstance()->GetContext()->Reset();
 
   inputBuffers.clear();
   inputBuffers.resize(0);
@@ -362,9 +345,9 @@ void ImageEngine::ProcessFromCpuAddr(
   outputBuffers.resize(0);
 }
 
-void ImageEngine::ProcessFromGpuAddr(
-    const ImageInfoGpu &input, const ImageInfoGpu &output,
-    const std::shared_ptr<IFilter> &filter) const {
+void ImageEngine::ProcessFromGpuAddr(const ImageInfoGpu &input,
+                                     const ImageInfoGpu &output,
+                                     const std::shared_ptr<IFilter> &filter) {
   if (input.channels != output.channels) {
     Logger() << "Input and output channel must be same size!" << std::endl;
     return;
@@ -387,7 +370,7 @@ void ImageEngine::ProcessFromGpuAddr(
 
 void ImageEngine::Process(const std::vector<ImageInfo> &inputs,
                           const std::vector<ImageInfo> &outputs,
-                          const std::shared_ptr<IFilter> &filter) const {
+                          const std::shared_ptr<IFilter> &filter) {
   if (inputs[0].type == SGL_IMAGE_TYPE_CPU &&
       outputs[0].type == SGL_IMAGE_TYPE_CPU) {
 
@@ -415,7 +398,7 @@ void ImageEngine::Process(const std::vector<ImageInfo> &inputs,
 }
 
 void ImageEngine::Process(const char *inputFilePath, const char *outputFilePath,
-                          const std::shared_ptr<IFilter> &filter) const {
+                          const std::shared_ptr<IFilter> &filter) {
   uint32_t imageWidth = 0, imageHeight = 0, channels = 0;
   std::vector<char> inputFileData = ImageUtils::ReadPngFile(
       inputFilePath, &imageWidth, &imageHeight, &channels);
@@ -428,8 +411,10 @@ void ImageEngine::Process(const char *inputFilePath, const char *outputFilePath,
            << ", channels=" << channels << std::endl;
   const VkDeviceSize outputBufferSize = imageWidth * imageHeight * channels;
 
-  const auto inputStorageBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
-  const auto outputStorageBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
+  const auto inputStorageBuffer =
+      std::make_shared<VkGPUBuffer>(Context::GetInstance()->GetContext());
+  const auto outputStorageBuffer =
+      std::make_shared<VkGPUBuffer>(Context::GetInstance()->GetContext());
 
   VkResult ret = Process(inputStorageBuffer, imageWidth, imageHeight,
                          imageWidth, imageHeight, channels,
@@ -458,7 +443,7 @@ void ImageEngine::Process(const char *inputFilePath, const char *outputFilePath,
 
 void ImageEngine::Process(const char *inputFilePath, const char *outputFilePath,
                           const uint32_t newWidth, const uint32_t newHeight,
-                          const std::shared_ptr<IFilter> &filter) const {
+                          const std::shared_ptr<IFilter> &filter) {
   uint32_t imageWidth = 0, imageHeight = 0, channels = 0;
   std::vector<char> inputFileData = ImageUtils::ReadPngFile(
       inputFilePath, &imageWidth, &imageHeight, &channels);
@@ -470,8 +455,10 @@ void ImageEngine::Process(const char *inputFilePath, const char *outputFilePath,
            << ", channels=" << channels << std::endl;
   const VkDeviceSize outputBufferSize = newWidth * newHeight * channels;
 
-  const auto inputStorageBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
-  const auto outputStorageBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
+  const auto inputStorageBuffer =
+      std::make_shared<VkGPUBuffer>(Context::GetInstance()->GetContext());
+  const auto outputStorageBuffer =
+      std::make_shared<VkGPUBuffer>(Context::GetInstance()->GetContext());
 
   VkResult ret =
       Process(inputStorageBuffer, imageWidth, imageHeight, newWidth, newHeight,
@@ -502,7 +489,7 @@ void ImageEngine::Process(const char *inputFilePath, const char *outputFilePath,
 void ImageEngine::Process(const char *baseFilePath, const char *blendFilePath,
                           const uint32_t posX, const uint32_t posY,
                           const char *outputFilePath,
-                          const std::shared_ptr<IBlender> &blender) const {
+                          const std::shared_ptr<IBlender> &blender) {
   uint32_t baseImageWidth = 0, baseImageHeight = 0, baseImageChannels = 0;
   std::vector<char> baseImageFileData = ImageUtils::ReadPngFile(
       baseFilePath, &baseImageWidth, &baseImageHeight, &baseImageChannels);
@@ -527,9 +514,12 @@ void ImageEngine::Process(const char *baseFilePath, const char *blendFilePath,
 
   const VkDeviceSize outputBufferSize =
       baseImageWidth * baseImageHeight * baseImageChannels;
-  const auto baseStorageBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
-  const auto blendStorageBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
-  const auto outputStorageBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
+  const auto baseStorageBuffer =
+      std::make_shared<VkGPUBuffer>(Context::GetInstance()->GetContext());
+  const auto blendStorageBuffer =
+      std::make_shared<VkGPUBuffer>(Context::GetInstance()->GetContext());
+  const auto outputStorageBuffer =
+      std::make_shared<VkGPUBuffer>(Context::GetInstance()->GetContext());
 
   const uint64_t baseImageBufferPrepareStart = TimeUtils::GetCurrentMonoMs();
   const VkDeviceSize baseBufferSize =
@@ -606,8 +596,8 @@ void ImageEngine::Process(const char *baseFilePath, const char *blendFilePath,
   blendImageInfo.posX = posX;
   blendImageInfo.posY = posY;
   blendImageInfo.storageBuffer = blendStorageBuffer->GetBuffer();
-  ret = blender->Apply(gpuCtx, baseImageInfo, blendImageInfo,
-                       outputStorageBuffer->GetBuffer());
+  ret = blender->Apply(Context::GetInstance()->GetContext(), baseImageInfo,
+                       blendImageInfo, outputStorageBuffer->GetBuffer());
   if (ret != VK_SUCCESS) {
     Logger() << "Failed to apply blender!" << std::endl;
     return;

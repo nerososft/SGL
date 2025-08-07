@@ -42,6 +42,8 @@ set(ENGINE_SOURCE ImageEngine.cpp
         ImageEngine.h
         ../utils/ImageUtils.h
         ../utils/ImageUtils.cpp
+        ../context/Context.cpp
+        ../context/Context.h
         utils/TransformUtils.cpp
         utils/TransformUtils.h
         blenders/IBlender.h

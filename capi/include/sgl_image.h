@@ -41,8 +41,6 @@ typedef struct sgl_image_info {
 } sgl_image_info_t;
 
 typedef struct sgl_image {
-  bool initialized = false;
-
   sgl_error_t (*gray)(const sgl_image_info_t &in, const sgl_image_info_t &out,
                       float r, float g, float b);
   sgl_error_t (*threshold_split)(const sgl_image_info_t &in,

@@ -23,7 +23,8 @@ typedef struct {
   size_t offset;
 } PngReadBuf;
 
-void png_read_func(png_structp png, png_bytep outBuffer, size_t bufferToRead) {
+void png_read_func(const png_structp png, const png_bytep outBuffer,
+                   const size_t bufferToRead) {
   auto *buf = static_cast<PngReadBuf *>(png_get_io_ptr(png));
   if (buf->offset + bufferToRead > buf->size) {
     Logger() << "png_read_func: out of buffer" << std::endl;
@@ -33,7 +34,8 @@ void png_read_func(png_structp png, png_bytep outBuffer, size_t bufferToRead) {
   buf->offset += bufferToRead;
 }
 
-void png_write_func(png_structp png, png_bytep inBuffer, size_t bufferToWrite) {
+void png_write_func(const png_structp png, const png_bytep inBuffer,
+                    const size_t bufferToWrite) {
   auto *ofs = static_cast<std::ofstream *>(png_get_io_ptr(png));
   if (!ofs->good()) {
     Logger() << "png_write_func: bad ofstream" << std::endl;
@@ -45,7 +47,7 @@ void png_write_func(png_structp png, png_bytep inBuffer, size_t bufferToWrite) {
   }
 }
 
-void png_flush_func(png_structp png) {
+void png_flush_func(const png_structp png) {
   auto *ofs = static_cast<std::ofstream *>(png_get_io_ptr(png));
   if (ofs->good()) {
     ofs->flush();

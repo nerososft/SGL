@@ -35,12 +35,6 @@
 #include "runtime/log/Log.h"
 
 void effect_engine_main() {
-  sgl::image::ImageEngine effectEngine;
-  if (!effectEngine.Init()) {
-    Logger() << "Failed to initialize effect_engine" << std::endl;
-    return;
-  }
-
   // const auto filter = std::make_shared<GrayFilter>();
   // filter->SetRedFactor(0.299);
   // filter->SetGreenFactor(0.587);
@@ -61,26 +55,26 @@ void effect_engine_main() {
   // outputImageInfo.bytesPerLine = outputImageInfo.width * 4;
   // outputImageInfo.data = malloc(outputImageInfo.width *
   // outputImageInfo.height * outputImageInfo.channels);
-  // effectEngine.Process(inputImageInfo, outputImageInfo, filter);
+  // sgl::image::ImageEngine::Process(inputImageInfo, outputImageInfo, filter);
 
   // const auto filter = std::make_shared<GrayFilter>();
   // filter->SetRedFactor(0.299);
   // filter->SetGreenFactor(0.587);
   // filter->SetBlueFactor(0.114);
-  // effectEngine.Process("../../../examples/image_demo/images/girl.png",
+  // sgl::image::ImageEngine::Process("../../../examples/image_demo/images/girl.png",
   // "../../../examples/image_demo/images/girl_gray.png", filter);
 
   // const auto filter = std::make_shared<GaussianBlurFilter>();
   // filter->SetRadius(300);
-  // effectEngine.Process("../../../examples/image_demo/images/girl.png",
+  // sgl::image::ImageEngine::Process("../../../examples/image_demo/images/girl.png",
   // "../../../examples/image_demo/images/girl_blur.png", filter);
 
   // const auto filter = std::make_shared<ChinesePaintFilter>();
-  // effectEngine.Process("../../../examples/image_demo/images/girl.png",
+  // sgl::image::ImageEngine::Process("../../../examples/image_demo/images/girl.png",
   // "../../../examples/image_demo/images/girl_chinese_paint.png", filter);
 
   // const auto filter = std::make_shared<ColorPencilSketchFilter>();
-  // effectEngine.Process("../../../examples/image_demo/images/girl.png",
+  // sgl::image::ImageEngine::Process("../../../examples/image_demo/images/girl.png",
   // "../../../examples/image_demo/images/girl_color_pencil_sketch.png",
   // filter);
 
@@ -88,25 +82,25 @@ void effect_engine_main() {
   // filter->SetRedOffsetX(60.0f);
   // filter->SetGreenOffsetX(120.0f);
   // filter->SetBlueOffsetX(180.0f);
-  // effectEngine.Process("../../../examples/image_demo/images/girl.png",
+  // sgl::image::ImageEngine::Process("../../../examples/image_demo/images/girl.png",
   // "../../../examples/image_demo/images/girl_color_separation.png", filter);
 
   // const auto filter = std::make_shared<ScaleFilter>();
   // filter->SetTargetWidth(409);
   // filter->SetTargetHeight(613);
-  // effectEngine.Process("../../../examples/image_demo/images/girl.png",
+  // sgl::image::ImageEngine::Process("../../../examples/image_demo/images/girl.png",
   // "../../../examples/image_demo/images/girl_scale_down.png", 409, 613,
   // filter);
 
   // const auto filter = std::make_shared<OldGaussianBlurFilter>();
   // filter->SetRadius(12);
-  // effectEngine.Process("../../../examples/image_demo/images/girl_scale_down.png",
+  // sgl::image::ImageEngine::Process("../../../examples/image_demo/images/girl_scale_down.png",
   // "../../../examples/image_demo/images/girl_scale_down_blur.png", filter);
 
   // const auto filter = std::make_shared<ScaleFilter>();
   // filter->SetTargetWidth(4093);
   // filter->SetTargetHeight(6139);
-  // effectEngine.Process("../../../examples/image_demo/images/girl_scale_down_blur.png",
+  // sgl::image::ImageEngine::Process("../../../examples/image_demo/images/girl_scale_down_blur.png",
   //                      "../../../examples/image_demo/images/girl_scale_up_blur.png",
   //                      4093, 6139, filter);
 
@@ -115,7 +109,7 @@ void effect_engine_main() {
   // filter->SetStrength(500);
   // filter->SetRotationStrength(600);
   // filter->SetSharpness(0.1);
-  // effectEngine.Process("../../../examples/image_demo/images/girl.png",
+  // sgl::image::ImageEngine::Process("../../../examples/image_demo/images/girl.png",
   // "../../../examples/image_demo/images/girl_radial_blur.png", filter);
 
   // const auto filter = std::make_shared<FocusBlurFilter>();
@@ -123,18 +117,18 @@ void effect_engine_main() {
   // filter->SetBlurRadius(110);
   // filter->SetCenterRadius(100);
   // filter->SetSharpness(3);
-  // effectEngine.Process("../../../examples/image_demo/images/colorful.png",
+  // sgl::image::ImageEngine::Process("../../../examples/image_demo/images/colorful.png",
   // "../../../examples/image_demo/images/colorful_focus_blur.png", filter);
 
   // const auto filter = std::make_shared<SurfaceBlurFilter>();
   // filter->SetBlurRadius(60);
   // filter->SetThreshold(128);
-  // effectEngine.Process("../../../examples/image_demo/images/girl.png",
+  // sgl::image::ImageEngine::Process("../../../examples/image_demo/images/girl.png",
   // "../../../examples/image_demo/images/girl_surface_blur.png", filter);
 
   // const auto blender = std::make_shared<DissolveBlender>();
   // blender->SetDissolveFactor(0.5);
-  // effectEngine.Process("../../../examples/image_demo/images/girl.png",
+  // sgl::image::ImageEngine::Process("../../../examples/image_demo/images/girl.png",
   //                      "../../../examples/image_demo/images/colorful.png",
   //                      500,
   //                      800,
@@ -142,7 +136,7 @@ void effect_engine_main() {
   //                      blender);
 
   // const auto blender = std::make_shared<MultiplyBlender>();
-  // effectEngine.Process("../../../examples/image_demo/images/girl.png",
+  // sgl::image::ImageEngine::Process("../../../examples/image_demo/images/girl.png",
   //                      "../../../examples/image_demo/images/colorful.png",
   //                      500,
   //                      800,
@@ -150,7 +144,7 @@ void effect_engine_main() {
   //                      blender);
 
   // const auto blender = std::make_shared<OverlayBlender>();
-  // effectEngine.Process("../../../examples/image_demo/images/girl.png",
+  // sgl::image::ImageEngine::Process("../../../examples/image_demo/images/girl.png",
   //                      "../../../examples/image_demo/images/colorful.png",
   //                      500,
   //                      800,
@@ -162,7 +156,7 @@ void effect_engine_main() {
   // const auto blender = std::make_shared<LighterColorBlender>();
   // blender->SetBrightnessThreshold(0.7f);
   // blender->SetBlendFactor(0.3f);
-  // effectEngine.Process("../../../examples/image_demo/images/girl.png",
+  // sgl::image::ImageEngine::Process("../../../examples/image_demo/images/girl.png",
   //                      "../../../examples/image_demo/images/colorful.png",
   //                      500,
   //                      800,
@@ -172,44 +166,44 @@ void effect_engine_main() {
   // const auto filter = std::make_shared<VibranceFilter>();
   // filter->SetVibrance(40);
   // filter->SetSaturation(50);
-  // effectEngine.Process("../../../examples/image_demo/images/colorful.png",
+  // sgl::image::ImageEngine::Process("../../../examples/image_demo/images/colorful.png",
   // "../../../examples/image_demo/images/colorful_vibrance.png", filter);
 
   // const auto filter = std::make_shared<PaletteKnifeFilter>();
   // filter->SetRadius(10);
   // filter->SetQuantScale(5);
-  // effectEngine.Process("../../../examples/image_demo/images/colorful.png",
+  // sgl::image::ImageEngine::Process("../../../examples/image_demo/images/colorful.png",
   // "../../../examples/image_demo/images/colorful_palette_knife.png", filter);
 
   // const auto filter = std::make_shared<NES8BitMosaicFilter>();
   // filter->SetBlockSize(64);
-  // effectEngine.Process("../../../examples/image_demo/images/girl.png",
+  // sgl::image::ImageEngine::Process("../../../examples/image_demo/images/girl.png",
   // "../../../examples/image_demo/images/girl_8bit.png", filter);
 
   // const auto filter = std::make_shared<ThresholdSplitFilter>();
   // filter->SetBright(10);
-  // effectEngine.Process("../../../examples/image_demo/images/girl.png",
+  // sgl::image::ImageEngine::Process("../../../examples/image_demo/images/girl.png",
   // "../../../examples/image_demo/images/girl_threshold.png", filter);
 
   // const auto filter = std::make_shared<VoronoiFilter>();
   // filter->SetGridSize(64);
   // filter->SetEnableEdge(true);
-  // effectEngine.Process("../../../examples/image_demo/images/colorful.png",
+  // sgl::image::ImageEngine::Process("../../../examples/image_demo/images/colorful.png",
   // "../../../examples/image_demo/images/colorful_voronoi.png", filter);
 
   // const auto filter = std::make_shared<OldGaussianBlurFilter>();
   // filter->SetRadius(128);
-  // effectEngine.Process("../../../examples/image_demo/images/girl.png",
+  // sgl::image::ImageEngine::Process("../../../examples/image_demo/images/girl.png",
   // "../../../examples/image_demo/images/girl_blur.png", filter);
 
   // const auto filter = std::make_shared<FastGaussianBlurFilter>();
   // filter->SetRadius(120);
-  // effectEngine.Process("../../../examples/image_demo/images/girl.png",
+  // sgl::image::ImageEngine::Process("../../../examples/image_demo/images/girl.png",
   // "../../../examples/image_demo/images/girl_fast_blur.png", filter);
 
   // const auto filter = std::make_shared<MedianFilter>();
   // filter->SetRadius(50);
-  // effectEngine.Process("../../../examples/image_demo/images/test.png",
+  // sgl::image::ImageEngine::Process("../../../examples/image_demo/images/test.png",
   // "../../../examples/image_demo/images/test_median.png", filter);
 
   const auto filter = std::make_shared<TransformFilter>();
@@ -225,7 +219,7 @@ void effect_engine_main() {
   to.emplace_back(100.0f, 300.0f, 0.0f);
   to.emplace_back(500.0f, 500.0f, 0.0f);
   filter->SetTransformMatrix(TransformUtils::Transform(from, to));
-  effectEngine.Process(
+  sgl::image::ImageEngine::Process(
       "../../../examples/image_demo/images/girl.png",
       "../../../examples/image_demo/images/girl_transform.png", filter);
 }
