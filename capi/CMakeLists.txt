@@ -1,4 +1,4 @@
-add_library(libSGL
+add_library(SGL SHARED
         include/sgl.h
         include/sgl_error.h
         include/sgl_compute.h
@@ -11,5 +11,5 @@ add_library(libSGL
         sgl_buffer.cpp
         sgl_compute.cpp
 )
-target_link_libraries(libSGL compute_engine)
-target_link_libraries(libSGL image_engine)
+target_link_libraries(SGL compute_engine)
+target_link_libraries(SGL image_engine)
