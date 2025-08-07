@@ -456,7 +456,7 @@ sgl_error_t sgl_image_accented_edge(const sgl_image_info_t &in,
 sgl_error_t sgl_image_irisblur(const sgl_image_info_t &in,
                                const sgl_image_info_t &in2,
                                const sgl_image_info_t &out, const float x,
-                               const float y, const float a, const float b,
+                                const float y, const float a, const float b,
                                const float ina, const float inb,
                                const float angle) {
   if (sgl_image_check_args(in) != SGL_SUCCESS ||

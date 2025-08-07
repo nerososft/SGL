@@ -5,7 +5,7 @@
 #include "include/sgl_compute.h"
 #include "runtime/log/Log.h"
 
-sgl_compute_t *sgl_buffer_manager_create(const sgl_gpu_ctx_t *gpu_ctx) {
+sgl_compute_t *sgl_compute_create(const sgl_gpu_ctx_t *gpu_ctx) {
   if (gpu_ctx == nullptr) {
     Logger() << "gpu_ctx is null." << std::endl;
     return nullptr;
@@ -20,4 +20,4 @@ sgl_compute_t *sgl_buffer_manager_create(const sgl_gpu_ctx_t *gpu_ctx) {
   return compute;
 }
 
-void sgl_buffer_manager_destroy(sgl_compute_t *compute) { free(compute); }
+void sgl_compute_destroy(sgl_compute_t *compute) { free(compute); }

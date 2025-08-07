@@ -24,6 +24,6 @@ typedef struct sgl_compute {
 
 sgl_compute_t *sgl_compute_create(sgl_gpu_ctx_t *gpu_ctx);
 
-void sgl_compute_destroy(sgl_compute_t *image);
+void sgl_compute_destroy(sgl_compute_t *compute);
 
 #endif // SGL_COMPUTE_H
