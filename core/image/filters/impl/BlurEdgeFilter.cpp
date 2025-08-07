@@ -5,7 +5,7 @@
 #include "BlurEdgeFilter.h"
 
 #ifdef OS_OPEN_HARMONY
-#include <core/gpu/utils/vk_enum_string_helper.h>
+#include <runtime/gpu/utils/vk_enum_string_helper.h>
 #else
 #include <vulkan/vk_enum_string_helper.h>
 #endif
