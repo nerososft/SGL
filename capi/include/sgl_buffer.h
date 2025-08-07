@@ -27,7 +27,8 @@ typedef struct sgl_buffer {
 } sgl_buffer_t;
 
 typedef struct sgl_buffer_manager {
-  sgl_buffer_t (*allocate_buf)(sgl_buffer_manager *mgr, size_t size);
+  sgl_buffer_t (*allocate_buf)(sgl_buffer_manager *mgr, sgl_buffer_type type,
+                               size_t size);
   sgl_error_t (*destroy_buf)(sgl_buffer_manager *mgr, sgl_buffer_t *buf);
 } sgl_buffer_manager_t;
 

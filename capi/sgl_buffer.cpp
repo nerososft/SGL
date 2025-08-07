@@ -3,14 +3,45 @@
 //
 #include "include/sgl_buffer.h"
 
+#include "core/context/Context.h"
+#include "runtime/gpu/VkGPUBuffer.h"
 #include "runtime/log/Log.h"
 
 #include <cstdlib>
 
 sgl_buffer_t sgl_buffer_manager_allocate_buf(sgl_buffer_manager *mgr,
-                                             size_t size) {
-  // TODO:
-  return (sgl_buffer_t){};
+                                             sgl_buffer_type type,
+                                             const size_t size) {
+  if (size == 0) {
+    Logger() << Logger::ERROR << "Can not allocate 0 bytes gpu mem!"
+             << std::endl;
+    sgl_buffer_t buf{};
+    buf.type = SGL_BUFFER_TYPE_UNKNOWN;
+    return buf;
+  }
+  const auto buffer =
+      std::make_shared<VkGPUBuffer>(Context::GetInstance()->GetContext());
+  VkResult ret =
+      buffer->AllocateAndBind(static_cast<VkGPUBufferType>(type), size);
+  if (ret != VK_SUCCESS) {
+    sgl_buffer_t buf{};
+    buf.type = SGL_BUFFER_TYPE_UNKNOWN;
+    return buf;
+  }
+  ret = buffer->MapBuffer(size);
+  if (ret != VK_SUCCESS) {
+    buffer->Destroy();
+    sgl_buffer_t buf{};
+    buf.type = SGL_BUFFER_TYPE_UNKNOWN;
+    return buf;
+  }
+  sgl_buffer_t buf;
+  buf.type = type;
+  buf.bufferSize = size;
+  buf.bufHandle = buffer->GetBuffer();
+  buf.memHandle = buffer->GetDeviceMemory();
+  buf.data = buffer->GetMappedAddr();
+  return buf;
 }
 
 sgl_error_t sgl_buffer_manager_destroy_buf(sgl_buffer_manager *mgr,
