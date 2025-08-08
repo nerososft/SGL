@@ -7,7 +7,7 @@
 #include "runtime/gpu/VkGPUBuffer.h"
 #include "runtime/log/Log.h"
 
-sgl_buffer_t sgl_buffer_manager_allocate_buffer(sgl_buffer_manager *mgr,
+sgl_buffer_t sgl_buffer_manager_allocate_buffer(const sgl_buffer_manager *mgr,
                                                 sgl_buffer_type type,
                                                 const size_t size) {
   if (size == 0) {
@@ -42,7 +42,7 @@ sgl_buffer_t sgl_buffer_manager_allocate_buffer(sgl_buffer_manager *mgr,
   return buf;
 }
 
-sgl_error_t sgl_buffer_manager_destroy_buffer(sgl_buffer_manager *mgr,
+sgl_error_t sgl_buffer_manager_destroy_buffer(const sgl_buffer_manager *mgr,
                                               sgl_buffer_t *buf) {
   // TODO:
   return (sgl_error_t){};
