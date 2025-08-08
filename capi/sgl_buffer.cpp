@@ -35,6 +35,8 @@ sgl_buffer_t sgl_buffer_manager_allocate_buffer(const sgl_buffer_manager *mgr,
     buf.type = SGL_BUFFER_TYPE_UNKNOWN;
     return buf;
   }
+  Logger() << "Allocated gpu buffer " << string_buffer_type(type)
+           << " size: " << size << std::endl;
   sgl_buffer_t buf;
   buf.type = type;
   buf.bufferSize = size;

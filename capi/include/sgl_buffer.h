@@ -18,6 +18,28 @@ typedef enum sgl_buffer_type {
   SGL_BUFFER_TYPE_UNKNOWN,
 } sgl_buffer_type_t;
 
+static const char *string_buffer_type(const sgl_buffer_type_t type) {
+  if (type == SGL_BUFFER_TYPE_UNIFORM) {
+    return "SGL_BUFFER_TYPE_UNIFORM";
+  }
+  if (type == SGL_BUFFER_TYPE_STORAGE_LOCAL) {
+    return "SGL_BUFFER_TYPE_STORAGE_LOCAL";
+  }
+  if (type == SGL_BUFFER_TYPE_STORAGE_SHARED) {
+    return "SGL_BUFFER_TYPE_STORAGE_SHARED";
+  }
+  if (type == SGL_BUFFER_TYPE_VERTEX) {
+    return "SGL_BUFFER_TYPE_VERTEX";
+  }
+  if (type == SGL_BUFFER_TYPE_INDEX) {
+    return "SGL_BUFFER_TYPE_INDEX";
+  }
+  if (type == SGL_BUFFER_TYPE_UNKNOWN) {
+    return "SGL_BUFFER_TYPE_UNKNOWN";
+  }
+  return "unknown";
+}
+
 typedef struct sgl_buffer {
   sgl_buffer_type_t type = SGL_BUFFER_TYPE_UNKNOWN;
   void *bufHandle = nullptr;
