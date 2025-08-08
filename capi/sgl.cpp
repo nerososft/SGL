@@ -12,15 +12,24 @@ sgl_t *sgl_create() {
     return nullptr;
   }
 
-  const sgl_image_t *image = sgl_image_create(&sgl->info);
+  sgl_image_t *image = sgl_image_create(&sgl->info);
   if (image == nullptr) {
     Logger() << Logger::ERROR << "Failed to create image engine!" << std::endl;
-    free(sgl);
+    sgl_destroy(sgl);
     return nullptr;
   }
   sgl->img = image;
 
-  // TODO:
+  const sgl_buffer_manager_t *bm = sgl_buffer_manager_create(&sgl->info);
+  if (bm == nullptr) {
+    Logger() << Logger::ERROR << "Failed to create buffer manager!"
+             << std::endl;
+    sgl_image_destroy(image);
+    sgl_destroy(sgl);
+    return nullptr;
+  }
+  sgl->bm = bm;
+
   return sgl;
 }
 
