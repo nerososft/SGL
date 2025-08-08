@@ -7,6 +7,8 @@
 #include "runtime/gpu/VkGPUBuffer.h"
 #include "runtime/log/Log.h"
 
+std::vector<std::shared_ptr<VkGPUBuffer>> buffers;
+
 sgl_buffer_t sgl_buffer_manager_allocate_buffer(const sgl_buffer_manager *mgr,
                                                 sgl_buffer_type type,
                                                 const size_t size) {
@@ -19,6 +21,8 @@ sgl_buffer_t sgl_buffer_manager_allocate_buffer(const sgl_buffer_manager *mgr,
   }
   const auto buffer =
       std::make_shared<VkGPUBuffer>(Context::GetInstance()->GetContext());
+  buffers.push_back(buffer);
+
   VkResult ret =
       buffer->AllocateAndBind(static_cast<VkGPUBufferType>(type), size);
   if (ret != VK_SUCCESS) {
