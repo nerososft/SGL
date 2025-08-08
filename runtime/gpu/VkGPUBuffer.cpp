@@ -48,7 +48,7 @@ VkResult VkGPUBuffer::AllocateAndBind(const VkGPUBufferType type,
         gpuCtx->GetCurrentDevice(), size, queueFamilyIndices, &memoryProperties,
         &this->buffer, &this->bufferMemory);
   } else {
-    Logger() << "Unknown buffer type!" << std::endl;
+    Logger() << Logger::ERROR << "Unknown buffer type!" << std::endl;
     result = VK_ERROR_UNKNOWN;
   }
   if (result != VK_SUCCESS) {
