@@ -17,5 +17,5 @@ cmake .. -DCMAKE_BUILD_TYPE:STRING=Release \
 
 D:/mingw_qt/mingw32/bin/mingw32-make.exe -j32
 
-cp /d/develop_main/main_v4/pseffect/build_os/effect_engine/libgpu_effect_engine.so  /d/develop_main/main_v4/photosir_oh/entry/libs/arm64-v8a
-cp /d/develop_main/main_v4/pseffect/build_os/effect_engine/libgpu_effect_engine.so  /d/develop_main/main_v4/lib/harmonyos/Release
+cp /d/develop_main/main_v4/pseffect/build_os/SGL/libSGL.so  /d/develop_main/main_v4/photosir_oh/entry/libs/arm64-v8a
+cp /d/develop_main/main_v4/pseffect/build_os/SGL/libSGL.so  /d/develop_main/main_v4/lib/harmonyos/Release
