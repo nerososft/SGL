@@ -13,7 +13,7 @@
 extern "C" {
 #endif
 
-typedef struct sgl {
+typedef struct {
   const sgl_gpu_ctx_t info;
   const sgl_buffer_manager_t *bm;
   const sgl_image_t *img;

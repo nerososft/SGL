@@ -8,7 +8,11 @@
 #include "sgl_error.h"
 #include "sgl_gpu_ctx.h"
 
+#ifdef _WIN32
+#include <cstdint>
+#else
 #include <unistd.h>
+#endif
 
 typedef struct sgl_image_gpu_info {
   uint32_t width;
@@ -124,9 +128,9 @@ typedef struct sgl_image {
                            float a, float b, float ina, float inb, float angle);
   sgl_error_t (*tilt_shift_blur)(const sgl_image_info_t in,
                                  const sgl_image_info_t in2,
-                                 const sgl_image_info_t out, float *A,
-                                 float *B, float *C, float xoffset,
-                                 float yoffset, int size);
+                                 const sgl_image_info_t out, float *A, float *B,
+                                 float *C, float xoffset, float yoffset,
+                                 int size);
 
   sgl_error_t (*radial_blur)(const sgl_image_info_t in,
                              const sgl_image_info_t out, float sharpness,
@@ -144,8 +148,8 @@ typedef struct sgl_image {
                                 float yellowAngle, float magentaAngle,
                                 float radius, float *lookup);
 
-  sgl_error_t (*sharpen)(const sgl_image_info_t in,
-                         const sgl_image_info_t out, int *kernel, int size);
+  sgl_error_t (*sharpen)(const sgl_image_info_t in, const sgl_image_info_t out,
+                         int *kernel, int size);
 
   sgl_error_t (*polar_coordinates)(const sgl_image_info_t in,
                                    const sgl_image_info_t out, int type);
@@ -164,8 +168,8 @@ typedef struct sgl_image {
                         int wavelength, int amplitude, int type_wave,
                         float proportion);
 
-  sgl_error_t (*spherize)(const sgl_image_info_t in,
-                          const sgl_image_info_t out, int alpha, int type);
+  sgl_error_t (*spherize)(const sgl_image_info_t in, const sgl_image_info_t out,
+                          int alpha, int type);
 
   sgl_error_t (*pinch)(const sgl_image_info_t in, const sgl_image_info_t out,
                        int amount);
