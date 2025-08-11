@@ -70,7 +70,7 @@ sgl_error_t sgl_buffer_manager_destroy_buffer(const sgl_buffer_manager *mgr,
       buffers.find(static_cast<VkBuffer>(buf->bufHandle))->second;
   buffer->Destroy();
   buffers.erase(static_cast<VkBuffer>(buf->bufHandle));
-  return (sgl_error_t){};
+  return SGL_SUCCESS;
 }
 
 sgl_buffer_manager_t *sgl_buffer_manager_create(const sgl_gpu_ctx_t *gpu_ctx) {
