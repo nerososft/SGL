@@ -91,10 +91,6 @@ ModelLoader::LoadModel(const std::string &path, const std::string &name) {
         model->vertexData.push_back(vertex);
         model->indicesData.push_back(model->vertexData.size() - 1);
       }
-
-      model->indicesData.push_back(faceIndex * face.mNumIndices + 0);
-      model->indicesData.push_back(faceIndex * face.mNumIndices + 1);
-      model->indicesData.push_back(faceIndex * face.mNumIndices + 2);
     }
 
     if (scene->HasMaterials()) {
