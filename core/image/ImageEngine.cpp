@@ -51,7 +51,6 @@ VkResult ImageEngine::ProcessGpu(
   outputImageInfo.storageBuffer = static_cast<VkBuffer>(outputBuffer.bufHandle);
   outputImageInfo.storageBufferMemory =
       static_cast<VkDeviceMemory>(outputBuffer.memHandle);
-  filterInputImages.push_back(inputImageInfo);
   filterOutputImages.push_back(outputImageInfo);
 
   const uint64_t gpuProcessTimeStart = TimeUtils::GetCurrentMonoMs();
