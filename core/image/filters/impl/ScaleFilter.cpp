@@ -17,10 +17,17 @@
 #include "runtime/gpu/VkGPUHelper.h"
 #include "runtime/log/Log.h"
 
+#include <assert.h>
+
 VkResult
 ScaleFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                    const std::vector<FilterImageInfo> &inputImageInfo,
                    const std::vector<FilterImageInfo> &outputImageInfo) {
+  assert(inputImageInfo[0].storageBuffer != VK_NULL_HANDLE);
+  assert(outputImageInfo[0].storageBuffer != VK_NULL_HANDLE);
+  assert(inputImageInfo[1].bufferSize > 0);
+  assert(outputImageInfo[1].bufferSize > 0);
+
   BasicFilterParams params;
   this->scaleFilterParams.imageSize.width = inputImageInfo[0].width;
   this->scaleFilterParams.imageSize.height = inputImageInfo[0].height;
