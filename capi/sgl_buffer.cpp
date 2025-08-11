@@ -9,7 +9,7 @@
 
 #include <map>
 
-std::map<VkBuffer, const std::shared_ptr<VkGPUBuffer> &> buffers;
+std::map<VkBuffer, std::shared_ptr<VkGPUBuffer>> buffer_map;
 
 sgl_buffer_t sgl_buffer_manager_allocate_buffer(const sgl_buffer_manager *mgr,
                                                 sgl_buffer_type type,
@@ -40,9 +40,7 @@ sgl_buffer_t sgl_buffer_manager_allocate_buffer(const sgl_buffer_manager *mgr,
     buf.type = SGL_BUFFER_TYPE_UNKNOWN;
     return buf;
   }
-  buffers.emplace(
-      std::make_pair<VkBuffer, const std::shared_ptr<VkGPUBuffer> &>(
-          buffer->GetBuffer(), buffer));
+  buffer_map.emplace(buffer->GetBuffer(), buffer);
   Logger() << "Allocated gpu buffer " << string_buffer_type(type)
            << " size: " << size << std::endl;
   sgl_buffer_t buf;
@@ -61,15 +59,15 @@ sgl_error_t sgl_buffer_manager_destroy_buffer(const sgl_buffer_manager *mgr,
              << std::endl;
     return SGL_INVALID_ARGUMENT;
   }
-  if (!buffers.contains(static_cast<VkBuffer>(buf->bufHandle))) {
+  if (!buffer_map.contains(static_cast<VkBuffer>(buf->bufHandle))) {
     Logger() << Logger::ERROR << "Attempting to destroy non-existent buffer!"
              << std::endl;
     return SGL_INVALID_ARGUMENT;
   }
   const auto buffer =
-      buffers.find(static_cast<VkBuffer>(buf->bufHandle))->second;
+      buffer_map.find(static_cast<VkBuffer>(buf->bufHandle))->second;
   buffer->Destroy();
-  buffers.erase(static_cast<VkBuffer>(buf->bufHandle));
+  buffer_map.erase(static_cast<VkBuffer>(buf->bufHandle));
   return SGL_SUCCESS;
 }
 
