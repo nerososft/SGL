@@ -1,10 +1,10 @@
 add_library(SGL SHARED
-        include/sgl.h
-        include/sgl_error.h
-        include/sgl_compute.h
-        include/sgl_image.h
-        include/sgl_buffer.h
-        include/sgl_gpu_ctx.h
+        include/sgl/sgl.h
+        include/sgl/sgl_error.h
+        include/sgl/sgl_compute.h
+        include/sgl/sgl_image.h
+        include/sgl/sgl_buffer.h
+        include/sgl/sgl_gpu_ctx.h
         sgl.cpp
         sgl_image.cpp
         sgl_buffer.cpp
@@ -13,3 +13,9 @@ add_library(SGL SHARED
 )
 target_link_libraries(SGL compute_engine)
 target_link_libraries(SGL image_engine)
+
+add_executable(SGL_test
+        tests/test.c
+)
+include_directories("./include")
+target_link_libraries(SGL_test SGL)

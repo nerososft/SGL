@@ -1,4 +1,4 @@
-#include "include/sgl_image.h"
+#include "include/sgl/sgl_image.h"
 
 #if defined(OS_OPEN_HARMONY) || defined(ENABLE_WIN64)
 #include "psutil/imageprocess/GpuFilterCAPI.h"
@@ -43,8 +43,8 @@
 #include "core/image/filters/impl/ZigzagFilter.h"
 #include "runtime/log/Log.h"
 
-sgl_error_t sgl_image_threshold_split(const sgl_image_info_t &in,
-                                      const sgl_image_info_t &out,
+sgl_error_t sgl_image_threshold_split(const sgl_image_info_t in,
+                                      const sgl_image_info_t out,
                                       const int bright) {
   if (sgl_image_check_args(in) != SGL_SUCCESS ||
       sgl_image_check_args(out) != SGL_SUCCESS) {
@@ -57,8 +57,8 @@ sgl_error_t sgl_image_threshold_split(const sgl_image_info_t &in,
   return SGL_SUCCESS;
 }
 
-sgl_error_t sgl_image_gaussian_blur(const sgl_image_info_t &in,
-                                    const sgl_image_info_t &out, const int r) {
+sgl_error_t sgl_image_gaussian_blur(const sgl_image_info_t in,
+                                    const sgl_image_info_t out, const int r) {
   if (sgl_image_check_args(in) != SGL_SUCCESS ||
       sgl_image_check_args(out) != SGL_SUCCESS) {
     return SGL_INVALID_ARGUMENT;
@@ -76,8 +76,8 @@ sgl_error_t sgl_image_gaussian_blur(const sgl_image_info_t &in,
   return SGL_SUCCESS;
 }
 
-sgl_error_t sgl_image_gaussian_blur_float(const sgl_image_info_t &in,
-                                          const sgl_image_info_t &out,
+sgl_error_t sgl_image_gaussian_blur_float(const sgl_image_info_t in,
+                                          const sgl_image_info_t out,
                                           const int r) {
   if (sgl_image_check_args(in) != SGL_SUCCESS ||
       sgl_image_check_args(out) != SGL_SUCCESS) {
@@ -91,8 +91,8 @@ sgl_error_t sgl_image_gaussian_blur_float(const sgl_image_info_t &in,
   return SGL_SUCCESS;
 }
 
-sgl_error_t sgl_image_surface_blur(const sgl_image_info_t &in,
-                                   const sgl_image_info_t &out, const int r,
+sgl_error_t sgl_image_surface_blur(const sgl_image_info_t in,
+                                   const sgl_image_info_t out, const int r,
                                    const int th) {
   if (sgl_image_check_args(in) != SGL_SUCCESS ||
       sgl_image_check_args(out) != SGL_SUCCESS) {
@@ -106,8 +106,8 @@ sgl_error_t sgl_image_surface_blur(const sgl_image_info_t &in,
   return SGL_SUCCESS;
 }
 
-sgl_error_t sgl_image_distort_glass(const sgl_image_info_t &in,
-                                    const sgl_image_info_t &out,
+sgl_error_t sgl_image_distort_glass(const sgl_image_info_t in,
+                                    const sgl_image_info_t out,
                                     const float scale, const float intensity,
                                     const float zoom) {
   if (sgl_image_check_args(in) != SGL_SUCCESS ||
@@ -125,8 +125,8 @@ sgl_error_t sgl_image_distort_glass(const sgl_image_info_t &in,
   return SGL_SUCCESS;
 }
 
-sgl_error_t sgl_image_adjust_saturation(const sgl_image_info_t &in,
-                                        const sgl_image_info_t &out,
+sgl_error_t sgl_image_adjust_saturation(const sgl_image_info_t in,
+                                        const sgl_image_info_t out,
                                         const float v, const float s) {
   if (sgl_image_check_args(in) != SGL_SUCCESS ||
       sgl_image_check_args(out) != SGL_SUCCESS) {
@@ -149,8 +149,8 @@ sgl_error_t sgl_image_adjust_saturation(const sgl_image_info_t &in,
   return SGL_SUCCESS;
 }
 
-sgl_error_t sgl_image_palette_knife(const sgl_image_info_t &in,
-                                    const sgl_image_info_t &out, const int r,
+sgl_error_t sgl_image_palette_knife(const sgl_image_info_t in,
+                                    const sgl_image_info_t out, const int r,
                                     const int s) {
   if (sgl_image_check_args(in) != SGL_SUCCESS ||
       sgl_image_check_args(out) != SGL_SUCCESS) {
@@ -165,8 +165,8 @@ sgl_error_t sgl_image_palette_knife(const sgl_image_info_t &in,
   return SGL_SUCCESS;
 }
 
-sgl_error_t sgl_image_hue_equal(const sgl_image_info_t &in,
-                                const sgl_image_info_t &out) {
+sgl_error_t sgl_image_hue_equal(const sgl_image_info_t in,
+                                const sgl_image_info_t out) {
   if (sgl_image_check_args(in) != SGL_SUCCESS ||
       sgl_image_check_args(out) != SGL_SUCCESS) {
     return SGL_INVALID_ARGUMENT;
@@ -187,8 +187,8 @@ sgl_error_t sgl_image_hue_equal(const sgl_image_info_t &in,
   return SGL_SUCCESS;
 }
 
-sgl_error_t sgl_image_blur_edge(const sgl_image_info_t &in,
-                                const sgl_image_info_t &out, const int r,
+sgl_error_t sgl_image_blur_edge(const sgl_image_info_t in,
+                                const sgl_image_info_t out, const int r,
                                 const int s, const int kernel_type) {
   if (sgl_image_check_args(in) != SGL_SUCCESS ||
       sgl_image_check_args(out) != SGL_SUCCESS) {
@@ -207,8 +207,8 @@ sgl_error_t sgl_image_blur_edge(const sgl_image_info_t &in,
   return SGL_SUCCESS;
 }
 
-sgl_error_t sgl_image_custom_kernel(const sgl_image_info_t &in,
-                                    const sgl_image_info_t &out, int *k,
+sgl_error_t sgl_image_custom_kernel(const sgl_image_info_t in,
+                                    const sgl_image_info_t out, int *k,
                                     const int radius, const int offset,
                                     const int scale) {
   if (sgl_image_check_args(in) != SGL_SUCCESS ||
@@ -231,8 +231,8 @@ sgl_error_t sgl_image_custom_kernel(const sgl_image_info_t &in,
   return SGL_SUCCESS;
 }
 
-sgl_error_t sgl_image_color_balance(const sgl_image_info_t &in,
-                                    const sgl_image_info_t &out, float *adjustP,
+sgl_error_t sgl_image_color_balance(const sgl_image_info_t in,
+                                    const sgl_image_info_t out, float *adjustP,
                                     int *p, const int l) {
   if (sgl_image_check_args(in) != SGL_SUCCESS ||
       sgl_image_check_args(out) != SGL_SUCCESS) {
@@ -252,8 +252,8 @@ sgl_error_t sgl_image_color_balance(const sgl_image_info_t &in,
   return SGL_SUCCESS;
 }
 
-sgl_error_t sgl_image_black_white(const sgl_image_info_t &in,
-                                  const sgl_image_info_t &out, float *weight,
+sgl_error_t sgl_image_black_white(const sgl_image_info_t in,
+                                  const sgl_image_info_t out, float *weight,
                                   const int wSize) {
   if (sgl_image_check_args(in) != SGL_SUCCESS ||
       sgl_image_check_args(out) != SGL_SUCCESS) {
@@ -269,8 +269,8 @@ sgl_error_t sgl_image_black_white(const sgl_image_info_t &in,
   return SGL_SUCCESS;
 }
 
-sgl_error_t sgl_image_scale(const sgl_image_info_t &in,
-                            const sgl_image_info_t &out, const int weight,
+sgl_error_t sgl_image_scale(const sgl_image_info_t in,
+                            const sgl_image_info_t out, const int weight,
                             const int height, const int type) {
   if (sgl_image_check_args(in) != SGL_SUCCESS ||
       sgl_image_check_args(out) != SGL_SUCCESS) {
@@ -286,8 +286,8 @@ sgl_error_t sgl_image_scale(const sgl_image_info_t &in,
   return SGL_SUCCESS;
 }
 
-sgl_error_t sgl_image_gray(const sgl_image_info_t &in,
-                           const sgl_image_info_t &out, const float r,
+sgl_error_t sgl_image_gray(const sgl_image_info_t in,
+                           const sgl_image_info_t out, const float r,
                            const float g, const float b) {
   if (sgl_image_check_args(in) != SGL_SUCCESS ||
       sgl_image_check_args(out) != SGL_SUCCESS) {
@@ -302,8 +302,8 @@ sgl_error_t sgl_image_gray(const sgl_image_info_t &in,
   return SGL_SUCCESS;
 }
 
-sgl_error_t sgl_image_color_separation(const sgl_image_info_t &in,
-                                       const sgl_image_info_t &out,
+sgl_error_t sgl_image_color_separation(const sgl_image_info_t in,
+                                       const sgl_image_info_t out,
                                        const float roff, const float goff,
                                        const float boff) {
   if (sgl_image_check_args(in) != SGL_SUCCESS ||
@@ -320,8 +320,8 @@ sgl_error_t sgl_image_color_separation(const sgl_image_info_t &in,
   return SGL_SUCCESS;
 }
 
-sgl_error_t sgl_image_mid_value(const sgl_image_info_t &in,
-                                const sgl_image_info_t &out, const float radius,
+sgl_error_t sgl_image_mid_value(const sgl_image_info_t in,
+                                const sgl_image_info_t out, const float radius,
                                 const float threshold) {
   if (sgl_image_check_args(in) != SGL_SUCCESS ||
       sgl_image_check_args(out) != SGL_SUCCESS) {
@@ -335,8 +335,8 @@ sgl_error_t sgl_image_mid_value(const sgl_image_info_t &in,
   return SGL_SUCCESS;
 }
 
-sgl_error_t sgl_image_path_blur(const sgl_image_info_t &in,
-                                const sgl_image_info_t &out, float *vec,
+sgl_error_t sgl_image_path_blur(const sgl_image_info_t in,
+                                const sgl_image_info_t out, float *vec,
                                 const int amount, const int width,
                                 const int height, float *startpos,
                                 float *endpos, float *startvec, float *endvec,
@@ -363,8 +363,8 @@ sgl_error_t sgl_image_path_blur(const sgl_image_info_t &in,
   return SGL_SUCCESS;
 }
 
-sgl_error_t sgl_image_crystallize(const sgl_image_info_t &in,
-                                  const sgl_image_info_t &out, float *posx,
+sgl_error_t sgl_image_crystallize(const sgl_image_info_t in,
+                                  const sgl_image_info_t out, float *posx,
                                   float *posy, const int n) {
   if (sgl_image_check_args(in) != SGL_SUCCESS ||
       sgl_image_check_args(out) != SGL_SUCCESS) {
@@ -384,9 +384,9 @@ sgl_error_t sgl_image_crystallize(const sgl_image_info_t &in,
   return SGL_SUCCESS;
 }
 
-sgl_error_t sgl_image_rotation_blur(const sgl_image_info_t &in,
-                                    const sgl_image_info_t &in2,
-                                    const sgl_image_info_t &out, const float x,
+sgl_error_t sgl_image_rotation_blur(const sgl_image_info_t in,
+                                    const sgl_image_info_t in2,
+                                    const sgl_image_info_t out, const float x,
                                     const float y, const float a, const float b,
                                     const float ina, const float inb,
                                     const int strength, const float angle) {
@@ -417,8 +417,8 @@ sgl_error_t sgl_image_rotation_blur(const sgl_image_info_t &in,
   return SGL_SUCCESS;
 }
 
-sgl_error_t sgl_image_facet(const sgl_image_info_t &in,
-                            const sgl_image_info_t &out, const int radius,
+sgl_error_t sgl_image_facet(const sgl_image_info_t in,
+                            const sgl_image_info_t out, const int radius,
                             const int intensitylevel) {
   if (sgl_image_check_args(in) != SGL_SUCCESS ||
       sgl_image_check_args(out) != SGL_SUCCESS) {
@@ -434,8 +434,8 @@ sgl_error_t sgl_image_facet(const sgl_image_info_t &in,
   return SGL_SUCCESS;
 }
 
-sgl_error_t sgl_image_accented_edge(const sgl_image_info_t &in,
-                                    const sgl_image_info_t &out, int *sobelx,
+sgl_error_t sgl_image_accented_edge(const sgl_image_info_t in,
+                                    const sgl_image_info_t out, int *sobelx,
                                     int *sobely, const int size,
                                     const int type) {
   if (sgl_image_check_args(in) != SGL_SUCCESS ||
@@ -453,9 +453,9 @@ sgl_error_t sgl_image_accented_edge(const sgl_image_info_t &in,
   return SGL_SUCCESS;
 }
 
-sgl_error_t sgl_image_irisblur(const sgl_image_info_t &in,
-                               const sgl_image_info_t &in2,
-                               const sgl_image_info_t &out, const float x,
+sgl_error_t sgl_image_irisblur(const sgl_image_info_t in,
+                               const sgl_image_info_t in2,
+                               const sgl_image_info_t out, const float x,
                                 const float y, const float a, const float b,
                                const float ina, const float inb,
                                const float angle) {
@@ -485,9 +485,9 @@ sgl_error_t sgl_image_irisblur(const sgl_image_info_t &in,
   return SGL_SUCCESS;
 }
 
-sgl_error_t sgl_image_tilt_shift_blur(const sgl_image_info_t &in,
-                                      const sgl_image_info_t &in2,
-                                      const sgl_image_info_t &out, float *A,
+sgl_error_t sgl_image_tilt_shift_blur(const sgl_image_info_t in,
+                                      const sgl_image_info_t in2,
+                                      const sgl_image_info_t out, float *A,
                                       float *B, float *C, const float xoffset,
                                       const float yoffset, const int size) {
   if (sgl_image_check_args(in) != SGL_SUCCESS ||
@@ -513,8 +513,8 @@ sgl_error_t sgl_image_tilt_shift_blur(const sgl_image_info_t &in,
   return SGL_SUCCESS;
 }
 
-sgl_error_t sgl_image_radial_blur(const sgl_image_info_t &in,
-                                  const sgl_image_info_t &out,
+sgl_error_t sgl_image_radial_blur(const sgl_image_info_t in,
+                                  const sgl_image_info_t out,
                                   const float sharpness, const int strength,
                                   const float xCenter, const float yCenter) {
   if (sgl_image_check_args(in) != SGL_SUCCESS ||
@@ -532,8 +532,8 @@ sgl_error_t sgl_image_radial_blur(const sgl_image_info_t &in,
   return SGL_SUCCESS;
 }
 
-sgl_error_t sgl_image_rotational_blur(const sgl_image_info_t &in,
-                                      const sgl_image_info_t &out,
+sgl_error_t sgl_image_rotational_blur(const sgl_image_info_t in,
+                                      const sgl_image_info_t out,
                                       const float angle, const int strength,
                                       const float x, const float y) {
   if (sgl_image_check_args(in) != SGL_SUCCESS ||
@@ -551,8 +551,8 @@ sgl_error_t sgl_image_rotational_blur(const sgl_image_info_t &in,
   return SGL_SUCCESS;
 }
 
-sgl_error_t sgl_image_minmax(const sgl_image_info_t &in,
-                             const sgl_image_info_t &out, const int radius,
+sgl_error_t sgl_image_minmax(const sgl_image_info_t in,
+                             const sgl_image_info_t out, const int radius,
                              const int type) {
   if (sgl_image_check_args(in) != SGL_SUCCESS ||
       sgl_image_check_args(out) != SGL_SUCCESS) {
@@ -568,8 +568,8 @@ sgl_error_t sgl_image_minmax(const sgl_image_info_t &in,
   return SGL_SUCCESS;
 }
 
-sgl_error_t sgl_image_color_halftone(const sgl_image_info_t &in,
-                                     const sgl_image_info_t &out,
+sgl_error_t sgl_image_color_halftone(const sgl_image_info_t in,
+                                     const sgl_image_info_t out,
                                      const float cyanAngle,
                                      const float yellowAngle,
                                      const float magentaAngle,
@@ -589,8 +589,8 @@ sgl_error_t sgl_image_color_halftone(const sgl_image_info_t &in,
   return SGL_SUCCESS;
 }
 
-sgl_error_t sgl_image_sharpen(const sgl_image_info_t &in,
-                              const sgl_image_info_t &out, int *kernel,
+sgl_error_t sgl_image_sharpen(const sgl_image_info_t in,
+                              const sgl_image_info_t out, int *kernel,
                               const int size) {
   if (sgl_image_check_args(in) != SGL_SUCCESS ||
       sgl_image_check_args(out) != SGL_SUCCESS) {
@@ -605,8 +605,8 @@ sgl_error_t sgl_image_sharpen(const sgl_image_info_t &in,
   return SGL_SUCCESS;
 }
 
-sgl_error_t sgl_image_polar_coordinates(const sgl_image_info_t &in,
-                                        const sgl_image_info_t &out,
+sgl_error_t sgl_image_polar_coordinates(const sgl_image_info_t in,
+                                        const sgl_image_info_t out,
                                         const int type) {
   if (sgl_image_check_args(in) != SGL_SUCCESS ||
       sgl_image_check_args(out) != SGL_SUCCESS) {
@@ -621,8 +621,8 @@ sgl_error_t sgl_image_polar_coordinates(const sgl_image_info_t &in,
   return SGL_SUCCESS;
 }
 
-sgl_error_t sgl_image_clouds(const sgl_image_info_t &in,
-                             const sgl_image_info_t &out, int *permuteLookup,
+sgl_error_t sgl_image_clouds(const sgl_image_info_t in,
+                             const sgl_image_info_t out, int *permuteLookup,
                              const int size, const int type) {
   if (sgl_image_check_args(in) != SGL_SUCCESS ||
       sgl_image_check_args(out) != SGL_SUCCESS) {
@@ -638,8 +638,8 @@ sgl_error_t sgl_image_clouds(const sgl_image_info_t &in,
   return SGL_SUCCESS;
 }
 
-sgl_error_t sgl_image_motion_blur(const sgl_image_info_t &in,
-                                  const sgl_image_info_t &out,
+sgl_error_t sgl_image_motion_blur(const sgl_image_info_t in,
+                                  const sgl_image_info_t out,
                                   const int distance, const int angle,
                                   const float proportion) {
   if (sgl_image_check_args(in) != SGL_SUCCESS ||
@@ -657,8 +657,8 @@ sgl_error_t sgl_image_motion_blur(const sgl_image_info_t &in,
   return SGL_SUCCESS;
 }
 
-sgl_error_t sgl_image_twirl_warp(const sgl_image_info_t &in,
-                                 const sgl_image_info_t &out, const int angle) {
+sgl_error_t sgl_image_twirl_warp(const sgl_image_info_t in,
+                                 const sgl_image_info_t out, const int angle) {
   if (sgl_image_check_args(in) != SGL_SUCCESS ||
       sgl_image_check_args(out) != SGL_SUCCESS) {
     return SGL_INVALID_ARGUMENT;
@@ -672,8 +672,8 @@ sgl_error_t sgl_image_twirl_warp(const sgl_image_info_t &in,
   return SGL_SUCCESS;
 }
 
-sgl_error_t sgl_image_zigzag(const sgl_image_info_t &in,
-                             const sgl_image_info_t &out, const int wavelength,
+sgl_error_t sgl_image_zigzag(const sgl_image_info_t in,
+                             const sgl_image_info_t out, const int wavelength,
                              const int amplitude, const int type_wave,
                              const float proportion) {
   if (sgl_image_check_args(in) != SGL_SUCCESS ||
@@ -692,8 +692,8 @@ sgl_error_t sgl_image_zigzag(const sgl_image_info_t &in,
   return SGL_SUCCESS;
 }
 
-sgl_error_t sgl_image_spherize(const sgl_image_info_t &in,
-                               const sgl_image_info_t &out, const int alpha,
+sgl_error_t sgl_image_spherize(const sgl_image_info_t in,
+                               const sgl_image_info_t out, const int alpha,
                                const int type) {
   if (sgl_image_check_args(in) != SGL_SUCCESS ||
       sgl_image_check_args(out) != SGL_SUCCESS) {
@@ -709,8 +709,8 @@ sgl_error_t sgl_image_spherize(const sgl_image_info_t &in,
   return SGL_SUCCESS;
 }
 
-sgl_error_t sgl_image_pinch(const sgl_image_info_t &in,
-                            const sgl_image_info_t &out, const int amount) {
+sgl_error_t sgl_image_pinch(const sgl_image_info_t in,
+                            const sgl_image_info_t out, const int amount) {
   if (sgl_image_check_args(in) != SGL_SUCCESS ||
       sgl_image_check_args(out) != SGL_SUCCESS) {
     return SGL_INVALID_ARGUMENT;
@@ -724,8 +724,8 @@ sgl_error_t sgl_image_pinch(const sgl_image_info_t &in,
   return SGL_SUCCESS;
 }
 
-sgl_error_t sgl_image_wave(const sgl_image_info_t &in,
-                           const sgl_image_info_t &out, const int wavelength,
+sgl_error_t sgl_image_wave(const sgl_image_info_t in,
+                           const sgl_image_info_t out, const int wavelength,
                            const int amplitude, const int x_pro,
                            const int y_pro, const int type, const int method) {
   if (sgl_image_check_args(in) != SGL_SUCCESS ||
@@ -745,7 +745,7 @@ sgl_error_t sgl_image_wave(const sgl_image_info_t &in,
   return SGL_SUCCESS;
 }
 
-sgl_error_t sgl_image_check_args(const sgl_image_info_t &info) {
+sgl_error_t sgl_image_check_args(const sgl_image_info_t info) {
   if (info.type == SGL_IMAGE_TYPE_GPU) {
     if (info.info.gpu.gpuBuf.bufHandle == nullptr) {
       return SGL_INVALID_ARGUMENT;

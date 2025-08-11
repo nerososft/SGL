@@ -4,8 +4,8 @@
 
 #ifndef SGL_BUFFER_H
 #define SGL_BUFFER_H
-#include "sgl_error.h"
 #include "sgl_gpu_ctx.h"
+#include "sgl_error.h"
 
 #include <stddef.h>
 
@@ -41,17 +41,17 @@ static const char *string_buffer_type(const sgl_buffer_type_t type) {
 }
 
 typedef struct sgl_buffer {
-  sgl_buffer_type_t type = SGL_BUFFER_TYPE_UNKNOWN;
-  void *bufHandle = nullptr;
-  void *memHandle = nullptr;
-  void *data = nullptr;
-  size_t bufferSize = 0;
+  sgl_buffer_type_t type;
+  void *bufHandle;
+  void *memHandle;
+  void *data;
+  size_t bufferSize;
 } sgl_buffer_t;
 
 typedef struct sgl_buffer_manager {
-  sgl_buffer_t (*allocate_buffer)(const sgl_buffer_manager *mgr,
-                                  sgl_buffer_type type, size_t size);
-  sgl_error_t (*destroy_buffer)(const sgl_buffer_manager *mgr,
+  sgl_buffer_t (*allocate_buffer)(const struct sgl_buffer_manager *mgr,
+                                  sgl_buffer_type_t type, size_t size);
+  sgl_error_t (*destroy_buffer)(const struct sgl_buffer_manager *mgr,
                                 const sgl_buffer_t *buf);
 } sgl_buffer_manager_t;
 

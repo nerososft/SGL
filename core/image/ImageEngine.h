@@ -4,7 +4,7 @@
 
 #ifndef IMAGENGINE_H
 #define IMAGENGINE_H
-#include "../../capi/include/sgl_image.h"
+#include <sgl/sgl_image.h>
 #include "blenders/IBlender.h"
 #include "filters/IFilter.h"
 #include "runtime/gpu/VkGPUBuffer.h"

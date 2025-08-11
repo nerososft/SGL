@@ -9,6 +9,10 @@
 #include "sgl_gpu_ctx.h"
 #include "sgl_image.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct sgl {
   const sgl_gpu_ctx_t info;
   const sgl_buffer_manager_t *bm;
@@ -19,5 +23,9 @@ typedef struct sgl {
 sgl_t *sgl_create();
 
 void sgl_destroy(sgl_t *sgl);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // SGL_H

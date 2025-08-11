@@ -25,8 +25,8 @@ ScaleFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                    const std::vector<FilterImageInfo> &outputImageInfo) {
   assert(inputImageInfo[0].storageBuffer != VK_NULL_HANDLE);
   assert(outputImageInfo[0].storageBuffer != VK_NULL_HANDLE);
-  assert(inputImageInfo[1].bufferSize > 0);
-  assert(outputImageInfo[1].bufferSize > 0);
+  assert(inputImageInfo[0].bufferSize > 0);
+  assert(outputImageInfo[0].bufferSize > 0);
 
   BasicFilterParams params;
   this->scaleFilterParams.imageSize.width = inputImageInfo[0].width;

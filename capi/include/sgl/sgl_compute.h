@@ -18,7 +18,7 @@ typedef struct sgl_compute {
   sgl_error_t (*mat_mul)(sgl_tensor_t mat1, sgl_tensor_t mat2,
                          sgl_tensor_t *out);
   sgl_error_t (*record)();
-  sgl_error_t (*eval)(sgl_compute *cc);
+  sgl_error_t (*eval)(struct sgl_compute *cc);
   // TODO: more func
 } sgl_compute_t;
 

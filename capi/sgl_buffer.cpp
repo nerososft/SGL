@@ -1,7 +1,7 @@
 //
 // Created by neo on 25-7-28.
 //
-#include "include/sgl_buffer.h"
+#include "include/sgl/sgl_buffer.h"
 
 #include "core/context/Context.h"
 #include "runtime/gpu/VkGPUBuffer.h"
