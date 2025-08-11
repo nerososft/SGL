@@ -45,7 +45,7 @@ public:
                       uint32_t workGroupCountZ);
 
   [[nodiscard]] std::shared_ptr<VkGPUDescriptorSet>
-  CreateDescriptorSet(const ComputeElement &computeElement) const;
+  CreateDescriptorSet(const ComputeElement &computeElement);
 
   void AddComputeElement(const ComputeElement &computeElement);
 

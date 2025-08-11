@@ -34,8 +34,8 @@ ComputePipelineNode::ComputePipelineNode(
   this->descriptorSetLayoutBindings = descriptorSetLayoutBindings;
 }
 
-std::shared_ptr<VkGPUDescriptorSet> ComputePipelineNode::CreateDescriptorSet(
-    const ComputeElement &computeElement) const {
+std::shared_ptr<VkGPUDescriptorSet>
+ComputePipelineNode::CreateDescriptorSet(const ComputeElement &computeElement) {
   const auto descriptorSet = std::make_shared<VkGPUDescriptorSet>(
       gpuCtx->GetCurrentDevice(), computePipeline->GetPipelineLayout(),
       computePipeline->GetDescriptorSetLayout());
