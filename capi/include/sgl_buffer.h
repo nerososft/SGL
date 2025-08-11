@@ -52,7 +52,7 @@ typedef struct sgl_buffer_manager {
   sgl_buffer_t (*allocate_buffer)(const sgl_buffer_manager *mgr,
                                   sgl_buffer_type type, size_t size);
   sgl_error_t (*destroy_buffer)(const sgl_buffer_manager *mgr,
-                                sgl_buffer_t *buf);
+                                const sgl_buffer_t *buf);
 } sgl_buffer_manager_t;
 
 sgl_buffer_manager_t *sgl_buffer_manager_create(const sgl_gpu_ctx_t *gpu_ctx);
