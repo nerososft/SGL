@@ -5,7 +5,7 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#define VERSION "1.1.1"
+#define VERSION "1.9.79"
 
 #ifdef OS_OPEN_HARMONY
 #define SHADER_PATH                                                            \
