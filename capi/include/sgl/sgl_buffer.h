@@ -4,8 +4,8 @@
 
 #ifndef SGL_BUFFER_H
 #define SGL_BUFFER_H
-#include "sgl_gpu_ctx.h"
 #include "sgl_error.h"
+#include "sgl_gpu_ctx.h"
 
 #include <stddef.h>
 
@@ -52,7 +52,7 @@ typedef struct sgl_buffer_manager {
   sgl_buffer_t (*allocate_buffer)(const struct sgl_buffer_manager *mgr,
                                   sgl_buffer_type_t type, size_t size);
   sgl_error_t (*destroy_buffer)(const struct sgl_buffer_manager *mgr,
-                                const sgl_buffer_t *buf);
+                                sgl_buffer_t *buf);
 } sgl_buffer_manager_t;
 
 sgl_buffer_manager_t *sgl_buffer_manager_create(const sgl_gpu_ctx_t *gpu_ctx);

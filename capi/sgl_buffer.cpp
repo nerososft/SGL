@@ -53,7 +53,7 @@ sgl_buffer_t sgl_buffer_manager_allocate_buffer(const sgl_buffer_manager *mgr,
 }
 
 sgl_error_t sgl_buffer_manager_destroy_buffer(const sgl_buffer_manager *mgr,
-                                              const sgl_buffer_t *buf) {
+                                              sgl_buffer_t *buf) {
   if (buf->bufHandle == VK_NULL_HANDLE) {
     Logger() << Logger::ERROR << "Attempting to destroy null buffer!"
              << std::endl;
@@ -68,6 +68,11 @@ sgl_error_t sgl_buffer_manager_destroy_buffer(const sgl_buffer_manager *mgr,
       buffer_map.find(static_cast<VkBuffer>(buf->bufHandle))->second;
   buffer->Destroy();
   buffer_map.erase(static_cast<VkBuffer>(buf->bufHandle));
+  buf->type = SGL_BUFFER_TYPE_UNKNOWN;
+  buf->bufHandle = VK_NULL_HANDLE;
+  buf->memHandle = VK_NULL_HANDLE;
+  buf->data = nullptr;
+  buf->bufferSize = 0;
   return SGL_SUCCESS;
 }
 
