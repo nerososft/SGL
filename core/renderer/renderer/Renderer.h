@@ -40,6 +40,9 @@ class Renderer {
   RenderMode renderMode = RENDER_MODE_ONSCREEN;
 
   FrameInfo frameInfo{};
+  uint64_t lastRenderTimeMs = 0;
+  uint64_t lastRenderFrame = 0;
+  uint64_t fps = 0;
 
   uint32_t width = 768;
   uint32_t height = 768;
@@ -77,13 +80,13 @@ public:
 
   [[nodiscard]] VkResult Present() const;
 
-  ~Renderer() = default;
-
   void RenderFrameOffScreen(const std::string &path);
 
   std::shared_ptr<VkGPUContext> &GetGPUContext() { return gpuCtx; }
 
   void Update() const;
+
+  [[nodiscard]] uint64_t GetFPS() const;
 
   void SetOnLoadScene(const std::function<bool(Renderer *dr)> &loadSceneFunc) {
     this->onLoadScene = loadSceneFunc;
@@ -95,6 +98,8 @@ public:
   }
 
   std::shared_ptr<RendererCamera> GetCamera() { return camera; }
+
+  ~Renderer() = default;
 };
 
 #endif // RENDERER_H

@@ -13,6 +13,7 @@
 #include "runtime/gpu/VkGPUHelper.h"
 #include "runtime/gpu/compute_graph/ImageToBufferCopyNode.h"
 #include "runtime/log/Log.h"
+#include "runtime/utils/TimeUtils.h"
 
 Renderer::Renderer(const uint32_t width, const uint32_t height) {
   this->width = width;
@@ -382,6 +383,8 @@ bool Renderer::Init(const std::vector<const char *> &requiredExtensions,
     onRendererReady(this);
   }
 
+  this->lastRenderTimeMs = TimeUtils::GetCurrentMonoMs();
+
   return true;
 }
 
@@ -396,8 +399,16 @@ VkResult Renderer::RenderFrame() {
   if (ret != VK_SUCCESS) {
     Logger() << Logger::ERROR << "Failed to render compute graph!" << std::endl;
   }
+  const uint64_t renderTimeMs = TimeUtils::GetCurrentMonoMs();
+  if (renderTimeMs - this->lastRenderTimeMs > 1000) {
+    this->fps = this->frameInfo.frameIndex - this->lastRenderFrame;
+    this->lastRenderFrame = this->frameInfo.frameIndex;
+    this->lastRenderTimeMs = renderTimeMs;
+  }
   return ret;
 }
+
+uint64_t Renderer::GetFPS() const { return this->fps; }
 
 VkResult Renderer::Present() const {
   if (this->renderMode == RENDER_MODE_OFFSCREEN) {
