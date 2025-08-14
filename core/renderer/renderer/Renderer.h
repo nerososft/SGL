@@ -14,9 +14,9 @@
 #include <glm/glm.hpp>
 
 #include "RendererCamera.h"
-#include "RendererLight.h"
 #include "RendererMesh.h"
 #include "runtime/gpu/VkGPUSwapChain.h"
+#include "runtime/log/Log.h"
 
 struct FrameInfo {
   uint32_t frameIndex;
@@ -34,22 +34,12 @@ class Renderer {
   std::shared_ptr<VkGPUBuffer> offScreenBuffer = nullptr;
 
   std::shared_ptr<GraphicsRenderPassNode> mainRenderPassNode = nullptr;
-  std::shared_ptr<GraphicsPipelineNode> graphicsPipelineNode = nullptr;
   std::shared_ptr<VkGPUFramebuffer> framebuffer = nullptr;
 
   RenderMode renderMode = RENDER_MODE_ONSCREEN;
 
-  FrameInfo frameInfo{};
-  uint64_t lastRenderTimeMs = 0;
-  uint64_t lastRenderFrame = 0;
-  uint64_t fps = 0;
-
   uint32_t width = 768;
   uint32_t height = 768;
-
-  std::vector<std::shared_ptr<RendererMesh>> rendererMeshes;
-  std::vector<std::shared_ptr<RendererLight>> rendererLights;
-  std::shared_ptr<RendererCamera> camera = nullptr;
 
   std::shared_ptr<VkGPUSwapChain> swapChain = nullptr;
   VkCommandBuffer presentCmdBuffer = VK_NULL_HANDLE;
@@ -57,19 +47,10 @@ class Renderer {
   VkSemaphore renderFinishedSemaphore = VK_NULL_HANDLE;
   VkFence renderFinishedFence = VK_NULL_HANDLE;
 
-  std::function<bool(Renderer *rdr)> onLoadScene = nullptr;
-  std::function<bool(Renderer *rdr)> onRendererReady = nullptr;
-
-  bool InitCamera();
-
-  bool InitLights();
-
 public:
   Renderer(uint32_t width, uint32_t height);
 
-  bool AddDrawElement(const std::shared_ptr<Mesh> &mesh);
-
-  [[nodiscard]] bool ConstructMainGraphicsPipeline();
+  void AddRenderGraph(const std::shared_ptr<IComputeGraphNode> &graph) const;
 
   bool Init();
 
@@ -80,24 +61,18 @@ public:
 
   [[nodiscard]] VkResult Present() const;
 
+  [[nodiscard]] std::shared_ptr<VkGPURenderPass> GetMainRenderPass() const {
+    if (this->mainRenderPassNode == nullptr) {
+      Logger() << Logger::ERROR << "Main render pass not initialized!"
+               << std::endl;
+      return nullptr;
+    }
+    return this->mainRenderPassNode->GetRenderPass();
+  }
+
+  std::shared_ptr<VkGPUContext> &GetGPUCtx() { return this->gpuCtx; }
+
   void RenderFrameOffScreen(const std::string &path);
-
-  std::shared_ptr<VkGPUContext> &GetGPUContext() { return gpuCtx; }
-
-  void Update() const;
-
-  [[nodiscard]] uint64_t GetFPS() const;
-
-  void SetOnLoadScene(const std::function<bool(Renderer *dr)> &loadSceneFunc) {
-    this->onLoadScene = loadSceneFunc;
-  }
-
-  void
-  SetOnRendererReady(const std::function<bool(Renderer *dr)> &onRendererReady) {
-    this->onRendererReady = onRendererReady;
-  }
-
-  std::shared_ptr<RendererCamera> GetCamera() { return camera; }
 
   ~Renderer() = default;
 };

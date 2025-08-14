@@ -7,6 +7,7 @@
 #include <memory>
 
 #include "core/renderer/renderer/Renderer.h"
+#include "core/renderer/renderer/RendererLight.h"
 #include "event/IEventHandler.h"
 #include "window/IWindow.h"
 
@@ -14,6 +15,15 @@ static std::shared_ptr<IWindow> window = nullptr;
 
 class GraphicsApp final : public IEventHandler {
   std::shared_ptr<Renderer> renderer = nullptr;
+
+  std::shared_ptr<GraphicsPipelineNode> graphicsPipelineNode = nullptr;
+  std::vector<std::shared_ptr<RendererMesh>> rendererMeshes;
+  std::vector<std::shared_ptr<RendererLight>> rendererLights;
+  std::shared_ptr<RendererCamera> camera = nullptr;
+  FrameInfo frameInfo{};
+  uint64_t lastRenderTimeMs = 0;
+  uint64_t lastRenderFrame = 0;
+  uint64_t fps = 0;
 
   bool running = true;
 
@@ -29,9 +39,16 @@ public:
 
   ~GraphicsApp() override = default;
 
+  bool ConstructRendererPipeline();
+  bool InitCamera();
+  bool InitLights();
+
   void Init();
 
-  void Run() const;
+  void Update() const;
+  void Run();
+
+  [[nodiscard]] uint64_t GetFPS() const;
 
   void CaptureFrame(const std::string &path) const;
 

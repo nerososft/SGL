@@ -120,6 +120,11 @@ VkResult GraphicsPipelineNode::CreateComputeGraphNode() {
     return VK_ERROR_INITIALIZATION_FAILED;
   }
 
+  if (renderPass == nullptr) {
+    Logger() << Logger::ERROR << "renderPass is null" << std::endl;
+    return VK_ERROR_INITIALIZATION_FAILED;
+  }
+
   for (auto &layoutBinding : descriptorSetLayoutBindings) {
     Logger() << Logger::DEBUG << "Binding(" << layoutBinding.binding
              << "):" << string_VkDescriptorType(layoutBinding.descriptorType)

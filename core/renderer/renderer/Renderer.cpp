@@ -4,8 +4,6 @@
 
 #include "Renderer.h"
 
-#include <glm/ext/matrix_transform.hpp>
-#include <queue>
 #include <vulkan/vk_enum_string_helper.h>
 
 #include "core/utils/ImageUtils.h"
@@ -19,141 +17,9 @@ Renderer::Renderer(const uint32_t width, const uint32_t height) {
   this->width = width;
   this->height = height;
 }
-
-bool Renderer::AddDrawElement(const std::shared_ptr<Mesh> &mesh) {
-  std::vector<PipelineNodeBuffer> buffers;
-
-  const auto renderMesh = std::make_shared<RendererMesh>(mesh);
-  if (!renderMesh->CreateGPUMesh(this->gpuCtx)) {
-    return false;
-  }
-  this->rendererMeshes.push_back(renderMesh);
-
-  buffers.push_back(renderMesh->GetVertexBufferNode());
-  buffers.push_back(renderMesh->GetIndicesBufferNode());
-  buffers.push_back(renderMesh->GetMaterialBufferNode());         // uniform 0
-  buffers.push_back(renderMesh->GetTransformMatrixBufferNode());  // uniform 1
-  buffers.push_back(camera->GetViewProjectionMatrixBufferNode()); // uniform 2
-  buffers.push_back(rendererLights[0]->GetLightBufferNode());     // uniform 3
-  buffers.push_back(
-      renderMesh->GetTextureBufferNode(TextureType_BASE_COLOR)); // sampler 4
-
-  const GraphicsElement element{
-      .pushConstantInfo = {.size = sizeof(FrameInfo), .data = &this->frameInfo},
-      .buffers = buffers,
-      .customDrawFunc = nullptr,
-  };
-
-  this->graphicsPipelineNode->AddGraphicsElement(element);
-  return true;
-}
-
-bool Renderer::ConstructMainGraphicsPipeline() {
-  std::vector<VkVertexInputBindingDescription> vertexInputBindingDescriptions =
-      {{.binding = 0,
-        .stride = sizeof(Vertex),
-        .inputRate = VK_VERTEX_INPUT_RATE_VERTEX}};
-  std::vector<VkVertexInputAttributeDescription>
-      vertexInputAttributeDescriptions = {
-          {
-              .location = 0,
-              .binding = 0,
-              .format = VK_FORMAT_R32G32B32_SFLOAT,
-              .offset = offsetof(Vertex, position),
-          },
-          {
-              .location = 1,
-              .binding = 0,
-              .format = VK_FORMAT_R32G32B32_SFLOAT,
-              .offset = offsetof(Vertex, color),
-          },
-          {
-              .location = 2,
-              .binding = 0,
-              .format = VK_FORMAT_R32G32B32_SFLOAT,
-              .offset = offsetof(Vertex, normal),
-          },
-          {
-              .location = 3,
-              .binding = 0,
-              .format = VK_FORMAT_R32G32_SFLOAT,
-              .offset = offsetof(Vertex, texCoords),
-          },
-      };
-
-  std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
-  descriptorSetLayoutBindings.push_back(
-      VkGPUHelper::BuildDescriptorSetLayoutBinding(
-          0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1,
-          VK_SHADER_STAGE_ALL_GRAPHICS));
-  descriptorSetLayoutBindings.push_back(
-      VkGPUHelper::BuildDescriptorSetLayoutBinding(
-          1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1,
-          VK_SHADER_STAGE_ALL_GRAPHICS));
-  descriptorSetLayoutBindings.push_back(
-      VkGPUHelper::BuildDescriptorSetLayoutBinding(
-          2, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1,
-          VK_SHADER_STAGE_ALL_GRAPHICS));
-  descriptorSetLayoutBindings.push_back(
-      VkGPUHelper::BuildDescriptorSetLayoutBinding(
-          3, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1,
-          VK_SHADER_STAGE_ALL_GRAPHICS));
-  descriptorSetLayoutBindings.push_back(
-      VkGPUHelper::BuildDescriptorSetLayoutBinding(
-          4, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1,
-          VK_SHADER_STAGE_ALL_GRAPHICS));
-
-  this->graphicsPipelineNode = std::make_shared<GraphicsPipelineNode>(
-      this->gpuCtx, "mainGraphicsPipeline",
-      this->mainRenderPassNode->GetRenderPass(), SHADER(rect.vert.glsl.spv),
-      SHADER(rect.frag.glsl.spv), sizeof(FrameInfo),
-      descriptorSetLayoutBindings, vertexInputBindingDescriptions,
-      vertexInputAttributeDescriptions, this->width, this->height);
-  if (this->graphicsPipelineNode == nullptr) {
-    Logger() << Logger::ERROR << "Failed to create graphics pipeline node!"
-             << std::endl;
-    return false;
-  }
-
-  const VkResult ret = this->graphicsPipelineNode->CreateComputeGraphNode();
-  if (ret != VK_SUCCESS) {
-    Logger() << Logger::ERROR << "Failed to create graphics pipeline node!"
-             << std::endl;
-    return false;
-  }
-
-  if (onLoadScene == nullptr) {
-    Logger() << Logger::ERROR << "Need load scene first!" << std::endl;
-    return false;
-  }
-  if (!onLoadScene(this)) {
-    Logger() << Logger::ERROR << "Failed to load scene!" << std::endl;
-    return false;
-  }
-
-  this->mainRenderPassNode->AddDependenceNode(this->graphicsPipelineNode);
-
-  return true;
-}
-
-bool Renderer::InitCamera() {
-  camera =
-      std::make_shared<RendererCamera>(glm::vec3(0, 5, 0), glm::vec3(0, 0, -1));
-  if (!camera->CreateGPUCamera(this->gpuCtx, this->width / this->height)) {
-    return false;
-  }
-  return true;
-}
-
-bool Renderer::InitLights() {
-  const auto light = std::make_shared<RendererLight>();
-  if (!light->CreateGPULight(this->gpuCtx)) {
-    return false;
-  }
-  light->SetLightPosition(glm::vec4(1, 5, 1, 0));
-  light->SetLightColor(glm::vec4(1.5f, 1.5f, 1.5f, 1.0f));
-  this->rendererLights.push_back(light);
-  return true;
+void Renderer::AddRenderGraph(
+    const std::shared_ptr<IComputeGraphNode> &graph) const {
+  this->mainRenderPassNode->AddDependenceNode(graph);
 }
 
 bool Renderer::Init(const std::vector<const char *> &requiredExtensions,
@@ -179,16 +45,6 @@ bool Renderer::Init(const std::vector<const char *> &requiredExtensions,
   }
   Logger() << Logger::INFO << "Initialized Renderer, version: " << VERSION
            << std::endl;
-
-  if (!InitCamera()) {
-    Logger() << Logger::ERROR << "Failed to initialize camera!" << std::endl;
-    return false;
-  }
-
-  if (!InitLights()) {
-    Logger() << Logger::ERROR << "Failed to initialize Lights!" << std::endl;
-    return false;
-  }
 
   std::vector<uint32_t> queueFamilies = {0};
   if (this->renderMode == RENDER_MODE_ONSCREEN) {
@@ -308,12 +164,6 @@ bool Renderer::Init(const std::vector<const char *> &requiredExtensions,
   mainRenderPassNode->SetFramebuffer(framebuffer);
   Logger() << Logger::INFO << "Renderer Initialized!" << std::endl;
 
-  if (!ConstructMainGraphicsPipeline()) {
-    Logger() << Logger::ERROR << "Failed to create main graphics pipeline!"
-             << std::endl;
-    return false;
-  }
-
   offScreenBuffer = std::make_shared<VkGPUBuffer>(this->gpuCtx);
   if (offScreenBuffer == nullptr) {
     Logger() << Logger::ERROR << "Failed to create offscreen buffer!"
@@ -379,12 +229,6 @@ bool Renderer::Init(const std::vector<const char *> &requiredExtensions,
     }
   }
 
-  if (onRendererReady != nullptr) {
-    onRendererReady(this);
-  }
-
-  this->lastRenderTimeMs = TimeUtils::GetCurrentMonoMs();
-
   return true;
 }
 
@@ -394,21 +238,11 @@ bool Renderer::Init() {
 }
 
 VkResult Renderer::RenderFrame() {
-  this->frameInfo.frameIndex++;
   const VkResult ret = this->computeGraph->Compute();
   if (ret != VK_SUCCESS) {
     Logger() << Logger::ERROR << "Failed to render compute graph!" << std::endl;
   }
-  const uint64_t renderTimeMs = TimeUtils::GetCurrentMonoMs();
-  if (renderTimeMs - this->lastRenderTimeMs > 1000) {
-    this->fps = this->frameInfo.frameIndex - this->lastRenderFrame;
-    this->lastRenderFrame = this->frameInfo.frameIndex;
-    this->lastRenderTimeMs = renderTimeMs;
-  }
-  return ret;
 }
-
-uint64_t Renderer::GetFPS() const { return this->fps; }
 
 VkResult Renderer::Present() const {
   if (this->renderMode == RENDER_MODE_OFFSCREEN) {
@@ -506,7 +340,7 @@ VkResult Renderer::Present() const {
 void Renderer::RenderFrameOffScreen(const std::string &path) {
   VkResult ret = this->RenderFrame();
   if (ret != VK_SUCCESS) {
-    Logger() << Logger::ERROR << "Failed to render frame!" << std::endl;
+   Logger() << Logger::ERROR << "Failed to render frame!" << std::endl;
     return;
   }
 
@@ -520,17 +354,4 @@ void Renderer::RenderFrameOffScreen(const std::string &path) {
   }
 
   ImageUtils::WritePngFile(path, this->width, this->height, 4, imgData.data());
-}
-
-void Renderer::Update() const {
-  for (const auto light : rendererLights) {
-    glm::vec4 pos =
-        glm::rotate(glm::mat4(1.0f), glm::radians(-0.1f), glm::vec3(0, 0, 1)) *
-        light->GetLightPosition();
-    light->SetLightPosition(pos);
-  }
-
-  glm::mat4 view = camera->GetViewMatrix();
-  view = glm::rotate(view, glm::radians(0.1f), glm::vec3(0, 0, 1));
-  camera->SetViewMatrix(view);
 }
