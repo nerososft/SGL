@@ -15,6 +15,7 @@
 #include "core/image/blenders/impl/LighterColorBlender.h"
 #include "core/image/blenders/impl/MultiplyBlender.h"
 #include "core/image/blenders/impl/OverlayBlender.h"
+#include "core/image/filters/impl/AccentedEdgeFilter.h"
 #include "core/image/filters/impl/ChinesePaintFilter.h"
 #include "core/image/filters/impl/ColorPencilSketchFilter.h"
 #include "core/image/filters/impl/ColorSeparationFilter.h"
@@ -169,12 +170,22 @@ void effect_engine_main() {
   // sgl::image::ImageEngine::Process("../../../examples/image_demo/images/colorful.png",
   // "../../../examples/image_demo/images/colorful_vibrance.png", filter);
 
-  const auto filter = std::make_shared<PaletteKnifeFilter>();
-  filter->SetRadius(10);
-  filter->SetQuantScale(5);
+  // const auto filter = std::make_shared<PaletteKnifeFilter>();
+  // filter->SetRadius(10);
+  // filter->SetQuantScale(5);
+  // sgl::image::ImageEngine::Process(
+  //     "../../../examples/image_demo/images/colorful.png",
+  //     "../../../examples/image_demo/images/colorful_palette_knife.png",
+  //     filter);
+
+  const auto filter = std::make_shared<AccentedEdgeFilter>();
+  int sobelX[3] = {0, 1, 0};
+  filter->SetSobelx(sobelX, 3);
+  filter->SetSobely(sobelX, 3);
+  filter->SetType(1);
   sgl::image::ImageEngine::Process(
       "../../../examples/image_demo/images/colorful.png",
-      "../../../examples/image_demo/images/colorful_palette_knife.png", filter);
+      "../../../examples/image_demo/images/colorful_accent_edge.png", filter);
 
   // const auto filter = std::make_shared<NES8BitMosaicFilter>();
   // filter->SetBlockSize(64);
