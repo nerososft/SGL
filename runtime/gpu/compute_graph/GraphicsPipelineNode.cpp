@@ -191,21 +191,6 @@ void GraphicsPipelineNode::Compute(const VkCommandBuffer commandBuffer) {
         indexCount = buffer.buf.bufferSize / sizeof(uint32_t);
       }
       if (buffer.type == PIPELINE_NODE_SAMPLER) {
-        std::vector<VkBufferImageCopy> regions;
-        VkBufferImageCopy region;
-        region.bufferOffset = 0;
-        region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-        region.imageSubresource.mipLevel = 0;
-        region.imageSubresource.baseArrayLayer = 0;
-        region.imageSubresource.layerCount = 1;
-        region.imageOffset = {0, 0, 0};
-        region.imageExtent.depth = 1;
-        region.imageExtent.width = static_cast<uint32_t>(width);
-        region.imageExtent.height = static_cast<uint32_t>(height);
-        region.bufferRowLength = static_cast<uint32_t>(width);
-        region.bufferImageHeight = static_cast<uint32_t>(height);
-        regions.push_back(region);
-
         std::vector<VkMemoryBarrier> memoryBarriers;
         memoryBarriers.push_back(VkGPUHelper::BuildMemoryBarrier(
             VK_ACCESS_TRANSFER_WRITE_BIT, VK_ACCESS_TRANSFER_READ_BIT));
@@ -214,6 +199,20 @@ void GraphicsPipelineNode::Compute(const VkCommandBuffer commandBuffer) {
             VK_PIPELINE_STAGE_TRANSFER_BIT, 0, memoryBarriers);
         static bool uploaded = false; // FIXME: tempory change
         if (!uploaded) {
+          std::vector<VkBufferImageCopy> regions;
+          VkBufferImageCopy region;
+          region.bufferOffset = 0;
+          region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+          region.imageSubresource.mipLevel = 0;
+          region.imageSubresource.baseArrayLayer = 0;
+          region.imageSubresource.layerCount = 1;
+          region.imageOffset = {0, 0, 0};
+          region.imageExtent.depth = 1;
+          region.imageExtent.width = static_cast<uint32_t>(width);
+          region.imageExtent.height = static_cast<uint32_t>(height);
+          region.bufferRowLength = static_cast<uint32_t>(width * 4);
+          region.bufferImageHeight = static_cast<uint32_t>(height);
+          regions.push_back(region);
           vkCmdCopyBufferToImage(
               commandBuffer, buffer.sampler.imageBuffer, buffer.sampler.image,
               buffer.sampler.imageLayout, regions.size(), regions.data());
