@@ -221,6 +221,7 @@ void GraphicsApp::CaptureFrame(const std::string &path) const {
   if (running && !window->ShouldClose()) {
     window->PollEvent();
     window->Render();
+    Update();
     renderer->RenderFrameOffScreen(path);
   }
 }

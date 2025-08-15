@@ -40,12 +40,15 @@ public:
   ~GraphicsApp() override = default;
 
   bool ConstructRendererPipeline();
+
   bool InitCamera();
+
   bool InitLights();
 
   void Init();
 
   void Update() const;
+
   void Run();
 
   [[nodiscard]] uint64_t GetFPS() const;
