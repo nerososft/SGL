@@ -135,7 +135,7 @@ bool RendererMesh::CreateMaterial(const std::shared_ptr<VkGPUContext> &gpuCtx) {
     Logger() << Logger::ERROR << "material is null" << std::endl;
     return false;
   }
-  const VkDeviceSize materialBufferSize = sizeof(Material);
+  constexpr VkDeviceSize materialBufferSize = sizeof(Material);
   VkResult ret = materialBuffer->AllocateAndBind(GPU_BUFFER_TYPE_UNIFORM,
                                                  materialBufferSize);
   if (ret != VK_SUCCESS) {
