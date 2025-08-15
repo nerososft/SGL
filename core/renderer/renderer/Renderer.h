@@ -57,7 +57,7 @@ public:
   bool Init(const std::vector<const char *> &requiredExtensions,
             VkSurfaceKHR (*GetSurface)(VkInstance instance));
 
-  [[nodiscard]] VkResult RenderFrame();
+  [[nodiscard]] VkResult RenderFrame() const;
 
   [[nodiscard]] VkResult Present() const;
 

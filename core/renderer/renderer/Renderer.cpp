@@ -237,11 +237,12 @@ bool Renderer::Init() {
   return this->Init({}, nullptr);
 }
 
-VkResult Renderer::RenderFrame() {
+VkResult Renderer::RenderFrame() const {
   const VkResult ret = this->computeGraph->Compute();
   if (ret != VK_SUCCESS) {
     Logger() << Logger::ERROR << "Failed to render compute graph!" << std::endl;
   }
+  return ret;
 }
 
 VkResult Renderer::Present() const {
@@ -340,7 +341,7 @@ VkResult Renderer::Present() const {
 void Renderer::RenderFrameOffScreen(const std::string &path) {
   VkResult ret = this->RenderFrame();
   if (ret != VK_SUCCESS) {
-   Logger() << Logger::ERROR << "Failed to render frame!" << std::endl;
+    Logger() << Logger::ERROR << "Failed to render frame!" << std::endl;
     return;
   }
 
