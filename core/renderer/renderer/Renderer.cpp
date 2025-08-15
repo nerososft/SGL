@@ -130,7 +130,7 @@ bool Renderer::Init(const std::vector<const char *> &requiredExtensions,
   subPasses.push_back(subPassDescription);
 
   std::vector<VkClearValue> clearValues;
-  clearValues.push_back({.color = {0.0f, 0.0f, 0.0f, 0.0f}});
+  clearValues.push_back({.color = {1.0f, 1.0f, 1.0f, 0.0f}});
   clearValues.push_back({.depthStencil = {1.0f, 0}});
   mainRenderPassNode = std::make_shared<GraphicsRenderPassNode>(
       this->gpuCtx, "mainRenderPass", attachments, dependencies, subPasses,
@@ -338,7 +338,7 @@ VkResult Renderer::Present() const {
   return VK_SUCCESS;
 }
 
-void Renderer::RenderFrameOffScreen(const std::string &path) {
+void Renderer::RenderFrameOffScreen(const std::string &path) const {
   VkResult ret = this->RenderFrame();
   if (ret != VK_SUCCESS) {
     Logger() << Logger::ERROR << "Failed to render frame!" << std::endl;

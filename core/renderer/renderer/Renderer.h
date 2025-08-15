@@ -72,7 +72,7 @@ public:
 
   std::shared_ptr<VkGPUContext> &GetGPUCtx() { return this->gpuCtx; }
 
-  void RenderFrameOffScreen(const std::string &path);
+  void RenderFrameOffScreen(const std::string &path) const;
 
   ~Renderer() = default;
 };
