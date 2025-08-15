@@ -208,10 +208,13 @@ void GraphicsPipelineNode::Compute(const VkCommandBuffer commandBuffer) {
           region.imageSubresource.layerCount = 1;
           region.imageOffset = {0, 0, 0};
           region.imageExtent.depth = 1;
-          region.imageExtent.width = static_cast<uint32_t>(width);
-          region.imageExtent.height = static_cast<uint32_t>(height);
-          region.bufferRowLength = static_cast<uint32_t>(width * 4);
-          region.bufferImageHeight = static_cast<uint32_t>(height);
+          region.imageExtent.width =
+              static_cast<uint32_t>(buffer.sampler.width);
+          region.imageExtent.height =
+              static_cast<uint32_t>(buffer.sampler.height);
+          region.bufferRowLength = static_cast<uint32_t>(buffer.sampler.width);
+          region.bufferImageHeight =
+              static_cast<uint32_t>(buffer.sampler.height);
           regions.push_back(region);
           vkCmdCopyBufferToImage(
               commandBuffer, buffer.sampler.imageBuffer, buffer.sampler.image,

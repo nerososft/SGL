@@ -37,6 +37,10 @@ public:
     return imageStageBuffer;
   }
 
+  [[nodiscard]] float GetWidth() const { return width; }
+
+  [[nodiscard]] float GetHeight() const { return height; }
+
   ~VkGPUTexture() = default;
 
   VkResult CreateTexture();

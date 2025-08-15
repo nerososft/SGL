@@ -47,6 +47,8 @@ typedef struct {
       VkDeviceMemory imageBufferMemory;
       VkImageLayout imageLayout;
       VkSampler sampler;
+      uint32_t width;
+      uint32_t height;
     } sampler;
   };
 } PipelineNodeBuffer;
