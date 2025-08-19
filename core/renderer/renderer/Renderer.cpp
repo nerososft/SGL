@@ -11,7 +11,6 @@
 #include "runtime/gpu/VkGPUHelper.h"
 #include "runtime/gpu/compute_graph/ImageToBufferCopyNode.h"
 #include "runtime/log/Log.h"
-#include "runtime/utils/TimeUtils.h"
 
 Renderer::Renderer(const uint32_t width, const uint32_t height) {
   this->width = width;
