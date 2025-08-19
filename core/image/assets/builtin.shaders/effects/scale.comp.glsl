@@ -18,14 +18,16 @@ layout (push_constant) uniform FilterParams {
     uint targetWidth;
     uint targetHeight;
     uint type;
-} filterParams;
+} params;
 
 // 预计算常数
 const float INV_255 = 1.0 / 255.0;
 const float PI = 3.14159265359;
 const float HALF_PI = 1.57079632679;
+const vec4 ZERO = vec4(0.0);
+const vec4 ONE = vec4(1.0);
 
-// ABGR - 使用更高效的位操作
+// ABGR - 使用更高效的位操作和向量化
 uint packColor(vec4 color) {
     uvec4 i = uvec4(clamp(color * 255.0 + 0.5, 0.0, 255.0));
     return (i.a << 24) | (i.b << 16) | (i.g << 8) | i.r;
@@ -48,8 +50,11 @@ float cubicWeight(float d) {
     float d2 = d * d;
     float d3 = d2 * d;
 
-    return (d < 1.0) ? (4.0 + d3 * 3.0 - d2 * 6.0) / 6.0 :
-           (d < 2.0) ? (8.0 - 12.0 * d + 6.0 * d2 - d3) / 6.0 : 0.0;
+    return mix(
+        mix((4.0 + d3 * 3.0 - d2 * 6.0) / 6.0, 0.0, step(1.0, d)),
+        (8.0 - 12.0 * d + 6.0 * d2 - d3) / 6.0,
+        step(1.0, d) * (1.0 - step(2.0, d))
+    );
 }
 
 // Mitchell-Netravali 双三次插值权重函数
@@ -59,8 +64,11 @@ float cubicWeightNew(float x) {
     float x3 = x2 * x;
     float k = -0.75;
 
-    return (x < 1.0) ? ((k + 2.0) * x3 - (k + 3.0) * x2 + 1.0) :
-           (x < 2.0) ? (k * x3 - 5.0 * k * x2 + 8.0 * k * x - 4.0 * k) : 0.0;
+    return mix(
+        mix((k + 2.0) * x3 - (k + 3.0) * x2 + 1.0, 0.0, step(1.0, x)),
+        k * x3 - 5.0 * k * x2 + 8.0 * k * x - 4.0 * k,
+        step(1.0, x) * (1.0 - step(2.0, x))
+    );
 }
 
 // Lanczos插值权重函数 (a=2.0)
@@ -79,13 +87,13 @@ float lanczosWeight(float x) {
 
 void main() {
     uvec2 coord = gl_GlobalInvocationID.xy;
-    if (coord.x >= filterParams.targetWidth || coord.y >= filterParams.targetHeight)
+    if (coord.x >= params.targetWidth || coord.y >= params.targetHeight)
         return;
 
     // 预计算常用值
-    uint stride = filterParams.bytesPerLine >> 2; // 除以4的等价操作
-    vec2 targetSize = vec2(filterParams.targetWidth, filterParams.targetHeight);
-    vec2 srcSize = vec2(filterParams.width, filterParams.height);
+    uint stride = params.bytesPerLine >> 2; // 除以4的等价操作
+    vec2 targetSize = vec2(params.targetWidth, params.targetHeight);
+    vec2 srcSize = vec2(params.width, params.height);
 
     // 计算源坐标
     vec2 uv = (vec2(coord) + 0.5) / targetSize;
@@ -94,58 +102,61 @@ void main() {
     vec2 fractPart = fract(srcCoord);
     ivec2 base = ivec2(srcCoord - fractPart);
 
-    vec4 finalColor = vec4(0);
+    // 预计算相对位置偏移
+    vec2 d_base = -fractPart + 1.0;
+
+    vec4 finalColor = ZERO;
     float totalWeight = 0.0;
 
     // 根据插值类型选择权重函数，避免循环内分支
-    if (filterParams.type == 1) {
-        // 使用立方卷积
+    if (params.type == 1) {
+        // 使用立方卷积 - 展开循环并向量化计算
         for (int y = -1; y <= 2; ++y) {
-            for (int x = -1; x <= 2; ++x) {
-                ivec2 samplePos = base + ivec2(x, y);
-                vec2 d = vec2(x, y) - fractPart + 1.0;
+            float wy = cubicWeight(float(y) + d_base.y);
 
-                float wx = cubicWeight(d.x);
-                float wy = cubicWeight(d.y);
+            for (int x = -1; x <= 2; ++x) {
+                float wx = cubicWeight(float(x) + d_base.x);
                 float weight = wx * wy;
 
-                samplePos = clamp(samplePos, ivec2(0), ivec2(filterParams.width - 1, filterParams.height - 1));
+                ivec2 samplePos = base + ivec2(x, y);
+                samplePos = clamp(samplePos, ivec2(0), ivec2(params.width - 1, params.height - 1));
+
                 uint pixelIndex = samplePos.y * stride + samplePos.x;
                 finalColor += unpackColor(inputImage.pixels[pixelIndex]) * weight;
                 totalWeight += weight;
             }
         }
     }
-    else if (filterParams.type == 2) {
-        // 使用Mitchell-Netravali
+    else if (params.type == 2) {
+        // 使用Mitchell-Netravali - 展开循环并向量化计算
         for (int y = -1; y <= 2; ++y) {
-            for (int x = -1; x <= 2; ++x) {
-                ivec2 samplePos = base + ivec2(x, y);
-                vec2 d = vec2(x, y) - fractPart + 1.0;
+            float wy = cubicWeightNew(float(y) + d_base.y);
 
-                float wx = cubicWeightNew(d.x);
-                float wy = cubicWeightNew(d.y);
+            for (int x = -1; x <= 2; ++x) {
+                float wx = cubicWeightNew(float(x) + d_base.x);
                 float weight = wx * wy;
 
-                samplePos = clamp(samplePos, ivec2(0), ivec2(filterParams.width - 1, filterParams.height - 1));
+                ivec2 samplePos = base + ivec2(x, y);
+                samplePos = clamp(samplePos, ivec2(0), ivec2(params.width - 1, params.height - 1));
+
                 uint pixelIndex = samplePos.y * stride + samplePos.x;
                 finalColor += unpackColor(inputImage.pixels[pixelIndex]) * weight;
                 totalWeight += weight;
             }
         }
     }
-    else if (filterParams.type == 3) {
-        // 使用Lanczos
+    else if (params.type == 3) {
+        // 使用Lanczos - 展开循环并向量化计算
         for (int y = -1; y <= 2; ++y) {
-             for (int x = -1; x <= 2; ++x) {
-                ivec2 samplePos = base + ivec2(x, y);
-                vec2 d = vec2(x, y) - fractPart + 1.0;
+            float wy = lanczosWeight(float(y) + d_base.y);
 
-                float wx = lanczosWeight(d.x);
-                float wy = lanczosWeight(d.y);
+            for (int x = -1; x <= 2; ++x) {
+                float wx = lanczosWeight(float(x) + d_base.x);
                 float weight = wx * wy;
 
-                samplePos = clamp(samplePos, ivec2(0), ivec2(filterParams.width - 1, filterParams.height - 1));
+                ivec2 samplePos = base + ivec2(x, y);
+                samplePos = clamp(samplePos, ivec2(0), ivec2(params.width - 1, params.height - 1));
+
                 uint pixelIndex = samplePos.y * stride + samplePos.x;
                 finalColor += unpackColor(inputImage.pixels[pixelIndex]) * weight;
                 totalWeight += weight;
@@ -155,6 +166,6 @@ void main() {
 
     // 使用混合避免除零分支
     finalColor /= max(totalWeight, 1e-6);
-    uint outputIndex = coord.y * filterParams.targetWidth + coord.x;
+    uint outputIndex = coord.y * params.targetWidth + coord.x;
     outputImage.pixels[outputIndex] = packColor(clamp(finalColor, 0.0, 1.0));
 }
