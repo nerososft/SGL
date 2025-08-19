@@ -49,7 +49,7 @@ float cubicWeight(float d) {
 }
 
 
-// 双三次插值权重函数 (a = -0.5)  Mitchell-Netravali 
+// 双三次插值权重函数 (a = -0.5)  Mitchell-Netravali
 float cubicWeightNew(float x) {
     x = abs(x);
 	float k = -0.75;
@@ -61,9 +61,6 @@ float cubicWeightNew(float x) {
     return 0.0;
 }
 
-
-
-
 // Lanczos插值权重函数 (a=2.0)
 float lanczosWeight(float x) {
     x = abs(x);
@@ -72,12 +69,13 @@ float lanczosWeight(float x) {
             return 1.0;
         }
         float pi_x = 3.14159265359 * x;  // πx
-        float pi_x_over_a = 3.14159265359 * x / 2.0;  
+        float pi_x_over_a = 3.14159265359 * x / 2.0;
         return (sin(pi_x) * sin(pi_x_over_a)) / (pi_x * pi_x_over_a);
     }
     return 0.0;
 }
 
+uint stride = filterParams.bytesPerLine / 4;
 void main() {
     uvec2 coord = gl_GlobalInvocationID.xy;
     if (any(greaterThanEqual(coord, uvec2(filterParams.targetWidth, filterParams.targetHeight)))) return;
@@ -91,7 +89,9 @@ void main() {
     vec4 finalColor = vec4(0);
     float totalWeight = 0.0;
 
+    #pragma unroll
     for (int y = -1; y <= 2; ++y) {
+        #pragma unroll
         for (int x = -1; x <= 2; ++x) {
             ivec2 samplePos = base + ivec2(x, y);
             vec2 d = vec2(x, y) - fractPart + 1.0; // 计算相对位置
@@ -108,11 +108,11 @@ void main() {
 				 wx = lanczosWeight(d.x);
 				 wy = lanczosWeight(d.y);
 			}
-			
+
             float weight = wx * wy;
 
             samplePos = clamp(samplePos, ivec2(0), ivec2(filterParams.width - 1, filterParams.height - 1));
-            uint pixelIndex = samplePos.y * (filterParams.bytesPerLine / 4) + samplePos.x;
+            uint pixelIndex = samplePos.y * stride + samplePos.x;
             finalColor += unpackColor(inputImage.pixels[pixelIndex]) * weight;
             totalWeight += weight;
         }
