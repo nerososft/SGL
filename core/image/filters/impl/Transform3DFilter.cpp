@@ -40,13 +40,18 @@ Transform3DFilter::GetTextureBufferNode(const VkBuffer buffer,
                                         const VkDeviceMemory memory) const {
   PipelineNodeBuffer textureBufferNode = {};
   textureBufferNode.type = PIPELINE_NODE_SAMPLER;
-  textureBufferNode.sampler.image = this->textureImage;
-  textureBufferNode.sampler.imageView = this->textureImageView;
-  textureBufferNode.sampler.imageBuffer = buffer;
-  textureBufferNode.sampler.imageBufferMemory = memory;
+  textureBufferNode.sampler.image = texture->GetTextureImage();
+  textureBufferNode.sampler.imageView = texture->GetTextureImageView();
+  textureBufferNode.sampler.imageBuffer =
+      texture->GetImageStageBuffer()->GetBuffer();
+  textureBufferNode.sampler.imageBufferMemory =
+      texture->GetImageStageBuffer()->GetDeviceMemory();
   textureBufferNode.sampler.imageLayout =
       VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-  textureBufferNode.sampler.sampler = this->textureSampler;
+  textureBufferNode.sampler.sampler = texture->GetTextureSampler();
+  textureBufferNode.sampler.width = static_cast<uint32_t>(texture->GetWidth());
+  textureBufferNode.sampler.height =
+      static_cast<uint32_t>(texture->GetHeight());
   return textureBufferNode;
 }
 
@@ -121,46 +126,17 @@ Transform3DFilter::AddDrawElement(const std::vector<Vertex> &vertexData,
   /*
    * Texture
    */
-  const std::vector<uint32_t> queueFamilies = {0};
-  ret = VkGPUHelper::CreateImage(
-      this->gpuCtx->GetCurrentDevice(), static_cast<float>(this->width),
-      static_cast<float>(this->height), VK_IMAGE_TYPE_2D,
-      VK_FORMAT_R8G8B8A8_SRGB,
-      VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
-      VK_SHARING_MODE_EXCLUSIVE, queueFamilies, VK_IMAGE_LAYOUT_UNDEFINED,
-      &this->textureImage);
-  if (ret != VK_SUCCESS) {
-    Logger() << "failed to create texture image" << std::endl;
-    return ret;
+  imageBuffer = std::make_shared<VkGPUBuffer>(gpuCtx, imageInfo.bufferSize,
+                                              imageInfo.storageBuffer,
+                                              imageInfo.storageBufferMemory);
+  if (imageBuffer == nullptr) {
+    Logger() << "imageBuffer is null" << std::endl;
+    return VK_ERROR_OUT_OF_HOST_MEMORY;
   }
-
-  imageBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
-  ret = imageBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_LOCAL,
-                                     imageInfo.bufferSize);
+  texture = std::make_shared<VkGPUTexture>(gpuCtx, width, height, imageBuffer);
+  ret = texture->CreateTexture();
   if (ret != VK_SUCCESS) {
-    Logger() << "failed to allocate image buffer" << std::endl;
-  }
-
-  ret = vkBindImageMemory(this->gpuCtx->GetCurrentDevice(), this->textureImage,
-                          imageBuffer->GetDeviceMemory(), 0);
-  if (ret != VK_SUCCESS) {
-    Logger() << "failed to bind image memory" << std::endl;
-    return ret;
-  }
-
-  ret = VkGPUHelper::CreateImageView(
-      this->gpuCtx->GetCurrentDevice(), this->textureImage,
-      VK_IMAGE_VIEW_TYPE_2D, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT,
-      &this->textureImageView);
-  if (ret != VK_SUCCESS) {
-    Logger() << "failed to create texture imageview" << std::endl;
-    return ret;
-  }
-
-  ret = VkGPUHelper::CreateSampler(this->gpuCtx->GetCurrentDevice(),
-                                   &this->textureSampler);
-  if (ret != VK_SUCCESS) {
-    Logger() << "failed to create texture sampler" << std::endl;
+    Logger() << Logger::ERROR << "Texture create failed" << std::endl;
     return ret;
   }
 
@@ -415,4 +391,24 @@ Transform3DFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
   return computeGraph->Compute();
 }
 
-void Transform3DFilter::Destroy() { BasicFilter::Destroy(); }
+void Transform3DFilter::Destroy() {
+  if (vertexBuffer != nullptr) {
+    vertexBuffer->Destroy();
+    vertexBuffer = nullptr;
+  }
+  if (indicesBuffer != nullptr) {
+    indicesBuffer->Destroy();
+    indicesBuffer = nullptr;
+  }
+  if (transformMatrixBuffer != nullptr) {
+    transformMatrixBuffer->Destroy();
+    transformMatrixBuffer = nullptr;
+  }
+  if (texture != nullptr) {
+    texture->Destroy();
+    texture = nullptr;
+  }
+  imageBuffer = nullptr;
+}
+
+Transform3DFilter::~Transform3DFilter() { this->Destroy(); }

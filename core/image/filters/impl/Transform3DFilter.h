@@ -10,6 +10,7 @@
 #include "core/image/filters/BasicFilter.h"
 #include "runtime/gpu/VkGPUBuffer.h"
 #include "runtime/gpu/VkGPUContext.h"
+#include "runtime/gpu/VkGPUTexture.h"
 #include "runtime/gpu/compute_graph/GraphicsPipelineNode.h"
 #include "runtime/gpu/compute_graph/GraphicsRenderPassNode.h"
 #include "runtime/gpu/compute_graph/ImageToBufferCopyNode.h"
@@ -25,7 +26,7 @@ struct TransformFilter3DParams {
   glm::mat4 transformMatrix;
 };
 
-class Transform3DFilter final : public BasicFilter {
+class Transform3DFilter final : public IFilter {
   TransformFilter3DParams transformFilterParams{};
 
   uint32_t width = 768;
@@ -44,16 +45,13 @@ class Transform3DFilter final : public BasicFilter {
   std::shared_ptr<VkGPUBuffer> vertexBuffer = nullptr;
   std::shared_ptr<VkGPUBuffer> indicesBuffer = nullptr;
   std::shared_ptr<VkGPUBuffer> transformMatrixBuffer = nullptr;
-
-  VkImage textureImage = VK_NULL_HANDLE;
+  std::shared_ptr<VkGPUTexture> texture = nullptr;
   std::shared_ptr<VkGPUBuffer> imageBuffer = nullptr;
-  VkImageView textureImageView = VK_NULL_HANDLE;
-  VkSampler textureSampler = VK_NULL_HANDLE;
 
 public:
   Transform3DFilter() = default;
 
-  ~Transform3DFilter() override = default;
+  ~Transform3DFilter() override;
 
   [[nodiscard]] PipelineNodeBuffer GetVertexBufferNode() const;
 

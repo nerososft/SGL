@@ -56,6 +56,7 @@ VkResult VkGPUBuffer::AllocateAndBind(const VkGPUBufferType type,
              << string_VkResult(result) << std::endl;
     return result;
   }
+  this->allocated = true;
   this->bufferSize = size;
   return result;
 }
@@ -183,12 +184,14 @@ VkResult VkGPUBuffer::DownloadData(void *downloadAddr,
 }
 
 void VkGPUBuffer::Destroy() {
-  if (bufferMemory != VK_NULL_HANDLE) {
-    vkFreeMemory(gpuCtx->GetCurrentDevice(), bufferMemory, nullptr);
-    bufferMemory = VK_NULL_HANDLE;
-  }
-  if (buffer != VK_NULL_HANDLE) {
-    vkDestroyBuffer(gpuCtx->GetCurrentDevice(), buffer, nullptr);
-    buffer = VK_NULL_HANDLE;
+  if (this->allocated) {
+    if (bufferMemory != VK_NULL_HANDLE) {
+      vkFreeMemory(gpuCtx->GetCurrentDevice(), bufferMemory, nullptr);
+      bufferMemory = VK_NULL_HANDLE;
+    }
+    if (buffer != VK_NULL_HANDLE) {
+      vkDestroyBuffer(gpuCtx->GetCurrentDevice(), buffer, nullptr);
+      buffer = VK_NULL_HANDLE;
+    }
   }
 }

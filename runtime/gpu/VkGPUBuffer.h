@@ -28,6 +28,7 @@ class VkGPUBuffer {
   void *mapAddr = nullptr;
   VkDeviceSize bufferSize = 0;
   bool mapped = false;
+  bool allocated = false;
 
 public:
   explicit VkGPUBuffer(const std::shared_ptr<VkGPUContext> &gpuCtx);
