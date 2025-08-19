@@ -886,8 +886,9 @@ VkResult VkGPUHelper::CreateStorageBufferAndBindMem(
     const VkPhysicalDeviceMemoryProperties *memProps,
     const uint32_t memoryPropertyFlagsBits, VkBuffer *storageBuffer,
     VkDeviceMemory *storageBufferMemory) {
-  const VkBufferUsageFlags flag =
-      VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+  const VkBufferUsageFlags flag = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT |
+                                  VK_BUFFER_USAGE_TRANSFER_DST_BIT |
+                                  VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
   VkResult ret = CreateBuffer(device, size, flag, VK_SHARING_MODE_EXCLUSIVE,
                               queueFamilyIndices, storageBuffer);
   if (ret != VK_SUCCESS) {
