@@ -130,7 +130,7 @@ bool Renderer::Init(const std::vector<const char *> &requiredExtensions,
   subPasses.push_back(subPassDescription);
 
   std::vector<VkClearValue> clearValues;
-  clearValues.push_back({.color = {1.0f, 1.0f, 1.0f, 0.0f}});
+  clearValues.push_back({.color = {0.0f, 0.0f, 0.0f, 0.0f}});
   clearValues.push_back({.depthStencil = {1.0f, 0}});
   mainRenderPassNode = std::make_shared<GraphicsRenderPassNode>(
       this->gpuCtx, "mainRenderPass", attachments, dependencies, subPasses,

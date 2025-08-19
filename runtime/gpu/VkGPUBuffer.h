@@ -32,6 +32,10 @@ class VkGPUBuffer {
 public:
   explicit VkGPUBuffer(const std::shared_ptr<VkGPUContext> &gpuCtx);
 
+  VkGPUBuffer(const std::shared_ptr<VkGPUContext> &gpuCtx,
+              VkDeviceSize bufferSize, VkBuffer buffer,
+              VkDeviceMemory bufferMemory);
+
   ~VkGPUBuffer();
 
   VkResult AllocateAndBind(VkGPUBufferType type, VkDeviceSize size);

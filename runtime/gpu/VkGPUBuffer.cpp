@@ -101,9 +101,13 @@ void VkGPUBuffer::UnMapBuffer() {
 }
 
 VkGPUBuffer::VkGPUBuffer(const std::shared_ptr<VkGPUContext> &gpuCtx)
-    : type(GPU_BUFFER_TYPE_STORAGE_SHARED) {
-  this->gpuCtx = gpuCtx;
-}
+    : gpuCtx(gpuCtx), type(GPU_BUFFER_TYPE_STORAGE_SHARED) {}
+
+VkGPUBuffer::VkGPUBuffer(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                         const VkDeviceSize bufferSize, const VkBuffer buffer,
+                         const VkDeviceMemory bufferMemory)
+    : gpuCtx(gpuCtx), type(GPU_BUFFER_TYPE_STORAGE_SHARED), buffer(buffer),
+      bufferMemory(bufferMemory), bufferSize(bufferSize) {}
 
 VkGPUBuffer::~VkGPUBuffer() { this->Destroy(); }
 

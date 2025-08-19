@@ -16,6 +16,7 @@ class VkGPUTexture {
   VkImageView textureImageView = VK_NULL_HANDLE;
   VkSampler textureSampler = VK_NULL_HANDLE;
 
+  bool imageStageBufferAllocated = false;
   std::shared_ptr<VkGPUBuffer> imageStageBuffer = nullptr;
 
   float width;
@@ -24,6 +25,10 @@ class VkGPUTexture {
 public:
   VkGPUTexture(const std::shared_ptr<VkGPUContext> &gpuCtx, float width,
                float height);
+
+  VkGPUTexture(const std::shared_ptr<VkGPUContext> &gpuCtx, float width,
+               float height,
+               const std::shared_ptr<VkGPUBuffer> &imageStageBuffer);
 
   [[nodiscard]] VkImage GetTextureImage() const { return textureImage; }
 
@@ -41,11 +46,11 @@ public:
 
   [[nodiscard]] float GetHeight() const { return height; }
 
-  ~VkGPUTexture() = default;
-
   VkResult CreateTexture();
 
   void Destroy();
+
+  ~VkGPUTexture();
 };
 
 #endif // VKGPUTEXTURE_H

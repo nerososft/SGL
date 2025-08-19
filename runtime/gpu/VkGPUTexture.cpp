@@ -13,27 +13,18 @@ VkGPUTexture::VkGPUTexture(const std::shared_ptr<VkGPUContext> &gpuCtx,
   this->gpuCtx = gpuCtx;
 }
 
+VkGPUTexture::VkGPUTexture(
+    const std::shared_ptr<VkGPUContext> &gpuCtx, const float width,
+    const float height, const std::shared_ptr<VkGPUBuffer> &imageStageBuffer) {
+  this->width = width;
+  this->height = height;
+  this->gpuCtx = gpuCtx;
+  this->imageStageBuffer = imageStageBuffer;
+}
+
 VkResult VkGPUTexture::CreateTexture() {
   const std::vector<uint32_t> queueFamilies = {0};
   VkResult ret = VK_SUCCESS;
-  ret = VkGPUHelper::CreateImage(
-      this->gpuCtx->GetCurrentDevice(), this->width, this->height,
-      VK_IMAGE_TYPE_2D, VK_FORMAT_R8G8B8A8_SRGB,
-      VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
-      VK_SHARING_MODE_EXCLUSIVE, queueFamilies, VK_IMAGE_LAYOUT_UNDEFINED,
-      &this->textureImage);
-  if (ret != VK_SUCCESS) {
-    Logger() << "Failed to create texture image" << std::endl;
-    return ret;
-  }
-
-  imageStageBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
-  ret = imageStageBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED,
-                                          this->width * this->height *
-                                              sizeof(uint32_t));
-  if (ret != VK_SUCCESS) {
-    Logger() << "Failed to allocate image stage buffer" << std::endl;
-  }
 
   const VkPhysicalDeviceMemoryProperties memoryProperties =
       gpuCtx->GetMemoryProperties();
@@ -66,6 +57,17 @@ VkResult VkGPUTexture::CreateTexture() {
     return ret;
   }
 
+  if (imageStageBuffer == nullptr) {
+    imageStageBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
+    ret = imageStageBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED,
+                                            this->width * this->height *
+                                                sizeof(uint32_t));
+    if (ret != VK_SUCCESS) {
+      Logger() << "Failed to allocate image stage buffer" << std::endl;
+    }
+    imageStageBufferAllocated = true;
+  }
+
   return ret;
 }
 
@@ -87,8 +89,10 @@ void VkGPUTexture::Destroy() {
     vkFreeMemory(this->gpuCtx->GetCurrentDevice(), textureImageMemory, nullptr);
     textureImageMemory = VK_NULL_HANDLE;
   }
-  if (this->imageStageBuffer != VK_NULL_HANDLE) {
+  if (this->imageStageBufferAllocated && this->imageStageBuffer != nullptr) {
     this->imageStageBuffer->Destroy();
     this->imageStageBuffer = nullptr;
   }
 }
+
+VkGPUTexture::~VkGPUTexture() { this->Destroy(); }
