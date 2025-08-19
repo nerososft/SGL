@@ -75,7 +75,7 @@ RendererMesh::GetTextureBufferNode(const TextureType type) const {
   textureBufferNode.sampler.imageBufferMemory =
       texture->GetImageStageBuffer()->GetDeviceMemory();
   textureBufferNode.sampler.imageLayout =
-      VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+      VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL;
   textureBufferNode.sampler.sampler = texture->GetTextureSampler();
   textureBufferNode.sampler.width = static_cast<uint32_t>(texture->GetWidth());
   textureBufferNode.sampler.height =

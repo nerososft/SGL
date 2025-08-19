@@ -33,9 +33,8 @@ VkResult VkGPUTexture::CreateTexture() {
       gpuCtx->GetCurrentDevice(), this->width, this->height, VK_IMAGE_TYPE_2D,
       VK_FORMAT_R8G8B8A8_SRGB,
       VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
-      VK_SHARING_MODE_EXCLUSIVE, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-      &memoryProperties, queueFamilies, &this->textureImage,
-      &this->textureImageMemory);
+      VK_SHARING_MODE_EXCLUSIVE, VK_IMAGE_LAYOUT_UNDEFINED, &memoryProperties,
+      queueFamilies, &this->textureImage, &this->textureImageMemory);
   if (ret != VK_SUCCESS) {
     Logger() << Logger::ERROR << "Failed to create texture image" << std::endl;
     return ret;
