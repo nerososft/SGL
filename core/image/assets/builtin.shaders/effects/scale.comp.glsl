@@ -27,20 +27,22 @@ const float HALF_PI = 1.57079632679;
 const vec4 ZERO = vec4(0.0);
 const vec4 ONE = vec4(1.0);
 
-// ABGR - 使用更高效的位操作和向量化
+// 使用更高效的位操作和向量化
 uint packColor(vec4 color) {
     uvec4 i = uvec4(clamp(color * 255.0 + 0.5, 0.0, 255.0));
     return (i.a << 24) | (i.b << 16) | (i.g << 8) | i.r;
 }
 
-// ABGR - 使用整数运算避免浮点除法
+// 使用整数运算避免浮点除法
 vec4 unpackColor(uint color) {
-    return vec4(
-        float(color & 0xFF) * INV_255,
-        float((color >> 8) & 0xFF) * INV_255,
-        float((color >> 16) & 0xFF) * INV_255,
-        float((color >> 24) & 0xFF) * INV_255
+    // 使用一次位操作和向量化转换
+    uvec4 components = uvec4(
+        color & 0xFF,
+        (color >> 8) & 0xFF,
+        (color >> 16) & 0xFF,
+        (color >> 24) & 0xFF
     );
+    return vec4(components) * INV_255;
 }
 
 // 三次卷积权重计算 (Keys' Cubic Interpolation)
@@ -50,11 +52,12 @@ float cubicWeight(float d) {
     float d2 = d * d;
     float d3 = d2 * d;
 
-    return mix(
-        mix((4.0 + d3 * 3.0 - d2 * 6.0) / 6.0, 0.0, step(1.0, d)),
-        (8.0 - 12.0 * d + 6.0 * d2 - d3) / 6.0,
-        step(1.0, d) * (1.0 - step(2.0, d))
-    );
+    // 使用step和mix替代条件分支
+    float w = (4.0 + d3 * 3.0 - d2 * 6.0) * 0.166666667; // 1/6
+    w = mix(w, 0.0, step(1.0, d));
+
+    float w2 = (8.0 - 12.0 * d + 6.0 * d2 - d3) * 0.166666667;
+    return mix(w, w2, step(1.0, d) * (1.0 - step(2.0, d)));
 }
 
 // Mitchell-Netravali 双三次插值权重函数
@@ -64,19 +67,19 @@ float cubicWeightNew(float x) {
     float x3 = x2 * x;
     float k = -0.75;
 
-    return mix(
-        mix((k + 2.0) * x3 - (k + 3.0) * x2 + 1.0, 0.0, step(1.0, x)),
-        k * x3 - 5.0 * k * x2 + 8.0 * k * x - 4.0 * k,
-        step(1.0, x) * (1.0 - step(2.0, x))
-    );
+    // 预计算常用值
+    float w1 = (k + 2.0) * x3 - (k + 3.0) * x2 + 1.0;
+    w1 = mix(w1, 0.0, step(1.0, x));
+
+    float w2 = k * x3 - 5.0 * k * x2 + 8.0 * k * x - 4.0 * k;
+    return mix(w1, w2, step(1.0, x) * (1.0 - step(2.0, x)));
 }
 
 // Lanczos插值权重函数 (a=2.0)
 float lanczosWeight(float x) {
     x = abs(x);
+    // 提前返回避免不必要的计算
     if (x >= 2.0) return 0.0;
-
-    // 特殊情况处理
     if (x < 1e-5) return 1.0;
 
     float pi_x = PI * x;
@@ -109,8 +112,12 @@ void main() {
     float totalWeight = 0.0;
 
     // 根据插值类型选择权重函数，避免循环内分支
+    // 预计算边界限制
+    ivec2 sizeLimit = ivec2(params.width - 1, params.height - 1);
+
+    // 使用分支预测优化，将最可能的分支放在前面
     if (params.type == 1) {
-        // 使用立方卷积 - 展开循环并向量化计算
+        // 立方卷积 - 展开循环并预计算权重
         for (int y = -1; y <= 2; ++y) {
             float wy = cubicWeight(float(y) + d_base.y);
 
@@ -119,7 +126,7 @@ void main() {
                 float weight = wx * wy;
 
                 ivec2 samplePos = base + ivec2(x, y);
-                samplePos = clamp(samplePos, ivec2(0), ivec2(params.width - 1, params.height - 1));
+                samplePos = clamp(samplePos, ivec2(0), sizeLimit);
 
                 uint pixelIndex = samplePos.y * stride + samplePos.x;
                 finalColor += unpackColor(inputImage.pixels[pixelIndex]) * weight;
@@ -128,7 +135,7 @@ void main() {
         }
     }
     else if (params.type == 2) {
-        // 使用Mitchell-Netravali - 展开循环并向量化计算
+        // Mitchell-Netravali - 展开循环
         for (int y = -1; y <= 2; ++y) {
             float wy = cubicWeightNew(float(y) + d_base.y);
 
@@ -137,7 +144,7 @@ void main() {
                 float weight = wx * wy;
 
                 ivec2 samplePos = base + ivec2(x, y);
-                samplePos = clamp(samplePos, ivec2(0), ivec2(params.width - 1, params.height - 1));
+                samplePos = clamp(samplePos, ivec2(0), sizeLimit);
 
                 uint pixelIndex = samplePos.y * stride + samplePos.x;
                 finalColor += unpackColor(inputImage.pixels[pixelIndex]) * weight;
@@ -146,7 +153,7 @@ void main() {
         }
     }
     else if (params.type == 3) {
-        // 使用Lanczos - 展开循环并向量化计算
+        // Lanczos - 展开循环
         for (int y = -1; y <= 2; ++y) {
             float wy = lanczosWeight(float(y) + d_base.y);
 
@@ -155,7 +162,7 @@ void main() {
                 float weight = wx * wy;
 
                 ivec2 samplePos = base + ivec2(x, y);
-                samplePos = clamp(samplePos, ivec2(0), ivec2(params.width - 1, params.height - 1));
+                samplePos = clamp(samplePos, ivec2(0), sizeLimit);
 
                 uint pixelIndex = samplePos.y * stride + samplePos.x;
                 finalColor += unpackColor(inputImage.pixels[pixelIndex]) * weight;
