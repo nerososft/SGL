@@ -59,8 +59,7 @@ public:
 
   [[nodiscard]] PipelineNodeBuffer GetTransformMatrixBufferNode() const;
 
-  [[nodiscard]] PipelineNodeBuffer
-  GetTextureBufferNode(VkBuffer buffer, VkDeviceMemory memory) const;
+  [[nodiscard]] PipelineNodeBuffer GetTextureBufferNode() const;
 
   VkResult ConstructMainGraphicsPipeline(const FilterImageInfo &imageInfo);
 

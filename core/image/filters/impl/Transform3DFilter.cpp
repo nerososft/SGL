@@ -3,9 +3,6 @@
 //
 
 #include "Transform3DFilter.h"
-
-#include <glm/ext/matrix_clip_space.hpp>
-
 #include "runtime/config.h"
 #include "runtime/gpu/VkGPUHelper.h"
 #include "runtime/log/Log.h"
@@ -35,9 +32,7 @@ PipelineNodeBuffer Transform3DFilter::GetTransformMatrixBufferNode() const {
   return transformMatrixBufferNode;
 }
 
-PipelineNodeBuffer
-Transform3DFilter::GetTextureBufferNode(const VkBuffer buffer,
-                                        const VkDeviceMemory memory) const {
+PipelineNodeBuffer Transform3DFilter::GetTextureBufferNode() const {
   PipelineNodeBuffer textureBufferNode = {};
   textureBufferNode.type = PIPELINE_NODE_SAMPLER;
   textureBufferNode.sampler.image = texture->GetTextureImage();
@@ -144,8 +139,7 @@ Transform3DFilter::AddDrawElement(const std::vector<Vertex> &vertexData,
   buffers.push_back(GetVertexBufferNode());
   buffers.push_back(GetIndicesBufferNode());
   buffers.push_back(GetTransformMatrixBufferNode()); // uniform 0
-  buffers.push_back(GetTextureBufferNode(
-      imageInfo.storageBuffer, imageInfo.storageBufferMemory)); // sampler 1
+  buffers.push_back(GetTextureBufferNode());         // sampler 1
   const GraphicsElement element{
       .pushConstantInfo = {.size = sizeof(TransformFilter3DParams),
                            .data = &this->transformFilterParams},
