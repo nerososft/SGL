@@ -72,6 +72,30 @@ bool GraphicsApp::ConstructRendererPipeline() {
       VkGPUHelper::BuildDescriptorSetLayoutBinding(
           4, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1,
           VK_SHADER_STAGE_ALL_GRAPHICS));
+  descriptorSetLayoutBindings.push_back(
+      VkGPUHelper::BuildDescriptorSetLayoutBinding(
+          5, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1,
+          VK_SHADER_STAGE_ALL_GRAPHICS));
+  descriptorSetLayoutBindings.push_back(
+      VkGPUHelper::BuildDescriptorSetLayoutBinding(
+          6, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1,
+          VK_SHADER_STAGE_ALL_GRAPHICS));
+  descriptorSetLayoutBindings.push_back(
+      VkGPUHelper::BuildDescriptorSetLayoutBinding(
+          7, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1,
+          VK_SHADER_STAGE_ALL_GRAPHICS));
+  descriptorSetLayoutBindings.push_back(
+      VkGPUHelper::BuildDescriptorSetLayoutBinding(
+          8, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1,
+          VK_SHADER_STAGE_ALL_GRAPHICS));
+  descriptorSetLayoutBindings.push_back(
+      VkGPUHelper::BuildDescriptorSetLayoutBinding(
+          9, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1,
+          VK_SHADER_STAGE_ALL_GRAPHICS));
+  descriptorSetLayoutBindings.push_back(
+      VkGPUHelper::BuildDescriptorSetLayoutBinding(
+          10, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1,
+          VK_SHADER_STAGE_ALL_GRAPHICS));
 
   this->graphicsPipelineNode = std::make_shared<GraphicsPipelineNode>(
       renderer->GetGPUCtx(), "mainGraphicsPipeline",
@@ -166,8 +190,19 @@ void GraphicsApp::Init() {
     buffers.push_back(camera->GetViewProjectionMatrixBufferNode()); // uniform 2
     buffers.push_back(rendererLights[0]->GetLightBufferNode());     // uniform 3
     buffers.push_back(
-        renderMesh->GetTextureBufferNode(TextureType_BASE_COLOR)); // sampler 4
-
+        renderMesh->GetTextureBufferNode(TextureType_DIFFUSE)); // sampler 4
+    buffers.push_back(
+        renderMesh->GetTextureBufferNode(TextureType_EMISSIVE)); // sampler 5
+    buffers.push_back(
+        renderMesh->GetTextureBufferNode(TextureType_NORMALS)); // sampler 6
+    buffers.push_back(
+        renderMesh->GetTextureBufferNode(TextureType_LIGHTMAP)); // sampler 7
+    buffers.push_back(
+        renderMesh->GetTextureBufferNode(TextureType_BASE_COLOR)); // sampler 8
+    buffers.push_back(
+        renderMesh->GetTextureBufferNode(TextureType_METALNESS)); // sampler 9
+    buffers.push_back(renderMesh->GetTextureBufferNode(
+        TextureType_DIFFUSE_ROUGHNESS)); // sampler 10
     const GraphicsElement element{
         .pushConstantInfo = {.size = sizeof(FrameInfo),
                              .data = &this->frameInfo},

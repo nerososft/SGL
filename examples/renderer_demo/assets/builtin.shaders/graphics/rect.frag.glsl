@@ -34,7 +34,13 @@ layout (binding = 3) uniform Light {
     vec3 direction;
 } light;
 
-layout (binding = 4) uniform sampler2D texSampler;
+layout (binding = 4) uniform sampler2D diffuseTexSampler;
+layout (binding = 5) uniform sampler2D emissiveTexSampler;
+layout (binding = 6) uniform sampler2D normalsTexSampler;
+layout (binding = 7) uniform sampler2D lightMapTexSampler;
+layout (binding = 8) uniform sampler2D baseColorTexSampler;
+layout (binding = 9) uniform sampler2D metalnessTexSampler;
+layout (binding = 10) uniform sampler2D diffuseRoughnessTexSampler;
 
 layout (push_constant) uniform FrameInfo {
     uint frameIndex;
@@ -65,5 +71,5 @@ void main() {
     vec3 norm = normalize(normal);
 
     vec3 phongLighting = calculatePhongLighting(lightPos, viewPos, norm, position);
-    FragColor = vec4(phongLighting, 1.0) * texture(texSampler, texCoord);
+    FragColor = vec4(phongLighting, 1.0) * texture(diffuseTexSampler, texCoord);
 }
