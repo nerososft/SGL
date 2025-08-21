@@ -28,7 +28,7 @@ glm::mat4 RendererCamera::GetInitialViewMatrix() const {
 
 glm::mat4 RendererCamera::GetInitialProjectionMatrix(const float aspectRatio) {
   glm::mat4 projection =
-      glm::perspective(glm::radians(45.0f), aspectRatio, 0.1f, 1000.0f);
+      glm::perspective(glm::radians(100.0f), aspectRatio, 0.1f, 1000.0f);
   projection[1][1] *= -1;
   return projection;
 }
