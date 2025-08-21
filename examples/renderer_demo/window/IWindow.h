@@ -10,6 +10,8 @@
 
 #include "../event/IEventHandler.h"
 
+#define WINDOW_MODE_FULLSCREEN (0x1)
+
 struct Surface {
   int width;
   int height;
@@ -35,6 +37,10 @@ public:
 
   virtual void CreateWindow(uint32_t posX, uint32_t posY, uint32_t width,
                             uint32_t height, const char *title) = 0;
+
+  virtual void CreateWindow(uint32_t posX, uint32_t posY, uint32_t width,
+                            uint32_t height, const char *title,
+                            uint32_t mode) = 0;
 
   virtual bool ShouldClose() = 0;
 

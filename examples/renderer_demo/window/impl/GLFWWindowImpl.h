@@ -22,6 +22,9 @@ public:
   void CreateWindow(uint32_t posX, uint32_t posY, uint32_t width,
                     uint32_t height, const char *title) override;
 
+  void CreateWindow(uint32_t posX, uint32_t posY, uint32_t width,
+                    uint32_t height, const char *title, uint32_t mode) override;
+
   ~GLFWWindowImpl() override;
 
   bool ShouldClose() override;

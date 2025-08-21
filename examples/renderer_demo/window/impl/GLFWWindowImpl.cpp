@@ -19,9 +19,15 @@ GLFWWindowImpl::GLFWWindowImpl(IEventHandler *handler) : IWindow(handler) {
   gHandler = handler;
 }
 
-void GLFWWindowImpl::CreateWindow(uint32_t posX, uint32_t posY,
+void GLFWWindowImpl::CreateWindow(const uint32_t posX, const uint32_t posY,
                                   const uint32_t width, const uint32_t height,
                                   const char *title) {
+  this->CreateWindow(posX, posY, width, height, title, 0);
+}
+
+void GLFWWindowImpl::CreateWindow(uint32_t posX, uint32_t posY,
+                                  const uint32_t width, const uint32_t height,
+                                  const char *title, const uint32_t mode) {
   if (!glfwInitialized) {
     Logger() << "GLFW not initialized!" << std::endl;
     return;
@@ -33,30 +39,47 @@ void GLFWWindowImpl::CreateWindow(uint32_t posX, uint32_t posY,
   glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
   Logger() << "Creating window '" << title << "', width=" << width
            << ", height=" << height << std::endl;
-  this->window =
-      glfwCreateWindow(static_cast<int>(width), static_cast<int>(height), title,
-                       nullptr, nullptr);
+
+  GLFWmonitor *primaryMonitor = glfwGetPrimaryMonitor();
+  int primaryMonitorWidth;
+  int primaryMonitorHeight;
+  glfwGetMonitorPhysicalSize(primaryMonitor, &primaryMonitorWidth,
+                             &primaryMonitorHeight);
+  Logger() << "Monitor '" << glfwGetMonitorName(primaryMonitor)
+           << "' width=" << primaryMonitorWidth
+           << " millimetres, height=" << primaryMonitorHeight << " millimetres"
+           << std::endl;
+  const GLFWvidmode *vidMode = glfwGetVideoMode(primaryMonitor);
+  glfwWindowHint(GLFW_RED_BITS, vidMode->redBits);
+  glfwWindowHint(GLFW_GREEN_BITS, vidMode->greenBits);
+  glfwWindowHint(GLFW_BLUE_BITS, vidMode->blueBits);
+  glfwWindowHint(GLFW_REFRESH_RATE, vidMode->refreshRate);
+  this->window = glfwCreateWindow(
+      static_cast<int>(width), static_cast<int>(height), title,
+      mode & WINDOW_MODE_FULLSCREEN ? primaryMonitor : nullptr, nullptr);
   if (!this->window) {
     Logger() << "Failed to create GLFW window!" << std::endl;
     return;
   }
 
-  glfwSetKeyCallback(this->window, [](GLFWwindow *window, int key, int scancode,
-                                      int action, int mods) {
-    if (gHandler == nullptr) {
-      Logger() << "GLFW window has no handler!" << std::endl;
-      return;
-    }
-    if (action == GLFW_PRESS) {
-      gHandler->OnKeyDown(key);
-    }
-    if (action == GLFW_RELEASE) {
-      gHandler->OnKeyUp(key);
-    }
-  });
+  glfwSetKeyCallback(this->window,
+                     [](GLFWwindow *window, const int key, int scancode,
+                        const int action, int mods) {
+                       if (gHandler == nullptr) {
+                         Logger() << "GLFW window has no handler!" << std::endl;
+                         return;
+                       }
+                       if (action == GLFW_PRESS) {
+                         gHandler->OnKeyDown(key);
+                       }
+                       if (action == GLFW_RELEASE) {
+                         gHandler->OnKeyUp(key);
+                       }
+                     });
 
   glfwSetCursorPosCallback(
-      this->window, [](GLFWwindow *window, double xpos, double ypos) {
+      this->window,
+      [](GLFWwindow *window, const double xpos, const double ypos) {
         if (gHandler == nullptr) {
           Logger() << "GLFW window has no handler!" << std::endl;
           return;

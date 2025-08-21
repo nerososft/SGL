@@ -28,6 +28,7 @@ class GraphicsApp final : public IEventHandler {
   bool running = true;
 
   const char *windowTitle = "Engine";
+  uint32_t windowMode = 0;
   uint32_t frameCount = 0;
   uint32_t windowPosX = 10;
   uint32_t windowPosY = 10;
@@ -60,6 +61,8 @@ public:
   void SetWindowPos(uint32_t x, uint32_t y);
 
   void SetWindowTitle(const char *title);
+
+  void SetWindowMode(uint32_t mode);
 
   void OnKeyUp(uint32_t key) override;
 

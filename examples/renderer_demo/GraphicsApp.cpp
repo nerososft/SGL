@@ -149,7 +149,7 @@ void GraphicsApp::Init() {
   renderer = std::make_shared<Renderer>(this->windowWidth, this->windowHeight);
 
   window->CreateWindow(this->windowPosX, this->windowPosY, this->windowWidth,
-                       this->windowHeight, this->windowTitle);
+                       this->windowHeight, this->windowTitle, this->windowMode);
   if (!renderer->Init(requiredExtensions, GetWindowSurface)) {
     Logger() << Logger::ERROR << "Failed to initialize renderer" << std::endl;
     return;
@@ -273,6 +273,9 @@ void GraphicsApp::SetWindowPos(const uint32_t x, const uint32_t y) {
 
 void GraphicsApp::SetWindowTitle(const char *title) {
   this->windowTitle = title;
+}
+void GraphicsApp::SetWindowMode(const uint32_t mode) {
+  this->windowMode = mode;
 }
 
 void GraphicsApp::OnKeyUp(const uint32_t key) {
