@@ -123,7 +123,7 @@ bool GraphicsApp::ConstructRendererPipeline() {
 
 bool GraphicsApp::InitCamera() {
   camera =
-      std::make_shared<RendererCamera>(glm::vec3(0, 5, 0), glm::vec3(0, 0, -1));
+      std::make_shared<RendererCamera>(glm::vec3(0, 2, 0), glm::vec3(0, 0, -1));
   if (!camera->CreateGPUCamera(renderer->GetGPUCtx(),
                                this->windowWidth / this->windowHeight)) {
     return false;

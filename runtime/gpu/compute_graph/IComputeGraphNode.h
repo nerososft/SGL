@@ -49,6 +49,7 @@ typedef struct {
       VkSampler sampler;
       uint32_t width;
       uint32_t height;
+      bool uploaded;
     } sampler;
   };
 } PipelineNodeBuffer;

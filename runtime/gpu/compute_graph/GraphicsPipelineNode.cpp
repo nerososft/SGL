@@ -177,7 +177,7 @@ void GraphicsPipelineNode::Compute(const VkCommandBuffer commandBuffer) {
     std::vector<VkDeviceSize> bindVertexOffsets;
     std::vector<VkBuffer> bindIndexBuffers;
     int32_t indexCount = 0;
-    for (const auto &buffer : graphicsElements[i].buffers) {
+    for (auto &buffer : graphicsElements[i].buffers) {
       if (buffer.type == PIPELINE_NODE_BUFFER_VERTEX) {
         if (buffer.buf.buffer == VK_NULL_HANDLE) {
           Logger() << " Buffer is null" << std::endl;
@@ -197,8 +197,8 @@ void GraphicsPipelineNode::Compute(const VkCommandBuffer commandBuffer) {
         VkGPUHelper::GPUCmdPipelineMemBarrier(
             commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT,
             VK_PIPELINE_STAGE_TRANSFER_BIT, 0, memoryBarriers);
-        static bool uploaded = false; // FIXME: tempory change
-        if (!uploaded) {
+
+        if (!buffer.sampler.uploaded) {
           std::vector<VkBufferImageCopy> regions;
           VkBufferImageCopy region;
           region.bufferOffset = 0;
@@ -208,18 +208,15 @@ void GraphicsPipelineNode::Compute(const VkCommandBuffer commandBuffer) {
           region.imageSubresource.layerCount = 1;
           region.imageOffset = {0, 0, 0};
           region.imageExtent.depth = 1;
-          region.imageExtent.width =
-              static_cast<uint32_t>(buffer.sampler.width);
-          region.imageExtent.height =
-              static_cast<uint32_t>(buffer.sampler.height);
-          region.bufferRowLength = static_cast<uint32_t>(buffer.sampler.width);
-          region.bufferImageHeight =
-              static_cast<uint32_t>(buffer.sampler.height);
+          region.imageExtent.width = buffer.sampler.width;
+          region.imageExtent.height = buffer.sampler.height;
+          region.bufferRowLength = buffer.sampler.width;
+          region.bufferImageHeight = buffer.sampler.height;
           regions.push_back(region);
           vkCmdCopyBufferToImage(
               commandBuffer, buffer.sampler.imageBuffer, buffer.sampler.image,
               buffer.sampler.imageLayout, regions.size(), regions.data());
-          uploaded = true;
+          buffer.sampler.uploaded = true;
         }
 
         memoryBarriers.clear();

@@ -71,5 +71,5 @@ void main() {
     vec3 norm = normalize(normal);
 
     vec3 phongLighting = calculatePhongLighting(lightPos, viewPos, norm, position);
-    FragColor = vec4(phongLighting, 1.0) * texture(diffuseTexSampler, texCoord);
+    FragColor = vec4(phongLighting, 1.0) * texture(lightMapTexSampler, texCoord) * (texture(baseColorTexSampler, texCoord) + texture(emissiveTexSampler, texCoord));
 }
