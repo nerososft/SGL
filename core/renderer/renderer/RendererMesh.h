@@ -19,7 +19,6 @@ struct ModelMatrix {
 };
 
 class RendererMesh {
-public:
   std::shared_ptr<Mesh> mesh = nullptr;
 
   std::shared_ptr<VkGPUBuffer> vertexBuffer = nullptr;
@@ -29,6 +28,7 @@ public:
 
   std::map<TextureType, std::shared_ptr<VkGPUTexture>> textures;
 
+public:
   RendererMesh() = delete;
 
   explicit RendererMesh(const std::shared_ptr<Mesh> &mesh);
