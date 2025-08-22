@@ -21,7 +21,5 @@ add_library(render_engine
         renderer/RendererLight.h
         renderer/RendererCamera.cpp
         renderer/RendererCamera.h
-        renderer/RendererScene.cpp
-        renderer/RendererScene.h
 )
 target_link_libraries(render_engine runtime)
