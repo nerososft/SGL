@@ -38,6 +38,34 @@ GraphicsPipelineNode::GraphicsPipelineNode(
   this->vertexInputAttributeDescriptions = vertexInputAttributeDescriptions;
   this->width = width;
   this->height = height;
+  this->dualEyeXR = false;
+}
+
+GraphicsPipelineNode::GraphicsPipelineNode(
+    const std::shared_ptr<VkGPUContext> &gpuCtx, const std::string &name,
+    const std::shared_ptr<VkGPURenderPass> &renderPass,
+    const std::string &vertexShaderPath, const std::string &fragmentShaderPath,
+    const uint32_t pushConstantSize,
+    const std::vector<VkDescriptorSetLayoutBinding>
+        &descriptorSetLayoutBindings,
+    const std::vector<VkVertexInputBindingDescription>
+        &vertexInputBindingDescriptions,
+    const std::vector<VkVertexInputAttributeDescription>
+        &vertexInputAttributeDescriptions,
+    const float width, const float height, const bool dualEyeXR) {
+  this->gpuCtx = gpuCtx;
+  this->name = name;
+  this->type = COMPUTE_GRAPH_NODE_GRAPHICS;
+  this->renderPass = renderPass;
+  this->vertexShaderPath = vertexShaderPath;
+  this->fragmentShaderPath = fragmentShaderPath;
+  this->pushConstantSize = pushConstantSize;
+  this->descriptorSetLayoutBindings = descriptorSetLayoutBindings;
+  this->vertexInputBindingDescriptions = vertexInputBindingDescriptions;
+  this->vertexInputAttributeDescriptions = vertexInputAttributeDescriptions;
+  this->width = width;
+  this->height = height;
+  this->dualEyeXR = dualEyeXR;
 }
 
 std::shared_ptr<VkGPUDescriptorSet> GraphicsPipelineNode::CreateDescriptorSet(
@@ -236,10 +264,41 @@ void GraphicsPipelineNode::Compute(const VkCommandBuffer commandBuffer) {
     for (const auto &buffer : bindIndexBuffers) {
       vkCmdBindIndexBuffer(commandBuffer, buffer, 0, VK_INDEX_TYPE_UINT32);
     }
-    vkCmdDrawIndexed(commandBuffer, indexCount, 1, 0, 0, 0);
 
+    if (dualEyeXR) {
+      std::vector<VkViewport> viewportsLeft;
+      viewportsLeft.push_back({
+          .x = 0,
+          .y = 0,
+          .width = this->width / 2,
+          .height = this->height,
+          .minDepth = 0,
+          .maxDepth = 1,
+      });
+      vkCmdSetViewport(commandBuffer, 0, viewportsLeft.size(),
+                       viewportsLeft.data());
+    }
+    vkCmdDrawIndexed(commandBuffer, indexCount, 1, 0, 0, 0);
     if (graphicsElements[i].customDrawFunc != nullptr) {
       graphicsElements[i].customDrawFunc(commandBuffer);
+    }
+
+    if (dualEyeXR) {
+      std::vector<VkViewport> viewportsRight;
+      viewportsRight.push_back({
+          .x = this->width / 2,
+          .y = 0,
+          .width = this->width / 2,
+          .height = this->height,
+          .minDepth = 0,
+          .maxDepth = 1,
+      });
+      vkCmdSetViewport(commandBuffer, 0, viewportsRight.size(),
+                       viewportsRight.data());
+      vkCmdDrawIndexed(commandBuffer, indexCount, 1, 0, 0, 0);
+      if (graphicsElements[i].customDrawFunc != nullptr) {
+        graphicsElements[i].customDrawFunc(commandBuffer);
+      }
     }
   }
 }
