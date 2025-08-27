@@ -243,7 +243,7 @@ bool GraphicsApp::ConstructRightRendererPipeline() {
 }
 
 bool GraphicsApp::InitCameras() {
-  cameraLeft = std::make_shared<RendererCamera>(glm::vec3(-2, 2, 0),
+  cameraLeft = std::make_shared<RendererCamera>(glm::vec3(-0.15, 2, 0),
                                                 glm::vec3(0, 0, -1));
   if (!cameraLeft->CreateGPUCamera(
           renderer->GetGPUCtx(), (static_cast<float>(this->windowWidth) / 2) /
@@ -252,7 +252,7 @@ bool GraphicsApp::InitCameras() {
   }
 
   cameraRight =
-      std::make_shared<RendererCamera>(glm::vec3(2, 2, 0), glm::vec3(0, 0, -1));
+      std::make_shared<RendererCamera>(glm::vec3(0.15, 2, 0), glm::vec3(0, 0, -1));
   if (!cameraRight->CreateGPUCamera(
           renderer->GetGPUCtx(), (static_cast<float>(this->windowWidth) / 2) /
                                      static_cast<float>(this->windowHeight))) {
@@ -391,9 +391,13 @@ void GraphicsApp::Update() const {
     light->SetLightPosition(pos);
   }
 
-  glm::mat4 view = cameraLeft->GetViewMatrix();
-  view = glm::rotate(view, glm::radians(0.1f), glm::vec3(0, 0, 1));
-  cameraLeft->SetViewMatrix(view);
+  glm::mat4 viewLeft = cameraLeft->GetViewMatrix();
+  viewLeft = glm::rotate(viewLeft, glm::radians(0.1f), glm::vec3(0, 0, 1));
+  cameraLeft->SetViewMatrix(viewLeft);
+
+  glm::mat4 viewRight = cameraRight->GetViewMatrix();
+  viewRight = glm::rotate(viewRight, glm::radians(0.1f), glm::vec3(0, 0, 1));
+  cameraRight->SetViewMatrix(viewRight);
 }
 
 void GraphicsApp::Run() {
