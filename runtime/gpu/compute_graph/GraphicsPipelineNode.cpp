@@ -38,7 +38,14 @@ GraphicsPipelineNode::GraphicsPipelineNode(
   this->vertexInputAttributeDescriptions = vertexInputAttributeDescriptions;
   this->width = width;
   this->height = height;
-  this->dualViewport = false;
+  this->viewport = {
+      .x = 0,
+      .y = 0,
+      .width = width,
+      .height = height,
+      .minDepth = 0,
+      .maxDepth = 1,
+  };
 }
 
 GraphicsPipelineNode::GraphicsPipelineNode(
@@ -52,7 +59,7 @@ GraphicsPipelineNode::GraphicsPipelineNode(
         &vertexInputBindingDescriptions,
     const std::vector<VkVertexInputAttributeDescription>
         &vertexInputAttributeDescriptions,
-    const float width, const float height, const bool dualViewport) {
+    const float width, const float height, const VkViewport viewport) {
   this->gpuCtx = gpuCtx;
   this->name = name;
   this->type = COMPUTE_GRAPH_NODE_GRAPHICS;
@@ -65,7 +72,7 @@ GraphicsPipelineNode::GraphicsPipelineNode(
   this->vertexInputAttributeDescriptions = vertexInputAttributeDescriptions;
   this->width = width;
   this->height = height;
-  this->dualViewport = dualViewport;
+  this->viewport = viewport;
 }
 
 std::shared_ptr<VkGPUDescriptorSet> GraphicsPipelineNode::CreateDescriptorSet(
@@ -265,40 +272,14 @@ void GraphicsPipelineNode::Compute(const VkCommandBuffer commandBuffer) {
       vkCmdBindIndexBuffer(commandBuffer, buffer, 0, VK_INDEX_TYPE_UINT32);
     }
 
-    if (dualViewport) {
-      std::vector<VkViewport> viewportsLeft;
-      viewportsLeft.push_back({
-          .x = 0,
-          .y = 0,
-          .width = this->width / 2,
-          .height = this->height,
-          .minDepth = 0,
-          .maxDepth = 1,
-      });
-      vkCmdSetViewport(commandBuffer, 0, viewportsLeft.size(),
-                       viewportsLeft.data());
-    }
+    std::vector<VkViewport> viewportsLeft;
+    viewportsLeft.push_back(this->viewport);
+    vkCmdSetViewport(commandBuffer, 0, viewportsLeft.size(),
+                     viewportsLeft.data());
+
     vkCmdDrawIndexed(commandBuffer, indexCount, 1, 0, 0, 0);
     if (graphicsElements[i].customDrawFunc != nullptr) {
       graphicsElements[i].customDrawFunc(commandBuffer);
-    }
-
-    if (dualViewport) {
-      std::vector<VkViewport> viewportsRight;
-      viewportsRight.push_back({
-          .x = this->width / 2,
-          .y = 0,
-          .width = this->width / 2,
-          .height = this->height,
-          .minDepth = 0,
-          .maxDepth = 1,
-      });
-      vkCmdSetViewport(commandBuffer, 0, viewportsRight.size(),
-                       viewportsRight.data());
-      vkCmdDrawIndexed(commandBuffer, indexCount, 1, 0, 0, 0);
-      if (graphicsElements[i].customDrawFunc != nullptr) {
-        graphicsElements[i].customDrawFunc(commandBuffer);
-      }
     }
   }
 }

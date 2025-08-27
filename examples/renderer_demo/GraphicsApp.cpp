@@ -102,8 +102,7 @@ bool GraphicsApp::ConstructRendererPipeline() {
       this->renderer->GetMainRenderPass(), SHADER(rect.vert.glsl.spv),
       SHADER(rect.frag.glsl.spv), sizeof(FrameInfo),
       descriptorSetLayoutBindings, vertexInputBindingDescriptions,
-      vertexInputAttributeDescriptions, this->windowWidth, this->windowHeight,
-      true);
+      vertexInputAttributeDescriptions, this->windowWidth, this->windowHeight);
   if (this->graphicsPipelineNode == nullptr) {
     Logger() << Logger::ERROR << "Failed to create graphics pipeline node!"
              << std::endl;
@@ -206,19 +205,7 @@ void GraphicsApp::Init() {
         TextureType_DIFFUSE_ROUGHNESS)); // sampler 10
 
     const std::function func = [this](VkCommandBuffer commandBuffer) {
-      static size_t drawCnt = 0;
-      drawCnt++;
-      if (drawCnt % 2 == 0) {
-        // draw right
-        glm::mat4 view = camera->GetViewMatrix();
-        view = glm::rotate(view, glm::radians(10.0f), glm::vec3(0, 0, 1));
-        camera->SetViewMatrix(view);
-      } else {
-        // draw left
-        glm::mat4 view = camera->GetViewMatrix();
-        view = glm::rotate(view, glm::radians(-10.0f), glm::vec3(0, 0, 1));
-        camera->SetViewMatrix(view);
-      }
+      // NA:
     };
     const GraphicsElement element{
         .pushConstantInfo = {.size = sizeof(FrameInfo),

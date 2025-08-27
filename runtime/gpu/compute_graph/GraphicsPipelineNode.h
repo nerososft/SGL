@@ -31,7 +31,7 @@ class GraphicsPipelineNode final : public IComputeGraphNode {
 
   float width = 1.0f;
   float height = 1.0f;
-  bool dualViewport = false;
+  VkViewport viewport;
 
   std::shared_ptr<VkGPUContext> gpuCtx = nullptr;
   std::shared_ptr<VkGPURenderPass> renderPass = nullptr;
@@ -67,7 +67,7 @@ public:
                            &vertexInputBindingDescriptions,
                        const std::vector<VkVertexInputAttributeDescription>
                            &vertexInputAttributeDescriptions,
-                       float width, float height, bool dualViewport);
+                       float width, float height, VkViewport viewport);
 
   [[nodiscard]] std::shared_ptr<VkGPUDescriptorSet>
   CreateDescriptorSet(const GraphicsElement &graphicsElement) const;
