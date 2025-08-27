@@ -9,7 +9,7 @@ int main(int argc, char *argv[]) {
   Logger() << "Hello World!\n";
 
   GraphicsApp app;
-  app.SetWindowTitle("Renderer Demo");
+  app.SetWindowTitle("Dual Eye XR Demo");
   app.SetWindowPos(0, 0);
   // app.SetWindowMode(WINDOW_MODE_FULLSCREEN);
   app.SetWindowSize(1470, 956);
