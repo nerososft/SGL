@@ -102,7 +102,7 @@ bool GraphicsApp::ConstructRendererPipeline() {
       this->renderer->GetMainRenderPass(), SHADER(rect.vert.glsl.spv),
       SHADER(rect.frag.glsl.spv), sizeof(FrameInfo),
       descriptorSetLayoutBindings, vertexInputBindingDescriptions,
-      vertexInputAttributeDescriptions, this->windowWidth, this->windowHeight);
+      vertexInputAttributeDescriptions, this->windowWidth, this->windowHeight,true);
   if (this->graphicsPipelineNode == nullptr) {
     Logger() << Logger::ERROR << "Failed to create graphics pipeline node!"
              << std::endl;

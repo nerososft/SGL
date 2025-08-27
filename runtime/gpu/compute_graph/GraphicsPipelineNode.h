@@ -67,7 +67,7 @@ public:
                            &vertexInputBindingDescriptions,
                        const std::vector<VkVertexInputAttributeDescription>
                            &vertexInputAttributeDescriptions,
-                       float width, float height, bool dualEyeXR);
+                       float width, float height, bool dualViewport);
 
   [[nodiscard]] std::shared_ptr<VkGPUDescriptorSet>
   CreateDescriptorSet(const GraphicsElement &graphicsElement) const;
