@@ -8,6 +8,9 @@
 
 #include "runtime/log/Log.h"
 
+#include <algorithm>
+#include <cassert>
+
 Model::Model(const std::shared_ptr<sgl::compute::ComputeEngine> &ce,
              const std::shared_ptr<Config> &config,
              const std::shared_ptr<SafeTensor> &safeTensor) {

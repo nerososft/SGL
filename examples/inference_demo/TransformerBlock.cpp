@@ -6,6 +6,9 @@
 
 #include "runtime/log/Log.h"
 
+#include <cassert>
+#include <cmath>
+
 TransformerBlock::TransformerBlock(
     const std::shared_ptr<sgl::compute::ComputeEngine> &ce,
     const uint64_t layerIdx) {
@@ -267,7 +270,7 @@ void TransformerBlock::Attention() {
             ->Eval() // TODO: Optimize this!!! too many submit vk cmd
             ->Destroy();
         qkRoPEDotProdScaled[qIdx][kIdx] =
-            dotProdResult / sqrt(config->GetHeadDim());
+            dotProdResult / std::sqrt(config->GetHeadDim());
       }
       // Softmax by q Row
       auto raw = ce->CreateMatrix(seqLen, 1, qkRoPEDotProdScaled[qIdx]);
