@@ -31,7 +31,7 @@ class GraphicsPipelineNode final : public IComputeGraphNode {
 
   float width = 1.0f;
   float height = 1.0f;
-  bool dualEyeXR = false;
+  bool dualViewport = false;
 
   std::shared_ptr<VkGPUContext> gpuCtx = nullptr;
   std::shared_ptr<VkGPURenderPass> renderPass = nullptr;

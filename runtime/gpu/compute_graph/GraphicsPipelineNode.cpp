@@ -38,7 +38,7 @@ GraphicsPipelineNode::GraphicsPipelineNode(
   this->vertexInputAttributeDescriptions = vertexInputAttributeDescriptions;
   this->width = width;
   this->height = height;
-  this->dualEyeXR = false;
+  this->dualViewport = false;
 }
 
 GraphicsPipelineNode::GraphicsPipelineNode(
@@ -52,7 +52,7 @@ GraphicsPipelineNode::GraphicsPipelineNode(
         &vertexInputBindingDescriptions,
     const std::vector<VkVertexInputAttributeDescription>
         &vertexInputAttributeDescriptions,
-    const float width, const float height, const bool dualEyeXR) {
+    const float width, const float height, const bool dualViewport) {
   this->gpuCtx = gpuCtx;
   this->name = name;
   this->type = COMPUTE_GRAPH_NODE_GRAPHICS;
@@ -65,7 +65,7 @@ GraphicsPipelineNode::GraphicsPipelineNode(
   this->vertexInputAttributeDescriptions = vertexInputAttributeDescriptions;
   this->width = width;
   this->height = height;
-  this->dualEyeXR = dualEyeXR;
+  this->dualViewport = dualViewport;
 }
 
 std::shared_ptr<VkGPUDescriptorSet> GraphicsPipelineNode::CreateDescriptorSet(
@@ -265,7 +265,7 @@ void GraphicsPipelineNode::Compute(const VkCommandBuffer commandBuffer) {
       vkCmdBindIndexBuffer(commandBuffer, buffer, 0, VK_INDEX_TYPE_UINT32);
     }
 
-    if (dualEyeXR) {
+    if (dualViewport) {
       std::vector<VkViewport> viewportsLeft;
       viewportsLeft.push_back({
           .x = 0,
@@ -283,7 +283,7 @@ void GraphicsPipelineNode::Compute(const VkCommandBuffer commandBuffer) {
       graphicsElements[i].customDrawFunc(commandBuffer);
     }
 
-    if (dualEyeXR) {
+    if (dualViewport) {
       std::vector<VkViewport> viewportsRight;
       viewportsRight.push_back({
           .x = this->width / 2,
