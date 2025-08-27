@@ -18,7 +18,7 @@ VkSurfaceKHR GetWindowSurface(const VkInstance instance) {
   return window->GetSurface(params).surface.vkSurface;
 }
 
-bool GraphicsApp::ConstructRendererPipeline() {
+bool GraphicsApp::ConstructLeftRendererPipeline() {
   std::vector<VkVertexInputBindingDescription> vertexInputBindingDescriptions =
       {{.binding = 0,
         .stride = sizeof(Vertex),
@@ -97,35 +97,165 @@ bool GraphicsApp::ConstructRendererPipeline() {
           10, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1,
           VK_SHADER_STAGE_ALL_GRAPHICS));
 
-  this->graphicsPipelineNode = std::make_shared<GraphicsPipelineNode>(
-      renderer->GetGPUCtx(), "mainGraphicsPipeline",
+  VkViewport viewport{
+      .x = 0,
+      .y = 0,
+      .width = static_cast<float>(windowWidth) / 2,
+      .height = static_cast<float>(windowHeight),
+      .minDepth = 0,
+      .maxDepth = 1,
+  };
+  this->graphicsPipelineLeftNode = std::make_shared<GraphicsPipelineNode>(
+      renderer->GetGPUCtx(), "leftGraphicsPipeline",
       this->renderer->GetMainRenderPass(), SHADER(rect.vert.glsl.spv),
       SHADER(rect.frag.glsl.spv), sizeof(FrameInfo),
       descriptorSetLayoutBindings, vertexInputBindingDescriptions,
-      vertexInputAttributeDescriptions, this->windowWidth, this->windowHeight);
-  if (this->graphicsPipelineNode == nullptr) {
+      vertexInputAttributeDescriptions, this->windowWidth, this->windowHeight,
+      viewport);
+  if (this->graphicsPipelineLeftNode == nullptr) {
     Logger() << Logger::ERROR << "Failed to create graphics pipeline node!"
              << std::endl;
     return false;
   }
 
-  const VkResult ret = this->graphicsPipelineNode->CreateComputeGraphNode();
+  const VkResult ret = this->graphicsPipelineLeftNode->CreateComputeGraphNode();
   if (ret != VK_SUCCESS) {
     Logger() << Logger::ERROR << "Failed to create graphics pipeline node!"
              << std::endl;
     return false;
   }
 
-  renderer->AddRenderGraph(this->graphicsPipelineNode);
+  renderer->AddRenderGraph(this->graphicsPipelineLeftNode);
+
+  return true;
+}
+bool GraphicsApp::ConstructRightRendererPipeline() {
+  std::vector<VkVertexInputBindingDescription> vertexInputBindingDescriptions =
+      {{.binding = 0,
+        .stride = sizeof(Vertex),
+        .inputRate = VK_VERTEX_INPUT_RATE_VERTEX}};
+  std::vector<VkVertexInputAttributeDescription>
+      vertexInputAttributeDescriptions = {
+          {
+              .location = 0,
+              .binding = 0,
+              .format = VK_FORMAT_R32G32B32_SFLOAT,
+              .offset = offsetof(Vertex, position),
+          },
+          {
+              .location = 1,
+              .binding = 0,
+              .format = VK_FORMAT_R32G32B32_SFLOAT,
+              .offset = offsetof(Vertex, color),
+          },
+          {
+              .location = 2,
+              .binding = 0,
+              .format = VK_FORMAT_R32G32B32_SFLOAT,
+              .offset = offsetof(Vertex, normal),
+          },
+          {
+              .location = 3,
+              .binding = 0,
+              .format = VK_FORMAT_R32G32_SFLOAT,
+              .offset = offsetof(Vertex, texCoords),
+          },
+      };
+
+  std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
+  descriptorSetLayoutBindings.push_back(
+      VkGPUHelper::BuildDescriptorSetLayoutBinding(
+          0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1,
+          VK_SHADER_STAGE_ALL_GRAPHICS));
+  descriptorSetLayoutBindings.push_back(
+      VkGPUHelper::BuildDescriptorSetLayoutBinding(
+          1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1,
+          VK_SHADER_STAGE_ALL_GRAPHICS));
+  descriptorSetLayoutBindings.push_back(
+      VkGPUHelper::BuildDescriptorSetLayoutBinding(
+          2, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1,
+          VK_SHADER_STAGE_ALL_GRAPHICS));
+  descriptorSetLayoutBindings.push_back(
+      VkGPUHelper::BuildDescriptorSetLayoutBinding(
+          3, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1,
+          VK_SHADER_STAGE_ALL_GRAPHICS));
+  descriptorSetLayoutBindings.push_back(
+      VkGPUHelper::BuildDescriptorSetLayoutBinding(
+          4, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1,
+          VK_SHADER_STAGE_ALL_GRAPHICS));
+  descriptorSetLayoutBindings.push_back(
+      VkGPUHelper::BuildDescriptorSetLayoutBinding(
+          5, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1,
+          VK_SHADER_STAGE_ALL_GRAPHICS));
+  descriptorSetLayoutBindings.push_back(
+      VkGPUHelper::BuildDescriptorSetLayoutBinding(
+          6, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1,
+          VK_SHADER_STAGE_ALL_GRAPHICS));
+  descriptorSetLayoutBindings.push_back(
+      VkGPUHelper::BuildDescriptorSetLayoutBinding(
+          7, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1,
+          VK_SHADER_STAGE_ALL_GRAPHICS));
+  descriptorSetLayoutBindings.push_back(
+      VkGPUHelper::BuildDescriptorSetLayoutBinding(
+          8, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1,
+          VK_SHADER_STAGE_ALL_GRAPHICS));
+  descriptorSetLayoutBindings.push_back(
+      VkGPUHelper::BuildDescriptorSetLayoutBinding(
+          9, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1,
+          VK_SHADER_STAGE_ALL_GRAPHICS));
+  descriptorSetLayoutBindings.push_back(
+      VkGPUHelper::BuildDescriptorSetLayoutBinding(
+          10, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1,
+          VK_SHADER_STAGE_ALL_GRAPHICS));
+
+  VkViewport viewport{
+      .x = static_cast<float>(windowWidth) / 2,
+      .y = 0,
+      .width = static_cast<float>(windowWidth) / 2,
+      .height = static_cast<float>(windowHeight),
+      .minDepth = 0,
+      .maxDepth = 1,
+  };
+  this->graphicsPipelineRightNode = std::make_shared<GraphicsPipelineNode>(
+      renderer->GetGPUCtx(), "rightGraphicsPipeline",
+      this->renderer->GetMainRenderPass(), SHADER(rect.vert.glsl.spv),
+      SHADER(rect.frag.glsl.spv), sizeof(FrameInfo),
+      descriptorSetLayoutBindings, vertexInputBindingDescriptions,
+      vertexInputAttributeDescriptions, this->windowWidth, this->windowHeight,
+      viewport);
+  if (this->graphicsPipelineRightNode == nullptr) {
+    Logger() << Logger::ERROR << "Failed to create graphics pipeline node!"
+             << std::endl;
+    return false;
+  }
+
+  const VkResult ret =
+      this->graphicsPipelineRightNode->CreateComputeGraphNode();
+  if (ret != VK_SUCCESS) {
+    Logger() << Logger::ERROR << "Failed to create graphics pipeline node!"
+             << std::endl;
+    return false;
+  }
+
+  renderer->AddRenderGraph(this->graphicsPipelineRightNode);
 
   return true;
 }
 
-bool GraphicsApp::InitCamera() {
-  camera =
-      std::make_shared<RendererCamera>(glm::vec3(0, 2, 0), glm::vec3(0, 0, -1));
-  if (!camera->CreateGPUCamera(renderer->GetGPUCtx(),
-                               this->windowWidth / this->windowHeight)) {
+bool GraphicsApp::InitCameras() {
+  cameraLeft = std::make_shared<RendererCamera>(glm::vec3(-2, 2, 0),
+                                                glm::vec3(0, 0, -1));
+  if (!cameraLeft->CreateGPUCamera(
+          renderer->GetGPUCtx(), (static_cast<float>(this->windowWidth) / 2) /
+                                     static_cast<float>(this->windowHeight))) {
+    return false;
+  }
+
+  cameraRight =
+      std::make_shared<RendererCamera>(glm::vec3(2, 2, 0), glm::vec3(0, 0, -1));
+  if (!cameraRight->CreateGPUCamera(
+          renderer->GetGPUCtx(), (static_cast<float>(this->windowWidth) / 2) /
+                                     static_cast<float>(this->windowHeight))) {
     return false;
   }
   return true;
@@ -155,7 +285,7 @@ void GraphicsApp::Init() {
     return;
   }
 
-  if (!InitCamera()) {
+  if (!InitCameras()) {
     Logger() << Logger::ERROR << "Failed to initialize camera" << std::endl;
     return;
   }
@@ -165,7 +295,8 @@ void GraphicsApp::Init() {
     return;
   }
 
-  if (!this->ConstructRendererPipeline()) {
+  if (!this->ConstructLeftRendererPipeline() ||
+      !ConstructRightRendererPipeline()) {
     Logger() << Logger::ERROR << "Failed to construct renderer" << std::endl;
     return;
   }
@@ -174,8 +305,6 @@ void GraphicsApp::Init() {
       "../../../examples/renderer_demo/assets/builtin.models/Helmet/",
       "DamagedHelmet.gltf");
   for (auto &mesh : models) {
-    std::vector<PipelineNodeBuffer> buffers;
-
     const auto renderMesh = std::make_shared<RendererMesh>(mesh);
     if (!renderMesh->CreateGPUMesh(renderer->GetGPUCtx())) {
       Logger() << Logger::ERROR << "Failed to create GPUMesh!" << std::endl;
@@ -183,37 +312,73 @@ void GraphicsApp::Init() {
     }
     this->rendererMeshes.push_back(renderMesh);
 
-    buffers.push_back(renderMesh->GetVertexBufferNode());
-    buffers.push_back(renderMesh->GetIndicesBufferNode());
-    buffers.push_back(renderMesh->GetMaterialBufferNode());         // uniform 0
-    buffers.push_back(renderMesh->GetTransformMatrixBufferNode());  // uniform 1
-    buffers.push_back(camera->GetViewProjectionMatrixBufferNode()); // uniform 2
-    buffers.push_back(rendererLights[0]->GetLightBufferNode());     // uniform 3
-    buffers.push_back(
+    std::vector<PipelineNodeBuffer> buffersLeft;
+    buffersLeft.push_back(renderMesh->GetVertexBufferNode());
+    buffersLeft.push_back(renderMesh->GetIndicesBufferNode());
+    buffersLeft.push_back(renderMesh->GetMaterialBufferNode()); // uniform 0
+    buffersLeft.push_back(
+        renderMesh->GetTransformMatrixBufferNode()); // uniform 1
+    buffersLeft.push_back(
+        cameraLeft->GetViewProjectionMatrixBufferNode());           // uniform 2
+    buffersLeft.push_back(rendererLights[0]->GetLightBufferNode()); // uniform 3
+    buffersLeft.push_back(
         renderMesh->GetTextureBufferNode(TextureType_DIFFUSE)); // sampler 4
-    buffers.push_back(
+    buffersLeft.push_back(
         renderMesh->GetTextureBufferNode(TextureType_EMISSIVE)); // sampler 5
-    buffers.push_back(
+    buffersLeft.push_back(
         renderMesh->GetTextureBufferNode(TextureType_NORMALS)); // sampler 6
-    buffers.push_back(
+    buffersLeft.push_back(
         renderMesh->GetTextureBufferNode(TextureType_LIGHTMAP)); // sampler 7
-    buffers.push_back(
+    buffersLeft.push_back(
         renderMesh->GetTextureBufferNode(TextureType_BASE_COLOR)); // sampler 8
-    buffers.push_back(
+    buffersLeft.push_back(
         renderMesh->GetTextureBufferNode(TextureType_METALNESS)); // sampler 9
-    buffers.push_back(renderMesh->GetTextureBufferNode(
+    buffersLeft.push_back(renderMesh->GetTextureBufferNode(
         TextureType_DIFFUSE_ROUGHNESS)); // sampler 10
 
     const std::function func = [this](VkCommandBuffer commandBuffer) {
       // NA:
     };
-    const GraphicsElement element{
+    const GraphicsElement elementLeft{
         .pushConstantInfo = {.size = sizeof(FrameInfo),
                              .data = &this->frameInfo},
-        .buffers = buffers,
+        .buffers = buffersLeft,
         .customDrawFunc = func,
     };
-    this->graphicsPipelineNode->AddGraphicsElement(element);
+    this->graphicsPipelineLeftNode->AddGraphicsElement(elementLeft);
+
+    std::vector<PipelineNodeBuffer> buffersRight;
+    buffersRight.push_back(renderMesh->GetVertexBufferNode());
+    buffersRight.push_back(renderMesh->GetIndicesBufferNode());
+    buffersRight.push_back(renderMesh->GetMaterialBufferNode()); // uniform 0
+    buffersRight.push_back(
+        renderMesh->GetTransformMatrixBufferNode()); // uniform 1
+    buffersRight.push_back(
+        cameraRight->GetViewProjectionMatrixBufferNode()); // uniform 2
+    buffersRight.push_back(
+        rendererLights[0]->GetLightBufferNode()); // uniform 3
+    buffersRight.push_back(
+        renderMesh->GetTextureBufferNode(TextureType_DIFFUSE)); // sampler 4
+    buffersRight.push_back(
+        renderMesh->GetTextureBufferNode(TextureType_EMISSIVE)); // sampler 5
+    buffersRight.push_back(
+        renderMesh->GetTextureBufferNode(TextureType_NORMALS)); // sampler 6
+    buffersRight.push_back(
+        renderMesh->GetTextureBufferNode(TextureType_LIGHTMAP)); // sampler 7
+    buffersRight.push_back(
+        renderMesh->GetTextureBufferNode(TextureType_BASE_COLOR)); // sampler 8
+    buffersRight.push_back(
+        renderMesh->GetTextureBufferNode(TextureType_METALNESS)); // sampler 9
+    buffersRight.push_back(renderMesh->GetTextureBufferNode(
+        TextureType_DIFFUSE_ROUGHNESS)); // sampler 10
+
+    const GraphicsElement elementRight{
+        .pushConstantInfo = {.size = sizeof(FrameInfo),
+                             .data = &this->frameInfo},
+        .buffers = buffersRight,
+        .customDrawFunc = func,
+    };
+    this->graphicsPipelineRightNode->AddGraphicsElement(elementRight);
   }
 
   this->lastRenderTimeMs = TimeUtils::GetCurrentMonoMs();
@@ -226,9 +391,9 @@ void GraphicsApp::Update() const {
     light->SetLightPosition(pos);
   }
 
-  glm::mat4 view = camera->GetViewMatrix();
+  glm::mat4 view = cameraLeft->GetViewMatrix();
   view = glm::rotate(view, glm::radians(0.1f), glm::vec3(0, 0, 1));
-  camera->SetViewMatrix(view);
+  cameraLeft->SetViewMatrix(view);
 }
 
 void GraphicsApp::Run() {
@@ -289,19 +454,19 @@ void GraphicsApp::OnKeyDown(const uint32_t key) {
   switch (key) {
   case GLFW_KEY_W:
   case GLFW_KEY_UP:
-    camera->MoveForward();
+    cameraLeft->MoveForward();
     break;
   case GLFW_KEY_S:
   case GLFW_KEY_DOWN:
-    camera->MoveBackward();
+    cameraLeft->MoveBackward();
     break;
   case GLFW_KEY_A:
   case GLFW_KEY_LEFT:
-    camera->MoveLeft();
+    cameraLeft->MoveLeft();
     break;
   case GLFW_KEY_D:
   case GLFW_KEY_RIGHT:
-    camera->MoveRight();
+    cameraLeft->MoveRight();
     break;
   default:
     break;

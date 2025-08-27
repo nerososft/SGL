@@ -16,10 +16,12 @@ static std::shared_ptr<IWindow> window = nullptr;
 class GraphicsApp final : public IEventHandler {
   std::shared_ptr<Renderer> renderer = nullptr;
 
-  std::shared_ptr<GraphicsPipelineNode> graphicsPipelineNode = nullptr;
+  std::shared_ptr<GraphicsPipelineNode> graphicsPipelineLeftNode = nullptr;
+  std::shared_ptr<GraphicsPipelineNode> graphicsPipelineRightNode = nullptr;
   std::vector<std::shared_ptr<RendererMesh>> rendererMeshes;
   std::vector<std::shared_ptr<RendererLight>> rendererLights;
-  std::shared_ptr<RendererCamera> camera = nullptr;
+  std::shared_ptr<RendererCamera> cameraLeft = nullptr;
+  std::shared_ptr<RendererCamera> cameraRight = nullptr;
   FrameInfo frameInfo{};
   uint64_t lastRenderTimeMs = 0;
   uint64_t lastRenderFrame = 0;
@@ -40,9 +42,10 @@ public:
 
   ~GraphicsApp() override = default;
 
-  bool ConstructRendererPipeline();
+  bool ConstructLeftRendererPipeline();
+  bool ConstructRightRendererPipeline();
 
-  bool InitCamera();
+  bool InitCameras();
 
   bool InitLights();
 
