@@ -5,6 +5,8 @@
 #include "include/sgl/sgl_compute.h"
 #include "runtime/log/Log.h"
 
+#include <cstring>
+
 sgl_tensor_t *sgl_tensor_create(const sgl_buffer_manager_t *buf_mgr,
                                 const size_t ndim, size_t *shape,
                                 const void *data) {

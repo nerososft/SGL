@@ -7,6 +7,8 @@
 #include "CPUComputeNode.h"
 #include "runtime/log/Log.h"
 
+#include <cmath>
+
 CPUVarianceNode::CPUVarianceNode() {
   this->type = COMPUTE_GRAPH_NODE_CPU;
   this->name = "CPUVarianceNode";

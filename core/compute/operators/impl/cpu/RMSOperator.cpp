@@ -6,6 +6,8 @@
 
 #include "runtime/log/Log.h"
 
+#include <cmath>
+
 CPURmsNode::CPURmsNode() {
   this->type = COMPUTE_GRAPH_NODE_CPU;
   this->name = "CPURmsNode";
@@ -23,11 +25,11 @@ void CPURmsNode::Compute(const VkCommandBuffer commandBuffer) {
   float sum = 0.0f;
   const size_t nums = inputBuffer->GetBufferSize() / sizeof(float);
   for (size_t i = 0; i < nums; i++) {
-    sum += pow(static_cast<float *>(inputBuffer->GetMappedAddr())[i], 2.0f);
+    sum += std::pow(static_cast<float *>(inputBuffer->GetMappedAddr())[i], 2.0f);
   }
   inputBuffer->UnMapBuffer();
 
-  *rms = sqrt(sum / static_cast<float>(nums) + bias);
+  *rms = std::sqrt(sum / static_cast<float>(nums) + bias);
 }
 
 void CPURmsNode::Destroy() { CPUComputeNode::Destroy(); }

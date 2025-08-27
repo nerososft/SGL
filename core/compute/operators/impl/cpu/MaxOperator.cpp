@@ -6,6 +6,8 @@
 
 #include "runtime/log/Log.h"
 
+#include <algorithm>
+
 CPUMaxNode::CPUMaxNode() {
   this->type = COMPUTE_GRAPH_NODE_CPU;
   this->name = "CPUMaxNode";

@@ -8,6 +8,8 @@
 
 #include "runtime/log/Log.h"
 
+#include <cmath>
+
 CPUExpSumNode::CPUExpSumNode() {
   this->type = COMPUTE_GRAPH_NODE_CPU;
   this->name = "CPUExpSumNode";
@@ -28,8 +30,7 @@ void CPUExpSumNode::Compute(const VkCommandBuffer commandBuffer) {
     *sum = 0.0f;
   }
   for (size_t i = 0; i < inputBuffer->GetBufferSize() / sizeof(float); i++) {
-    *sum +=
-        exp((static_cast<float *>(inputBuffer->GetMappedAddr()))[i] - maxVal);
+    *sum += std::exp((static_cast<float *>(inputBuffer->GetMappedAddr()))[i] - maxVal);
   }
   inputBuffer->UnMapBuffer();
 }

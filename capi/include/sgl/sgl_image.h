@@ -11,7 +11,7 @@
 #ifdef _WIN32
 #include <cstdint>
 #else
-#include <unistd.h>
+#include <stdint.h>
 #endif
 
 typedef struct sgl_image_gpu_info {
