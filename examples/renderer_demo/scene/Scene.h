@@ -5,6 +5,7 @@
 #ifndef SCENE_H
 #define SCENE_H
 #include <glm/glm.hpp>
+#include <string>
 #include <vector>
 
 struct Vertex {
