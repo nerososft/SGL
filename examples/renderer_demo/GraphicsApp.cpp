@@ -336,7 +336,7 @@ void GraphicsApp::Init() {
     buffersLeft.push_back(renderMesh->GetTextureBufferNode(
         TextureType_DIFFUSE_ROUGHNESS)); // sampler 10
 
-    const std::function func = [this](VkCommandBuffer commandBuffer) {
+    const std::function func = [](VkCommandBuffer commandBuffer) {
       // NA:
     };
     const GraphicsElement elementLeft{
@@ -384,7 +384,7 @@ void GraphicsApp::Init() {
   this->lastRenderTimeMs = TimeUtils::GetCurrentMonoMs();
 }
 void GraphicsApp::Update() const {
-  for (const auto light : rendererLights) {
+  for (const auto& light : rendererLights) {
     glm::vec4 pos =
         glm::rotate(glm::mat4(1.0f), glm::radians(-0.1f), glm::vec3(0, 0, 1)) *
         light->GetLightPosition();
