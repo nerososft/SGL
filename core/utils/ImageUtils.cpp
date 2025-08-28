@@ -9,6 +9,7 @@
 #ifdef OS_OPEN_HARMONY
 #elif ENABLE_WIN64
 #else
+#include "jpeglib.h"
 #include "png.h"
 #endif
 #include <cstring>
@@ -199,6 +200,55 @@ void ImageUtils::WritePngFile(const std::string &fileName,
   const uint64_t pngWriteEnd = TimeUtils::GetCurrentMonoMs();
   Logger() << "Writing PNG Usage:" << pngWriteEnd - pngWriteStart << "ms"
            << std::endl;
+}
+
+std::vector<char> ImageUtils::ReadJpgFile(const std::string &fileName,
+                                          uint32_t *imageWidth,
+                                          uint32_t *imageHeight,
+                                          uint32_t *channel) {
+  const uint64_t jpgReadStart = TimeUtils::GetCurrentMonoMs();
+  std::vector<char> data;
+  jpeg_decompress_struct cinfo{};
+  jpeg_error_mgr errorMgr{};
+  cinfo.err = jpeg_std_error(&errorMgr);
+  jpeg_create_decompress(&cinfo);
+
+  FILE *file;
+  if ((file = fopen(fileName.c_str(), "rb")) == nullptr) {
+    Logger() << "Failed to open file " << fileName << std::endl;
+    return data;
+  }
+  jpeg_stdio_src(&cinfo, file);
+  jpeg_read_header(&cinfo, TRUE);
+  Logger() << "Width: " << cinfo.image_width
+           << ", Height: " << cinfo.image_height << std::endl;
+
+  *imageWidth = cinfo.output_width;
+  *imageHeight = cinfo.output_height;
+  *channel = cinfo.output_components;
+
+  jpeg_start_decompress(&cinfo);
+  while (cinfo.output_scanline < cinfo.output_height) {
+    auto *buffer = static_cast<unsigned char *>(
+        malloc(cinfo.output_width * cinfo.output_components * 256));
+    if (buffer == nullptr) {
+      Logger() << Logger::ERROR << "buffer malloc failed!" << std::endl;
+      return {};
+    }
+    jpeg_read_scanlines(&cinfo, &buffer, 256);
+    for (size_t bIdx = 0;
+         bIdx < cinfo.output_width * cinfo.output_components * 256; bIdx++) {
+      data.push_back(static_cast<char>(buffer[bIdx]));
+    }
+    free(buffer);
+  }
+  jpeg_finish_decompress(&cinfo);
+  jpeg_destroy_decompress(&cinfo);
+  fclose(file);
+  const uint64_t jpgReadEnd = TimeUtils::GetCurrentMonoMs();
+  Logger() << "Read JPG Usage:" << jpgReadEnd - jpgReadStart << "ms"
+           << std::endl;
+  return data;
 }
 #else
 std::vector<char> ImageUtils::ReadPngFile(const std::string &fileName,

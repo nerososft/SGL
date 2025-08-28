@@ -3,3 +3,4 @@ add_executable(image_demo
 )
 target_link_libraries(image_demo image_engine)
 target_link_libraries(image_demo png)
+target_link_libraries(image_demo jpeg)

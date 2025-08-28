@@ -33,6 +33,7 @@
 #include "core/image/filters/impl/VibranceFilter.h"
 #include "core/image/filters/impl/VoronoiFilter.h"
 #include "core/image/utils/TransformUtils.h"
+#include "core/utils/ImageUtils.h"
 #include "runtime/log/Log.h"
 
 void effect_engine_main() {
@@ -86,14 +87,14 @@ void effect_engine_main() {
   // sgl::image::ImageEngine::Process("../../../examples/image_demo/images/girl.png",
   // "../../../examples/image_demo/images/girl_color_separation.png", filter);
 
-  const auto filter = std::make_shared<ScaleFilter>();
-  filter->SetTargetWidth(409);
-  filter->SetTargetHeight(613);
-  filter->SetInterpType(2);
-  sgl::image::ImageEngine::Process(
-      "../../../examples/image_demo/images/girl.png",
-      "../../../examples/image_demo/images/girl_scale_down.png", 409, 613,
-      filter);
+  // const auto filter = std::make_shared<ScaleFilter>();
+  // filter->SetTargetWidth(409);
+  // filter->SetTargetHeight(613);
+  // filter->SetInterpType(2);
+  // sgl::image::ImageEngine::Process(
+  //     "../../../examples/image_demo/images/girl.png",
+  //     "../../../examples/image_demo/images/girl_scale_down.png", 409, 613,
+  //     filter);
 
   // const auto filter = std::make_shared<OldGaussianBlurFilter>();
   // filter->SetRadius(12);
@@ -228,6 +229,10 @@ void effect_engine_main() {
   // sgl::image::ImageEngine::Process(
   //     "../../../examples/image_demo/images/colorful.png",
   //     "../../../examples/image_demo/images/colorful_transform.png", filter);
+
+  // uint32_t w, h, c;
+  // ImageUtils::ReadJpgFile("../../../examples/image_demo/images/30b.jpg", &w, &h,
+  //                         &c);
 }
 
 int main(int argc, char *argv[]) {
