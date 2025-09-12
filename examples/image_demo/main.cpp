@@ -181,15 +181,14 @@ void effect_engine_main() {
   //     "../../../examples/image_demo/images/colorful_palette_knife.png",
   //     filter);
   //
-  // const auto filter = std::make_shared<AccentedEdgeFilter>();
-  // int sobelX[3] = {0, 1, 0};
-  // filter->SetSobelx(sobelX, 3);
-  // filter->SetSobely(sobelX, 3);
-  // filter->SetType(1);
-  // sgl::image::ImageEngine::Process(
-  //     "../../../examples/image_demo/images/colorful.png",
-  //     "../../../examples/image_demo/images/colorful_accent_edge.png",
-  //     filter);
+  const auto filter = std::make_shared<AccentedEdgeFilter>();
+  int sobelX[3] = {0, 1, 0};
+  filter->SetSobelx(sobelX, 3);
+  filter->SetSobely(sobelX, 3);
+  filter->SetType(1);
+  sgl::image::ImageEngine::Process(
+      "../../../examples/image_demo/images/colorful.png",
+      "../../../examples/image_demo/images/colorful_accent_edge.png", filter);
 
   // const auto filter = std::make_shared<NES8BitMosaicFilter>();
   // filter->SetBlockSize(64);
@@ -231,8 +230,8 @@ void effect_engine_main() {
   //     "../../../examples/image_demo/images/colorful_transform.png", filter);
 
   // uint32_t w, h, c;
-  // ImageUtils::ReadJpgFile("../../../examples/image_demo/images/30b.jpg", &w, &h,
-  //                         &c);
+  // ImageUtils::ReadJpgFile("../../../examples/image_demo/images/30b.jpg", &w,
+  // &h, &c);
 }
 
 int main(int argc, char *argv[]) {
