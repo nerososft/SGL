@@ -48,7 +48,7 @@ struct SglImageInfo {
 function gray(in: const sgl_image_info_t, out: const sgl_image_info_t, r: float, g: float, b:float):sgl_error_t;
 function threshold_split(in: const sgl_image_info_t, out: const sgl_image_info_t, bright: int):sgl_error_t;
 function gaussian_blur(in: const sgl_image_info_t, out: const sgl_image_info_t, r: int):sgl_error_t;
-function gaussian_blur_float)(in: const sgl_image_info_t, out: const sgl_image_info_t, r: int): sgl_error_t;
+function gaussian_blur_float(in: const sgl_image_info_t, out: const sgl_image_info_t, r: int): sgl_error_t;
 function surface_blur(in: const sgl_image_info_t, out: const sgl_image_info_t, r: int, th: int): sgl_error_t;
 function distort_glass(in: const sgl_image_info_t, out: const sgl_image_info_t, scale: float, intensity: float, zoom: float): sgl_error_t;
 function adjust_saturation(in: const sgl_image_info_t, out: const sgl_image_info_t, v: float, s: float): sgl_error_t;
