@@ -1,0 +1,20 @@
+#pragma once
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Weverything"
+#pragma clang diagnostic warning "-Wextra"
+#pragma clang diagnostic warning "-Wall"
+#include "taihe/common.hpp"
+namespace sgl_image {
+struct SglImageType;
+}
+namespace taihe {
+template<>
+struct as_abi<::sgl_image::SglImageType> {
+    using type = int;
+};
+template<>
+struct as_param<::sgl_image::SglImageType> {
+    using type = ::sgl_image::SglImageType;
+};
+}
+#pragma clang diagnostic pop
