@@ -1,0 +1,84 @@
+enum SglBufferType {
+  SGL_BUFFER_TYPE_UNIFORM = 0,
+  SGL_BUFFER_TYPE_STORAGE_LOCAL,
+  SGL_BUFFER_TYPE_STORAGE_SHARED,
+  SGL_BUFFER_TYPE_VERTEX,
+  SGL_BUFFER_TYPE_INDEX,
+  SGL_BUFFER_TYPE_UNKNOWN,
+};
+
+struct SglBuffer {
+  SglBufferType type;
+  void *bufHandle;
+  void *memHandle;
+  void *data;
+  size_t bufferSize;
+};
+
+struct SglImageGpuInfo {
+  uint32_t width;
+  uint32_t height;
+  uint32_t channels;
+  uint32_t bytesPerLine;
+  SglBuffer gpuBuf;
+};
+
+struct SglImageCpuInfo {
+  uint32_t width;
+  uint32_t height;
+  uint32_t channels;
+  uint32_t bytesPerLine;
+  void *data;
+};
+
+enum SglImageType {
+  SGL_IMAGE_TYPE_CPU = 0,
+  SGL_IMAGE_TYPE_GPU = 1,
+  SGL_IMAGE_TYPE_UNKNOWN = 2
+};
+
+struct SglImageInfo {
+  SglImageType type;
+  union {
+    SglImageGpuInfo gpu;
+    SglImageCpuInfo cpu;
+  } info;
+};
+
+function gray(in: const sgl_image_info_t, out: const sgl_image_info_t, r: float, g: float, b:float):sgl_error_t;
+function threshold_split(in: const sgl_image_info_t, out: const sgl_image_info_t, bright: int):sgl_error_t;
+function gaussian_blur(in: const sgl_image_info_t, out: const sgl_image_info_t, r: int):sgl_error_t;
+function gaussian_blur_float)(in: const sgl_image_info_t, out: const sgl_image_info_t, r: int): sgl_error_t;
+function surface_blur(in: const sgl_image_info_t, out: const sgl_image_info_t, r: int, th: int): sgl_error_t;
+function distort_glass(in: const sgl_image_info_t, out: const sgl_image_info_t, scale: float, intensity: float, zoom: float): sgl_error_t;
+function adjust_saturation(in: const sgl_image_info_t, out: const sgl_image_info_t, v: float, s: float): sgl_error_t;
+function palette_knife(in: const sgl_image_info_t, out: const sgl_image_info_t, r: int, s: int): sgl_error_t;
+function hue_equal(in: const sgl_image_info_t, out: const sgl_image_info_t): sgl_error_t;
+function blur_edge(in: const sgl_image_info_t, out: const sgl_image_info_t, r: int, s: int, kernel_type: int): sgl_error_t;
+function custom_kernel(in: const sgl_image_info_t, out: const sgl_image_info_t, k: int *, radius: int, offset: int, scale: int): sgl_error_t;
+function color_balance(in: const sgl_image_info_t, out: const sgl_image_info_t, adjustP: float *, p: int *, l: int): sgl_error_t;
+function black_white(in: const sgl_image_info_t, out: const sgl_image_info_t, weight: float *, wSize: int): sgl_error_t;
+function scale(in: const sgl_image_info_t, out: const sgl_image_info_t, weight: int, height: int, type: int): sgl_error_t;
+function color_separation(in: const sgl_image_info_t, out: const sgl_image_info_t, roff: float, goff: float, boff: float): sgl_error_t;
+function mid_value(in: const sgl_image_info_t, out: const sgl_image_info_t, radius: float, threshold: float): sgl_error_t;
+function path_blur(in: const sgl_image_info_t, out: const sgl_image_info_t, vec: float *, amount: int, width: int, height: int, startpos: float *, endpos: float *, startvec: float *, endvec: float *, num: int): sgl_error_t;
+function crystallize(in: const sgl_image_info_t, out: const sgl_image_info_t, posx: float *, posy: float *, n: int): sgl_error_t;
+function rotation_blur(in: const sgl_image_info_t, in2: const sgl_image_info_t, out: const sgl_image_info_t, x: float, y: float, a: float, b: float, ina: float, inb: float, strength: int, angle: float ): sgl_error_t;
+function facet(in: const sgl_image_info_t, out: const sgl_image_info_t, radius: int, intensitylevel: int): sgl_error_t;
+function accented_edge(in: const sgl_image_info_t, out: const sgl_image_info_t, sobelx: int *, sobely: int *, size: int, type: int): sgl_error_t;
+function iris_blur(in: const sgl_image_info_t, in2: const sgl_image_info_t, out: const sgl_image_info_t, x: float, y: float, a: float, b: float, ina: float, inb: float, angle: float): sgl_error_t;
+function tilt_shift_blur(in: const sgl_image_info_t, in2: const sgl_image_info_t, out: const sgl_image_info_t, A: float *, B: float *, C: float *, xoffset: float, yoffset: float, size: int): sgl_error_t;
+function radial_blur(in: const sgl_image_info_t, out: const sgl_image_info_t, sharpness: float, strength: int, xCenter: float, yCenter: float): sgl_error_t;
+function rotational_blur(in: const sgl_image_info_t, out: const sgl_image_info_t, angle: float, strength: int, x: float, y: float): sgl_error_t;
+function minmax(in: const sgl_image_info_t, out: const sgl_image_info_t, radius: int, type: int): sgl_error_t;
+function color_halftone(in: const sgl_image_info_t, out: const sgl_image_info_t, cyanAngle: float, yellowAngle: float, magentaAngle: float, radius: float, lookup: float *): sgl_error_t;
+function sharpen(in: const sgl_image_info_t, out: const sgl_image_info_t, kernel: int *, size: int): sgl_error_t;
+function polar_coordinates(in: const sgl_image_info_t, out: const sgl_image_info_t, type: int): sgl_error_t;
+function clouds(in: const sgl_image_info_t, out: const sgl_image_info_t, permuteLookup: int *, size: int, type: int): sgl_error_t;
+function motion_blur(in: const sgl_image_info_t, out: const sgl_image_info_t, distance: int, angle: int, proportion: float): sgl_error_t;
+function twirl_warp(in: const sgl_image_info_t, out: const sgl_image_info_t, angle: int): sgl_error_t;
+function zigzag(in: const sgl_image_info_t, out: const sgl_image_info_t, wavelength: int, amplitude: int, type_wave: int, proportion: float): sgl_error_t;
+function spherize(in: const sgl_image_info_t, out: const sgl_image_info_t, alpha: int, type: int): sgl_error_t;
+function pinch(in: const sgl_image_info_t, out: const sgl_image_info_t, amount: int): sgl_error_t;
+function wave(in: const sgl_image_info_t, out: const sgl_image_info_t, wavelength: int, amplitude: int, x_pro: int, y_pro: int, type: int, method: int): sgl_error_t;
+
