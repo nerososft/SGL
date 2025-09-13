@@ -5,7 +5,7 @@ enum SglBufferType {
   SGL_BUFFER_TYPE_VERTEX,
   SGL_BUFFER_TYPE_INDEX,
   SGL_BUFFER_TYPE_UNKNOWN,
-};
+}
 
 struct SglBuffer {
   type: SglBufferType;
@@ -13,7 +13,7 @@ struct SglBuffer {
   memHandle_ptr: u64;
   data_ptr: u64;
   bufferSize: u64;
-};
+}
 
 struct SglImageGpuInfo {
   width: u32;
@@ -21,7 +21,7 @@ struct SglImageGpuInfo {
   channels: u32;
   bytesPerLine: u32;
   gpuBuf: SglBuffer;
-};
+}
 
 struct SglImageCpuInfo {
   width: u32;
@@ -29,13 +29,13 @@ struct SglImageCpuInfo {
   channels: u32;
   bytesPerLine: u32;
   data_ptr: u64;
-};
+}
 
 enum SglImageType {
   SGL_IMAGE_TYPE_CPU = 0,
   SGL_IMAGE_TYPE_GPU = 1,
   SGL_IMAGE_TYPE_UNKNOWN = 2
-};
+}
 
 struct SglImageInfo {
   type: SglImageType;
@@ -43,7 +43,7 @@ struct SglImageInfo {
     gpu: SglImageGpuInfo;
     cpu: SglImageCpuInfo;
   };
-};
+}
 
 function gray(in: const sgl_image_info_t, out: const sgl_image_info_t, r: float, g: float, b:float):sgl_error_t;
 function threshold_split(in: const sgl_image_info_t, out: const sgl_image_info_t, bright: int):sgl_error_t;
