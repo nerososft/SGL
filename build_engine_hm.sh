@@ -1,4 +1,4 @@
-# cloc . --exclude-dir=cmake-build-debug,models,vendor,.git,.venv,.idea
+# cloc . --exclude-dir=cmake-build-debug,models,vendor,.git,.venv,.idea,tools
 
 rm -rf build_os
 mkdir build_os
