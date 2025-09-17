@@ -8,6 +8,7 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     message(STATUS "Running on macOS")
     link_directories("/opt/homebrew/Cellar/libpng/1.6.50/lib")
     include_directories("/opt/homebrew/Cellar/libpng/1.6.50/include")
+    include_directories("/opt/homebrew/Cellar/jpeg/9f/include")
 endif ()
 
 add_library(render_engine
