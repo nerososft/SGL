@@ -136,9 +136,9 @@ bool GraphicsApp::Init() {
   mesh->indicesData = {0, 1, 2, 3, 4, 5};
   mesh->textures = {{.type = TextureType_BASE_COLOR,
                      .path = "../../../examples/renderer_demo_2d/assets/"
-                             "builtin.textures/colorful.png",
-                     .width = 787,
-                     .height = 1114,
+                             "builtin.textures/colorful.jpg",
+                     .width = 3840,
+                     .height = 2556,
                      .channels = 4}};
 
   const auto renderMesh = std::make_shared<RendererMesh>(mesh);

@@ -12,7 +12,7 @@ int main(int argc, char *argv[]) {
   app.SetWindowTitle("2D Render Demo");
   app.SetWindowPos(0, 0);
   // app.SetWindowMode(WINDOW_MODE_FULLSCREEN);
-  app.SetWindowSize(787, 1114);
+  app.SetWindowSize(3840, 2556);
   if (!app.Init()) {
     Logger() << Logger::ERROR << "Failed to initialize" << std::endl;
     return 1;
