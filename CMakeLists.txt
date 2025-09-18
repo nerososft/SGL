@@ -42,7 +42,7 @@ endif ()
 
 add_subdirectory(runtime)
 if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    add_subdirectory(runtime/sglang) # Testing
+    add_subdirectory(runtime/compiler) # Testing
 endif ()
 add_subdirectory(core/image)
 add_subdirectory(core/renderer)
