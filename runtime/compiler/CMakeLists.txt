@@ -16,8 +16,8 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 endif ()
 
 set(SLANG_SOURCE
-        compiler/ShaderCompiler.cpp
-        compiler/ShaderCompiler.h
+        ShaderCompiler.cpp
+        ShaderCompiler.h
         main.cpp)
 add_executable(slang
         ${SLANG_SOURCE}

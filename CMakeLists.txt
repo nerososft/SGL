@@ -3,7 +3,7 @@ project(SGL)
 
 set(CMAKE_CXX_STANDARD 20)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-include_directories("${CMAKE_CURRENT_SOURCE_DIR}/capi/include")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/api/capi/include")
 
 message(STATUS "${CMAKE_SYSTEM_NAME}/${CMAKE_SYSTEM_PROCESSOR}")
 
@@ -47,5 +47,5 @@ endif ()
 add_subdirectory(core/image)
 add_subdirectory(core/renderer)
 add_subdirectory(core/compute)
-add_subdirectory(capi)
+add_subdirectory(api/capi)
 add_subdirectory(examples)
