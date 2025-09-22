@@ -39,10 +39,6 @@ pathBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
   pushConstantInfo.size = sizeof(pathBlurFilterParams);
   pushConstantInfo.data = &this->pathblurFilterParams;
 
-  /*vecBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
-  vecBuffer->AllocateAndBind(GPU_BUFFER_TYPE_UNIFORM, k_size * sizeof(float));
-  vecBuffer->UploadData(vec, k_size * sizeof(float));*/
-  //
   PipelineNodeBuffer vecpipelineNodeInput;
   vecpipelineNodeInput.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
   vecpipelineNodeInput.buf.buffer = inputImageInfo[0].storageBuffer;

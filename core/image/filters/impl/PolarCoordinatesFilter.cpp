@@ -8,10 +8,8 @@ VkResult PolarCoordinatesFilter::Apply(
     const std::vector<FilterImageInfo> &outputImageInfo) {
   BasicFilterParams params;
   this->polarcoordinatesFilterParams.imageSize.width = inputImageInfo[0].width;
-  ;
   this->polarcoordinatesFilterParams.imageSize.height =
       inputImageInfo[0].height;
-  ;
   this->polarcoordinatesFilterParams.imageSize.channels = 4;
   this->polarcoordinatesFilterParams.imageSize.bytesPerLine =
       this->polarcoordinatesFilterParams.imageSize.width * 4;
