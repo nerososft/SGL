@@ -182,9 +182,11 @@ void effect_engine_main() {
   //     filter);
   //
   const auto filter = std::make_shared<AccentedEdgeFilter>();
-  int sobelX[3] = {0, 1, 0};
-  filter->SetSobelx(sobelX, 3);
-  filter->SetSobely(sobelX, 3);
+  int sobelx[9] = { -1, 0, 1,-2, 0, 2 ,-1, 0, 1 };
+  int sobely[9] = { 1, 2, 1,0, 0, 0,-1, -2, -1 };
+  int size = 9;
+  filter->SetSobelx(sobelx, size);
+  filter->SetSobely(sobely, size);
   filter->SetType(1);
   sgl::image::ImageEngine::Process(
       "../../../examples/image_demo/images/colorful.png",
