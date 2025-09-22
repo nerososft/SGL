@@ -19,6 +19,10 @@ VkResult
 AccentedEdgeFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
                           const std::vector<FilterImageInfo> &inputImageInfo,
                           const std::vector<FilterImageInfo> &outputImageInfo) {
+  if (this->s_size == 0) {
+    Logger() << Logger::ERROR << "s_size can not be 0!" << std::endl;
+    return VK_ERROR_INITIALIZATION_FAILED;
+  }
   BasicFilterParams params;
   this->accentedEdgeFilterParams.imageSize.width = inputImageInfo[0].width;
   this->accentedEdgeFilterParams.imageSize.height = inputImageInfo[0].height;
