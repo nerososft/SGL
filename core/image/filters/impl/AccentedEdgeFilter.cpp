@@ -67,7 +67,7 @@ AccentedEdgeFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
     return ret;
   }
   ret = sobelyBuffer->UploadData(sobely, s_size * sizeof(int));
-  if (ret == VK_SUCCESS) {
+  if (ret != VK_SUCCESS) {
     Logger() << "Failed to upload sobal y Data, err = " << string_VkResult(ret)
              << std::endl;
     return ret;
