@@ -44,12 +44,34 @@ AccentedEdgeFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
   pushConstantInfo.data = &this->accentedEdgeFilterParams;
 
   sobelxBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
-  sobelxBuffer->AllocateAndBind(GPU_BUFFER_TYPE_UNIFORM, s_size * sizeof(int));
-  sobelxBuffer->UploadData(sobelx, s_size * sizeof(int));
+  ret = sobelxBuffer->AllocateAndBind(GPU_BUFFER_TYPE_UNIFORM,
+                                      s_size * sizeof(int));
+  if (ret != VK_SUCCESS) {
+    Logger() << "Failed to create sobel x buffer, err =" << string_VkResult(ret)
+             << std::endl;
+    return ret;
+  }
+  ret = sobelxBuffer->UploadData(sobelx, s_size * sizeof(int));
+  if (ret != VK_SUCCESS) {
+    Logger() << "Failed to upload sobal x Data, err = " << string_VkResult(ret)
+             << std::endl;
+    return ret;
+  }
 
   sobelyBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
-  sobelyBuffer->AllocateAndBind(GPU_BUFFER_TYPE_UNIFORM, s_size * sizeof(int));
-  sobelyBuffer->UploadData(sobely, s_size * sizeof(int));
+  ret = sobelyBuffer->AllocateAndBind(GPU_BUFFER_TYPE_UNIFORM,
+                                      s_size * sizeof(int));
+  if (ret != VK_SUCCESS) {
+    Logger() << "Failed to create sobal y buffer, err = "
+             << string_VkResult(ret) << std::endl;
+    return ret;
+  }
+  ret = sobelyBuffer->UploadData(sobely, s_size * sizeof(int));
+  if (ret == VK_SUCCESS) {
+    Logger() << "Failed to upload sobal y Data, err = " << string_VkResult(ret)
+             << std::endl;
+    return ret;
+  }
 
   PipelineNodeBuffer pipelineNodeInput;
   pipelineNodeInput.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
