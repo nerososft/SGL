@@ -118,11 +118,11 @@ pathBlurFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
           VK_SHADER_STAGE_COMPUTE_BIT));
   descriptorSetLayoutBindings.push_back(
       VkGPUHelper::BuildDescriptorSetLayoutBinding(
-          3, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1,
+          3, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1,
           VK_SHADER_STAGE_COMPUTE_BIT));
   descriptorSetLayoutBindings.push_back(
       VkGPUHelper::BuildDescriptorSetLayoutBinding(
-          4, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1,
+          4, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1,
           VK_SHADER_STAGE_COMPUTE_BIT));
   descriptorSetLayoutBindings.push_back(
       VkGPUHelper::BuildDescriptorSetLayoutBinding(
