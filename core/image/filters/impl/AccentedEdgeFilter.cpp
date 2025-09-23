@@ -44,7 +44,7 @@ AccentedEdgeFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
   pushConstantInfo.data = &this->accentedEdgeFilterParams;
 
   sobelxBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
-  ret = sobelxBuffer->AllocateAndBind(GPU_BUFFER_TYPE_UNIFORM,
+  ret = sobelxBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED,
                                       s_size * sizeof(int));
   if (ret != VK_SUCCESS) {
     Logger() << "Failed to create sobel x buffer, err =" << string_VkResult(ret)
@@ -59,7 +59,7 @@ AccentedEdgeFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
   }
 
   sobelyBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
-  ret = sobelyBuffer->AllocateAndBind(GPU_BUFFER_TYPE_UNIFORM,
+  ret = sobelyBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED,
                                       s_size * sizeof(int));
   if (ret != VK_SUCCESS) {
     Logger() << "Failed to create sobal y buffer, err = "
@@ -106,11 +106,11 @@ AccentedEdgeFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
           VK_SHADER_STAGE_COMPUTE_BIT));
   descriptorSetLayoutBindings.push_back(
       VkGPUHelper::BuildDescriptorSetLayoutBinding(
-          1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1,
+          1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1,
           VK_SHADER_STAGE_COMPUTE_BIT));
   descriptorSetLayoutBindings.push_back(
       VkGPUHelper::BuildDescriptorSetLayoutBinding(
-          2, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1,
+          2, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1,
           VK_SHADER_STAGE_COMPUTE_BIT));
   descriptorSetLayoutBindings.push_back(
       VkGPUHelper::BuildDescriptorSetLayoutBinding(
