@@ -22,11 +22,9 @@ bool Context::Init() {
   if (this->gpuCtx == nullptr) {
     std::vector<const char *> requiredExtensions;
     this->gpuCtx = std::make_shared<VkGPUContext>(requiredExtensions);
-    if constexpr (LOG_SHOW_LEVEL == LOG_LEVEL_DEBUG) {
-      this->gpuCtx->AddInstanceEnableLayer("VK_LAYER_KHRONOS_validation");
-    }
+    // this->gpuCtx->AddInstanceEnableLayer("VK_LAYER_KHRONOS_validation");
     // this->gpuCtx->AddInstanceEnableLayer("VK_LAYER_LUNARG_api_dump");
-    // this->gpuCtx->AddInstanceEnableLayer("VK_LAYER_KHRONOS_synchronization2");
+    // this->gpuCtx->AddInstance EnableLayer("VK_LAYER_KHRONOS_synchronization2");
     // this->gpuCtx->AddDeviceEnabledExtension("VK_KHR_synchronization2");
   }
   if (this->gpuCtx->Init() != VK_SUCCESS) {
