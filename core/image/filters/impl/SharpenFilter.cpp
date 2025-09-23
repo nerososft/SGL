@@ -70,7 +70,7 @@ SharpenFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx,
           VK_SHADER_STAGE_COMPUTE_BIT));
   descriptorSetLayoutBindings.push_back(
       VkGPUHelper::BuildDescriptorSetLayoutBinding(
-          1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1,
+          1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1,
           VK_SHADER_STAGE_COMPUTE_BIT));
   descriptorSetLayoutBindings.push_back(
       VkGPUHelper::BuildDescriptorSetLayoutBinding(

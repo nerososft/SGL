@@ -182,7 +182,7 @@ VkResult Transform3DFilter::ConstructMainGraphicsPipeline(
   std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
   descriptorSetLayoutBindings.push_back(
       VkGPUHelper::BuildDescriptorSetLayoutBinding(
-          0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1,
+          0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1,
           VK_SHADER_STAGE_ALL_GRAPHICS));
   descriptorSetLayoutBindings.push_back(
       VkGPUHelper::BuildDescriptorSetLayoutBinding(
