@@ -5,7 +5,7 @@
 
 int main()
 {
-  const int N = 10000;
+  constexpr int N = 10000;
   int a[N] = {0};
   int b[N] = {0};
 

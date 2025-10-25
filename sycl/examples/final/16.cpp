@@ -47,7 +47,7 @@ int main() {
       });
     });
   }
-  uint64_t endMs = GetCurrentMonoMs();
+  const uint64_t endMs = GetCurrentMonoMs();
 
   std::cout << "16.Result: ";
   for (size_t i = 0; i < N; ++i) {

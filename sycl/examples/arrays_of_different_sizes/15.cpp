@@ -5,17 +5,17 @@
 
 int main()
 {
-  const int N = 1000000;
-  float *a = (float *)malloc(N * sizeof(float));
-  float *b = (float *)malloc(N * sizeof(float));
-  float *c = (float *)malloc(N * sizeof(float));
+  constexpr int N = 1000000;
+  const auto a = static_cast<float *>(malloc(N * sizeof(float)));
+  const auto b = static_cast<float *>(malloc(N * sizeof(float)));
+  const auto c = static_cast<float *>(malloc(N * sizeof(float)));
 
   for(float index = 0.0f; index < N; ++index) {
-    a[(unsigned int)index] = index;
-    b[(unsigned int)index] = index + 0.5f;
-    c[(unsigned int)index] = index + 1.0f;
+    a[static_cast<unsigned int>(index)] = index;
+    b[static_cast<unsigned int>(index)] = index + 0.5f;
+    c[static_cast<unsigned int>(index)] = index + 1.0f;
   }
-  float *d = (float *)malloc(N * sizeof(float));
+  const auto d = static_cast<float *>(malloc(N * sizeof(float)));
 
   sycl::queue q;
   {

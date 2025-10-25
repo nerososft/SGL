@@ -5,15 +5,15 @@
 
 int main()
 {
-  const int N = 100000000;
-  int *a = (int *)malloc(N * sizeof(int));
-  int *b = (int *)malloc(N * sizeof(int));
+  constexpr int N = 100000000;
+  const auto a = static_cast<int *>(malloc(N * sizeof(int)));
+  const auto b = static_cast<int *>(malloc(N * sizeof(int)));
 
   for(size_t index = 0; index < N; ++index) {
     a[index] = index;
     b[index] = index + 1;
   }
-  int *c = (int *)malloc(N * sizeof(int));
+  const auto c = static_cast<int *>(malloc(N * sizeof(int)));
 
   sycl::queue q;
   {

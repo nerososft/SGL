@@ -5,7 +5,7 @@
 
 int main()
 {
-  const int N = 1;
+  constexpr int N = 1;
   int a[N] = {1};
   int b[N] = {2};
   int c[N];
