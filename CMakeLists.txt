@@ -41,11 +41,10 @@ if (CMAKE_SYSTEM_PROCESSOR MATCHES "arm64")
 endif ()
 
 add_subdirectory(runtime)
-if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    add_subdirectory(runtime/compiler) # Testing
-endif ()
 add_subdirectory(core/image)
 add_subdirectory(core/renderer)
 add_subdirectory(core/compute)
 add_subdirectory(api/capi)
 add_subdirectory(examples)
+
+add_subdirectory(sycl)

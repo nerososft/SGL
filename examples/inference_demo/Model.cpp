@@ -64,10 +64,9 @@ bool Model::Init() {
 }
 
 void Model::Dump() const {
-  // blocks[1]->Dump();
-  // for (auto &block: this->blocks) {
-  // block->Dump();
-  // }
+  for (auto &block: this->blocks) {
+    block->Dump();
+  }
 }
 
 std::vector<float>
