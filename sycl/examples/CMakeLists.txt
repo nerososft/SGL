@@ -5,7 +5,10 @@ set(SYCL_HEADER ../include/hm_sycl/queue.hpp
         ../include/hm_sycl/access.hpp
         ../include/hm_sycl/handler.hpp
         ../include/hm_sycl/accessor.hpp
-        ../include/hm_sycl/event.hpp)
+        ../include/hm_sycl/event.hpp
+        ../include/hm_sycl/sycl.hpp
+        ../include/hm_sycl/buffer.hpp
+        ../include/sycl/sycl.hpp)
 
 set(CASE_1_SOURCE
         basic_arithmetic/1.cpp

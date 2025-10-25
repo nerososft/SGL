@@ -18,10 +18,7 @@ endif ()
 set(SLANG_SOURCE
         ShaderCompiler.cpp
         ShaderCompiler.h
-        main.cpp
-        ../include/sycl/sycl.hpp
-        ../include/hm_sycl/sycl.hpp
-        ../include/hm_sycl/buffer.hpp)
+        main.cpp)
 add_executable(slang
         ${SLANG_SOURCE}
 )
