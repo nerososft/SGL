@@ -6,7 +6,11 @@
 #define SGL_ID_H
 
 namespace hmsycl::sycl {
-template <int Dimensions = 1> class id {};
+template <int Dimensions = 1> class id {
+
+public:
+  size_t operator[](size_t index) const {}
+};
 } // namespace hmsycl::sycl
 
 #endif // SGL_ID_H

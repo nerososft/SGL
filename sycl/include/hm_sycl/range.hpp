@@ -7,11 +7,10 @@
 
 namespace hmsycl::sycl {
 template <int Dimensions = 1> class range {
-  int size = 0;
-
 public:
   range() = default;
-  range(int size) {};
+  range(size_t dim1) {};
+  range(size_t dim1, size_t dim2) {};
 };
 } // namespace hmsycl::sycl
 

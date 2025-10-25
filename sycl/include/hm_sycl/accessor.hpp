@@ -12,6 +12,7 @@ template <typename T, int Dimensions> class accessor {
   using reference = T &;
 
 public:
+  reference operator[](size_t index) const {}
   reference operator[](id<Dimensions> index) const {}
 };
 } // namespace hmsycl::sycl
