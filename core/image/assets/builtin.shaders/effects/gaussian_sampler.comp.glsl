@@ -19,7 +19,6 @@ layout (push_constant) uniform FilterParams {
     float sigmaScale;
 } params;
 
-
 // ABGR
 uint packColor(vec4 color) {
     return (
