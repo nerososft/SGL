@@ -83,6 +83,8 @@ set(ENGINE_SOURCE ImageEngine.cpp
         filters/impl/ColorSeparationFilter.h
         filters/impl/ScaleFilter.cpp
         filters/impl/ScaleFilter.h
+        filters/impl/GaussianSamplerFilter.cpp
+        filters/impl/GaussianSamplerFilter.h
         filters/impl/RadialBlurFilter.cpp
         filters/impl/RadialBlurFilter.h
         filters/impl/FocusBlurFilter.cpp
