@@ -2,7 +2,7 @@
 // Created by neo on 2025/3/13.
 //
 
-#include "GaussianSamplerFilter.h"
+#include "GaussianSamplerFloatFilter.h"
 
 #include "runtime/config.h"
 
@@ -19,7 +19,7 @@
 
 #include <assert.h>
 
-VkResult GaussianSamplerFilter::Apply(
+VkResult GaussianSamplerFloatFilter::Apply(
     const std::shared_ptr<VkGPUContext> &gpuCtx,
     const std::vector<FilterImageInfo> &inputImageInfo,
     const std::vector<FilterImageInfo> &outputImageInfo) {
@@ -31,7 +31,7 @@ VkResult GaussianSamplerFilter::Apply(
   BasicFilterParams params;
   this->gaussianSamplerFilterParams.imageSize.width = inputImageInfo[0].width;
   this->gaussianSamplerFilterParams.imageSize.height = inputImageInfo[0].height;
-  this->gaussianSamplerFilterParams.imageSize.channels = 4;
+  this->gaussianSamplerFilterParams.imageSize.channels = 1;
   this->gaussianSamplerFilterParams.imageSize.bytesPerLine =
       this->gaussianSamplerFilterParams.imageSize.width * 4;
 
@@ -74,9 +74,9 @@ VkResult GaussianSamplerFilter::Apply(
           VK_SHADER_STAGE_COMPUTE_BIT));
 
   const auto gaussianSamplerNode = std::make_shared<ComputePipelineNode>(
-      gpuCtx, "gaussianSamplerImage", SHADER(gaussian_sampler.comp.glsl.spv),
-      pushConstantInfo.size, descriptorSetLayoutBindings,
-      (outputImageInfo[0].width + 31) / 32,
+      gpuCtx, "gaussianSamplerFloatImage",
+      SHADER(gaussian_sampler_float.comp.glsl.spv), pushConstantInfo.size,
+      descriptorSetLayoutBindings, (outputImageInfo[0].width + 31) / 32,
       (outputImageInfo[0].height + 31) / 32, 1);
 
   ret = gaussianSamplerNode->CreateComputeGraphNode();
@@ -95,4 +95,4 @@ VkResult GaussianSamplerFilter::Apply(
   return computeGraph->Compute();
 }
 
-void GaussianSamplerFilter::Destroy() { BasicFilter::Destroy(); }
+void GaussianSamplerFloatFilter::Destroy() { BasicFilter::Destroy(); }
