@@ -8,7 +8,7 @@
 
 <td>
 
-<h1>SGL(Simple GPU Layer)</h1>
+<h1>HMComputeKit</h1>
 <h3>High-performance GPGPU library based on Vulkan</h3>
 
 </td>
