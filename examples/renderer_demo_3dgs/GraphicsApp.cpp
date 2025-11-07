@@ -24,38 +24,13 @@ bool GraphicsApp::ConstructRendererPipeline() {
         .stride = sizeof(Vertex),
         .inputRate = VK_VERTEX_INPUT_RATE_VERTEX}};
   std::vector<VkVertexInputAttributeDescription>
-      vertexInputAttributeDescriptions = {
-          {
-              .location = 0,
-              .binding = 0,
-              .format = VK_FORMAT_R32G32B32_SFLOAT,
-              .offset = offsetof(Vertex, position),
-          },
-          {
-              .location = 1,
-              .binding = 0,
-              .format = VK_FORMAT_R32G32B32_SFLOAT,
-              .offset = offsetof(Vertex, color),
-          },
-          {
-              .location = 2,
-              .binding = 0,
-              .format = VK_FORMAT_R32G32B32_SFLOAT,
-              .offset = offsetof(Vertex, normal),
-          },
-          {
-              .location = 3,
-              .binding = 0,
-              .format = VK_FORMAT_R32G32_SFLOAT,
-              .offset = offsetof(Vertex, texCoords),
-          },
-      };
+      vertexInputAttributeDescriptions = {};
 
   std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
 
   descriptorSetLayoutBindings.push_back(
       VkGPUHelper::BuildDescriptorSetLayoutBinding(
-          0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1,
+          0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1,
           VK_SHADER_STAGE_ALL_GRAPHICS));
 
   VkViewport viewport{
@@ -68,7 +43,7 @@ bool GraphicsApp::ConstructRendererPipeline() {
   };
   this->graphicsPipelineNode = std::make_shared<GraphicsPipelineNode>(
       renderer->GetGPUCtx(), "GraphicsPipeline",
-      this->renderer->GetMainRenderPass(), SHADER(rect_2d.vert.glsl.spv),
+      this->renderer->GetMainRenderPass(), SHADER(rect_3dgs.vert.glsl.spv),
       SHADER(rect_3dgs.frag.glsl.spv), sizeof(FrameInfo),
       descriptorSetLayoutBindings, vertexInputBindingDescriptions,
       vertexInputAttributeDescriptions, this->windowWidth, this->windowHeight,
@@ -109,7 +84,6 @@ bool GraphicsApp::Init() {
     return false;
   }
 
-  // TODO: Load splat file
   SpzModel model;
   if (!model.loadModel("../../../examples/renderer_demo_3dgs/assets/"
                        "builtin.models/3dgs/butterfly")) {
@@ -117,50 +91,28 @@ bool GraphicsApp::Init() {
     return false;
   }
 
-  auto mesh = std::make_shared<Mesh>();
-  mesh->vertexData = {{
-                          .position = {-1.0f, 1.0f, 0},
-                          .color = {1.0f, 0.0f, 1.0f},
-                          .texCoords = {0, 1},
-                      },
-                      {
-                          .position = {-1.0f, -1.0f, 0},
-                          .color = {1.0f, 1.0f, 0.0f},
-                          .texCoords = {0, 0},
-                      },
-                      {
-                          .position = {1.0f, -1.0f, 0},
-                          .color = {0.0f, 1.0f, 1.0f},
-                          .texCoords = {1, 0},
-                      },
-                      {
-                          .position = {1.0f, -1.0f, 0},
-                          .color = {1.0f, 0.0f, 0.0f},
-                          .texCoords = {1, 0},
-                      },
-                      {
-                          .position = {1.0f, 1.0f, 0},
-                          .color = {0.0f, 0.0f, 1.0f},
-                          .texCoords = {1, 1},
-                      },
-                      {
-                          .position = {-1.0f, 1.0f, 0},
-                          .color = {0.0f, 1.0f, 0.0f},
-                          .texCoords = {0, 1},
-                      }};
-  mesh->indicesData = {0, 1, 2, 3, 4, 5};
-  const auto renderMesh = std::make_shared<RendererMesh>(mesh);
-  if (!renderMesh->CreateGPUMesh(renderer->GetGPUCtx())) {
-    Logger() << Logger::ERROR << "Failed to create GPUMesh!" << std::endl;
+  const std::vector<GaussianPoint> points = model.getPoints();
+  const auto pointsBuf = std::make_shared<VkGPUBuffer>(renderer->GetGPUCtx());
+  VkResult ret = pointsBuf->AllocateAndBind(
+      GPU_BUFFER_TYPE_STORAGE_SHARED, points.size() * sizeof(GaussianPoint));
+  if (ret != VK_SUCCESS) {
+    Logger() << Logger::ERROR << "Failed to allocate GPU buffer" << std::endl;
     return false;
   }
-  this->rendererMeshes.push_back(renderMesh);
+  ret = pointsBuf->UploadData(points.data(),
+                              points.size() * sizeof(GaussianPoint));
+  if (ret != VK_SUCCESS) {
+    Logger() << Logger::ERROR << "Failed to upload GPU buffer" << std::endl;
+    return false;
+  }
+
+  PipelineNodeBuffer pointsBufferNode;
+  pointsBufferNode.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
+  pointsBufferNode.buf.buffer = pointsBuf->GetBuffer();
+  pointsBufferNode.buf.bufferSize = pointsBuf->GetBufferSize();
 
   std::vector<PipelineNodeBuffer> buffersLeft;
-  buffersLeft.push_back(renderMesh->GetVertexBufferNode());
-  buffersLeft.push_back(renderMesh->GetIndicesBufferNode());
-  buffersLeft.push_back(
-      renderMesh->GetTextureBufferNode(TextureType_BASE_COLOR)); // sampler 1
+  buffersLeft.push_back(pointsBufferNode);
 
   const std::function func = [](VkCommandBuffer commandBuffer) {
     // NA:
