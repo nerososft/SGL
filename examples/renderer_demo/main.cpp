@@ -12,7 +12,8 @@ int main(int argc, char *argv[]) {
   app.SetWindowTitle("Dual Eye XR Demo");
   app.SetWindowPos(0, 0);
   // app.SetWindowMode(WINDOW_MODE_FULLSCREEN);
-  app.SetWindowSize(1920, 1080);
+  // app.SetWindowSize(1920, 1080);
+  app.SetWindowSize(640, 640);
   app.Init();
   app.CaptureFrame("../../../examples/renderer_demo/render_offscreen.png");
   app.Run();
