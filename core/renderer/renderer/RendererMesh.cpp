@@ -84,6 +84,10 @@ RendererMesh::GetTextureBufferNode(const TextureType type) const {
 }
 
 bool RendererMesh::CreateVertex(const std::shared_ptr<VkGPUContext> &gpuCtx) {
+  if (mesh->vertexData.empty()) {
+    Logger() << Logger::ERROR << "Empty vertex data" << std::endl;
+    return false;
+  }
   vertexBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
   if (vertexBuffer == nullptr) {
     Logger() << Logger::ERROR << "vertexBuffer is null" << std::endl;
@@ -107,6 +111,10 @@ bool RendererMesh::CreateVertex(const std::shared_ptr<VkGPUContext> &gpuCtx) {
 }
 
 bool RendererMesh::CreateIndices(const std::shared_ptr<VkGPUContext> &gpuCtx) {
+  if (mesh->indicesData.empty()) {
+    Logger() << Logger::ERROR << "Empty indices data" << std::endl;
+    return false;
+  }
   indicesBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
   if (indicesBuffer == nullptr) {
     Logger() << Logger::ERROR << "indexBuffer is null" << std::endl;
@@ -130,6 +138,10 @@ bool RendererMesh::CreateIndices(const std::shared_ptr<VkGPUContext> &gpuCtx) {
   return true;
 }
 bool RendererMesh::CreateMaterial(const std::shared_ptr<VkGPUContext> &gpuCtx) {
+  if (this->mesh->vertexData.empty() && this->mesh->indicesData.empty()) {
+    Logger() << Logger::ERROR << "No mesh data, no need to create material" << std::endl;
+    return false;
+  }
   materialBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
   if (materialBuffer == nullptr) {
     Logger() << Logger::ERROR << "material is null" << std::endl;
@@ -152,6 +164,10 @@ bool RendererMesh::CreateMaterial(const std::shared_ptr<VkGPUContext> &gpuCtx) {
 }
 bool RendererMesh::CreateTransform(
     const std::shared_ptr<VkGPUContext> &gpuCtx) {
+  if (this->mesh->vertexData.empty() && this->mesh->indicesData.empty()) {
+    Logger() << Logger::ERROR << "No mesh data, no need to create transform" << std::endl;
+    return false;
+  }
   transformMatrixBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
   if (transformMatrixBuffer == nullptr) {
     Logger() << Logger::ERROR << "transform matrix is null" << std::endl;
