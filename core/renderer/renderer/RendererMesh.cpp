@@ -173,7 +173,7 @@ bool RendererMesh::CreateTransform(
     Logger() << Logger::ERROR << "transform matrix is null" << std::endl;
     return false;
   }
-  const VkDeviceSize transformMatrixBufferSize = sizeof(glm::mat4);
+  constexpr VkDeviceSize transformMatrixBufferSize = sizeof(glm::mat4);
   VkResult ret = transformMatrixBuffer->AllocateAndBind(
       GPU_BUFFER_TYPE_UNIFORM, transformMatrixBufferSize);
   if (ret != VK_SUCCESS) {
