@@ -15,5 +15,5 @@ layout (push_constant) uniform FrameInfo {
 } frameInfo;
 
 void main() {
-    FragColor = texture(texSampler, texCoord);
+    FragColor = vec4(color,1.0f); // texture(texSampler, texCoord);
 }

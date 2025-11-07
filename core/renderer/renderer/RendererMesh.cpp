@@ -139,7 +139,8 @@ bool RendererMesh::CreateIndices(const std::shared_ptr<VkGPUContext> &gpuCtx) {
 }
 bool RendererMesh::CreateMaterial(const std::shared_ptr<VkGPUContext> &gpuCtx) {
   if (this->mesh->vertexData.empty() && this->mesh->indicesData.empty()) {
-    Logger() << Logger::ERROR << "No mesh data, no need to create material" << std::endl;
+    Logger() << Logger::ERROR << "No mesh data, no need to create material"
+             << std::endl;
     return false;
   }
   materialBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
@@ -165,7 +166,8 @@ bool RendererMesh::CreateMaterial(const std::shared_ptr<VkGPUContext> &gpuCtx) {
 bool RendererMesh::CreateTransform(
     const std::shared_ptr<VkGPUContext> &gpuCtx) {
   if (this->mesh->vertexData.empty() && this->mesh->indicesData.empty()) {
-    Logger() << Logger::ERROR << "No mesh data, no need to create transform" << std::endl;
+    Logger() << Logger::ERROR << "No mesh data, no need to create transform"
+             << std::endl;
     return false;
   }
   transformMatrixBuffer = std::make_shared<VkGPUBuffer>(gpuCtx);
@@ -226,6 +228,11 @@ bool RendererMesh::CreateTexture(const std::shared_ptr<VkGPUContext> &gpuCtx) {
 }
 
 bool RendererMesh::CreateGPUMesh(const std::shared_ptr<VkGPUContext> &gpuCtx) {
+  if (mesh->vertexData.empty() && mesh->indicesData.empty()) {
+    Logger() << Logger::ERROR << "No mesh data, no need to create GPUMesh"
+             << std::endl;
+    return false;
+  }
   /*
    * Vertex upload
    */

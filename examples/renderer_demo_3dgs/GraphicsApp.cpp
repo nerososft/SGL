@@ -67,7 +67,7 @@ bool GraphicsApp::ConstructRendererPipeline() {
   this->graphicsPipelineNode = std::make_shared<GraphicsPipelineNode>(
       renderer->GetGPUCtx(), "GraphicsPipeline",
       this->renderer->GetMainRenderPass(), SHADER(rect_2d.vert.glsl.spv),
-      SHADER(rect_2d.frag.glsl.spv), sizeof(FrameInfo),
+      SHADER(rect_3dgs.frag.glsl.spv), sizeof(FrameInfo),
       descriptorSetLayoutBindings, vertexInputBindingDescriptions,
       vertexInputAttributeDescriptions, this->windowWidth, this->windowHeight,
       viewport);
@@ -108,6 +108,37 @@ bool GraphicsApp::Init() {
   }
 
   auto mesh = std::make_shared<Mesh>();
+  mesh->vertexData = {{
+                          .position = {-1.0f, 1.0f, 0},
+                          .color = {1.0f, 0.0f, 1.0f},
+                          .texCoords = {0, 1},
+                      },
+                      {
+                          .position = {-1.0f, -1.0f, 0},
+                          .color = {1.0f, 1.0f, 0.0f},
+                          .texCoords = {0, 0},
+                      },
+                      {
+                          .position = {1.0f, -1.0f, 0},
+                          .color = {0.0f, 1.0f, 1.0f},
+                          .texCoords = {1, 0},
+                      },
+                      {
+                          .position = {1.0f, -1.0f, 0},
+                          .color = {1.0f, 0.0f, 0.0f},
+                          .texCoords = {1, 0},
+                      },
+                      {
+                          .position = {1.0f, 1.0f, 0},
+                          .color = {0.0f, 0.0f, 1.0f},
+                          .texCoords = {1, 1},
+                      },
+                      {
+                          .position = {-1.0f, 1.0f, 0},
+                          .color = {0.0f, 1.0f, 0.0f},
+                          .texCoords = {0, 1},
+                      }};
+  mesh->indicesData = {0, 1, 2, 3, 4, 5};
   const auto renderMesh = std::make_shared<RendererMesh>(mesh);
   if (!renderMesh->CreateGPUMesh(renderer->GetGPUCtx())) {
     Logger() << Logger::ERROR << "Failed to create GPUMesh!" << std::endl;
