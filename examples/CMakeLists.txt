@@ -1,5 +1,6 @@
 add_subdirectory(renderer_demo)
 add_subdirectory(renderer_demo_2d)
+add_subdirectory(renderer_demo_3dgs)
 add_subdirectory(image_demo)
 add_subdirectory(inference_demo)
 add_subdirectory(compute_demo)
