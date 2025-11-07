@@ -3,6 +3,8 @@
 //
 
 #include "GraphicsApp.h"
+
+#include "3dgs/SpzModel.h"
 #include "runtime/gpu/VkGPUHelper.h"
 #include "runtime/log/Log.h"
 #include "window/impl/GLFWWindowImpl.h"
@@ -104,6 +106,14 @@ bool GraphicsApp::Init() {
 
   if (!this->ConstructRendererPipeline()) {
     Logger() << Logger::ERROR << "Failed to construct renderer" << std::endl;
+    return false;
+  }
+
+  // TODO: Load splat file
+  SpzModel model;
+  if (!model.loadModel("../../../examples/renderer_demo_3dgs/assets/"
+                       "builtin.models/3dgs/butterfly")) {
+    Logger() << Logger::ERROR << "Failed to load model" << std::endl;
     return false;
   }
 

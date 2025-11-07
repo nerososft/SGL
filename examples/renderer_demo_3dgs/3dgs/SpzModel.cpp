@@ -6,6 +6,8 @@
 
 #include "runtime/log/Log.h"
 
+#include <glm/vec3.hpp>
+
 float float24(const uint8_t val[3], const uint32_t fractionalBits) {
   int32_t fixed = (static_cast<int32_t>(val[0]) << 16) |
                   (static_cast<int32_t>(val[1]) << 8) |
@@ -28,6 +30,10 @@ bool SpzModel::loadModel(const char *str) {
   SpzFile file{};
 
   this->modelBytes = IOUtils::ReadFile(str);
+  if (this->modelBytes.size() == 0) {
+    Logger() << "No data in file!" << std::endl;
+    return false;
+  }
 
   Logger() << "Loaded Model from File: " << str
            << ", size=" << modelBytes.size() << std::endl;

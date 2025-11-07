@@ -39,9 +39,11 @@ add_executable(3dgs_renderer_demo
         window/IWindow.cpp
         window/impl/GLFWWindowImpl.h
         window/impl/GLFWWindowImpl.cpp
+        3dgs/GaussianModel.h
+        3dgs/SpzModel.h
+        3dgs/SpzModel.cpp
         GraphicsApp.h
         GraphicsApp.cpp
-        scene/Scene.h
 )
 target_link_libraries(3dgs_renderer_demo runtime)
 target_link_libraries(3dgs_renderer_demo render_engine)

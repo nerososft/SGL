@@ -7,8 +7,7 @@
 
 #include <cstdint>
 
-#include "GaussianSplatting3DRenderer.h"
-#include "GuassianModel.h"
+#include "GaussianModel.h"
 #include "runtime/utils/IOUtils.h"
 
 #define SPZ_HEADER_MAGIC (0x5053474e)
