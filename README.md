@@ -2,8 +2,8 @@
 <table>
 <tr>
 
-<td width="20%">
-<img src="https://raw.gitcode.com/OpenHarmonyPerfSquad/SGL/blobs/9022a326d73aa21fcbd1a08e9458fa5b5ec32a89/logo_t.png">
+<td width="20%"> 
+<h1><span style="color: black">HM</span><span style="color: dodgerblue">C</span></h1>
 </td>
 
 <td>
