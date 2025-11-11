@@ -1,15 +1,13 @@
 <table>
 <tr>
 
-<td width="20%"> 
+<td style="width:20%"> 
 <h1><span style="color: black;font-weight: bolder">HM</span><span style="color: dodgerblue;font-weight: bolder">C</span></h1>
 </td>
 
-<td>
-
+<td style="width:80%">
 <h1><span style="font-weight: lighter">HMComputeKit</span></h1>
 <h3><span style="font-weight: lighter">High-performance GPGPU library based on Vulkan</span></h3>
-
 </td>
 
 </tr>
