@@ -7,8 +7,8 @@
 
 <td>
 
-<h1>HMComputeKit</h1>
-<h3>High-performance GPGPU library based on Vulkan</h3>
+<h1><span style="font-weight: lighter">HMComputeKit</span></h1>
+<h3><span style="font-weight: lighter">High-performance GPGPU library based on Vulkan</span></h3>
 
 </td>
 
