@@ -1,9 +1,8 @@
-
 <table>
 <tr>
 
 <td width="20%"> 
-<h1><span style="color: black">HM</span><span style="color: dodgerblue">C</span></h1>
+<h1><span style="color: black;font-weight: bolder">HM</span><span style="color: dodgerblue;font-weight: bolder">C</span></h1>
 </td>
 
 <td>
@@ -24,4 +23,5 @@ ce->Seq()->Record(ce->MatMul(mat1, mat2, matOutput))->Eval()->Destroy();
 ```
 
 ### Getting Start
+
 See the [Usage](./doc/getting_start.md) | [Examples](https://gitcode.com/OpenHarmonyPerfSquad/SGL/tree/main/examples) 
