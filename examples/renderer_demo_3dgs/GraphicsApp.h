@@ -18,6 +18,7 @@ class GraphicsApp final : public IEventHandler {
   std::shared_ptr<GraphicsPipelineNode> graphicsPipelineNode = nullptr;
   std::shared_ptr<VkGPUBuffer> vertexBuffer = nullptr;
   std::shared_ptr<VkGPUBuffer> indexBuffer = nullptr;
+  std::shared_ptr<VkGPUBuffer> cameraBuffer = nullptr;
 
   FrameInfo frameInfo{};
 

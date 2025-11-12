@@ -53,6 +53,10 @@ bool GraphicsApp::ConstructRendererPipeline() {
        .offset = offsetof(GaussianPoint, opacity)});
 
   std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
+  descriptorSetLayoutBindings.push_back(
+      VkGPUHelper::BuildDescriptorSetLayoutBinding(
+          0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1,
+          VK_SHADER_STAGE_ALL_GRAPHICS));
 
   VkViewport viewport{
       .x = 0,
@@ -113,10 +117,10 @@ bool GraphicsApp::Init() {
   }
 
   std::vector<GaussianPoint> points = model.getPoints();
-  for (auto & point : points) {
-    point.position.x /= 4000.0f;
-    point.position.y /= 4000.0f;
-    point.position.z /= 4000.0f;
+  for (auto &point : points) {
+    point.position.x /= 3000.0f;
+    point.position.y /= 3000.0f;
+    point.position.z /= 3000.0f;
   }
   this->vertexBuffer = std::make_shared<VkGPUBuffer>(renderer->GetGPUCtx());
   VkResult ret = vertexBuffer->AllocateAndBind(
@@ -159,9 +163,30 @@ bool GraphicsApp::Init() {
   indicesBufferNode.buf.buffer = indexBuffer->GetBuffer();
   indicesBufferNode.buf.bufferSize = indexBuffer->GetBufferSize();
 
+  struct Camera {
+  } cam;
+
+  cameraBuffer = std::make_shared<VkGPUBuffer>(renderer->GetGPUCtx());
+  ret = cameraBuffer->AllocateAndBind(GPU_BUFFER_TYPE_UNIFORM, sizeof(Camera));
+  if (ret != VK_SUCCESS) {
+    Logger() << Logger::ERROR << "Failed to allocate GPU buffer" << std::endl;
+    return false;
+  }
+  ret = cameraBuffer->UploadData(&cam, sizeof(cam));
+  if (ret != VK_SUCCESS) {
+    Logger() << Logger::ERROR << "Failed to upload GPU buffer" << std::endl;
+    return false;
+  }
+
+  PipelineNodeBuffer cameraBufferNode;
+  cameraBufferNode.type = PIPELINE_NODE_BUFFER_UNIFORM;
+  cameraBufferNode.buf.buffer = cameraBuffer->GetBuffer();
+  cameraBufferNode.buf.bufferSize = cameraBuffer->GetBufferSize();
+
   std::vector<PipelineNodeBuffer> buffers;
   buffers.push_back(vertexBufferNode);
   buffers.push_back(indicesBufferNode);
+  buffers.push_back(cameraBufferNode);
 
   const std::function func = [](VkCommandBuffer commandBuffer) {
     // NA:

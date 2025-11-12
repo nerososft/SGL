@@ -9,6 +9,12 @@ layout (location = 4) in vec4 opacity;
 layout (location = 0) out vec3 outColor;
 layout (location = 1) out vec3 outPosition;
 
+layout (set = 0, binding = 0) uniform Camera {
+    mat4 view;
+    mat4 proj;
+    vec3 camPos;
+} cam;
+
 void main() {
     gl_Position = vec4(position.xyz, 1.0f);
     outColor = color.rgb;
