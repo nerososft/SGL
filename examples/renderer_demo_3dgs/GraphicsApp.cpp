@@ -112,7 +112,12 @@ bool GraphicsApp::Init() {
     return false;
   }
 
-  const std::vector<GaussianPoint> points = model.getPoints();
+  std::vector<GaussianPoint> points = model.getPoints();
+  for (auto & point : points) {
+    point.position.x /= 4000.0f;
+    point.position.y /= 4000.0f;
+    point.position.z /= 4000.0f;
+  }
   this->vertexBuffer = std::make_shared<VkGPUBuffer>(renderer->GetGPUCtx());
   VkResult ret = vertexBuffer->AllocateAndBind(
       GPU_BUFFER_TYPE_VERTEX, points.size() * sizeof(GaussianPoint));
