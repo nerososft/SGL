@@ -31,6 +31,31 @@ VkGPUGraphicsPipeline::VkGPUGraphicsPipeline(
   this->pushConstantRanges = pushConstantRanges;
   this->vertexInputBindingDescriptions = vertexInputBindingDescriptions;
   this->vertexInputAttributeDescriptions = vertexInputAttributeDescriptions;
+  this->primitiveTopology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+  this->polygonMode = VK_POLYGON_MODE_FILL;
+}
+VkGPUGraphicsPipeline::VkGPUGraphicsPipeline(
+    const std::string &vertexShaderPath, const std::string &fragShaderPath,
+    const float viewWidth, const float viewHeight,
+    const std::vector<VkDescriptorSetLayoutBinding>
+        &descriptorSetLayoutBindings,
+    const std::vector<VkPushConstantRange> &pushConstantRanges,
+    const std::vector<VkVertexInputBindingDescription>
+        &vertexInputBindingDescriptions,
+    const std::vector<VkVertexInputAttributeDescription>
+        &vertexInputAttributeDescriptions,
+    const VkPrimitiveTopology primitiveTopology,
+    const VkPolygonMode polygonMode) {
+  this->vertexShaderPath = vertexShaderPath;
+  this->fragShaderPath = fragShaderPath;
+  this->viewWidth = viewWidth;
+  this->viewHeight = viewHeight;
+  this->descriptorSetLayoutBindings = descriptorSetLayoutBindings;
+  this->pushConstantRanges = pushConstantRanges;
+  this->vertexInputBindingDescriptions = vertexInputBindingDescriptions;
+  this->vertexInputAttributeDescriptions = vertexInputAttributeDescriptions;
+  this->primitiveTopology = primitiveTopology;
+  this->polygonMode = polygonMode;
 }
 
 VkResult VkGPUGraphicsPipeline::CreateGraphicsPipeline(
@@ -108,8 +133,8 @@ VkResult VkGPUGraphicsPipeline::CreateGraphicsPipeline(
   result = VkGPUHelper::CreateGraphicsPipeline(
       device, pipelineCache, this->pipelineLayout, this->vertexShaderModule,
       this->fragmentShaderModule, renderPass, vertexInputBindingDescriptions,
-      vertexInputAttributeDescriptions, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
-      VK_FALSE, viewports, viewportScissors, VK_POLYGON_MODE_FILL, 1.0f,
+      vertexInputAttributeDescriptions, this->primitiveTopology, VK_FALSE,
+      viewports, viewportScissors, this->polygonMode, 1.0f,
       colorBlendStateCreateInfos, dynamicStates, &this->graphicsPipeline);
   return result;
 }

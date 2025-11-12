@@ -40,6 +40,9 @@ class GraphicsPipelineNode final : public IComputeGraphNode {
 
   std::vector<GraphicsElement> graphicsElements;
 
+  VkPrimitiveTopology primitiveTopology;
+  VkPolygonMode polygonMode;
+
 public:
   GraphicsPipelineNode(const std::shared_ptr<VkGPUContext> &gpuCtx,
                        const std::string &name,
@@ -67,7 +70,23 @@ public:
                            &vertexInputBindingDescriptions,
                        const std::vector<VkVertexInputAttributeDescription>
                            &vertexInputAttributeDescriptions,
-                       float width, float height, VkViewport viewport);
+                       float width, float height, const VkViewport &viewport);
+
+  GraphicsPipelineNode(const std::shared_ptr<VkGPUContext> &gpuCtx,
+                       const std::string &name,
+                       const std::shared_ptr<VkGPURenderPass> &renderPass,
+                       const std::string &vertexShaderPath,
+                       const std::string &fragmentShaderPath,
+                       uint32_t pushConstantSize,
+                       const std::vector<VkDescriptorSetLayoutBinding>
+                           &descriptorSetLayoutBindings,
+                       const std::vector<VkVertexInputBindingDescription>
+                           &vertexInputBindingDescriptions,
+                       const std::vector<VkVertexInputAttributeDescription>
+                           &vertexInputAttributeDescriptions,
+                       float width, float height, const VkViewport &viewport,
+                       VkPrimitiveTopology primitiveTopology,
+                       VkPolygonMode polygonMode);
 
   [[nodiscard]] std::shared_ptr<VkGPUDescriptorSet>
   CreateDescriptorSet(const GraphicsElement &graphicsElement) const;

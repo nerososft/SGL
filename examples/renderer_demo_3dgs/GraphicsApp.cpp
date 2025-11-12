@@ -21,17 +21,38 @@ VkSurfaceKHR GetWindowSurface(const VkInstance instance) {
 bool GraphicsApp::ConstructRendererPipeline() {
   std::vector<VkVertexInputBindingDescription> vertexInputBindingDescriptions =
       {{.binding = 0,
-        .stride = sizeof(Vertex),
+        .stride = sizeof(GaussianPoint),
         .inputRate = VK_VERTEX_INPUT_RATE_VERTEX}};
+
   std::vector<VkVertexInputAttributeDescription>
       vertexInputAttributeDescriptions = {};
+  vertexInputAttributeDescriptions.push_back(
+      {.location = 0, // position
+       .binding = 0,
+       .format = VK_FORMAT_R32G32B32A32_SFLOAT,
+       .offset = offsetof(GaussianPoint, position)});
+  vertexInputAttributeDescriptions.push_back(
+      {.location = 1, // color
+       .binding = 0,
+       .format = VK_FORMAT_R32G32B32A32_SFLOAT,
+       .offset = offsetof(GaussianPoint, color)});
+  vertexInputAttributeDescriptions.push_back(
+      {.location = 2, // scale
+       .binding = 0,
+       .format = VK_FORMAT_R32G32B32A32_SFLOAT,
+       .offset = offsetof(GaussianPoint, scale)});
+  vertexInputAttributeDescriptions.push_back(
+      {.location = 3, // rotate
+       .binding = 0,
+       .format = VK_FORMAT_R32G32B32A32_SFLOAT,
+       .offset = offsetof(GaussianPoint, rotate)});
+  vertexInputAttributeDescriptions.push_back(
+      {.location = 4, // opacity
+       .binding = 0,
+       .format = VK_FORMAT_R32G32B32A32_SFLOAT,
+       .offset = offsetof(GaussianPoint, opacity)});
 
   std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
-
-  descriptorSetLayoutBindings.push_back(
-      VkGPUHelper::BuildDescriptorSetLayoutBinding(
-          0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1,
-          VK_SHADER_STAGE_ALL_GRAPHICS));
 
   VkViewport viewport{
       .x = 0,
@@ -47,7 +68,7 @@ bool GraphicsApp::ConstructRendererPipeline() {
       SHADER(rect_3dgs.frag.glsl.spv), sizeof(FrameInfo),
       descriptorSetLayoutBindings, vertexInputBindingDescriptions,
       vertexInputAttributeDescriptions, this->windowWidth, this->windowHeight,
-      viewport);
+      viewport, VK_PRIMITIVE_TOPOLOGY_POINT_LIST, VK_POLYGON_MODE_FILL);
   if (this->graphicsPipelineNode == nullptr) {
     Logger() << Logger::ERROR << "Failed to create graphics pipeline node!"
              << std::endl;
@@ -92,34 +113,57 @@ bool GraphicsApp::Init() {
   }
 
   const std::vector<GaussianPoint> points = model.getPoints();
-  const auto pointsBuf = std::make_shared<VkGPUBuffer>(renderer->GetGPUCtx());
-  VkResult ret = pointsBuf->AllocateAndBind(
-      GPU_BUFFER_TYPE_STORAGE_SHARED, points.size() * sizeof(GaussianPoint));
+  const auto vertexBuf = std::make_shared<VkGPUBuffer>(renderer->GetGPUCtx());
+  VkResult ret = vertexBuf->AllocateAndBind(
+      GPU_BUFFER_TYPE_VERTEX, points.size() * sizeof(GaussianPoint));
   if (ret != VK_SUCCESS) {
     Logger() << Logger::ERROR << "Failed to allocate GPU buffer" << std::endl;
     return false;
   }
-  ret = pointsBuf->UploadData(points.data(),
+  ret = vertexBuf->UploadData(points.data(),
                               points.size() * sizeof(GaussianPoint));
   if (ret != VK_SUCCESS) {
     Logger() << Logger::ERROR << "Failed to upload GPU buffer" << std::endl;
     return false;
   }
 
-  PipelineNodeBuffer pointsBufferNode;
-  pointsBufferNode.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
-  pointsBufferNode.buf.buffer = pointsBuf->GetBuffer();
-  pointsBufferNode.buf.bufferSize = pointsBuf->GetBufferSize();
+  PipelineNodeBuffer vertexBufferNode;
+  vertexBufferNode.type = PIPELINE_NODE_BUFFER_VERTEX;
+  vertexBufferNode.buf.buffer = vertexBuf->GetBuffer();
+  vertexBufferNode.buf.bufferSize = vertexBuf->GetBufferSize();
 
-  std::vector<PipelineNodeBuffer> buffersLeft;
-  buffersLeft.push_back(pointsBufferNode);
+  std::vector indices(points.size(), 0);
+  const auto indicesBuf = std::make_shared<VkGPUBuffer>(renderer->GetGPUCtx());
+  ret = indicesBuf->AllocateAndBind(GPU_BUFFER_TYPE_INDEX,
+                                    indices.size() * sizeof(int));
+  if (ret != VK_SUCCESS) {
+    Logger() << Logger::ERROR << "Failed to allocate GPU buffer" << std::endl;
+    return false;
+  }
+  for (int i = 0; i < indices.size(); i++) {
+    indices[i] = i;
+  }
+  ret = indicesBuf->UploadData(indices.data(), indices.size() * sizeof(int));
+  if (ret != VK_SUCCESS) {
+    Logger() << Logger::ERROR << "Failed to upload GPU buffer" << std::endl;
+    return false;
+  }
+
+  PipelineNodeBuffer indicesBufferNode;
+  indicesBufferNode.type = PIPELINE_NODE_BUFFER_INDEX;
+  indicesBufferNode.buf.buffer = indicesBuf->GetBuffer();
+  indicesBufferNode.buf.bufferSize = indicesBuf->GetBufferSize();
+
+  std::vector<PipelineNodeBuffer> buffers;
+  buffers.push_back(vertexBufferNode);
+  buffers.push_back(indicesBufferNode);
 
   const std::function func = [](VkCommandBuffer commandBuffer) {
     // NA:
   };
   const GraphicsElement elementLeft{
       .pushConstantInfo = {.size = sizeof(FrameInfo), .data = &this->frameInfo},
-      .buffers = buffersLeft,
+      .buffers = buffers,
       .customDrawFunc = func,
   };
   this->graphicsPipelineNode->AddGraphicsElement(elementLeft);

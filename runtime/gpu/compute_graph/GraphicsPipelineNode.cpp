@@ -46,6 +46,8 @@ GraphicsPipelineNode::GraphicsPipelineNode(
       .minDepth = 0,
       .maxDepth = 1,
   };
+  this->primitiveTopology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+  this->polygonMode = VK_POLYGON_MODE_FILL;
 }
 
 GraphicsPipelineNode::GraphicsPipelineNode(
@@ -59,7 +61,7 @@ GraphicsPipelineNode::GraphicsPipelineNode(
         &vertexInputBindingDescriptions,
     const std::vector<VkVertexInputAttributeDescription>
         &vertexInputAttributeDescriptions,
-    const float width, const float height, const VkViewport viewport) {
+    const float width, const float height, const VkViewport &viewport) {
   this->gpuCtx = gpuCtx;
   this->name = name;
   this->type = COMPUTE_GRAPH_NODE_GRAPHICS;
@@ -73,6 +75,39 @@ GraphicsPipelineNode::GraphicsPipelineNode(
   this->width = width;
   this->height = height;
   this->viewport = viewport;
+  this->primitiveTopology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+  this->polygonMode = VK_POLYGON_MODE_FILL;
+}
+
+GraphicsPipelineNode::GraphicsPipelineNode(
+    const std::shared_ptr<VkGPUContext> &gpuCtx, const std::string &name,
+    const std::shared_ptr<VkGPURenderPass> &renderPass,
+    const std::string &vertexShaderPath, const std::string &fragmentShaderPath,
+    const uint32_t pushConstantSize,
+    const std::vector<VkDescriptorSetLayoutBinding>
+        &descriptorSetLayoutBindings,
+    const std::vector<VkVertexInputBindingDescription>
+        &vertexInputBindingDescriptions,
+    const std::vector<VkVertexInputAttributeDescription>
+        &vertexInputAttributeDescriptions,
+    const float width, const float height, const VkViewport &viewport,
+    const VkPrimitiveTopology primitiveTopology,
+    const VkPolygonMode polygonMode) {
+  this->gpuCtx = gpuCtx;
+  this->name = name;
+  this->type = COMPUTE_GRAPH_NODE_GRAPHICS;
+  this->renderPass = renderPass;
+  this->vertexShaderPath = vertexShaderPath;
+  this->fragmentShaderPath = fragmentShaderPath;
+  this->pushConstantSize = pushConstantSize;
+  this->descriptorSetLayoutBindings = descriptorSetLayoutBindings;
+  this->vertexInputBindingDescriptions = vertexInputBindingDescriptions;
+  this->vertexInputAttributeDescriptions = vertexInputAttributeDescriptions;
+  this->width = width;
+  this->height = height;
+  this->viewport = viewport;
+  this->primitiveTopology = primitiveTopology;
+  this->polygonMode = polygonMode;
 }
 
 std::shared_ptr<VkGPUDescriptorSet> GraphicsPipelineNode::CreateDescriptorSet(
@@ -176,7 +211,7 @@ VkResult GraphicsPipelineNode::CreateComputeGraphNode() {
   graphicsPipeline = std::make_shared<VkGPUGraphicsPipeline>(
       vertexShaderPath, fragmentShaderPath, width, height,
       descriptorSetLayoutBindings, pushConstantRanges,
-      vertexInputBindingDescriptions, vertexInputAttributeDescriptions);
+      vertexInputBindingDescriptions, vertexInputAttributeDescriptions, primitiveTopology, polygonMode);
   const VkResult ret = graphicsPipeline->CreateGraphicsPipeline(
       gpuCtx->GetCurrentDevice(), gpuCtx->GetPipelineCache(),
       renderPass->GetRenderPass());

@@ -27,6 +27,9 @@ class VkGPUGraphicsPipeline {
   VkShaderModule fragmentShaderModule = VK_NULL_HANDLE;
   VkPipeline graphicsPipeline = VK_NULL_HANDLE;
 
+  VkPrimitiveTopology primitiveTopology;
+  VkPolygonMode polygonMode;
+
 public:
   VkGPUGraphicsPipeline(
       const std::string &vertexShaderPath, const std::string &fragShaderPath,
@@ -38,6 +41,18 @@ public:
           &vertexInputBindingDescriptions,
       const std::vector<VkVertexInputAttributeDescription>
           &vertexInputAttributeDescriptions);
+
+  VkGPUGraphicsPipeline(
+      const std::string &vertexShaderPath, const std::string &fragShaderPath,
+      float viewWidth, float viewHeight,
+      const std::vector<VkDescriptorSetLayoutBinding>
+          &descriptorSetLayoutBindings,
+      const std::vector<VkPushConstantRange> &pushConstantRanges,
+      const std::vector<VkVertexInputBindingDescription>
+          &vertexInputBindingDescriptions,
+      const std::vector<VkVertexInputAttributeDescription>
+          &vertexInputAttributeDescriptions,
+      VkPrimitiveTopology primitiveTopology, VkPolygonMode polygonMode);
 
   ~VkGPUGraphicsPipeline() = default;
 
