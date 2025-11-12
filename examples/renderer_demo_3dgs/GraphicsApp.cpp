@@ -63,7 +63,7 @@ bool GraphicsApp::ConstructRendererPipeline() {
       .maxDepth = 1,
   };
   this->graphicsPipelineNode = std::make_shared<GraphicsPipelineNode>(
-      renderer->GetGPUCtx(), "GraphicsPipeline",
+      renderer->GetGPUCtx(), "3DGSGraphicsPipeline",
       this->renderer->GetMainRenderPass(), SHADER(rect_3dgs.vert.glsl.spv),
       SHADER(rect_3dgs.frag.glsl.spv), sizeof(FrameInfo),
       descriptorSetLayoutBindings, vertexInputBindingDescriptions,
@@ -113,15 +113,15 @@ bool GraphicsApp::Init() {
   }
 
   const std::vector<GaussianPoint> points = model.getPoints();
-  const auto vertexBuf = std::make_shared<VkGPUBuffer>(renderer->GetGPUCtx());
-  VkResult ret = vertexBuf->AllocateAndBind(
+  this->vertexBuffer = std::make_shared<VkGPUBuffer>(renderer->GetGPUCtx());
+  VkResult ret = vertexBuffer->AllocateAndBind(
       GPU_BUFFER_TYPE_VERTEX, points.size() * sizeof(GaussianPoint));
   if (ret != VK_SUCCESS) {
     Logger() << Logger::ERROR << "Failed to allocate GPU buffer" << std::endl;
     return false;
   }
-  ret = vertexBuf->UploadData(points.data(),
-                              points.size() * sizeof(GaussianPoint));
+  ret = vertexBuffer->UploadData(points.data(),
+                                 points.size() * sizeof(GaussianPoint));
   if (ret != VK_SUCCESS) {
     Logger() << Logger::ERROR << "Failed to upload GPU buffer" << std::endl;
     return false;
@@ -129,13 +129,13 @@ bool GraphicsApp::Init() {
 
   PipelineNodeBuffer vertexBufferNode;
   vertexBufferNode.type = PIPELINE_NODE_BUFFER_VERTEX;
-  vertexBufferNode.buf.buffer = vertexBuf->GetBuffer();
-  vertexBufferNode.buf.bufferSize = vertexBuf->GetBufferSize();
+  vertexBufferNode.buf.buffer = vertexBuffer->GetBuffer();
+  vertexBufferNode.buf.bufferSize = vertexBuffer->GetBufferSize();
 
   std::vector indices(points.size(), 0);
-  const auto indicesBuf = std::make_shared<VkGPUBuffer>(renderer->GetGPUCtx());
-  ret = indicesBuf->AllocateAndBind(GPU_BUFFER_TYPE_INDEX,
-                                    indices.size() * sizeof(int));
+  this->indexBuffer = std::make_shared<VkGPUBuffer>(renderer->GetGPUCtx());
+  ret = indexBuffer->AllocateAndBind(GPU_BUFFER_TYPE_INDEX,
+                                     indices.size() * sizeof(int));
   if (ret != VK_SUCCESS) {
     Logger() << Logger::ERROR << "Failed to allocate GPU buffer" << std::endl;
     return false;
@@ -143,7 +143,7 @@ bool GraphicsApp::Init() {
   for (int i = 0; i < indices.size(); i++) {
     indices[i] = i;
   }
-  ret = indicesBuf->UploadData(indices.data(), indices.size() * sizeof(int));
+  ret = indexBuffer->UploadData(indices.data(), indices.size() * sizeof(int));
   if (ret != VK_SUCCESS) {
     Logger() << Logger::ERROR << "Failed to upload GPU buffer" << std::endl;
     return false;
@@ -151,8 +151,8 @@ bool GraphicsApp::Init() {
 
   PipelineNodeBuffer indicesBufferNode;
   indicesBufferNode.type = PIPELINE_NODE_BUFFER_INDEX;
-  indicesBufferNode.buf.buffer = indicesBuf->GetBuffer();
-  indicesBufferNode.buf.bufferSize = indicesBuf->GetBufferSize();
+  indicesBufferNode.buf.buffer = indexBuffer->GetBuffer();
+  indicesBufferNode.buf.bufferSize = indexBuffer->GetBufferSize();
 
   std::vector<PipelineNodeBuffer> buffers;
   buffers.push_back(vertexBufferNode);

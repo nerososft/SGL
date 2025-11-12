@@ -16,7 +16,9 @@ class GraphicsApp final : public IEventHandler {
   std::shared_ptr<Renderer> renderer = nullptr;
 
   std::shared_ptr<GraphicsPipelineNode> graphicsPipelineNode = nullptr;
-  std::vector<std::shared_ptr<RendererMesh>> rendererMeshes;
+  std::shared_ptr<VkGPUBuffer> vertexBuffer = nullptr;
+  std::shared_ptr<VkGPUBuffer> indexBuffer = nullptr;
+
   FrameInfo frameInfo{};
 
   bool running = true;
