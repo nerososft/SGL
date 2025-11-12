@@ -5,13 +5,11 @@ layout (location = 2) in vec3 position;
 
 layout (location = 0) out vec4 FragColor;
 
-layout (binding = 0) uniform sampler2D texSampler;
-
 layout (push_constant) uniform FrameInfo {
     uint frameIndex;
     float time;
 } frameInfo;
 
 void main() {
-    FragColor = vec4(color,1.0f); // texture(texSampler, texCoord);
+    FragColor = vec4(color,1.0f);
 }
