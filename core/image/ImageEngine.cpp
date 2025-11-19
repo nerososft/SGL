@@ -91,7 +91,6 @@ VkResult ImageEngine::Process(const std::shared_ptr<VkGPUBuffer> &inputBuffer,
   const uint64_t imageBufferPrepareStart = TimeUtils::GetCurrentMonoMs();
   VkResult ret = inputBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED,
                                               inputBufferSize);
-
   if (ret != VK_SUCCESS) {
     Logger() << Logger::ERROR << "Failed to allocate input GPU buffer!"
              << std::endl;
