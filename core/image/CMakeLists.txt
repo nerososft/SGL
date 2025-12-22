@@ -109,6 +109,8 @@ set(ENGINE_SOURCE ImageEngine.cpp
         filters/impl/VoronoiFilter.h
         filters/impl/FastGaussianBlurFilter.cpp
         filters/impl/FastGaussianBlurFilter.h
+        filters/impl/8bit_gaussian/8BitFastGaussianBlurFilter.h
+        filters/impl/8bit_gaussian/8BitFastGaussianBlurFilter.cpp
         filters/impl/MedianFilter.cpp
         filters/impl/MedianFilter.h
         filters/impl/MidValueFilter.h
