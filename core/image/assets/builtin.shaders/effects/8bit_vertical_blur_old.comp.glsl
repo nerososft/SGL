@@ -18,24 +18,16 @@ layout (push_constant) uniform FilterParams {
     int radius;
 } filterParams;
 
-// ABGR
-uint packColor(vec4 color) {
-    return (
-    uint(clamp(color.a, 0.0, 1.0) * 255.0) << 24) |
-    (uint(clamp(color.b, 0.0, 1.0) * 255.0) << 16) |
-    (uint(clamp(color.g, 0.0, 1.0) * 255.0) << 8) |
-    (uint(clamp(color.r, 0.0, 1.0) * 255.0)
-    );
+float unpack8BitSingleChannel(uint packedValue, uint byteOffset) {
+    uint eightBitValue = (packedValue >> (byteOffset * 8)) & 0xFF;
+    return float(eightBitValue) / 255.0;
 }
 
-// ABGR
-vec4 unpackColor(uint color) {
-    return vec4(
-    float((color) & 0xFF) / 255.0f,
-    float((color >> 8) & 0xFF) / 255.0f,
-    float((color >> 16) & 0xFF) / 255.0f,
-    float((color >> 24) & 0xFF) / 255.0f
-    );
+uint pack8BitSingleChannel(uint originalPacked, float normalizedValue, uint byteOffset) {
+    uint eightBitValue = uint(clamp(normalizedValue, 0.0, 1.0) * 255.0);
+    originalPacked &= ~(0xFF << (byteOffset * 8));
+    originalPacked |= (eightBitValue << (byteOffset * 8));
+    return originalPacked;
 }
 
 void main() {
@@ -43,20 +35,31 @@ void main() {
     if (any(greaterThanEqual(coord, uvec2(filterParams.width, filterParams.height)))) {
         return;
     }
-    vec4 colorSum = vec4(0.0);
-    float weightSum = 0.0;
+
+    uint globalPixelIndex = coord.x + coord.y * filterParams.width;
     float sigma = float(filterParams.radius) / 3;
+
+    float colorSum = 0.0;
+    float weightSum = 0.0;
     for (int dy = -filterParams.radius; dy <= filterParams.radius; ++dy) {
         int sampleY = int(coord.y) + dy;
         sampleY = clamp(sampleY, 0, int(filterParams.height) - 1);
 
-        float weight = exp(- float(dy * dy) / (2.0 * sigma * sigma));
-        vec4 sampledColor = unpackColor(inputImage.pixels[coord.x + sampleY * filterParams.width]);
+        uint sampleGlobalIndex = coord.x + uint(sampleY) * filterParams.width;
+        uint uintIndex = sampleGlobalIndex / 4;
+        uint byteOffset = sampleGlobalIndex % 4;
 
+        uint packedValue = inputImage.pixels[uintIndex];
+        float sampledColor = unpack8BitSingleChannel(packedValue, byteOffset);
+
+        float weight = exp(- float(dy * dy) / (2.0 * sigma * sigma));
         colorSum += sampledColor * weight;
         weightSum += weight;
     }
 
-    colorSum /= weightSum;
-    outputImage.pixels[coord.x + coord.y * filterParams.width] = packColor(colorSum);
+    float finalColor = colorSum / weightSum;
+    uint targetUintIndex = globalPixelIndex / 4;
+    uint targetByteOffset = globalPixelIndex % 4;
+    uint originalPacked = outputImage.pixels[targetUintIndex];
+    outputImage.pixels[targetUintIndex] = pack8BitSingleChannel(originalPacked, finalColor, targetByteOffset);
 }
