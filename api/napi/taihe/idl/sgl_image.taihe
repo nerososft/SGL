@@ -91,4 +91,3 @@ function zigzag(in: SglImageInfo, out: SglImageInfo, wavelength: i32, amplitude:
 function spherize(in: SglImageInfo, out: SglImageInfo, alpha: i32, type: i32): SglError;
 function pinch(in: SglImageInfo, out: SglImageInfo, amount: i32): SglError;
 function wave(in: SglImageInfo, out: SglImageInfo, wavelength: i32, amplitude: i32, x_pro: i32, y_pro: i32, type: i32, method: i32): SglError;
-
