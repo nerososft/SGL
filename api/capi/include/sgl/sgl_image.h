@@ -30,21 +30,17 @@ typedef struct sgl_image_cpu_info {
   void *data;
 } sgl_image_cpu_info_t;
 
-typedef struct sgl_image_cpu_tile_info {
+typedef struct sgl_image_huge_cpu_info {
   uint32_t width;
   uint32_t height;
   uint32_t channels;
   uint32_t bytesPerLine;
-  struct {
-    uint32_t tile_height; // 256
-    uint32_t tile_idx;
-  } tile_info;
   void *(*getRowData)(size_t row);
-} sgl_image_cpu_tile_info_t;
+} sgl_image_huge_cpu_info_t;
 
 typedef enum sgl_image_type {
   SGL_IMAGE_TYPE_CPU = 0,
-  SGL_IMAGE_TYPE_CPU_TILE,
+  SGL_IMAGE_TYPE_HUGE_CPU,
   SGL_IMAGE_TYPE_GPU,
   SGL_IMAGE_TYPE_UNKNOWN
 } sgl_image_type_t;
@@ -54,7 +50,7 @@ typedef struct sgl_image_info {
   union {
     sgl_image_gpu_info_t gpu;
     sgl_image_cpu_info_t cpu;
-    sgl_image_cpu_tile_info_t cpu_tile;
+    sgl_image_huge_cpu_info_t cpu_tile;
   } info;
 } sgl_image_info_t;
 
