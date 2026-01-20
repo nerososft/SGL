@@ -20,24 +20,32 @@ using ImageInfoCpu = sgl_image_cpu_info_t;
 class HugeImageProcesser {
   std::shared_ptr<HugeImageInfo> infoInfo;
 
-  std::unordered_map<size_t, VkGPUBuffer> buffer_cache; // 9 buffers
+  std::unordered_map<int, std::shared_ptr<VkGPUBuffer>>
+      buffer_cache; // 9 buffers
 
   std::vector<std::shared_ptr<VkGPUBuffer>> inputStorageBuffers;
 
   std::shared_ptr<VkGPUBuffer> outputBuffer;
 
-  VkResult PrepareInputBufferForTile(size_t tileIdx);
+  [[nodiscard]] VkResult
+  CheckAndCreateTilesBuffer(const std::vector<int> &tilesIdx) const;
 
-  VkResult Process(size_t tileIdx, const std::shared_ptr<IFilter> &filter);
+  [[nodiscard]] VkResult CreateTileBuffersCache(int tileIdx) const;
+
+  VkResult CheckAndPrepareInputBuffers(const std::vector<int> &tilesIdx);
+
+  VkResult PrepareInputBufferForTile(int tileIdx);
+
+  VkResult Process(int tileIdx, const std::shared_ptr<IFilter> &filter);
 
 public:
   explicit HugeImageProcesser(const std::shared_ptr<HugeImageInfo> &input);
 
-  VkResult Init() const;
+  [[nodiscard]] VkResult Init() const;
 
   ~HugeImageProcesser() = default;
 
-  void Process(size_t tileIdx, const std::shared_ptr<IFilter> &filter,
+  void Process(int tileIdx, const std::shared_ptr<IFilter> &filter,
                const std::shared_ptr<ImageInfoCpu> &output);
 };
 
