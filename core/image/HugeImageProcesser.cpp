@@ -7,6 +7,7 @@
 #include "core/context/Context.h"
 #include "runtime/log/Log.h"
 #include "runtime/utils/TimeUtils.h"
+#include "tile/TileBasedFilter.h"
 
 #include <vulkan/vk_enum_string_helper.h>
 

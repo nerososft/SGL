@@ -4,14 +4,12 @@
 
 #ifndef SGL_HUGEIMAGEENGINE_H
 #define SGL_HUGEIMAGEENGINE_H
-#include "filters/IFilter.h"
-#include "filters/TileBasedFilter.h"
 #include "runtime/gpu/VkGPUBuffer.h"
 #include "sgl/sgl_image.h"
+#include "tile/TileBasedFilter.h"
 
 #include <map>
 #include <memory>
-#include <unordered_map>
 
 #define TILE_HEIGHT (256)
 #define PROCESS_TILES_BUFFER_CNT (9)

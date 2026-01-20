@@ -165,9 +165,8 @@ set(ENGINE_SOURCE ImageEngine.cpp
         filters/impl/RgbToYuvFilter.h
         HugeImageProcesser.cpp
         HugeImageProcesser.h
-        filters/TileBasedFilter.h
-        filters/impl/tile/TileBasedGaussianBlurFilter.cpp
-        filters/impl/tile/TileBasedGaussianBlurFilter.h
+        tile/TileBasedFilter.cpp
+        tile/TileBasedFilter.h
 )
 
 if (CMAKE_SYSTEM_NAME MATCHES "OHOS")
