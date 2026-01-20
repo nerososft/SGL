@@ -203,6 +203,11 @@ void ImageEngine::Process(const ImageInfo &input, const ImageInfo &output,
   if (input.type == SGL_IMAGE_TYPE_GPU && output.type == SGL_IMAGE_TYPE_GPU) {
     return ProcessFromGpuAddr(input.info.gpu, output.info.gpu, filter);
   }
+  if (input.type == SGL_IMAGE_TYPE_CPU_TILE &&
+      output.type == SGL_IMAGE_TYPE_CPU_TILE) {
+    return ProcessFromCpuAddr(input.info.cpu_tile, output.info.cpu_tile,
+                              filter);
+  }
   Logger() << Logger::ERROR << "type of in and out should all be GPU/CPU"
            << std::endl;
 }
@@ -341,6 +346,46 @@ void ImageEngine::ProcessFromCpuAddr(const std::vector<ImageInfoCpu> &inputs,
   inputBuffers.resize(0);
   outputBuffers.clear();
   outputBuffers.resize(0);
+}
+
+void ImageEngine::ProcessFromCpuAddr(const ImageImageCpuTile &input,
+                                     const ImageImageCpuTile &output,
+                                     const std::shared_ptr<IFilter> &filter) {
+  if (input.channels != output.channels) {
+    Logger() << "Input and output channel must be same size!" << std::endl;
+    return;
+  }
+  if (input.width != output.width || input.height != output.height) {
+    Logger() << "Scale from (" << input.width << "," << input.height << ") to ("
+             << output.width << "," << output.height << ")" << std::endl;
+  }
+
+  Logger() << "[IMAGE SIZE]" << "WIDTH " << input.width << ", HEIGHT "
+           << input.height << std::endl;
+  const VkDeviceSize outputBufferSize =
+      output.width * output.height * output.channels;
+  const auto inputStorageBuffer =
+      std::make_shared<VkGPUBuffer>(Context::GetInstance()->GetContext());
+  const auto outputStorageBuffer =
+      std::make_shared<VkGPUBuffer>(Context::GetInstance()->GetContext());
+
+  const VkResult ret = Process(inputStorageBuffer, input.width, input.height,
+                               output.width, output.height, input.channels,
+                               input.data, outputStorageBuffer, filter);
+  if (ret != VK_SUCCESS) {
+    Logger() << "Failed to process input storage buffer, err="
+             << string_VkResult(ret) << std::endl;
+    return;
+  }
+
+  const uint64_t imageDownloadStart = TimeUtils::GetCurrentMonoMs();
+  outputStorageBuffer->DownloadData(output.data, outputBufferSize);
+  const uint64_t imageDownloadEnd = TimeUtils::GetCurrentMonoMs();
+  Logger() << "Image Download Time: " << imageDownloadEnd - imageDownloadStart
+           << "ms" << std::endl;
+
+  inputStorageBuffer->Destroy();
+  outputStorageBuffer->Destroy();
 }
 
 void ImageEngine::ProcessFromGpuAddr(const ImageInfoGpu &input,

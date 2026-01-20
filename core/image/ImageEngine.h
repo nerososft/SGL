@@ -4,16 +4,17 @@
 
 #ifndef IMAGENGINE_H
 #define IMAGENGINE_H
-#include <sgl/sgl_image.h>
 #include "blenders/IBlender.h"
 #include "filters/IFilter.h"
 #include "runtime/gpu/VkGPUBuffer.h"
 #include "runtime/gpu/VkGPUContext.h"
+#include <sgl/sgl_image.h>
 
 namespace sgl::image {
 using ImageInfo = sgl_image_info_t;
 using ImageInfoCpu = sgl_image_cpu_info_t;
 using ImageInfoGpu = sgl_image_gpu_info_t;
+using ImageImageCpuTile = sgl_image_cpu_tile_info_t;
 using BufferGpu = sgl_buffer_t;
 
 class ImageEngine {
@@ -38,6 +39,10 @@ class ImageEngine {
                                  const std::vector<ImageInfoCpu> &outputs,
                                  const std::shared_ptr<IFilter> &filter);
 
+  static void ProcessFromCpuAddr(const ImageImageCpuTile &input,
+                                 const ImageImageCpuTile &output,
+                                 const std::shared_ptr<IFilter> &filter);
+
 public:
   ImageEngine() = default;
 
@@ -50,7 +55,7 @@ public:
              const std::shared_ptr<IFilter> &filter);
 
   static void Process(const ImageInfo &input, const ImageInfo &output,
-               const std::shared_ptr<IFilter> &filter);
+                      const std::shared_ptr<IFilter> &filter);
 
   static void Process(const std::vector<ImageInfo> &inputs,
                       const std::vector<ImageInfo> &outputs,
