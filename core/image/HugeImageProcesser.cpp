@@ -40,6 +40,7 @@ VkResult HugeImageProcesser::Init() const {
 VkResult HugeImageProcesser::CheckAndCreateTilesBuffer(
     const std::vector<int> &tilesIdx) const {
   VkResult ret = VK_SUCCESS;
+
   const uint32_t maxTileIdx = this->infoInfo->height / TILE_HEIGHT;
   for (const int tileIdx : tilesIdx) {
     if (tileIdx < 0) {
@@ -75,8 +76,17 @@ VkResult HugeImageProcesser::CheckAndCreateTilesBuffer(
   return ret;
 }
 
-VkResult HugeImageProcesser::CreateTileBuffersCache(const int tileIdx) const {
+VkResult HugeImageProcesser::CreateTileBuffersCache(const int tileIdx) {
   VkResult ret = VK_SUCCESS;
+
+  for (auto iter = this->buffer_cache.begin();
+       iter != this->buffer_cache.end();) {
+    if ((iter->first < (tileIdx - 4)) || (iter->first > (tileIdx + 4))) {
+      iter = this->buffer_cache.erase(iter);
+    } else {
+      ++iter;
+    }
+  }
 
   ret = CheckAndCreateTilesBuffer({tileIdx - 4, tileIdx - 3, tileIdx - 2,
                                    tileIdx - 1, tileIdx, tileIdx + 1,
@@ -128,15 +138,53 @@ VkResult HugeImageProcesser::PrepareInputBufferForTile(const int tileIdx) {
   return ret;
 }
 
-VkResult HugeImageProcesser::Process(int tileIdx,
-                                     const std::shared_ptr<IFilter> &filter) {
+VkResult HugeImageProcesser::Process(
+    const int tileIdx, const std::shared_ptr<TileBasedFilter> &filter) const {
   VkResult ret = VK_SUCCESS;
-  // TODO: impl me
+  std::vector<FilterImageInfo> filterInputImages;
+  for (const auto &buffer : this->inputStorageBuffers) {
+    FilterImageInfo inputImageInfo{};
+    inputImageInfo.width = this->infoInfo->width;
+    inputImageInfo.height = TILE_HEIGHT;
+    inputImageInfo.channels = this->infoInfo->channels;
+    inputImageInfo.bufferSize =
+        this->infoInfo->width * TILE_HEIGHT * this->infoInfo->channels;
+    inputImageInfo.posX = 0;
+    inputImageInfo.posY = 0;
+    inputImageInfo.storageBuffer = buffer->GetBuffer();
+    inputImageInfo.storageBufferMemory = buffer->GetDeviceMemory();
+    filterInputImages.push_back(inputImageInfo);
+  }
+
+  std::vector<FilterImageInfo> filterOutputImages;
+  FilterImageInfo outputImageInfo{};
+  outputImageInfo.width = this->infoInfo->width;
+  outputImageInfo.height = TILE_HEIGHT;
+  outputImageInfo.channels = this->infoInfo->channels;
+  outputImageInfo.bufferSize =
+      this->infoInfo->width * TILE_HEIGHT * this->infoInfo->channels;
+  outputImageInfo.posX = 0;
+  outputImageInfo.posY = 0;
+  outputImageInfo.storageBuffer = outputBuffer->GetBuffer();
+  outputImageInfo.storageBufferMemory = outputBuffer->GetDeviceMemory();
+  filterOutputImages.push_back(outputImageInfo);
+
+  const uint64_t gpuProcessTimeStart = TimeUtils::GetCurrentMonoMs();
+  ret = filter->Apply(Context::GetInstance()->GetContext(), tileIdx,
+                      filterInputImages, filterOutputImages);
+  if (ret != VK_SUCCESS) {
+    Logger() << "Failed to apply filter!" << std::endl;
+    return ret;
+  }
+  const uint64_t gpuProcessTimeEnd = TimeUtils::GetCurrentMonoMs();
+  Logger() << "GPU Process Time: " << gpuProcessTimeEnd - gpuProcessTimeStart
+           << "ms" << std::endl;
+  Context::GetInstance()->GetContext()->Reset();
   return ret;
 }
 
 void HugeImageProcesser::Process(const int tileIdx,
-                                 const std::shared_ptr<IFilter> &filter,
+                                 const std::shared_ptr<TileBasedFilter> &filter,
                                  const std::shared_ptr<ImageInfoCpu> &output) {
   if (this->infoInfo->channels != output->channels) {
     Logger() << "Input and output channel must be same size!" << std::endl;

@@ -1,0 +1,10 @@
+//
+// Created by neo on 2026/1/20.
+//
+
+#ifndef SGL_TILEBASEDGAUSSIANBLURFILTER_H
+#define SGL_TILEBASEDGAUSSIANBLURFILTER_H
+
+class TileBasedGaussianBlurFilter {};
+
+#endif // SGL_TILEBASEDGAUSSIANBLURFILTER_H
