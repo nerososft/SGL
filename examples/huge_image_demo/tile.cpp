@@ -10,20 +10,23 @@
 #include <ostream>
 #include <vulkan/vulkan_core.h>
 
+std::vector<char> imageData;
+uint32_t imageWidth, imageHeight, channel;
+
 void *ReadPngRow(const size_t row) {
-  Logger() << "ReadPngRow: " << row << std::endl;
-  return ImageUtils::ReadPngFileRow(
-      "../../../examples/image_demo/images/girl.png", row);
+  auto addr = static_cast<void *>(imageData.data());
+  const size_t rowSize = imageWidth * channel;
+  const auto targetAddr =
+      reinterpret_cast<void *>(reinterpret_cast<size_t>(addr) + row * rowSize);
+  Logger() << "ReadRow:" << row << ", addr:" << targetAddr << std::endl;
+  return targetAddr;
 }
 
-void FreeRow(void *row) {
-  free(row);
-  Logger() << "FreeRow: " << row << std::endl;
-}
+void FreeRow(void *row) {}
 
 void effect_engine_main() {
-  uint32_t imageWidth, imageHeight, channel;
-  ImageUtils::ReadPngFileSize("../../../examples/image_demo/images/girl.png",
+  imageData =
+      ImageUtils::ReadPngFile("../../../examples/image_demo/images/girl.png",
                               &imageWidth, &imageHeight, &channel);
 
   const auto &imageInfo = std::make_shared<HugeImageInfo>();
@@ -41,18 +44,20 @@ void effect_engine_main() {
     return;
   }
 
-  void *data = malloc(imageWidth * channel * 256);
+  void *data = malloc(imageWidth * channel * TILE_HEIGHT);
   if (data == nullptr) {
     Logger() << "Failed to allocate memory for data" << std::endl;
     return;
   }
-  for (int i = 0; i < 1; i++) {
+
+  const size_t tileCount = imageHeight / TILE_HEIGHT;
+  for (int i = 0; i < tileCount; i++) {
     auto info = std::make_shared<ImageInfoCpu>();
     info->width = imageWidth;
-    info->height = 256;
+    info->height = TILE_HEIGHT;
     info->channels = channel;
     info->data = data;
-    processor->Process(0, filter, info);
+    processor->Process(i, filter, info);
   }
 }
 
