@@ -26,8 +26,10 @@ class HugeImageProcesser {
 
   std::shared_ptr<VkGPUBuffer> outputBuffer;
 
+  VkResult CreateTileBufferCache(int tileIdx);
+
   [[nodiscard]] VkResult
-  CheckAndCreateTilesBuffer(const std::vector<int> &tilesIdx) const;
+  CheckAndCreateTilesBuffer(const std::vector<int> &tilesIdx);
 
   [[nodiscard]] VkResult CreateTileBuffersCache(int tileIdx);
 
@@ -47,6 +49,8 @@ public:
 
   void Process(int tileIdx, const std::shared_ptr<TileBasedFilter> &filter,
                const std::shared_ptr<ImageInfoCpu> &output);
+
+  [[nodiscard]] std::shared_ptr<VkGPUBuffer> GetOutputBuffer(int tileIdx) const;
 };
 
 #endif // SGL_HUGEIMAGEENGINE_H

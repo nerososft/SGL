@@ -36,6 +36,7 @@ typedef struct sgl_image_huge_cpu_info {
   uint32_t channels;
   uint32_t bytesPerLine;
   void *(*getRowData)(size_t row);
+  void (*afterRowDataUse)(void *row);
 } sgl_image_huge_cpu_info_t;
 
 typedef enum sgl_image_type {

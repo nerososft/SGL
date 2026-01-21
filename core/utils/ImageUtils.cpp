@@ -55,6 +55,147 @@ void png_flush_func(const png_structp png) {
   }
 }
 
+void ImageUtils::ReadPngFileSize(const std::string &fileName,
+                                 uint32_t *imageWidth, uint32_t *imageHeight,
+                                 uint32_t *channel) {
+  Logger() << "Reading PNG file " << fileName << std::endl;
+  std::ifstream file;
+  file.open(fileName, std::ios::binary | std::ios::in | std::ios::ate);
+  if (!file.is_open()) {
+    Logger() << "Failed to open file " << fileName << std::endl;
+    return;
+  }
+
+  std::vector<char> pngData;
+  const size_t fileSize = file.tellg();
+  pngData.resize(fileSize);
+  file.seekg(0);
+  file.read(pngData.data(), fileSize);
+
+  png_structp png =
+      png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
+  if (!png) {
+    Logger() << "Failed to create png struct" << std::endl;
+    return;
+  }
+  const png_infop info = png_create_info_struct(png);
+  if (!info) {
+    Logger() << "Failed to create png info" << std::endl;
+    png_destroy_read_struct(&png, nullptr, nullptr);
+    return;
+  }
+  if (setjmp(png_jmpbuf(png))) {
+    png_destroy_read_struct(&png, nullptr, nullptr);
+    return;
+  }
+
+  PngReadBuf readBuf{
+      .data = pngData.data(),
+      .size = fileSize,
+      .offset = 0,
+  };
+  png_set_read_fn(png, &readBuf, png_read_func);
+
+  png_read_info(png, info);
+
+  *imageWidth = png_get_image_width(png, info);
+  *imageHeight = png_get_image_height(png, info);
+  *channel = png_get_channels(png, info);
+
+  Logger() << "Reading PNG file " << fileName << ", width=" << *imageWidth
+           << ", height=" << *imageHeight << ", channels=" << *channel
+           << std::endl;
+}
+void *ImageUtils::ReadPngFileRow(const std::string &fileName,
+                                 const uint32_t row) {
+  const uint64_t pngReadStart = TimeUtils::GetCurrentMonoMs();
+
+  std::ifstream file;
+  file.open(fileName, std::ios::binary | std::ios::in | std::ios::ate);
+  if (!file.is_open()) {
+    Logger() << "Failed to open file " << fileName << std::endl;
+    return nullptr;
+  }
+
+  std::vector<char> pngData;
+  const size_t fileSize = file.tellg();
+  pngData.resize(fileSize);
+  file.seekg(0);
+  file.read(pngData.data(), fileSize);
+
+  png_structp png =
+      png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
+  if (!png) {
+    Logger() << "Failed to create png struct" << std::endl;
+    return nullptr;
+  }
+  const png_infop info = png_create_info_struct(png);
+  if (!info) {
+    Logger() << "Failed to create png info" << std::endl;
+    png_destroy_read_struct(&png, nullptr, nullptr);
+    return nullptr;
+  }
+  if (setjmp(png_jmpbuf(png))) {
+    png_destroy_read_struct(&png, nullptr, nullptr);
+    return nullptr;
+  }
+
+  PngReadBuf readBuf{
+      .data = pngData.data(),
+      .size = fileSize,
+      .offset = 0,
+  };
+  png_set_read_fn(png, &readBuf, png_read_func);
+
+  png_read_info(png, info);
+
+  uint32_t imageHeight = png_get_image_height(png, info);
+
+  const png_byte color_type = png_get_color_type(png, info);
+  const png_byte bit_depth = png_get_bit_depth(png, info);
+
+  if (bit_depth == 16) {
+    png_set_strip_16(png);
+  }
+
+  if (color_type == PNG_COLOR_TYPE_PALETTE) {
+    png_set_palette_to_rgb(png);
+  }
+
+  if (color_type == PNG_COLOR_TYPE_GRAY || bit_depth < 8) {
+    png_set_expand_gray_1_2_4_to_8(png);
+  }
+
+  if (png_get_valid(png, info, PNG_INFO_tRNS)) {
+    png_set_tRNS_to_alpha(png);
+  }
+
+  if (color_type != PNG_COLOR_TYPE_RGBA) {
+    png_set_filler(png, 0xFF, PNG_FILLER_AFTER);
+  }
+  png_read_update_info(png, info);
+
+  const size_t rowBytes = png_get_rowbytes(png, info);
+  for (size_t r = 0; r < imageHeight; r++) {
+    if (r == row) {
+      auto *rowPixels = static_cast<unsigned char *>(malloc(rowBytes));
+      if (rowPixels == nullptr) {
+        Logger() << "Failed to allocate row pointer" << std::endl;
+        png_destroy_read_struct(&png, nullptr, nullptr);
+        return nullptr;
+      }
+      png_read_row(png, rowPixels, nullptr);
+      return rowPixels;
+    }
+    png_read_row(png, nullptr, nullptr);
+  }
+
+  const uint64_t pngReadEnd = TimeUtils::GetCurrentMonoMs();
+  Logger() << "Read PNG Usage:" << pngReadEnd - pngReadStart << "ms"
+           << std::endl;
+  return nullptr;
+}
+
 std::vector<char> ImageUtils::ReadPngFile(const std::string &fileName,
                                           uint32_t *imageWidth,
                                           uint32_t *imageHeight,

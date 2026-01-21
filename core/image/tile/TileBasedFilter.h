@@ -16,12 +16,12 @@ public:
 
   virtual ~TileBasedFilter() = default;
 
-  virtual VkResult
+  VkResult
   Apply(const std::shared_ptr<VkGPUContext> &gpuCtx, int tileIdx,
         const std::vector<FilterImageInfo> &inputImageInfo,
-        const std::vector<FilterImageInfo> &outputImageInfo) = 0;
+        const std::vector<FilterImageInfo> &outputImageInfo);
 
-  virtual void Destroy() = 0;
+  void Destroy();
 };
 
 #endif // SGL_TILEBASEDFILTER_H
