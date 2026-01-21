@@ -169,7 +169,7 @@ VkResult HugeImageProcesser::Process(
   for (const auto &buffer : this->inputStorageBuffers) {
     FilterImageInfo inputImageInfo{};
     inputImageInfo.width = this->infoInfo->width;
-    inputImageInfo.height = TILE_HEIGHT;
+    inputImageInfo.height = this->infoInfo->height;
     inputImageInfo.channels = this->infoInfo->channels;
     inputImageInfo.bufferSize =
         this->infoInfo->width * TILE_HEIGHT * this->infoInfo->channels;
