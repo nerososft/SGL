@@ -18,7 +18,7 @@ void *ReadPngRow(const size_t row) {
   const size_t rowSize = imageWidth * channel;
   const auto targetAddr =
       reinterpret_cast<void *>(reinterpret_cast<size_t>(addr) + row * rowSize);
-  Logger() << "ReadRow:" << row << ", addr:" << targetAddr << std::endl;
+  // Logger() << "ReadRow:" << row << ", addr:" << targetAddr << std::endl;
   return targetAddr;
 }
 
@@ -52,12 +52,17 @@ void effect_engine_main() {
 
   const size_t tileCount = imageHeight / TILE_HEIGHT;
   for (int i = 0; i < tileCount; i++) {
+    const int tileIdx = i;
     auto info = std::make_shared<ImageInfoCpu>();
     info->width = imageWidth;
     info->height = TILE_HEIGHT;
     info->channels = channel;
     info->data = data;
-    processor->Process(i, filter, info);
+    processor->Process(tileIdx, filter, info);
+    std::string path = "../../../examples/huge_image_demo/images/girl";
+    path.append(std::to_string(tileIdx));
+    path.append(".png");
+    ImageUtils::WritePngFile(path, imageWidth, TILE_HEIGHT, channel, data);
   }
 }
 

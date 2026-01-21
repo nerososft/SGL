@@ -24,6 +24,7 @@ class HugeImageProcesser {
 
   std::vector<std::shared_ptr<VkGPUBuffer>> inputStorageBuffers;
 
+  std::shared_ptr<VkGPUBuffer> tilePlaceholderBuffer;
   std::shared_ptr<VkGPUBuffer> outputBuffer;
 
   VkResult CreateTileBufferCache(int tileIdx);

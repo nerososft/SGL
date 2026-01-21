@@ -16,6 +16,8 @@ HugeImageProcesser::HugeImageProcesser(
   this->infoInfo = input;
   this->outputBuffer =
       std::make_shared<VkGPUBuffer>(Context::GetInstance()->GetContext());
+  this->tilePlaceholderBuffer =
+      std::make_shared<VkGPUBuffer>(Context::GetInstance()->GetContext());
   this->inputStorageBuffers.clear();
 }
 
@@ -34,6 +36,13 @@ VkResult HugeImageProcesser::Init() const {
                                             outputBufferSize);
   if (ret != VK_SUCCESS) {
     Logger() << "Failed to allocate output buffer!" << std::endl;
+    return ret;
+  }
+
+  ret = this->tilePlaceholderBuffer->AllocateAndBind(
+      GPU_BUFFER_TYPE_STORAGE_SHARED, outputBufferSize);
+  if (ret != VK_SUCCESS) {
+    Logger() << "Failed to allocate placeholder buffer!" << std::endl;
     return ret;
   }
   return ret;
@@ -78,10 +87,7 @@ VkResult HugeImageProcesser::CheckAndCreateTilesBuffer(
 
   const uint32_t maxTileIdx = this->infoInfo->height / TILE_HEIGHT;
   for (const int tileIdx : tilesIdx) {
-    if (tileIdx < 0) {
-      continue;
-    }
-    if (tileIdx > maxTileIdx) {
+    if ((tileIdx < 0) || (tileIdx > maxTileIdx)) {
       continue;
     }
     if (!this->buffer_cache.contains(tileIdx)) {
@@ -121,19 +127,18 @@ VkResult HugeImageProcesser::CreateTileBuffersCache(const int tileIdx) {
 
 VkResult HugeImageProcesser::CheckAndPrepareInputBuffers(
     const std::vector<int> &tilesIdx) {
+  this->inputStorageBuffers.clear();
   const uint32_t maxTileIdx = this->infoInfo->height / TILE_HEIGHT;
   for (const int tileIdx : tilesIdx) {
-    if (tileIdx < 0) {
-      continue;
+    if ((tileIdx < 0) || (tileIdx > maxTileIdx)) {
+      this->inputStorageBuffers.push_back(this->tilePlaceholderBuffer);
+    } else {
+      if (!this->buffer_cache.contains(tileIdx)) {
+        Logger() << "Input buffer cache does not exist!" << std::endl;
+        return VK_ERROR_UNKNOWN;
+      }
+      this->inputStorageBuffers.push_back(this->buffer_cache[tileIdx]);
     }
-    if (tileIdx > maxTileIdx) {
-      continue;
-    }
-    if (!this->buffer_cache.contains(tileIdx)) {
-      Logger() << "Input buffer cache does not exist!" << std::endl;
-      return VK_ERROR_UNKNOWN;
-    }
-    this->inputStorageBuffers.push_back(this->buffer_cache[tileIdx]);
   }
   return VK_SUCCESS;
 }
@@ -236,7 +241,8 @@ void HugeImageProcesser::Process(const int tileIdx,
   this->inputStorageBuffers.clear();
 
   const uint64_t imageDownloadStart = TimeUtils::GetCurrentMonoMs();
-  this->outputBuffer->DownloadData(output->data, output->width * output->height * output->channels);
+  this->outputBuffer->DownloadData(
+      output->data, output->width * output->height * output->channels);
   const uint64_t imageDownloadEnd = TimeUtils::GetCurrentMonoMs();
   Logger() << "Image Download Time: " << imageDownloadEnd - imageDownloadStart
            << "ms" << std::endl;
