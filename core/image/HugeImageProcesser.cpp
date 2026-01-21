@@ -107,6 +107,7 @@ VkResult HugeImageProcesser::CreateTileBuffersCache(const int tileIdx) {
   for (auto iter = this->buffer_cache.begin();
        iter != this->buffer_cache.end();) {
     if ((iter->first < (tileIdx - 4)) || (iter->first > (tileIdx + 4))) {
+      iter->second->Destroy();
       iter = this->buffer_cache.erase(iter);
     } else {
       ++iter;
