@@ -3,9 +3,9 @@
 //
 
 #include "core/image/HugeImageProcesser.h"
+#include "core/image/tile_filters/impl/TileBasedGrayFilter.h"
 #include "core/utils/ImageUtils.h"
 #include "runtime/log/Log.h"
-
 #include <memory>
 #include <ostream>
 #include <vulkan/vulkan_core.h>
@@ -38,7 +38,10 @@ void effect_engine_main() {
 
   const auto processor = std::make_shared<HugeImageProcesser>(imageInfo);
 
-  const auto filter = std::make_shared<TileBasedFilter>();
+  const auto filter = std::make_shared<TileBasedGrayFilter>();
+  filter->SetRedFactor(0.299);
+  filter->SetGreenFactor(0.587);
+  filter->SetBlueFactor(0.114);
   if (processor->Init() != VK_SUCCESS) {
     Logger() << "Failed to init processor" << std::endl;
     return;

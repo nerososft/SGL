@@ -2,7 +2,7 @@
 // Created by neo on 2026/1/20.
 //
 
-#include "TileBasedFilter.h"
+#include "TileBasedGrayFilter.h"
 
 #include "runtime/gpu/VkGPUHelper.h"
 #include "runtime/gpu/compute_graph/ComputeGraph.h"
@@ -12,7 +12,7 @@
 #include <vulkan/vk_enum_string_helper.h>
 
 VkResult
-TileBasedFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx, int tileIdx,
+TileBasedGrayFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx, int tileIdx,
                        const std::vector<FilterImageInfo> &inputImageInfo,
                        const std::vector<FilterImageInfo> &outputImageInfo) {
   Logger() << "TileBasedFilter: tile " << tileIdx
@@ -26,16 +26,16 @@ TileBasedFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx, int tileIdx,
     return ret;
   }
 
-  tiledFilterParams.currentTileIndex = tileIdx;
-  tiledFilterParams.tileHeight = 256;
-  tiledFilterParams.imageTotalWidth = inputImageInfo[0].width;
-  tiledFilterParams.imageTotalHeight = inputImageInfo[0].height;
-  tiledFilterParams.channels = inputImageInfo[0].channels;
-  tiledFilterParams.bytesPerLine =
+  grayFilterParams.imageSize.currentTileIndex = tileIdx;
+  grayFilterParams.imageSize.tileHeight = 256;
+  grayFilterParams.imageSize.imageTotalWidth = inputImageInfo[0].width;
+  grayFilterParams.imageSize.imageTotalHeight = inputImageInfo[0].height;
+  grayFilterParams.imageSize.channels = inputImageInfo[0].channels;
+  grayFilterParams.imageSize.bytesPerLine =
       inputImageInfo[0].width * inputImageInfo[0].channels;
 
-  filterParams.paramsSize = sizeof(TileBasedFilterParam);
-  filterParams.paramsData = &tiledFilterParams;
+  filterParams.paramsSize = sizeof(GrayFilterParams);
+  filterParams.paramsData = &grayFilterParams;
   filterParams.shaderPath = SHADER(tiled_gray.comp.glsl.spv);
 
   PushConstantInfo pushConstantInfo;
@@ -91,4 +91,4 @@ TileBasedFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx, int tileIdx,
   return computeGraph->Compute();
 }
 
-void TileBasedFilter::Destroy() {}
+void TileBasedGrayFilter::Destroy() {}

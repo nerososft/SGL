@@ -7,7 +7,7 @@
 #include "core/context/Context.h"
 #include "runtime/log/Log.h"
 #include "runtime/utils/TimeUtils.h"
-#include "tile/TileBasedFilter.h"
+#include "tile_filters/ITileBasedFilter.h"
 
 #include <vulkan/vk_enum_string_helper.h>
 
@@ -163,7 +163,7 @@ VkResult HugeImageProcesser::PrepareInputBufferForTile(const int tileIdx) {
 }
 
 VkResult HugeImageProcesser::Process(
-    const int tileIdx, const std::shared_ptr<TileBasedFilter> &filter) const {
+    const int tileIdx, const std::shared_ptr<ITileBasedFilter> &filter) const {
   VkResult ret = VK_SUCCESS;
   std::vector<FilterImageInfo> filterInputImages;
   for (const auto &buffer : this->inputStorageBuffers) {
@@ -208,7 +208,7 @@ VkResult HugeImageProcesser::Process(
 }
 
 void HugeImageProcesser::Process(const int tileIdx,
-                                 const std::shared_ptr<TileBasedFilter> &filter,
+                                 const std::shared_ptr<ITileBasedFilter> &filter,
                                  const std::shared_ptr<ImageInfoCpu> &output) {
   if (this->infoInfo->channels != output->channels) {
     Logger() << "Input and output channel must be same size!" << std::endl;

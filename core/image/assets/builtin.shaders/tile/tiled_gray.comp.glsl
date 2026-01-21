@@ -11,6 +11,9 @@ layout (push_constant) uniform FilterParams {
     uint bytesPerLine;
     uint tileHeight;
     uint currentTileIndex;
+    float redFactor;
+    float greenFactor;
+    float blueFactor;
 } filterParams;
 
 // ABGR
@@ -101,8 +104,8 @@ void main() {
 
     uint pixel = getPixel(globalX, globalY);
 
-    vec4 srcColor =  unpackColor(pixel);
-    float gray = dot(srcColor.rgb, vec3(0.299, 0.587, 0.114));
+    vec4 srcColor = unpackColor(pixel);
+    float gray = dot(srcColor.rgb, vec3(filterParams.redFactor, filterParams.greenFactor, filterParams.blueFactor));
 
     outputImage.pixels[idx] = packColor(vec4(gray, gray, gray, srcColor.a));
 }

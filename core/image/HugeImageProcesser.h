@@ -6,7 +6,7 @@
 #define SGL_HUGEIMAGEENGINE_H
 #include "runtime/gpu/VkGPUBuffer.h"
 #include "sgl/sgl_image.h"
-#include "tile/TileBasedFilter.h"
+#include "tile_filters/ITileBasedFilter.h"
 
 #include <map>
 #include <memory>
@@ -39,7 +39,7 @@ class HugeImageProcesser {
   VkResult PrepareInputBufferForTile(int tileIdx);
 
   [[nodiscard]] VkResult
-  Process(int tileIdx, const std::shared_ptr<TileBasedFilter> &filter) const;
+  Process(int tileIdx, const std::shared_ptr<ITileBasedFilter> &filter) const;
 
 public:
   explicit HugeImageProcesser(const std::shared_ptr<HugeImageInfo> &input);
@@ -48,7 +48,7 @@ public:
 
   [[nodiscard]] VkResult Init() const;
 
-  void Process(int tileIdx, const std::shared_ptr<TileBasedFilter> &filter,
+  void Process(int tileIdx, const std::shared_ptr<ITileBasedFilter> &filter,
                const std::shared_ptr<ImageInfoCpu> &output);
 
   [[nodiscard]] std::shared_ptr<VkGPUBuffer> GetOutputBuffer(int tileIdx) const;
