@@ -104,5 +104,5 @@ void main() {
     // TODO: impl this
 
     uint idx = localY * filterParams.imageTotalWidth + localX;
-    outputImage.pixels[idx] = packColor(vec4(gray, gray, gray, srcColor.a));
+    outputImage.pixels[idx] = packColor(vec4(0, 0, 0, srcColor.a));
 }

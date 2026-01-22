@@ -14,10 +14,8 @@
 HugeImageProcessor::HugeImageProcessor(
     const std::shared_ptr<HugeImageInfo> &input) {
   this->infoInfo = input;
-  this->outputBuffer =
-      std::make_shared<VkGPUBuffer>(Context::GetInstance()->GetContext());
-  this->tilePlaceholderBuffer =
-      std::make_shared<VkGPUBuffer>(Context::GetInstance()->GetContext());
+  this->outputBuffer = nullptr;
+  this->tilePlaceholderBuffer = nullptr;
   this->inputStorageBuffers.clear();
 }
 
@@ -30,8 +28,19 @@ VkResult HugeImageProcessor::Init() const {
     return ret;
   }
 
+  return ret;
+}
+
+VkResult HugeImageProcessor::PrepareOutputBuffer(
+    const std::shared_ptr<ImageInfoCpu> &output) {
+  VkResult ret = VK_SUCCESS;
+  if (this->outputBuffer != nullptr) {
+    return ret;
+  }
   const VkDeviceSize outputBufferSize =
-      this->infoInfo->width * TILE_HEIGHT * this->infoInfo->channels;
+      output->width * output->height * output->channels;
+  this->outputBuffer =
+      std::make_shared<VkGPUBuffer>(Context::GetInstance()->GetContext());
   ret = this->outputBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED,
                                             outputBufferSize);
   if (ret != VK_SUCCESS) {
@@ -39,6 +48,11 @@ VkResult HugeImageProcessor::Init() const {
     return ret;
   }
 
+  if (this->tilePlaceholderBuffer != nullptr) {
+    return ret;
+  }
+  this->tilePlaceholderBuffer =
+      std::make_shared<VkGPUBuffer>(Context::GetInstance()->GetContext());
   ret = this->tilePlaceholderBuffer->AllocateAndBind(
       GPU_BUFFER_TYPE_STORAGE_SHARED, outputBufferSize);
   if (ret != VK_SUCCESS) {
@@ -208,9 +222,9 @@ VkResult HugeImageProcessor::Process(
   return ret;
 }
 
-void HugeImageProcessor::Process(const int tileIdx,
-                                 const std::shared_ptr<ITileBasedFilter> &filter,
-                                 const std::shared_ptr<ImageInfoCpu> &output) {
+void HugeImageProcessor::Process(
+    const int tileIdx, const std::shared_ptr<ITileBasedFilter> &filter,
+    const std::shared_ptr<ImageInfoCpu> &output) {
   if (this->infoInfo->channels != output->channels) {
     Logger() << "Input and output channel must be same size!" << std::endl;
     return;
@@ -227,7 +241,13 @@ void HugeImageProcessor::Process(const int tileIdx,
   Logger() << "[OUTPUT SIZE]" << "TILE " << tileIdx << ", WIDTH "
            << output->width << ", HEIGHT " << output->height << std::endl;
 
-  VkResult ret = this->PrepareInputBufferForTile(tileIdx);
+  VkResult ret = this->PrepareOutputBuffer(output);
+  if (ret != VK_SUCCESS) {
+    Logger() << "Failed to prepare output buffer!" << std::endl;
+    return;
+  }
+
+  ret = this->PrepareInputBufferForTile(tileIdx);
   if (ret != VK_SUCCESS) {
     Logger() << "Failed to prepare input buffer!" << std::endl;
     return;
@@ -249,7 +269,6 @@ void HugeImageProcessor::Process(const int tileIdx,
            << "ms" << std::endl;
 }
 
-std::shared_ptr<VkGPUBuffer>
-HugeImageProcessor::GetOutputBuffer() const {
+std::shared_ptr<VkGPUBuffer> HugeImageProcessor::GetOutputBuffer() const {
   return this->outputBuffer;
 }

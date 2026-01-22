@@ -3,7 +3,9 @@
 //
 
 #include "core/image/HugeImageProcessor.h"
+#include "core/image/tile_filters/impl/TileBasedFastGaussianBlurFilter.h"
 #include "core/image/tile_filters/impl/TileBasedGrayFilter.h"
+#include "core/image/tile_filters/impl/TileBasedScaleFilter.h"
 #include "core/utils/ImageUtils.h"
 #include "runtime/log/Log.h"
 #include <memory>
@@ -37,35 +39,46 @@ void effect_engine_main() {
   imageInfo->afterRowDataUse = &FreeRow;
 
   const auto processor = std::make_shared<HugeImageProcessor>(imageInfo);
-
-  const auto filter = std::make_shared<TileBasedGrayFilter>();
-  filter->SetRedFactor(0.299);
-  filter->SetGreenFactor(0.587);
-  filter->SetBlueFactor(0.114);
   if (processor->Init() != VK_SUCCESS) {
     Logger() << "Failed to init processor" << std::endl;
     return;
   }
 
-  void *data = malloc(imageWidth * channel * TILE_HEIGHT);
+  // const auto filter = std::make_shared<TileBasedGrayFilter>();
+  // filter->SetRedFactor(0.299);
+  // filter->SetGreenFactor(0.587);
+  // filter->SetBlueFactor(0.114);
+
+  // const auto filter = std::make_shared<TileBasedFastGaussianBlurFilter>();
+  // filter->SetRadius(150);
+
+  const auto filter = std::make_shared<TileBasedScaleFilter>();
+  filter->SetTargetWidth(imageWidth / 2);
+  filter->SetTargetHeight(imageHeight / 2);
+  filter->SetInterpType(1);
+
+  const uint32_t targetWidth = imageWidth / 2;
+  const uint32_t targetHeight = TILE_HEIGHT / 2;
+
+  const auto info = std::make_shared<ImageInfoCpu>();
+  info->width = targetWidth;
+  info->height = targetHeight;
+  info->channels = channel;
+  void *data = malloc(targetWidth * channel * targetHeight);
   if (data == nullptr) {
     Logger() << "Failed to allocate memory for data" << std::endl;
     return;
   }
+  info->data = data;
 
   const size_t tileCount = imageHeight / TILE_HEIGHT;
   for (int i = 0; i < tileCount; i++) {
     const int tileIdx = i;
-    auto info = std::make_shared<ImageInfoCpu>();
-    info->width = imageWidth;
-    info->height = TILE_HEIGHT;
-    info->channels = channel;
-    info->data = data;
     processor->Process(tileIdx, filter, info);
     std::string path = "../../../examples/huge_image_demo/images/girl";
     path.append(std::to_string(tileIdx));
     path.append(".png");
-    ImageUtils::WritePngFile(path, imageWidth, TILE_HEIGHT, channel, data);
+    ImageUtils::WritePngFile(path, info->width, info->height, channel, data);
   }
 }
 

@@ -1,20 +1,18 @@
 //
-// Created by neo on 2026/1/20.
+// Created by neo on 2026/1/22.
 //
 
-#include "TileBasedGrayFilter.h"
+#include "TileBasedScaleFilter.h"
 
 #include "runtime/gpu/VkGPUHelper.h"
-#include "runtime/gpu/compute_graph/ComputeGraph.h"
 #include "runtime/gpu/compute_graph/ComputePipelineNode.h"
 #include "runtime/log/Log.h"
 
 #include <vulkan/vk_enum_string_helper.h>
-
-VkResult
-TileBasedGrayFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx, int tileIdx,
-                       const std::vector<FilterImageInfo> &inputImageInfo,
-                       const std::vector<FilterImageInfo> &outputImageInfo) {
+VkResult TileBasedScaleFilter::Apply(
+    const std::shared_ptr<VkGPUContext> &gpuCtx, const int tileIdx,
+    const std::vector<FilterImageInfo> &inputImageInfo,
+    const std::vector<FilterImageInfo> &outputImageInfo) {
   if (!gpuCtx) {
     Logger() << "TileBasedFilter: invalid GPU context" << std::endl;
     return VK_ERROR_UNKNOWN;
@@ -50,17 +48,17 @@ TileBasedGrayFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx, int tile
     return ret;
   }
 
-  grayFilterParams.imageSize.currentTileIndex = tileIdx;
-  grayFilterParams.imageSize.tileHeight = 256;
-  grayFilterParams.imageSize.imageTotalWidth = inputImageInfo[0].width;
-  grayFilterParams.imageSize.imageTotalHeight = inputImageInfo[0].height;
-  grayFilterParams.imageSize.channels = inputImageInfo[0].channels;
-  grayFilterParams.imageSize.bytesPerLine =
+  scaleFilterParams.imageSize.currentTileIndex = tileIdx;
+  scaleFilterParams.imageSize.tileHeight = 256;
+  scaleFilterParams.imageSize.imageTotalWidth = inputImageInfo[0].width;
+  scaleFilterParams.imageSize.imageTotalHeight = inputImageInfo[0].height;
+  scaleFilterParams.imageSize.channels = inputImageInfo[0].channels;
+  scaleFilterParams.imageSize.bytesPerLine =
       inputImageInfo[0].width * inputImageInfo[0].channels;
 
-  filterParams.paramsSize = sizeof(GrayFilterParams);
-  filterParams.paramsData = &grayFilterParams;
-  filterParams.shaderPath = SHADER(tiled_gray.comp.glsl.spv);
+  filterParams.paramsSize = sizeof(TiledScaleFilterParams);
+  filterParams.paramsData = &scaleFilterParams;
+  filterParams.shaderPath = SHADER(tiled_scale.comp.glsl.spv);
 
   PushConstantInfo pushConstantInfo;
   pushConstantInfo.size = filterParams.paramsSize;
@@ -93,12 +91,13 @@ TileBasedGrayFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx, int tile
             VK_SHADER_STAGE_COMPUTE_BIT));
   }
 
-  uint32_t workGroupX = outputImageInfo[0].width + 31 / 32;
-  uint32_t workGroupY = 8;
+  uint32_t workGroupX = (scaleFilterParams.targetWidth + 31) / 32;
+  uint32_t workGroupY = (scaleFilterParams.targetHeight + 31) / 32;
 
   const auto node = std::make_shared<ComputePipelineNode>(
-      gpuCtx, "TileBasedFilter", filterParams.shaderPath, pushConstantInfo.size,
-      descriptorSetLayoutBindings, workGroupX, workGroupY, 1);
+      gpuCtx, "TileBasedScaleDownFilter", filterParams.shaderPath,
+      pushConstantInfo.size, descriptorSetLayoutBindings, workGroupX,
+      workGroupY, 1);
   ret = node->CreateComputeGraphNode();
   if (ret != VK_SUCCESS) {
     Logger() << "Failed to create compute graph, err =" << string_VkResult(ret)
@@ -115,4 +114,4 @@ TileBasedGrayFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx, int tile
   return computeGraph->Compute();
 }
 
-void TileBasedGrayFilter::Destroy() {}
+void TileBasedScaleFilter::Destroy() {}
