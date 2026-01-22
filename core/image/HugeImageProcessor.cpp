@@ -222,12 +222,13 @@ VkResult HugeImageProcessor::Process(
   return ret;
 }
 
-void HugeImageProcessor::Process(
-    const int tileIdx, const std::shared_ptr<ITileBasedFilter> &filter,
-    const std::shared_ptr<ImageInfoCpu> &output) {
+void *
+HugeImageProcessor::Process(const int tileIdx,
+                            const std::shared_ptr<ITileBasedFilter> &filter,
+                            const std::shared_ptr<ImageInfoCpu> &output) {
   if (this->infoInfo->channels != output->channels) {
     Logger() << "Input and output channel must be same size!" << std::endl;
-    return;
+    return nullptr;
   }
   if (output->width != this->infoInfo->width) {
     Logger() << "Input width must be same size!" << std::endl;
@@ -244,29 +245,35 @@ void HugeImageProcessor::Process(
   VkResult ret = this->PrepareOutputBuffer(output);
   if (ret != VK_SUCCESS) {
     Logger() << "Failed to prepare output buffer!" << std::endl;
-    return;
+    return nullptr;
   }
 
   ret = this->PrepareInputBufferForTile(tileIdx);
   if (ret != VK_SUCCESS) {
     Logger() << "Failed to prepare input buffer!" << std::endl;
-    return;
+    return nullptr;
   }
 
   ret = this->Process(tileIdx, filter);
   if (ret != VK_SUCCESS) {
     Logger() << "Failed to process input storage buffer, err="
              << string_VkResult(ret) << std::endl;
-    return;
+    return nullptr;
   }
   this->inputStorageBuffers.clear();
 
-  const uint64_t imageDownloadStart = TimeUtils::GetCurrentMonoMs();
-  this->outputBuffer->DownloadData(
-      output->data, output->width * output->height * output->channels);
-  const uint64_t imageDownloadEnd = TimeUtils::GetCurrentMonoMs();
-  Logger() << "Image Download Time: " << imageDownloadEnd - imageDownloadStart
-           << "ms" << std::endl;
+  if (output->data != nullptr) {
+    const uint64_t imageDownloadStart = TimeUtils::GetCurrentMonoMs();
+    this->outputBuffer->DownloadData(
+        output->data, output->width * output->height * output->channels);
+    const uint64_t imageDownloadEnd = TimeUtils::GetCurrentMonoMs();
+    Logger() << "Image Download Time: " << imageDownloadEnd - imageDownloadStart
+             << "ms" << std::endl;
+  }
+
+  outputBuffer->MapBuffer(output->width * output->height * output->channels);
+
+  return outputBuffer->GetMappedAddr();
 }
 
 std::shared_ptr<VkGPUBuffer> HugeImageProcessor::GetOutputBuffer() const {

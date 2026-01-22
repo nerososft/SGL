@@ -51,8 +51,8 @@ public:
   [[nodiscard]] VkResult
   PrepareOutputBuffer(const std::shared_ptr<ImageInfoCpu> &output);
 
-  void Process(int tileIdx, const std::shared_ptr<ITileBasedFilter> &filter,
-               const std::shared_ptr<ImageInfoCpu> &output);
+  void *Process(int tileIdx, const std::shared_ptr<ITileBasedFilter> &filter,
+                const std::shared_ptr<ImageInfoCpu> &output);
 
   [[nodiscard]] std::shared_ptr<VkGPUBuffer> GetOutputBuffer() const;
 };
