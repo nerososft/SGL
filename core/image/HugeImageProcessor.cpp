@@ -2,7 +2,7 @@
 // Created by neo on 2026/1/20.
 //
 
-#include "HugeImageProcesser.h"
+#include "HugeImageProcessor.h"
 
 #include "core/context/Context.h"
 #include "runtime/log/Log.h"
@@ -11,7 +11,7 @@
 
 #include <vulkan/vk_enum_string_helper.h>
 
-HugeImageProcesser::HugeImageProcesser(
+HugeImageProcessor::HugeImageProcessor(
     const std::shared_ptr<HugeImageInfo> &input) {
   this->infoInfo = input;
   this->outputBuffer =
@@ -21,7 +21,7 @@ HugeImageProcesser::HugeImageProcesser(
   this->inputStorageBuffers.clear();
 }
 
-VkResult HugeImageProcesser::Init() const {
+VkResult HugeImageProcessor::Init() const {
   VkResult ret = VK_SUCCESS;
 
   if (this->infoInfo->height < TILE_HEIGHT * 20) {
@@ -48,7 +48,7 @@ VkResult HugeImageProcesser::Init() const {
   return ret;
 }
 
-VkResult HugeImageProcesser::CreateTileBufferCache(const int tileIdx) {
+VkResult HugeImageProcessor::CreateTileBufferCache(const int tileIdx) {
   VkResult ret = VK_SUCCESS;
   const VkDeviceSize tileBufferSize =
       this->infoInfo->width * TILE_HEIGHT * this->infoInfo->channels;
@@ -81,7 +81,7 @@ VkResult HugeImageProcesser::CreateTileBufferCache(const int tileIdx) {
   return ret;
 }
 
-VkResult HugeImageProcesser::CheckAndCreateTilesBuffer(
+VkResult HugeImageProcessor::CheckAndCreateTilesBuffer(
     const std::vector<int> &tilesIdx) {
   VkResult ret = VK_SUCCESS;
 
@@ -101,7 +101,7 @@ VkResult HugeImageProcesser::CheckAndCreateTilesBuffer(
   return ret;
 }
 
-VkResult HugeImageProcesser::CreateTileBuffersCache(const int tileIdx) {
+VkResult HugeImageProcessor::CreateTileBuffersCache(const int tileIdx) {
   VkResult ret = VK_SUCCESS;
 
   for (auto iter = this->buffer_cache.begin();
@@ -126,7 +126,7 @@ VkResult HugeImageProcesser::CreateTileBuffersCache(const int tileIdx) {
   return ret;
 }
 
-VkResult HugeImageProcesser::CheckAndPrepareInputBuffers(
+VkResult HugeImageProcessor::CheckAndPrepareInputBuffers(
     const std::vector<int> &tilesIdx) {
   this->inputStorageBuffers.clear();
   const uint32_t maxTileIdx = this->infoInfo->height / TILE_HEIGHT;
@@ -144,7 +144,7 @@ VkResult HugeImageProcesser::CheckAndPrepareInputBuffers(
   return VK_SUCCESS;
 }
 
-VkResult HugeImageProcesser::PrepareInputBufferForTile(const int tileIdx) {
+VkResult HugeImageProcessor::PrepareInputBufferForTile(const int tileIdx) {
   VkResult ret = VK_SUCCESS;
 
   ret = this->CreateTileBuffersCache(tileIdx);
@@ -163,7 +163,7 @@ VkResult HugeImageProcesser::PrepareInputBufferForTile(const int tileIdx) {
   return ret;
 }
 
-VkResult HugeImageProcesser::Process(
+VkResult HugeImageProcessor::Process(
     const int tileIdx, const std::shared_ptr<ITileBasedFilter> &filter) const {
   VkResult ret = VK_SUCCESS;
   std::vector<FilterImageInfo> filterInputImages;
@@ -208,7 +208,7 @@ VkResult HugeImageProcesser::Process(
   return ret;
 }
 
-void HugeImageProcesser::Process(const int tileIdx,
+void HugeImageProcessor::Process(const int tileIdx,
                                  const std::shared_ptr<ITileBasedFilter> &filter,
                                  const std::shared_ptr<ImageInfoCpu> &output) {
   if (this->infoInfo->channels != output->channels) {
@@ -250,6 +250,6 @@ void HugeImageProcesser::Process(const int tileIdx,
 }
 
 std::shared_ptr<VkGPUBuffer>
-HugeImageProcesser::GetOutputBuffer(int tileIdx) const {
+HugeImageProcessor::GetOutputBuffer() const {
   return this->outputBuffer;
 }

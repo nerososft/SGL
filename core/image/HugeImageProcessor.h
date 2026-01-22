@@ -17,7 +17,7 @@
 using HugeImageInfo = sgl_image_huge_cpu_info_t;
 using ImageInfoCpu = sgl_image_cpu_info_t;
 
-class HugeImageProcesser {
+class HugeImageProcessor {
   std::shared_ptr<HugeImageInfo> infoInfo;
 
   std::map<int, std::shared_ptr<VkGPUBuffer>> buffer_cache; // 9 buffers
@@ -42,16 +42,16 @@ class HugeImageProcesser {
   Process(int tileIdx, const std::shared_ptr<ITileBasedFilter> &filter) const;
 
 public:
-  explicit HugeImageProcesser(const std::shared_ptr<HugeImageInfo> &input);
+  explicit HugeImageProcessor(const std::shared_ptr<HugeImageInfo> &input);
 
-  ~HugeImageProcesser() = default;
+  ~HugeImageProcessor() = default;
 
   [[nodiscard]] VkResult Init() const;
 
   void Process(int tileIdx, const std::shared_ptr<ITileBasedFilter> &filter,
                const std::shared_ptr<ImageInfoCpu> &output);
 
-  [[nodiscard]] std::shared_ptr<VkGPUBuffer> GetOutputBuffer(int tileIdx) const;
+  [[nodiscard]] std::shared_ptr<VkGPUBuffer> GetOutputBuffer() const;
 };
 
 #endif // SGL_HUGEIMAGEENGINE_H

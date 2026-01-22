@@ -163,8 +163,8 @@ set(ENGINE_SOURCE ImageEngine.cpp
         filters/impl/YuvToRgbFilter.h
         filters/impl/RgbToYuvFilter.cpp
         filters/impl/RgbToYuvFilter.h
-        HugeImageProcesser.cpp
-        HugeImageProcesser.h
+        HugeImageProcessor.cpp
+        HugeImageProcessor.h
         tile_filters/ITileBasedFilter.h
         tile_filters/impl/TileBasedGrayFilter.cpp
         tile_filters/impl/TileBasedGrayFilter.h

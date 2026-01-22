@@ -2,7 +2,7 @@
 // Created by neoyang on 2025/3/6.
 //
 
-#include "core/image/HugeImageProcesser.h"
+#include "core/image/HugeImageProcessor.h"
 #include "core/image/tile_filters/impl/TileBasedGrayFilter.h"
 #include "core/utils/ImageUtils.h"
 #include "runtime/log/Log.h"
@@ -36,7 +36,7 @@ void effect_engine_main() {
   imageInfo->getRowData = &ReadPngRow;
   imageInfo->afterRowDataUse = &FreeRow;
 
-  const auto processor = std::make_shared<HugeImageProcesser>(imageInfo);
+  const auto processor = std::make_shared<HugeImageProcessor>(imageInfo);
 
   const auto filter = std::make_shared<TileBasedGrayFilter>();
   filter->SetRedFactor(0.299);
