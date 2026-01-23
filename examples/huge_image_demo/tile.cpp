@@ -9,6 +9,7 @@
 #include "core/image/tile_filters/impl/TileBasedVerticalBlurFilter.h"
 #include "core/utils/ImageUtils.h"
 #include "runtime/log/Log.h"
+#include <core/image/tile_filters/impl/TileBasedHorizontalBlurFilter.h>
 #include <memory>
 #include <ostream>
 #include <vulkan/vulkan_core.h>
@@ -58,7 +59,10 @@ void effect_engine_main() {
   // filter->SetTargetHeight(TILE_HEIGHT / 2);
   // filter->SetInterpType(1);
 
-  const auto filter = std::make_shared<TileBasedVerticalBlurFilter>();
+  // const auto filter = std::make_shared<TileBasedVerticalBlurFilter>();
+  // filter->SetRadius(200);
+
+  const auto filter = std::make_shared<TileBasedHorizontalBlurFilter>();
   filter->SetRadius(200);
 
   const uint32_t targetWidth = imageWidth;

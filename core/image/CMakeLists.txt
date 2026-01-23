@@ -174,6 +174,8 @@ set(ENGINE_SOURCE ImageEngine.cpp
         tile_filters/impl/TileBasedScaleFilter.h
         tile_filters/impl/TileBasedVerticalBlurFilter.cpp
         tile_filters/impl/TileBasedVerticalBlurFilter.h
+        tile_filters/impl/TileBasedHorizontalBlurFilter.cpp
+        tile_filters/impl/TileBasedHorizontalBlurFilter.h
 )
 
 if (CMAKE_SYSTEM_NAME MATCHES "OHOS")
