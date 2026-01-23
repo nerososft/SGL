@@ -43,8 +43,8 @@ TileBasedFastGaussianBlurFilter::CreateTileBasedScaleDownNode(
             VK_SHADER_STAGE_COMPUTE_BIT));
   }
 
-  uint32_t workGroupX = targetWidth + 31 / 32;
-  uint32_t workGroupY = targetHeight + 31 / 32;
+  uint32_t workGroupX = (targetWidth + 31) / 32;
+  uint32_t workGroupY = (targetHeight + 31) / 32;
 
   const auto node = std::make_shared<ComputePipelineNode>(
       gpuCtx, "TileBasedScaleDownFilter", scaleDownParams.shaderPath,
@@ -95,8 +95,8 @@ TileBasedFastGaussianBlurFilter::CreateTileBasedVBlurNode(
             VK_SHADER_STAGE_COMPUTE_BIT));
   }
 
-  uint32_t workGroupX = targetWidth + 31 / 32;
-  uint32_t workGroupY = targetHeight + 31 / 32;
+  uint32_t workGroupX = (targetWidth + 31) / 32;
+  uint32_t workGroupY = (targetHeight + 31) / 32;
 
   const auto node = std::make_shared<ComputePipelineNode>(
       gpuCtx, "TileBasedVFilter", shaderPath, pushConstantInfo.size,
@@ -146,8 +146,8 @@ TileBasedFastGaussianBlurFilter::CreateTileBasedHBlurNode(
             VK_SHADER_STAGE_COMPUTE_BIT));
   }
 
-  uint32_t workGroupX = targetWidth + 31 / 32;
-  uint32_t workGroupY = targetHeight + 31 / 32;
+  uint32_t workGroupX = (targetWidth + 31) / 32;
+  uint32_t workGroupY = (targetHeight + 31) / 32;
 
   const auto node = std::make_shared<ComputePipelineNode>(
       gpuCtx, "TileBasedHFilter", shaderPath, pushConstantInfo.size,
@@ -198,8 +198,8 @@ TileBasedFastGaussianBlurFilter::CreateTileBasedScaleUpNode(
             VK_SHADER_STAGE_COMPUTE_BIT));
   }
 
-  uint32_t workGroupX = targetWidth + 31 / 32;
-  uint32_t workGroupY = targetHeight + 31 / 32;
+  uint32_t workGroupX = (targetWidth + 31) / 32;
+  uint32_t workGroupY = (targetHeight + 31) / 32;
 
   const auto node = std::make_shared<ComputePipelineNode>(
       gpuCtx, "TileBasedScaleUpFilter", scaleUpParams.shaderPath,
