@@ -6,6 +6,7 @@
 #include "core/image/tile_filters/impl/TileBasedFastGaussianBlurFilter.h"
 #include "core/image/tile_filters/impl/TileBasedGrayFilter.h"
 #include "core/image/tile_filters/impl/TileBasedScaleFilter.h"
+#include "core/image/tile_filters/impl/TileBasedVerticalBlurFilter.h"
 #include "core/utils/ImageUtils.h"
 #include "runtime/log/Log.h"
 #include <memory>
@@ -52,13 +53,16 @@ void effect_engine_main() {
   // const auto filter = std::make_shared<TileBasedFastGaussianBlurFilter>();
   // filter->SetRadius(150);
 
-  const auto filter = std::make_shared<TileBasedScaleFilter>();
-  filter->SetTargetWidth(imageWidth / 2);
-  filter->SetTargetHeight(TILE_HEIGHT / 2);
-  filter->SetInterpType(1);
+  // const auto filter = std::make_shared<TileBasedScaleFilter>();
+  // filter->SetTargetWidth(imageWidth / 2);
+  // filter->SetTargetHeight(TILE_HEIGHT / 2);
+  // filter->SetInterpType(1);
 
-  const uint32_t targetWidth = imageWidth / 2;
-  const uint32_t targetHeight = TILE_HEIGHT / 2;
+  const auto filter = std::make_shared<TileBasedVerticalBlurFilter>();
+  filter->SetRadius(200);
+
+  const uint32_t targetWidth = imageWidth;
+  constexpr uint32_t targetHeight = TILE_HEIGHT;
 
   const auto info = std::make_shared<ImageInfoCpu>();
   info->width = targetWidth;

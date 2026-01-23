@@ -172,6 +172,8 @@ set(ENGINE_SOURCE ImageEngine.cpp
         tile_filters/impl/TileBasedFastGaussianBlurFilter.h
         tile_filters/impl/TileBasedScaleFilter.cpp
         tile_filters/impl/TileBasedScaleFilter.h
+        tile_filters/impl/TileBasedVerticalBlurFilter.cpp
+        tile_filters/impl/TileBasedVerticalBlurFilter.h
 )
 
 if (CMAKE_SYSTEM_NAME MATCHES "OHOS")
