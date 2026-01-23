@@ -22,4 +22,4 @@ ce->Seq()->Record(ce->MatMul(mat1, mat2, matOutput))->Eval()->Destroy();
 
 ### Getting Start
 
-See the [Usage](./doc/getting_start.md) | [Examples](https://gitcode.com/OpenHarmonyPerfSquad/SGL/tree/main/examples) 
+See the [Usage](./doc/getting_start.md) | [Examples](https://gitcode.com/OpenHarmonyPerfSquad/SGL/tree/main/examples) | [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/nerososft/SGL)
