@@ -3,7 +3,7 @@
 //
 
 #include "core/image/HugeImageProcessor.h"
-#include "core/image/tile_filters/impl/TileBasedFastGaussianBlurFilter.h"
+#include "core/image/tile_filters/impl/TileBasedGaussianBlurFilter.h"
 #include "core/image/tile_filters/impl/TileBasedGrayFilter.h"
 #include "core/image/tile_filters/impl/TileBasedScaleFilter.h"
 #include "core/image/tile_filters/impl/TileBasedVerticalBlurFilter.h"
@@ -62,7 +62,7 @@ void effect_engine_main() {
   // const auto filter = std::make_shared<TileBasedHorizontalBlurFilter>();
   // filter->SetRadius(200);
 
-  const auto filter = std::make_shared<TileBasedFastGaussianBlurFilter>();
+  const auto filter = std::make_shared<TileBasedGaussianBlurFilter>();
   filter->SetRadius(150);
 
   const uint32_t targetWidth = imageWidth;

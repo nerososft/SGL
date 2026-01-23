@@ -168,8 +168,8 @@ set(ENGINE_SOURCE ImageEngine.cpp
         tile_filters/ITileBasedFilter.h
         tile_filters/impl/TileBasedGrayFilter.cpp
         tile_filters/impl/TileBasedGrayFilter.h
-        tile_filters/impl/TileBasedFastGaussianBlurFilter.cpp
-        tile_filters/impl/TileBasedFastGaussianBlurFilter.h
+        tile_filters/impl/TileBasedGaussianBlurFilter.cpp
+        tile_filters/impl/TileBasedGaussianBlurFilter.h
         tile_filters/impl/TileBasedScaleFilter.cpp
         tile_filters/impl/TileBasedScaleFilter.h
         tile_filters/impl/TileBasedVerticalBlurFilter.cpp
