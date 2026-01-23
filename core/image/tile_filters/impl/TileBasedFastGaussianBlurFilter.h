@@ -24,6 +24,11 @@ class TileBasedFastGaussianBlurFilter : public ITileBasedFilter {
   std::shared_ptr<ComputeGraph> computeGraph = nullptr;
   std::shared_ptr<SubComputeGraph> computeSubGraph = nullptr;
 
+  std::vector<FilterImageInfo> inputImageInfo;
+  std::vector<FilterImageInfo> vBlurImageInfo;
+  std::vector<FilterImageInfo> hBlurImageInfo;
+  std::vector<FilterImageInfo> scaleUpImageInfo;
+
   FastGaussianBlurFilterParams gaussianFilterParams{};
   FilterParams filterParams{};
 

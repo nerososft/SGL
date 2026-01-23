@@ -232,6 +232,11 @@ VkResult TileBasedFastGaussianBlurFilter::Apply(
     return VK_ERROR_UNKNOWN;
   }
 
+  this->inputImageInfo = inputImageInfo;
+  this->vBlurImageInfo = outputImageInfo;
+  this->hBlurImageInfo = outputImageInfo;
+  this->scaleUpImageInfo = outputImageInfo;
+
   if (outputImageInfo.empty() || outputImageInfo.size() > 1) {
     Logger() << "TileBasedFilter: need exactly 1 output buffer, got "
              << outputImageInfo.size() << std::endl;
@@ -310,12 +315,16 @@ VkResult TileBasedFastGaussianBlurFilter::Apply(
     return ret;
   }
 
+  vBlurImageInfo[4].storageBuffer = scaleDownBuffer->GetBuffer();
+  vBlurImageInfo[4].bufferSize = scaleDownBufferSize;
   const std::shared_ptr<IComputeGraphNode> vBlurNode =
-      CreateTileBasedVBlurNode(inputImageInfo, targetWidth, targetHeight,
+      CreateTileBasedVBlurNode(vBlurImageInfo, targetWidth, targetHeight,
                                SHADER(tiled_vertical_blur.comp.glsl.spv));
 
+  hBlurImageInfo[4].storageBuffer = scaleDownBlurBuffer->GetBuffer();
+  hBlurImageInfo[4].bufferSize = scaleDownBufferSize;
   const std::shared_ptr<IComputeGraphNode> hBlurNode =
-      CreateTileBasedHBlurNode(inputImageInfo, targetWidth, targetHeight,
+      CreateTileBasedHBlurNode(hBlurImageInfo, targetWidth, targetHeight,
                                SHADER(tiled_horizontal_blur.comp.glsl.spv));
 
   scaleUpFilterParams.imageSize.imageTotalWidth = inputImageInfo[0].width;
@@ -330,9 +339,11 @@ VkResult TileBasedFastGaussianBlurFilter::Apply(
   scaleUpParams.paramsData = &scaleUpFilterParams;
   scaleUpParams.paramsSize = sizeof(TiledScaleFilterParams);
   scaleUpParams.shaderPath = SHADER(tiled_scale.comp.glsl.spv);
+  scaleUpImageInfo[4].storageBuffer = scaleDownBuffer->GetBuffer();
+  scaleUpImageInfo[4].bufferSize = scaleDownBufferSize;
   const std::shared_ptr<IComputeGraphNode> scaleUpNode =
       CreateTileBasedScaleUpNode(
-          inputImageInfo, inputImageInfo[0].width, inputImageInfo[0].height,
+          scaleUpImageInfo, inputImageInfo[0].width, inputImageInfo[0].height,
           outputImageInfo[0].storageBuffer, outputImageInfo[0].bufferSize);
 
   vBlurNode->AddDependenceNode(scaleDownNode);
