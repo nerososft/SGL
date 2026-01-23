@@ -34,21 +34,27 @@ class TileBasedFastGaussianBlurFilter : public ITileBasedFilter {
 
   std::shared_ptr<VkGPUBuffer> scaleDownBuffer = nullptr;
   std::shared_ptr<VkGPUBuffer> scaleDownBlurBuffer = nullptr;
+  std::shared_ptr<VkGPUBuffer> outputBuffer = nullptr;
 
   std::shared_ptr<IComputeGraphNode> CreateTileBasedScaleDownNode(
       const std::vector<FilterImageInfo> &inputImageInfo, uint32_t targetWidth,
       uint32_t targetHeight);
 
   std::shared_ptr<IComputeGraphNode>
-  CreateVBlurNode(VkBuffer inputBuffer, VkDeviceSize inputBufferSize,
-                  VkBuffer outputBuffer, VkDeviceSize outputBufferSize);
+  CreateTileBasedVBlurNode(const std::vector<FilterImageInfo> &inputImageInfo,
+                           uint32_t targetWidth, uint32_t targetHeight,
+                           const std::string &shaderPath);
 
   std::shared_ptr<IComputeGraphNode>
-  CreateTileBasedHBlurNode(const std::vector<FilterImageInfo> &inputImageInfo);
+  CreateTileBasedHBlurNode(const std::vector<FilterImageInfo> &inputImageInfo,
+                           uint32_t targetWidth, uint32_t targetHeight,
+                           const std::string &shaderPath);
 
   std::shared_ptr<IComputeGraphNode>
   CreateTileBasedScaleUpNode(const std::vector<FilterImageInfo> &inputImageInfo,
-                             uint32_t targetWidth, uint32_t targetHeight);
+                             uint32_t targetWidth, uint32_t targetHeight,
+                             VkBuffer outputBuffer,
+                             VkDeviceSize outputBufferSize);
 
 public:
   TileBasedFastGaussianBlurFilter() = default;

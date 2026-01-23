@@ -51,9 +51,6 @@ void effect_engine_main() {
   // filter->SetGreenFactor(0.587);
   // filter->SetBlueFactor(0.114);
 
-  // const auto filter = std::make_shared<TileBasedFastGaussianBlurFilter>();
-  // filter->SetRadius(150);
-
   // const auto filter = std::make_shared<TileBasedScaleFilter>();
   // filter->SetTargetWidth(imageWidth / 2);
   // filter->SetTargetHeight(TILE_HEIGHT / 2);
@@ -62,8 +59,11 @@ void effect_engine_main() {
   // const auto filter = std::make_shared<TileBasedVerticalBlurFilter>();
   // filter->SetRadius(200);
 
-  const auto filter = std::make_shared<TileBasedHorizontalBlurFilter>();
-  filter->SetRadius(200);
+  // const auto filter = std::make_shared<TileBasedHorizontalBlurFilter>();
+  // filter->SetRadius(200);
+
+  const auto filter = std::make_shared<TileBasedFastGaussianBlurFilter>();
+  filter->SetRadius(150);
 
   const uint32_t targetWidth = imageWidth;
   constexpr uint32_t targetHeight = TILE_HEIGHT;
