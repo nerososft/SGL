@@ -34,42 +34,22 @@ vec4 unpackColor(uint color) {
     );
 }
 
-uint getPixel(uint globalX, uint globalY) {
-    uint currentTileYStart = filterParams.tileHeight * filterParams.currentTileIndex;
-    uint currentTileYEnd = filterParams.tileHeight * (filterParams.currentTileIndex + 1);
+uint getPixel(uint localX, int localY) {
+    int globalY = int(filterParams.currentTileIndex * filterParams.tileHeight) + localY;
 
-    if (globalY >= currentTileYStart && globalY < currentTileYEnd) {
-        uint localX = globalX;
-        uint localY = globalY - currentTileYStart;
+    localX = min(localX, filterParams.imageTotalWidth - 1);
+    globalY = clamp(globalY, 0, int(filterParams.imageTotalHeight) - 1);
 
-        uint localIdx = localY * filterParams.imageTotalWidth + localX;
-        return inputImage[4].pixels[localIdx];
-    }
-    if (globalY < currentTileYStart) {
-        int yOffset = int(globalY) - int(currentTileYStart);
-        int upTileCount = (-yOffset + int(filterParams.tileHeight) - 1) / int(filterParams.tileHeight);
-        int inputTileIdx = 4 - upTileCount;
+    uint tileIdx = uint(globalY) / filterParams.tileHeight;
+    uint tileLocalY = uint(globalY) % filterParams.tileHeight;
+    uint pixelIdx = tileLocalY * filterParams.imageTotalWidth + localX;
 
-        inputTileIdx = max(inputTileIdx, 0);
-        uint localYInUpTile = uint(int(filterParams.tileHeight) + yOffset % int(filterParams.tileHeight));
-        localYInUpTile = min(localYInUpTile, filterParams.tileHeight - 1);
+    int inputBufferIdx = 4 + int(tileIdx) - int(filterParams.currentTileIndex);
 
-        uint pixelIdx = localYInUpTile * filterParams.imageTotalWidth + globalX;
-        return inputImage[inputTileIdx].pixels[pixelIdx];
-    }
-    if (globalY >= currentTileYEnd) {
-        int yOffset = int(globalY) - int(currentTileYEnd);
-        int downTileCount = (yOffset + int(filterParams.tileHeight) - 1) / int(filterParams.tileHeight);
-        int inputTileIdx = 5 + downTileCount;
-        inputTileIdx = min(inputTileIdx, 8);
+    if (inputBufferIdx < 0) inputBufferIdx = 0;
+    if (inputBufferIdx > 8) inputBufferIdx = 8;
 
-        uint localYInDownTile = uint(yOffset % int(filterParams.tileHeight));
-        localYInDownTile = min(localYInDownTile, filterParams.tileHeight - 1);
-
-        uint pixelIdx = localYInDownTile * filterParams.imageTotalWidth + globalX;
-        return inputImage[inputTileIdx].pixels[pixelIdx];
-    }
-    return 0;
+    return inputImage[inputBufferIdx].pixels[pixelIdx];
 }
 
 void main() {
@@ -81,24 +61,7 @@ void main() {
         return;
     }
 
-    uint globalX = localX;
-    uint globalY = filterParams.currentTileIndex * filterParams.tileHeight + localY;
-    if (globalY >= filterParams.imageTotalHeight) {
-        return;
-    }
-
-    int currentTileIdxInt = int(filterParams.currentTileIndex);
-    int minReginYInt = (currentTileIdxInt - 4) * int(filterParams.tileHeight);
-    int maxReginYInt = (currentTileIdxInt + 5) * int(filterParams.tileHeight);
-    minReginYInt = max(minReginYInt, 0);
-    maxReginYInt = min(maxReginYInt, int(filterParams.imageTotalHeight));
-    uint minReginY = uint(minReginYInt);
-    uint maxReginY = uint(maxReginYInt);
-    if (globalY < minReginY || globalY >= maxReginY) {
-        return;
-    }
-
-    uint pixel = getPixel(globalX, globalY);
+    uint pixel = getPixel(localX, int(localY));
     vec4 srcColor = unpackColor(pixel);
 
     // TODO: impl this

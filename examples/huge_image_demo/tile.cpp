@@ -44,21 +44,21 @@ void effect_engine_main() {
     return;
   }
 
-  const auto filter = std::make_shared<TileBasedGrayFilter>();
-  filter->SetRedFactor(0.299);
-  filter->SetGreenFactor(0.587);
-  filter->SetBlueFactor(0.114);
+  // const auto filter = std::make_shared<TileBasedGrayFilter>();
+  // filter->SetRedFactor(0.299);
+  // filter->SetGreenFactor(0.587);
+  // filter->SetBlueFactor(0.114);
 
   // const auto filter = std::make_shared<TileBasedFastGaussianBlurFilter>();
   // filter->SetRadius(150);
 
-  // const auto filter = std::make_shared<TileBasedScaleFilter>();
-  // filter->SetTargetWidth(imageWidth / 2);
-  // filter->SetTargetHeight(imageHeight / 2);
-  // filter->SetInterpType(1);
+  const auto filter = std::make_shared<TileBasedScaleFilter>();
+  filter->SetTargetWidth(imageWidth / 2);
+  filter->SetTargetHeight(TILE_HEIGHT / 2);
+  filter->SetInterpType(1);
 
-  const uint32_t targetWidth = imageWidth;
-  const uint32_t targetHeight = TILE_HEIGHT;
+  const uint32_t targetWidth = imageWidth / 2;
+  const uint32_t targetHeight = TILE_HEIGHT / 2;
 
   const auto info = std::make_shared<ImageInfoCpu>();
   info->width = targetWidth;
@@ -68,7 +68,7 @@ void effect_engine_main() {
   const size_t tileCount = imageHeight / TILE_HEIGHT;
   for (int i = 0; i < tileCount; i++) {
     const int tileIdx = i;
-    void *addr = processor->Process(tileIdx, filter, info);
+    const void *addr = processor->Process(tileIdx, filter, info);
     std::string path = "../../../examples/huge_image_demo/images/girl";
     path.append(std::to_string(tileIdx));
     path.append(".png");
