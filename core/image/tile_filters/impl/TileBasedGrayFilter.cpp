@@ -9,7 +9,11 @@
 #include "runtime/gpu/compute_graph/ComputePipelineNode.h"
 #include "runtime/log/Log.h"
 
+#ifdef OS_OPEN_HARMONY
+#include <runtime/gpu/utils/vk_enum_string_helper.h>
+#else
 #include <vulkan/vk_enum_string_helper.h>
+#endif
 
 VkResult
 TileBasedGrayFilter::Apply(const std::shared_ptr<VkGPUContext> &gpuCtx, int tileIdx,

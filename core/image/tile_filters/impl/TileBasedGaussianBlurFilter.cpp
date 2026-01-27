@@ -8,7 +8,11 @@
 #include "runtime/gpu/compute_graph/ComputePipelineNode.h"
 #include "runtime/log/Log.h"
 
+#ifdef OS_OPEN_HARMONY
+#include <runtime/gpu/utils/vk_enum_string_helper.h>
+#else
 #include <vulkan/vk_enum_string_helper.h>
+#endif
 
 std::shared_ptr<IComputeGraphNode>
 TileBasedGaussianBlurFilter::CreateTileBasedBlurNode(

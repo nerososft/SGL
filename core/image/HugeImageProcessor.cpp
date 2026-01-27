@@ -9,7 +9,11 @@
 #include "runtime/utils/TimeUtils.h"
 #include "tile_filters/ITileBasedFilter.h"
 
+#ifdef OS_OPEN_HARMONY
+#include <runtime/gpu/utils/vk_enum_string_helper.h>
+#else
 #include <vulkan/vk_enum_string_helper.h>
+#endif
 
 HugeImageProcessor::HugeImageProcessor(
     const std::shared_ptr<HugeImageInfo> &input) {
