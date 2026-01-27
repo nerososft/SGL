@@ -26,8 +26,8 @@ HugeImageProcessor::HugeImageProcessor(
 VkResult HugeImageProcessor::Init() const {
   VkResult ret = VK_SUCCESS;
 
-  if (this->infoInfo->height < TILE_HEIGHT * 20) {
-    Logger() << "Small that 20 Tiles, suggest use normal process!" << std::endl;
+  if (this->infoInfo->height < TILE_HEIGHT * 10) {
+    Logger() << "Small that 10 Tiles, suggest use normal process!" << std::endl;
     ret = VK_ERROR_UNKNOWN;
     return ret;
   }
