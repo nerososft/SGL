@@ -146,4 +146,13 @@ VkResult TileBasedGaussianBlurFilter::Apply(
   return computeGraph->Compute();
 }
 
-void TileBasedGaussianBlurFilter::Destroy() {}
+void TileBasedGaussianBlurFilter::Destroy() {
+  if (computeGraph != nullptr) {
+    computeGraph->Destroy();
+    computeGraph = nullptr;
+  }
+  if (vBlurOutputBlurBuffer != nullptr) {
+    vBlurOutputBlurBuffer->Destroy();
+    vBlurOutputBlurBuffer = nullptr;
+  }
+}

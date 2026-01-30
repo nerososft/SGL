@@ -53,6 +53,8 @@ public:
 
   [[nodiscard]] VkResult Init() const;
 
+  void Destroy();
+
   [[nodiscard]] VkResult
   PrepareOutputBuffer(const std::shared_ptr<ImageInfoCpu> &output);
 

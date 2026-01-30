@@ -34,6 +34,24 @@ VkResult HugeImageProcessor::Init() const {
 
   return ret;
 }
+void HugeImageProcessor::Destroy() {
+  if (this->outputBuffer != nullptr) {
+    this->outputBuffer->Destroy();
+    this->outputBuffer = nullptr;
+  }
+  if (this->tilePlaceholderBuffer != nullptr) {
+    this->tilePlaceholderBuffer->Destroy();
+    this->tilePlaceholderBuffer = nullptr;
+  }
+
+  for (const auto &buffer : this->freeBufferList) {
+    buffer->Destroy();
+  }
+
+  for (const auto &buffer : this->buffer_cache) {
+    buffer.second->Destroy();
+  }
+}
 
 VkResult HugeImageProcessor::PrepareOutputBuffer(
     const std::shared_ptr<ImageInfoCpu> &output) {

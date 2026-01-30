@@ -82,6 +82,8 @@ void effect_engine_main() {
     path.append(".png");
     ImageUtils::WritePngFile(path, info->width, info->height, channel, addr);
   }
+  filter->Destroy();
+  processor->Destroy();
 }
 
 int main(int argc, char *argv[]) {
