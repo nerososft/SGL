@@ -66,21 +66,37 @@ VkResult HugeImageProcessor::PrepareOutputBuffer(
   return ret;
 }
 
-VkResult HugeImageProcessor::CreateTileBufferCache(const int tileIdx) {
-  VkResult ret = VK_SUCCESS;
-  const VkDeviceSize tileBufferSize =
-      this->infoInfo->width * TILE_HEIGHT * this->infoInfo->channels;
-  const auto buffer =
-      std::make_shared<VkGPUBuffer>(Context::GetInstance()->GetContext());
-  ret = buffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED, tileBufferSize);
-  if (ret != VK_SUCCESS) {
-    Logger() << "Failed to allocate tile buffer!" << std::endl;
-    return ret;
+std::shared_ptr<VkGPUBuffer> HugeImageProcessor::GetBufferFromFreeList() {
+  std::shared_ptr<VkGPUBuffer> buf = nullptr;
+  if (freeBufferList.empty()) {
+    const VkDeviceSize tileBufferSize =
+        this->infoInfo->width * TILE_HEIGHT * this->infoInfo->channels;
+    buf = std::make_shared<VkGPUBuffer>(Context::GetInstance()->GetContext());
+    VkResult ret =
+        buf->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED, tileBufferSize);
+    if (ret != VK_SUCCESS) {
+      Logger() << "Failed to allocate tile buffer!" << std::endl;
+      return nullptr;
+    }
+    ret = buf->MapBuffer(tileBufferSize);
+    if (ret != VK_SUCCESS) {
+      Logger() << "Failed to map tile buffer!" << std::endl;
+      buf->Destroy();
+      return nullptr;
+    }
+    Logger() << "Successfully alloc tile buffer!" << std::endl;
+  } else {
+    buf = this->freeBufferList.back();
+    this->freeBufferList.pop_back();
+    Logger() << "Reuse free tile buffer!" << std::endl;
   }
-  ret = buffer->MapBuffer(tileBufferSize);
-  if (ret != VK_SUCCESS) {
-    Logger() << "Failed to map tile buffer!" << std::endl;
-    return ret;
+  return buf;
+}
+
+VkResult HugeImageProcessor::CreateTileBufferCache(const int tileIdx) {
+  const auto buffer = this->GetBufferFromFreeList();
+  if (buffer == nullptr) {
+    return VK_ERROR_OUT_OF_DEVICE_MEMORY;
   }
 
   void *bufferAddr = buffer->GetMappedAddr();
@@ -96,7 +112,7 @@ VkResult HugeImageProcessor::CreateTileBufferCache(const int tileIdx) {
 
   this->buffer_cache.emplace(tileIdx, buffer);
 
-  return ret;
+  return VK_SUCCESS;
 }
 
 VkResult HugeImageProcessor::CheckAndCreateTilesBuffer(
@@ -125,7 +141,7 @@ VkResult HugeImageProcessor::CreateTileBuffersCache(const int tileIdx) {
   for (auto iter = this->buffer_cache.begin();
        iter != this->buffer_cache.end();) {
     if ((iter->first < (tileIdx - 4)) || (iter->first > (tileIdx + 4))) {
-      iter->second->Destroy();
+      this->freeBufferList.push_back(iter->second);
       iter = this->buffer_cache.erase(iter);
     } else {
       ++iter;

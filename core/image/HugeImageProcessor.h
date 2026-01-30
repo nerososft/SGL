@@ -10,6 +10,7 @@
 
 #include <map>
 #include <memory>
+#include <queue>
 
 #define TILE_HEIGHT (256)
 #define PROCESS_TILES_BUFFER_CNT (9)
@@ -20,12 +21,16 @@ using ImageInfoCpu = sgl_image_cpu_info_t;
 class HugeImageProcessor {
   std::shared_ptr<HugeImageInfo> infoInfo;
 
+  std::vector<std::shared_ptr<VkGPUBuffer>> freeBufferList;
+
   std::map<int, std::shared_ptr<VkGPUBuffer>> buffer_cache; // 9 buffers
 
   std::vector<std::shared_ptr<VkGPUBuffer>> inputStorageBuffers;
 
   std::shared_ptr<VkGPUBuffer> tilePlaceholderBuffer;
   std::shared_ptr<VkGPUBuffer> outputBuffer;
+
+  [[nodiscard]] std::shared_ptr<VkGPUBuffer> GetBufferFromFreeList();
 
   VkResult CreateTileBufferCache(int tileIdx);
 
