@@ -1,7 +1,15 @@
 #version 450
 layout (local_size_x = 32, local_size_y = 32, local_size_z = 1) in;
 
-layout (std430, binding = 0) buffer InputImageStorageBuffer0 { uint pixels[]; } inputImage[9];
+layout (std430, binding = 0) buffer InputImageStorageBuffer0 { uint pixels[]; } inputImage0;
+layout (std430, binding = 1) buffer InputImageStorageBuffer1 { uint pixels[]; } inputImage1;
+layout (std430, binding = 2) buffer InputImageStorageBuffer2 { uint pixels[]; } inputImage2;
+layout (std430, binding = 3) buffer InputImageStorageBuffer3 { uint pixels[]; } inputImage3;
+layout (std430, binding = 4) buffer InputImageStorageBuffer4 { uint pixels[]; } inputImage4;
+layout (std430, binding = 5) buffer InputImageStorageBuffer5 { uint pixels[]; } inputImage5;
+layout (std430, binding = 6) buffer InputImageStorageBuffer6 { uint pixels[]; } inputImage6;
+layout (std430, binding = 7) buffer InputImageStorageBuffer7 { uint pixels[]; } inputImage7;
+layout (std430, binding = 8) buffer InputImageStorageBuffer8 { uint pixels[]; } inputImage8;
 layout (std430, binding = 9) buffer OutputImageStorageBuffer { uint pixels[]; } outputImage;
 
 layout (push_constant) uniform FilterParams {
@@ -49,7 +57,25 @@ uint getPixel(uint localX, int localY) {
     if (inputBufferIdx < 0) inputBufferIdx = 0;
     if (inputBufferIdx > 8) inputBufferIdx = 8;
 
-    return inputImage[inputBufferIdx].pixels[pixelIdx];
+    if (inputBufferIdx == 0) {
+        return inputImage0.pixels[pixelIdx];
+    } else if (inputBufferIdx == 1) {
+        return inputImage1.pixels[pixelIdx];
+    } else if (inputBufferIdx == 2) {
+        return inputImage2.pixels[pixelIdx];
+    } else if (inputBufferIdx == 3) {
+        return inputImage3.pixels[pixelIdx];
+    } else if (inputBufferIdx == 4) {
+        return inputImage4.pixels[pixelIdx];
+    } else if (inputBufferIdx == 5) {
+        return inputImage5.pixels[pixelIdx];
+    } else if (inputBufferIdx == 6) {
+        return inputImage6.pixels[pixelIdx];
+    } else if (inputBufferIdx == 7) {
+        return inputImage7.pixels[pixelIdx];
+    } else if (inputBufferIdx == 8) {
+        return inputImage8.pixels[pixelIdx];
+    }
 }
 
 void main() {
