@@ -9,7 +9,13 @@
 #include "runtime/log/Log.h"
 #include "window/impl/GLFWWindowImpl.h"
 
+#include <algorithm>
+#include <cmath>
+#include <cstdint>
+#include <cfloat>
 #include <glm/ext/matrix_transform.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/vec3.hpp>
 
 VkSurfaceKHR GetWindowSurface(const VkInstance instance) {
   const SurfaceGetParams params{.params = {
@@ -69,7 +75,7 @@ bool GraphicsApp::ConstructRendererPipeline() {
   this->graphicsPipelineNode = std::make_shared<GraphicsPipelineNode>(
       renderer->GetGPUCtx(), "3DGSGraphicsPipeline",
       this->renderer->GetMainRenderPass(), SHADER(rect_3dgs.vert.glsl.spv),
-      SHADER(rect_3dgs.frag.glsl.spv), sizeof(FrameInfo),
+      SHADER(rect_3dgs.frag.glsl.spv), sizeof(DemoFrameInfo),
       descriptorSetLayoutBindings, vertexInputBindingDescriptions,
       vertexInputAttributeDescriptions, this->windowWidth, this->windowHeight,
       viewport, VK_PRIMITIVE_TOPOLOGY_POINT_LIST, VK_POLYGON_MODE_FILL);
@@ -89,6 +95,39 @@ bool GraphicsApp::ConstructRendererPipeline() {
   renderer->AddRenderGraph(this->graphicsPipelineNode);
 
   return true;
+}
+
+void GraphicsApp::UpdateSceneState(const float elapsedSeconds) {
+  this->frameInfo.time = elapsedSeconds;
+
+  const float orbitRadius = 2.8f;
+  const float orbitHeight = 0.35f;
+  const float orbitSpeed = 0.35f;
+  const float angle = elapsedSeconds * orbitSpeed;
+  const glm::vec3 eye(std::sin(angle) * orbitRadius, orbitHeight,
+                      std::cos(angle) * orbitRadius);
+
+  this->cameraUniform.view = glm::lookAt(eye, glm::vec3(0.0f),
+                                         glm::vec3(0.0f, 1.0f, 0.0f));
+  this->cameraUniform.proj = glm::perspective(
+      glm::radians(50.0f),
+      static_cast<float>(this->windowWidth) /
+          static_cast<float>(std::max<uint32_t>(this->windowHeight, 1)),
+      0.01f, 10.0f);
+  this->cameraUniform.proj[1][1] *= -1.0f;
+  this->cameraUniform.camPos = glm::vec4(eye, 1.0f);
+  // x = splat scale, y = viewport height, z = opacity floor, w = max point size
+  this->cameraUniform.renderParams =
+      glm::vec4(1.2f, static_cast<float>(this->windowHeight), 0.02f, 24.0f);
+
+  if (this->cameraBuffer != nullptr) {
+    const VkResult ret = this->cameraBuffer->UploadData(&this->cameraUniform,
+                                                        sizeof(this->cameraUniform));
+    if (ret != VK_SUCCESS) {
+      Logger() << Logger::ERROR << "Failed to update camera buffer"
+               << std::endl;
+    }
+  }
 }
 
 bool GraphicsApp::Init() {
@@ -117,10 +156,28 @@ bool GraphicsApp::Init() {
   }
 
   std::vector<GaussianPoint> points = model.getPoints();
+  if (points.empty()) {
+    Logger() << Logger::ERROR << "Model has no points" << std::endl;
+    return false;
+  }
+
+  glm::vec3 minBounds(MAXFLOAT);
+  glm::vec3 maxBounds(-MAXFLOAT);
   for (auto &point : points) {
-    point.position.x /= 3000.0f;
-    point.position.y /= 3000.0f;
-    point.position.z /= 3000.0f;
+    const glm::vec3 pos(point.position);
+    minBounds = glm::min(minBounds, pos);
+    maxBounds = glm::max(maxBounds, pos);
+  }
+
+  const glm::vec3 center = (minBounds + maxBounds) * 0.5f;
+  const glm::vec3 extent = maxBounds - minBounds;
+  const float maxExtent =
+      std::max(std::max(extent.x, extent.y), std::max(extent.z, 1e-5f));
+  const float modelScale = 1.8f / maxExtent;
+  for (auto &point : points) {
+    point.position =
+        glm::vec4((glm::vec3(point.position) - center) * modelScale, 1.0f);
+    point.scale *= modelScale;
   }
   this->vertexBuffer = std::make_shared<VkGPUBuffer>(renderer->GetGPUCtx());
   VkResult ret = vertexBuffer->AllocateAndBind(
@@ -141,18 +198,19 @@ bool GraphicsApp::Init() {
   vertexBufferNode.buf.buffer = vertexBuffer->GetBuffer();
   vertexBufferNode.buf.bufferSize = vertexBuffer->GetBufferSize();
 
-  std::vector indices(points.size(), 0);
+  std::vector<uint32_t> indices(points.size(), 0);
   this->indexBuffer = std::make_shared<VkGPUBuffer>(renderer->GetGPUCtx());
   ret = indexBuffer->AllocateAndBind(GPU_BUFFER_TYPE_INDEX,
-                                     indices.size() * sizeof(int));
+                                     indices.size() * sizeof(uint32_t));
   if (ret != VK_SUCCESS) {
     Logger() << Logger::ERROR << "Failed to allocate GPU buffer" << std::endl;
     return false;
   }
-  for (int i = 0; i < indices.size(); i++) {
+  for (uint32_t i = 0; i < indices.size(); i++) {
     indices[i] = i;
   }
-  ret = indexBuffer->UploadData(indices.data(), indices.size() * sizeof(int));
+  ret = indexBuffer->UploadData(indices.data(),
+                                indices.size() * sizeof(uint32_t));
   if (ret != VK_SUCCESS) {
     Logger() << Logger::ERROR << "Failed to upload GPU buffer" << std::endl;
     return false;
@@ -163,16 +221,16 @@ bool GraphicsApp::Init() {
   indicesBufferNode.buf.buffer = indexBuffer->GetBuffer();
   indicesBufferNode.buf.bufferSize = indexBuffer->GetBufferSize();
 
-  struct Camera {
-  } cam;
-
   cameraBuffer = std::make_shared<VkGPUBuffer>(renderer->GetGPUCtx());
-  ret = cameraBuffer->AllocateAndBind(GPU_BUFFER_TYPE_UNIFORM, sizeof(Camera));
+  ret = cameraBuffer->AllocateAndBind(GPU_BUFFER_TYPE_UNIFORM,
+                                      sizeof(DemoCameraUniform));
   if (ret != VK_SUCCESS) {
     Logger() << Logger::ERROR << "Failed to allocate GPU buffer" << std::endl;
     return false;
   }
-  ret = cameraBuffer->UploadData(&cam, sizeof(cam));
+  this->UpdateSceneState(0.0f);
+  ret = cameraBuffer->UploadData(&this->cameraUniform,
+                                 sizeof(this->cameraUniform));
   if (ret != VK_SUCCESS) {
     Logger() << Logger::ERROR << "Failed to upload GPU buffer" << std::endl;
     return false;
@@ -192,7 +250,8 @@ bool GraphicsApp::Init() {
     // NA:
   };
   const GraphicsElement elementLeft{
-      .pushConstantInfo = {.size = sizeof(FrameInfo), .data = &this->frameInfo},
+      .pushConstantInfo = {.size = sizeof(DemoFrameInfo),
+                           .data = &this->frameInfo},
       .buffers = buffers,
       .customDrawFunc = func,
   };
@@ -205,6 +264,7 @@ void GraphicsApp::Run() {
     window->PollEvent();
     window->Render();
     this->frameInfo.frameIndex++;
+    this->UpdateSceneState(this->frameInfo.frameIndex / 60.0f);
     if (renderer->RenderFrame() != VK_SUCCESS) {
       return;
     }

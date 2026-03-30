@@ -73,10 +73,10 @@ struct SpzFileSphericalHarmonic45 {
 struct SpzFile {
   SpzFileHeader *header;
   SpzFilePosition *positions;
-  SpzFileScale *scales;
-  SpzFileRotation *rotations;
   SpzFileAlpha *alphas;
   SpzFileColor *colors;
+  SpzFileScale *scales;
+  SpzFileRotation *rotations;
 
   union {
     SpzFileSphericalHarmonic9 *sphericalHarmonics;

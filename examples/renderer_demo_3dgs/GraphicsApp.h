@@ -12,6 +12,18 @@
 
 static std::shared_ptr<IWindow> window = nullptr;
 
+struct DemoFrameInfo {
+  uint32_t frameIndex = 0;
+  float time = 0.0f;
+};
+
+struct alignas(16) DemoCameraUniform {
+  glm::mat4 view{1.0f};
+  glm::mat4 proj{1.0f};
+  glm::vec4 camPos{0.0f, 0.0f, 3.0f, 1.0f};
+  glm::vec4 renderParams{0.0f};
+};
+
 class GraphicsApp final : public IEventHandler {
   std::shared_ptr<Renderer> renderer = nullptr;
 
@@ -20,7 +32,8 @@ class GraphicsApp final : public IEventHandler {
   std::shared_ptr<VkGPUBuffer> indexBuffer = nullptr;
   std::shared_ptr<VkGPUBuffer> cameraBuffer = nullptr;
 
-  FrameInfo frameInfo{};
+  DemoFrameInfo frameInfo{};
+  DemoCameraUniform cameraUniform{};
 
   bool running = true;
 
@@ -31,6 +44,8 @@ class GraphicsApp final : public IEventHandler {
   uint32_t windowPosY = 10;
   uint32_t windowWidth = 1024;
   uint32_t windowHeight = 768;
+
+  void UpdateSceneState(float elapsedSeconds);
 
 public:
   GraphicsApp() = default;

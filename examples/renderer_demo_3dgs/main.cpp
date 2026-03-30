@@ -17,7 +17,7 @@ int main(int argc, char *argv[]) {
     Logger() << Logger::ERROR << "Failed to initialize" << std::endl;
     return 1;
   }
-  app.CaptureFrame("../../../examples/renderer_demo_2d/render_offscreen.png");
+  app.CaptureFrame("../../../examples/renderer_demo_3dgs/render_offscreen.png");
   app.Run();
   return 0;
 }
