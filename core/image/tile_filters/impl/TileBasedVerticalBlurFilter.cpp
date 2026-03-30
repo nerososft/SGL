@@ -98,7 +98,7 @@ VkResult TileBasedVerticalBlurFilter::Apply(
             VK_SHADER_STAGE_COMPUTE_BIT));
   }
 
-  uint32_t workGroupX = 1;
+  uint32_t workGroupX = inputImageInfo[0].width;
   uint32_t workGroupY = (blurFilterParams.imageSize.tileHeight + 31) / 32;
 
   const auto node = std::make_shared<ComputePipelineNode>(

@@ -98,7 +98,7 @@ VkResult TileBasedHorizontalBlurFilter::Apply(
   }
 
   uint32_t workGroupX = (outputImageInfo[0].width + 31) / 32;
-  uint32_t workGroupY = 1;
+  uint32_t workGroupY = blurFilterParams.imageSize.tileHeight;
 
   const auto node = std::make_shared<ComputePipelineNode>(
       gpuCtx, "TileBasedFilter", filterParams.shaderPath, pushConstantInfo.size,
