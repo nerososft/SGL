@@ -33,6 +33,7 @@ class GraphicsApp final : public IEventHandler {
   std::shared_ptr<VkGPUBuffer> vertexBuffer = nullptr;
   std::shared_ptr<VkGPUBuffer> indexBuffer = nullptr;
   std::shared_ptr<VkGPUBuffer> cameraBuffer = nullptr;
+  std::shared_ptr<VkGPUBuffer> shBuffer = nullptr;
 
   DemoFrameInfo frameInfo{};
   DemoCameraUniform cameraUniform{};

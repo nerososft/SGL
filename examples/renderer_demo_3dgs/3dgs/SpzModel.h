@@ -11,6 +11,7 @@
 #include "runtime/utils/IOUtils.h"
 
 #define SPZ_HEADER_MAGIC (0x5053474e)
+constexpr uint32_t SPZ_RENDERED_SH_COEFF_COUNT = 15;
 
 struct SpzFileHeader {
   uint32_t magic;
@@ -93,11 +94,14 @@ struct SpzFile {
 class SpzModel {
   std::vector<char> modelBytes;
   std::vector<GaussianPoint> gaussianPoints;
+  std::vector<glm::vec4> shCoefficients;
 
 public:
   bool loadModel(const char *str);
 
   std::vector<GaussianPoint> getPoints() { return gaussianPoints; };
+
+  std::vector<glm::vec4> getSHCoefficients() { return shCoefficients; };
 };
 
 #endif // SPZFILELOADER_H

@@ -69,6 +69,9 @@ bool GraphicsApp::ConstructRendererPipeline() {
       VkGPUHelper::BuildDescriptorSetLayoutBinding(
           0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1,
           VK_SHADER_STAGE_ALL_GRAPHICS));
+  descriptorSetLayoutBindings.push_back(
+      VkGPUHelper::BuildDescriptorSetLayoutBinding(
+          1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT));
 
   VkViewport viewport{
       .x = 0,
@@ -212,6 +215,7 @@ bool GraphicsApp::Init() {
   }
 
   std::vector<GaussianPoint> points = model.getPoints();
+  std::vector<glm::vec4> shCoefficients = model.getSHCoefficients();
   if (points.empty()) {
     Logger() << Logger::ERROR << "Model has no points" << std::endl;
     return false;
@@ -272,10 +276,30 @@ bool GraphicsApp::Init() {
     return false;
   }
 
+  this->shBuffer = std::make_shared<VkGPUBuffer>(renderer->GetGPUCtx());
+  ret = shBuffer->AllocateAndBind(
+      GPU_BUFFER_TYPE_STORAGE_SHARED,
+      shCoefficients.size() * sizeof(glm::vec4));
+  if (ret != VK_SUCCESS) {
+    Logger() << Logger::ERROR << "Failed to allocate SH buffer" << std::endl;
+    return false;
+  }
+  ret = shBuffer->UploadData(shCoefficients.data(),
+                             shCoefficients.size() * sizeof(glm::vec4));
+  if (ret != VK_SUCCESS) {
+    Logger() << Logger::ERROR << "Failed to upload SH buffer" << std::endl;
+    return false;
+  }
+
   PipelineNodeBuffer vertexBufferNode;
   vertexBufferNode.type = PIPELINE_NODE_BUFFER_VERTEX;
   vertexBufferNode.buf.buffer = vertexBuffer->GetBuffer();
   vertexBufferNode.buf.bufferSize = vertexBuffer->GetBufferSize();
+
+  PipelineNodeBuffer shBufferNode;
+  shBufferNode.type = PIPELINE_NODE_BUFFER_STORAGE_READ;
+  shBufferNode.buf.buffer = shBuffer->GetBuffer();
+  shBufferNode.buf.bufferSize = shBuffer->GetBufferSize();
 
   std::vector<uint32_t> indices(points.size() * 6, 0);
   this->indexBuffer = std::make_shared<VkGPUBuffer>(renderer->GetGPUCtx());
@@ -333,6 +357,7 @@ bool GraphicsApp::Init() {
   buffers.push_back(vertexBufferNode);
   buffers.push_back(indicesBufferNode);
   buffers.push_back(cameraBufferNode);
+  buffers.push_back(shBufferNode);
 
   const std::function func = [](VkCommandBuffer commandBuffer) {
     // NA:

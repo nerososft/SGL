@@ -18,6 +18,30 @@ layout (set = 0, binding = 0) uniform Camera {
     vec4 renderParams;
 } cam;
 
+layout (set = 0, binding = 1, std430) readonly buffer SHBuffer {
+    vec4 coeffs[];
+} shBuffer;
+
+const float SH_C0 = 0.28209479177387814f;
+const float SH_C1 = 0.4886025119029199f;
+const float SH_C2[5] = float[](
+    1.0925484305920792f,
+    -1.0925484305920792f,
+    0.31539156525252005f,
+    -1.0925484305920792f,
+    0.5462742152960396f
+);
+const float SH_C3[7] = float[](
+    -0.5900435899266435f,
+    2.890611442640554f,
+    -0.4570457994644658f,
+    0.3731763325901154f,
+    -0.4570457994644658f,
+    1.445305721320277f,
+    -0.5900435899266435f
+);
+const uint SH_COEFF_COUNT = 15u;
+
 mat3 quatToMat3(vec4 q) {
     vec4 n = normalize(q);
     float x = n.x;
@@ -41,9 +65,38 @@ mat3 quatToMat3(vec4 q) {
     );
 }
 
-vec2 projectOffset(vec3 viewCenter, vec3 viewOffset) {
-    vec4 clip = cam.proj * vec4(viewCenter + viewOffset, 1.0f);
-    return clip.xy / max(clip.w, 1e-5f);
+vec3 evaluateSH(uint pointIndex, vec3 direction) {
+    vec3 dir = normalize(direction);
+    float x = dir.x;
+    float y = dir.y;
+    float z = dir.z;
+    float xx = x * x;
+    float yy = y * y;
+    float zz = z * z;
+    float xy = x * y;
+    float yz = y * z;
+    float xz = x * z;
+
+    uint base = pointIndex * SH_COEFF_COUNT;
+    vec3 result = SH_C0 * color.rgb;
+    result += (-SH_C1 * y) * shBuffer.coeffs[base + 0u].xyz;
+    result += ( SH_C1 * z) * shBuffer.coeffs[base + 1u].xyz;
+    result += (-SH_C1 * x) * shBuffer.coeffs[base + 2u].xyz;
+
+    result += SH_C2[0] * xy * shBuffer.coeffs[base + 3u].xyz;
+    result += SH_C2[1] * yz * shBuffer.coeffs[base + 4u].xyz;
+    result += SH_C2[2] * (2.0f * zz - xx - yy) * shBuffer.coeffs[base + 5u].xyz;
+    result += SH_C2[3] * xz * shBuffer.coeffs[base + 6u].xyz;
+    result += SH_C2[4] * (xx - yy) * shBuffer.coeffs[base + 7u].xyz;
+
+    result += SH_C3[0] * y * (3.0f * xx - yy) * shBuffer.coeffs[base + 8u].xyz;
+    result += SH_C3[1] * xy * z * shBuffer.coeffs[base + 9u].xyz;
+    result += SH_C3[2] * y * (4.0f * zz - xx - yy) * shBuffer.coeffs[base + 10u].xyz;
+    result += SH_C3[3] * z * (2.0f * zz - 3.0f * xx - 3.0f * yy) * shBuffer.coeffs[base + 11u].xyz;
+    result += SH_C3[4] * x * (4.0f * zz - xx - yy) * shBuffer.coeffs[base + 12u].xyz;
+    result += SH_C3[5] * z * (xx - yy) * shBuffer.coeffs[base + 13u].xyz;
+    result += SH_C3[6] * x * (xx - 3.0f * yy) * shBuffer.coeffs[base + 14u].xyz;
+    return max(result + vec3(0.5f), vec3(0.0f));
 }
 
 void main() {
@@ -53,20 +106,37 @@ void main() {
 
     mat3 rotationMat = quatToMat3(rotate);
     mat3 viewRotation = mat3(cam.view) * rotationMat;
-    vec3 axisX = viewRotation[0] * scale.x;
-    vec3 axisY = viewRotation[1] * scale.y;
-    vec3 axisZ = viewRotation[2] * scale.z;
-
-    vec2 projectedAxisX = projectOffset(viewPos.xyz, axisX) - ndcCenter;
-    vec2 projectedAxisY = projectOffset(viewPos.xyz, axisY) - ndcCenter;
-    vec2 projectedAxisZ = projectOffset(viewPos.xyz, axisZ) - ndcCenter;
-
-    mat2 covariance = mat2(
-        dot(projectedAxisX, projectedAxisX) + dot(projectedAxisY, projectedAxisY) + dot(projectedAxisZ, projectedAxisZ) + cam.renderParams.y,
-        projectedAxisX.x * projectedAxisX.y + projectedAxisY.x * projectedAxisY.y + projectedAxisZ.x * projectedAxisZ.y,
-        projectedAxisX.x * projectedAxisX.y + projectedAxisY.x * projectedAxisY.y + projectedAxisZ.x * projectedAxisZ.y,
-        projectedAxisX.y * projectedAxisX.y + projectedAxisY.y * projectedAxisY.y + projectedAxisZ.y * projectedAxisZ.y + cam.renderParams.y
+    mat3 scaleMat = mat3(
+        scale.x, 0.0f, 0.0f,
+        0.0f, scale.y, 0.0f,
+        0.0f, 0.0f, scale.z
     );
+    mat3 transform = viewRotation * scaleMat;
+    mat3 covariance3D = transform * transpose(transform);
+
+    float invDepth = 1.0f / max(-viewPos.z, 1e-5f);
+    float projX = cam.proj[0][0];
+    float projY = cam.proj[1][1];
+    vec3 jacobianX = vec3(
+        projX * invDepth,
+        0.0f,
+        projX * viewPos.x * invDepth * invDepth
+    );
+    vec3 jacobianY = vec3(
+        0.0f,
+        projY * invDepth,
+        projY * viewPos.y * invDepth * invDepth
+    );
+    vec3 sigmaJacobianX = covariance3D * jacobianX;
+    vec3 sigmaJacobianY = covariance3D * jacobianY;
+    mat2 covariance = mat2(
+        dot(jacobianX, sigmaJacobianX),
+        dot(jacobianX, sigmaJacobianY),
+        dot(jacobianY, sigmaJacobianX),
+        dot(jacobianY, sigmaJacobianY)
+    );
+    covariance[0][0] += cam.renderParams.y;
+    covariance[1][1] += cam.renderParams.y;
 
     float trace = covariance[0][0] + covariance[1][1];
     float det = covariance[0][0] * covariance[1][1] - covariance[0][1] * covariance[1][0];
@@ -89,7 +159,8 @@ void main() {
 
     gl_Position = vec4(quadNdc * clipCenter.w, clipCenter.z, clipCenter.w);
 
-    outColor = color;
-    outOpacity = opacity.x;
+    uint pointIndex = uint(gl_VertexIndex) / 4u;
+    outColor = vec4(evaluateSH(pointIndex, position.xyz - cam.camPos.xyz), 1.0f);
+    outOpacity = 1.0f / (1.0f + exp(-opacity.x));
     outLocalCoord = quadCoord * extent;
 }
