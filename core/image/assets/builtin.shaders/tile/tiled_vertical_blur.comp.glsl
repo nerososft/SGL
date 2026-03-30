@@ -1,5 +1,5 @@
 #version 450
-layout (local_size_x = 32, local_size_y = 32, local_size_z = 1) in;
+layout (local_size_x = 1, local_size_y = 32, local_size_z = 1) in;
 
 layout (std430, binding = 0) buffer InputImageStorageBuffer0 { uint pixels[]; } inputImage0;
 layout (std430, binding = 1) buffer InputImageStorageBuffer1 { uint pixels[]; } inputImage1;

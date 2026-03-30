@@ -34,7 +34,8 @@ class TileBasedGaussianBlurFilter : public ITileBasedFilter {
   std::shared_ptr<IComputeGraphNode>
   CreateTileBasedBlurNode(const std::vector<FilterImageInfo> &inputImageInfo,
                           const std::string &shaderPath, VkBuffer buffer,
-                          VkDeviceSize bufferSize);
+                          VkDeviceSize bufferSize, uint32_t workGroupX,
+                          uint32_t workGroupY);
 
 public:
   TileBasedGaussianBlurFilter() = default;

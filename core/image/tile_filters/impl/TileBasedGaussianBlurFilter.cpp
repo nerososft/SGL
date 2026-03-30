@@ -17,7 +17,8 @@
 std::shared_ptr<IComputeGraphNode>
 TileBasedGaussianBlurFilter::CreateTileBasedBlurNode(
     const std::vector<FilterImageInfo> &inputImageInfo,
-    const std::string &shaderPath, VkBuffer buffer, VkDeviceSize bufferSize) {
+    const std::string &shaderPath, VkBuffer buffer, VkDeviceSize bufferSize,
+    uint32_t workGroupX, uint32_t workGroupY) {
   PushConstantInfo pushConstantInfo;
   pushConstantInfo.size = filterParams.paramsSize;
   pushConstantInfo.data = filterParams.paramsData;
@@ -46,9 +47,6 @@ TileBasedGaussianBlurFilter::CreateTileBasedBlurNode(
             i, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1,
             VK_SHADER_STAGE_COMPUTE_BIT));
   }
-
-  uint32_t workGroupX = inputImageInfo[0].width + 31 / 32;
-  uint32_t workGroupY = 8;
 
   const auto node = std::make_shared<ComputePipelineNode>(
       gpuCtx, "TileBasedFilter", shaderPath, pushConstantInfo.size,
@@ -130,14 +128,16 @@ VkResult TileBasedGaussianBlurFilter::Apply(
   const std::shared_ptr<IComputeGraphNode> vBlurNode = CreateTileBasedBlurNode(
       inputImageInfo, SHADER(tiled_vertical_blur.comp.glsl.spv),
       vBlurOutputBlurBuffer->GetBuffer(),
-      vBlurOutputBlurBuffer->GetBufferSize());
+      vBlurOutputBlurBuffer->GetBufferSize(), 1,
+      (gaussianFilterParams.imageSize.tileHeight + 31) / 32);
 
   this->hBlurImageInfo = inputImageInfo;
   hBlurImageInfo[4].storageBuffer = vBlurOutputBlurBuffer->GetBuffer();
   hBlurImageInfo[4].bufferSize = outputImageInfo[0].bufferSize;
   const std::shared_ptr<IComputeGraphNode> hBlurNode = CreateTileBasedBlurNode(
       hBlurImageInfo, SHADER(tiled_horizontal_blur.comp.glsl.spv),
-      outputImageInfo[0].storageBuffer, outputImageInfo[0].bufferSize);
+      outputImageInfo[0].storageBuffer, outputImageInfo[0].bufferSize,
+      (inputImageInfo[0].width + 31) / 32, 1);
 
   hBlurNode->AddDependenceNode(vBlurNode);
   this->computeSubGraph->AddComputeGraphNode(hBlurNode);
