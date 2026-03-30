@@ -33,6 +33,8 @@ VkGPUGraphicsPipeline::VkGPUGraphicsPipeline(
   this->vertexInputAttributeDescriptions = vertexInputAttributeDescriptions;
   this->primitiveTopology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
   this->polygonMode = VK_POLYGON_MODE_FILL;
+  this->blendingEnabled = false;
+  this->depthWriteEnabled = true;
 }
 VkGPUGraphicsPipeline::VkGPUGraphicsPipeline(
     const std::string &vertexShaderPath, const std::string &fragShaderPath,
@@ -45,7 +47,8 @@ VkGPUGraphicsPipeline::VkGPUGraphicsPipeline(
     const std::vector<VkVertexInputAttributeDescription>
         &vertexInputAttributeDescriptions,
     const VkPrimitiveTopology primitiveTopology,
-    const VkPolygonMode polygonMode) {
+    const VkPolygonMode polygonMode, const bool blendingEnabled,
+    const bool depthWriteEnabled) {
   this->vertexShaderPath = vertexShaderPath;
   this->fragShaderPath = fragShaderPath;
   this->viewWidth = viewWidth;
@@ -56,6 +59,8 @@ VkGPUGraphicsPipeline::VkGPUGraphicsPipeline(
   this->vertexInputAttributeDescriptions = vertexInputAttributeDescriptions;
   this->primitiveTopology = primitiveTopology;
   this->polygonMode = polygonMode;
+  this->blendingEnabled = blendingEnabled;
+  this->depthWriteEnabled = depthWriteEnabled;
 }
 
 VkResult VkGPUGraphicsPipeline::CreateGraphicsPipeline(
@@ -117,7 +122,7 @@ VkResult VkGPUGraphicsPipeline::CreateGraphicsPipeline(
   std::vector<VkPipelineColorBlendAttachmentState> colorBlendStateCreateInfos;
   const VkPipelineColorBlendAttachmentState colorBlendAttachment = {
       // FIXME: should be dynamic from attahcments
-      .blendEnable = VK_FALSE,
+      .blendEnable = this->blendingEnabled ? VK_TRUE : VK_FALSE,
       .srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA,
       .dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA,
       .colorBlendOp = VK_BLEND_OP_ADD,
@@ -135,7 +140,8 @@ VkResult VkGPUGraphicsPipeline::CreateGraphicsPipeline(
       this->fragmentShaderModule, renderPass, vertexInputBindingDescriptions,
       vertexInputAttributeDescriptions, this->primitiveTopology, VK_FALSE,
       viewports, viewportScissors, this->polygonMode, 1.0f,
-      colorBlendStateCreateInfos, dynamicStates, &this->graphicsPipeline);
+      colorBlendStateCreateInfos, dynamicStates, &this->graphicsPipeline,
+      VK_TRUE, this->depthWriteEnabled ? VK_TRUE : VK_FALSE);
   return result;
 }
 

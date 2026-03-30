@@ -16,6 +16,7 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/vec3.hpp>
+#include <numeric>
 
 VkSurfaceKHR GetWindowSurface(const VkInstance instance) {
   const SurfaceGetParams params{.params = {
@@ -78,7 +79,8 @@ bool GraphicsApp::ConstructRendererPipeline() {
       SHADER(rect_3dgs.frag.glsl.spv), sizeof(DemoFrameInfo),
       descriptorSetLayoutBindings, vertexInputBindingDescriptions,
       vertexInputAttributeDescriptions, this->windowWidth, this->windowHeight,
-      viewport, VK_PRIMITIVE_TOPOLOGY_POINT_LIST, VK_POLYGON_MODE_FILL);
+      viewport, VK_PRIMITIVE_TOPOLOGY_POINT_LIST, VK_POLYGON_MODE_FILL, true,
+      false);
   if (this->graphicsPipelineNode == nullptr) {
     Logger() << Logger::ERROR << "Failed to create graphics pipeline node!"
              << std::endl;
@@ -119,6 +121,7 @@ void GraphicsApp::UpdateSceneState(const float elapsedSeconds) {
   // x = splat scale, y = viewport height, z = opacity floor, w = max point size
   this->cameraUniform.renderParams =
       glm::vec4(1.2f, static_cast<float>(this->windowHeight), 0.02f, 24.0f);
+  this->UpdateSortedIndices();
 
   if (this->cameraBuffer != nullptr) {
     const VkResult ret = this->cameraBuffer->UploadData(&this->cameraUniform,
@@ -127,6 +130,39 @@ void GraphicsApp::UpdateSceneState(const float elapsedSeconds) {
       Logger() << Logger::ERROR << "Failed to update camera buffer"
                << std::endl;
     }
+  }
+}
+
+void GraphicsApp::UpdateSortedIndices() {
+  if (this->indexBuffer == nullptr || this->gaussianPoints.empty()) {
+    return;
+  }
+
+  if (this->sortedIndices.size() != this->gaussianPoints.size()) {
+    this->sortedIndices.resize(this->gaussianPoints.size());
+    std::iota(this->sortedIndices.begin(), this->sortedIndices.end(), 0);
+  }
+  if (this->sortDepths.size() != this->gaussianPoints.size()) {
+    this->sortDepths.resize(this->gaussianPoints.size());
+  }
+
+  for (size_t i = 0; i < this->gaussianPoints.size(); ++i) {
+    const glm::vec4 viewPos = this->cameraUniform.view *
+                              this->gaussianPoints[i].position;
+    this->sortDepths[i] = viewPos.z;
+  }
+
+  std::stable_sort(this->sortedIndices.begin(), this->sortedIndices.end(),
+                   [this](const uint32_t lhs, const uint32_t rhs) {
+                     return this->sortDepths[lhs] < this->sortDepths[rhs];
+                   });
+
+  const VkResult ret = this->indexBuffer->UploadData(
+      this->sortedIndices.data(),
+      this->sortedIndices.size() * sizeof(this->sortedIndices[0]));
+  if (ret != VK_SUCCESS) {
+    Logger() << Logger::ERROR << "Failed to upload sorted index buffer"
+             << std::endl;
   }
 }
 
@@ -179,6 +215,7 @@ bool GraphicsApp::Init() {
         glm::vec4((glm::vec3(point.position) - center) * modelScale, 1.0f);
     point.scale *= modelScale;
   }
+  this->gaussianPoints = points;
   this->vertexBuffer = std::make_shared<VkGPUBuffer>(renderer->GetGPUCtx());
   VkResult ret = vertexBuffer->AllocateAndBind(
       GPU_BUFFER_TYPE_VERTEX, points.size() * sizeof(GaussianPoint));
@@ -209,6 +246,8 @@ bool GraphicsApp::Init() {
   for (uint32_t i = 0; i < indices.size(); i++) {
     indices[i] = i;
   }
+  this->sortedIndices = indices;
+  this->sortDepths.assign(points.size(), 0.0f);
   ret = indexBuffer->UploadData(indices.data(),
                                 indices.size() * sizeof(uint32_t));
   if (ret != VK_SUCCESS) {

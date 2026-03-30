@@ -5,7 +5,9 @@
 #ifndef GRAPHICSAPP_H
 #define GRAPHICSAPP_H
 #include <memory>
+#include <vector>
 
+#include "3dgs/GaussianModel.h"
 #include "core/renderer/renderer/Renderer.h"
 #include "event/IEventHandler.h"
 #include "window/IWindow.h"
@@ -34,6 +36,9 @@ class GraphicsApp final : public IEventHandler {
 
   DemoFrameInfo frameInfo{};
   DemoCameraUniform cameraUniform{};
+  std::vector<GaussianPoint> gaussianPoints{};
+  std::vector<uint32_t> sortedIndices{};
+  std::vector<float> sortDepths{};
 
   bool running = true;
 
@@ -46,6 +51,7 @@ class GraphicsApp final : public IEventHandler {
   uint32_t windowHeight = 768;
 
   void UpdateSceneState(float elapsedSeconds);
+  void UpdateSortedIndices();
 
 public:
   GraphicsApp() = default;

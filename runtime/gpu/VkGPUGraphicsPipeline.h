@@ -29,6 +29,8 @@ class VkGPUGraphicsPipeline {
 
   VkPrimitiveTopology primitiveTopology;
   VkPolygonMode polygonMode;
+  bool blendingEnabled = false;
+  bool depthWriteEnabled = true;
 
 public:
   VkGPUGraphicsPipeline(
@@ -52,7 +54,8 @@ public:
           &vertexInputBindingDescriptions,
       const std::vector<VkVertexInputAttributeDescription>
           &vertexInputAttributeDescriptions,
-      VkPrimitiveTopology primitiveTopology, VkPolygonMode polygonMode);
+      VkPrimitiveTopology primitiveTopology, VkPolygonMode polygonMode,
+      bool blendingEnabled = false, bool depthWriteEnabled = true);
 
   ~VkGPUGraphicsPipeline() = default;
 

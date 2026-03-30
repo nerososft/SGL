@@ -262,7 +262,8 @@ VkResult VkGPUHelper::CreateGraphicsPipeline(
     std::vector<VkViewport> viewports, std::vector<VkRect2D> viewportScissors,
     VkPolygonMode polygonMode, float lineWidth,
     std::vector<VkPipelineColorBlendAttachmentState> colorBlendStateCreateInfos,
-    std::vector<VkDynamicState> dynamicStates, VkPipeline *pipeline) {
+    std::vector<VkDynamicState> dynamicStates, VkPipeline *pipeline,
+    const VkBool32 depthTestEnable, const VkBool32 depthWriteEnable) {
   VkResult ret = VK_SUCCESS;
   std::vector<VkGraphicsPipelineCreateInfo> pipelineCreateInfos;
 
@@ -360,8 +361,8 @@ VkResult VkGPUHelper::CreateGraphicsPipeline(
       VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
   depthStencilState.flags = 0;
   depthStencilState.pNext = nullptr;
-  depthStencilState.depthTestEnable = VK_TRUE;
-  depthStencilState.depthWriteEnable = VK_TRUE;
+  depthStencilState.depthTestEnable = depthTestEnable;
+  depthStencilState.depthWriteEnable = depthWriteEnable;
   depthStencilState.depthCompareOp = VK_COMPARE_OP_LESS;
   depthStencilState.depthBoundsTestEnable = VK_FALSE;
   depthStencilState.stencilTestEnable = VK_FALSE;

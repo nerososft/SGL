@@ -48,6 +48,8 @@ GraphicsPipelineNode::GraphicsPipelineNode(
   };
   this->primitiveTopology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
   this->polygonMode = VK_POLYGON_MODE_FILL;
+  this->blendingEnabled = false;
+  this->depthWriteEnabled = true;
 }
 
 GraphicsPipelineNode::GraphicsPipelineNode(
@@ -77,6 +79,8 @@ GraphicsPipelineNode::GraphicsPipelineNode(
   this->viewport = viewport;
   this->primitiveTopology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
   this->polygonMode = VK_POLYGON_MODE_FILL;
+  this->blendingEnabled = false;
+  this->depthWriteEnabled = true;
 }
 
 GraphicsPipelineNode::GraphicsPipelineNode(
@@ -92,7 +96,8 @@ GraphicsPipelineNode::GraphicsPipelineNode(
         &vertexInputAttributeDescriptions,
     const float width, const float height, const VkViewport &viewport,
     const VkPrimitiveTopology primitiveTopology,
-    const VkPolygonMode polygonMode) {
+    const VkPolygonMode polygonMode, const bool blendingEnabled,
+    const bool depthWriteEnabled) {
   this->gpuCtx = gpuCtx;
   this->name = name;
   this->type = COMPUTE_GRAPH_NODE_GRAPHICS;
@@ -108,6 +113,8 @@ GraphicsPipelineNode::GraphicsPipelineNode(
   this->viewport = viewport;
   this->primitiveTopology = primitiveTopology;
   this->polygonMode = polygonMode;
+  this->blendingEnabled = blendingEnabled;
+  this->depthWriteEnabled = depthWriteEnabled;
 }
 
 std::shared_ptr<VkGPUDescriptorSet> GraphicsPipelineNode::CreateDescriptorSet(
@@ -211,7 +218,8 @@ VkResult GraphicsPipelineNode::CreateComputeGraphNode() {
   graphicsPipeline = std::make_shared<VkGPUGraphicsPipeline>(
       vertexShaderPath, fragmentShaderPath, width, height,
       descriptorSetLayoutBindings, pushConstantRanges,
-      vertexInputBindingDescriptions, vertexInputAttributeDescriptions, primitiveTopology, polygonMode);
+      vertexInputBindingDescriptions, vertexInputAttributeDescriptions,
+      primitiveTopology, polygonMode, blendingEnabled, depthWriteEnabled);
   const VkResult ret = graphicsPipeline->CreateGraphicsPipeline(
       gpuCtx->GetCurrentDevice(), gpuCtx->GetPipelineCache(),
       renderPass->GetRenderPass());

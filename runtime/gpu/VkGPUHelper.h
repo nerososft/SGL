@@ -84,7 +84,9 @@ public:
       float lineWidth,
       std::vector<VkPipelineColorBlendAttachmentState>
           colorBlendStateCreateInfos,
-      std::vector<VkDynamicState> dynamicStates, VkPipeline *pipeline);
+      std::vector<VkDynamicState> dynamicStates, VkPipeline *pipeline,
+      VkBool32 depthTestEnable = VK_TRUE,
+      VkBool32 depthWriteEnable = VK_TRUE);
 
   static VkResult CreateUniformBufferAndUploadData(
       VkDevice device, const std::vector<uint32_t> &queueFamilyIndices,

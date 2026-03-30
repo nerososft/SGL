@@ -5,6 +5,7 @@
 #ifndef GRAPHICSPIPELINENODE_H
 #define GRAPHICSPIPELINENODE_H
 #include <functional>
+#include <memory>
 
 #include "IComputeGraphNode.h"
 #include "runtime/gpu/VkGPUComputePipeline.h"
@@ -42,6 +43,8 @@ class GraphicsPipelineNode final : public IComputeGraphNode {
 
   VkPrimitiveTopology primitiveTopology;
   VkPolygonMode polygonMode;
+  bool blendingEnabled = false;
+  bool depthWriteEnabled = true;
 
 public:
   GraphicsPipelineNode(const std::shared_ptr<VkGPUContext> &gpuCtx,
@@ -86,7 +89,9 @@ public:
                            &vertexInputAttributeDescriptions,
                        float width, float height, const VkViewport &viewport,
                        VkPrimitiveTopology primitiveTopology,
-                       VkPolygonMode polygonMode);
+                       VkPolygonMode polygonMode,
+                       bool blendingEnabled = false,
+                       bool depthWriteEnabled = true);
 
   [[nodiscard]] std::shared_ptr<VkGPUDescriptorSet>
   CreateDescriptorSet(const GraphicsElement &graphicsElement) const;
