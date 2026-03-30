@@ -7,6 +7,8 @@
 #include "runtime/log/Log.h"
 
 #include <cmath>
+#include <glm/geometric.hpp>
+#include <glm/vec4.hpp>
 #include <glm/vec3.hpp>
 
 namespace {
@@ -25,6 +27,47 @@ float DecodeSigned24(const uint8_t val[3], const uint32_t fractionalBits) {
 
 float DecodeScale(const uint8_t value) {
   return std::exp(static_cast<float>(value) / 16.0f - 10.0f);
+}
+
+glm::vec4 DecodeRotationV2(const uint8_t *rotationData) {
+  const glm::vec3 xyz(
+      static_cast<float>(rotationData[0]) / 127.5f - 1.0f,
+      static_cast<float>(rotationData[1]) / 127.5f - 1.0f,
+      static_cast<float>(rotationData[2]) / 127.5f - 1.0f);
+  const float w = std::sqrt(std::max(0.0f, 1.0f - glm::dot(xyz, xyz)));
+  return glm::normalize(glm::vec4(xyz, w));
+}
+
+glm::vec4 DecodeRotationV3(const uint8_t *rotationData) {
+  const float normalized[3] = {
+      static_cast<float>(rotationData[0]) / 255.0f * 2.0f - 1.0f,
+      static_cast<float>(rotationData[1]) / 255.0f * 2.0f - 1.0f,
+      static_cast<float>(rotationData[2]) / 255.0f * 2.0f - 1.0f,
+  };
+  const float missing = std::sqrt(std::max(
+      0.0f, 1.0f - normalized[0] * normalized[0] - normalized[1] * normalized[1] -
+                normalized[2] * normalized[2]));
+  glm::vec4 rotation(0.0f);
+  const uint8_t missingIndex = rotationData[3] & 3u;
+  uint32_t srcIdx = 0;
+  for (uint32_t dstIdx = 0; dstIdx < 4; ++dstIdx) {
+    if (dstIdx == missingIndex) {
+      rotation[dstIdx] = missing;
+      continue;
+    }
+    rotation[dstIdx] = normalized[srcIdx++];
+  }
+  if ((rotationData[3] & 4u) != 0u) {
+    rotation = -rotation;
+  }
+  return glm::normalize(rotation);
+}
+
+glm::vec4 DecodeRotation(const uint8_t *rotationData, const uint32_t version) {
+  if (version >= 3) {
+    return DecodeRotationV3(rotationData);
+  }
+  return DecodeRotationV2(rotationData);
 }
 
 } // namespace
@@ -78,7 +121,7 @@ bool SpzModel::loadModel(const char *str) {
       reinterpret_cast<char *>(file.alphas) + alphasSize);
   file.scales = reinterpret_cast<SpzFileScale *>(
       reinterpret_cast<char *>(file.colors) + colorsSize);
-  file.rotations = reinterpret_cast<SpzFileRotation *>(
+  file.rotations = reinterpret_cast<uint8_t *>(
       reinterpret_cast<char *>(file.scales) + scalesSize);
 
   this->gaussianPoints.reserve(numPoints);
@@ -100,7 +143,8 @@ bool SpzModel::loadModel(const char *str) {
     point.color.y = static_cast<float>(file.colors[i].y) / 255.0f;
     point.color.z = static_cast<float>(file.colors[i].z) / 255.0f;
     point.color.w = alpha;
-    point.rotate = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+    point.rotate =
+        DecodeRotation(file.rotations + i * rotationStride, header->version);
     this->gaussianPoints.push_back(point);
   }
 

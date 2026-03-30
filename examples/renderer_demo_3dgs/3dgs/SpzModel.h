@@ -40,6 +40,13 @@ struct SpzFileRotation {
   uint8_t z;
 } __attribute__((packed));
 
+struct SpzFileRotationV3 {
+  uint8_t x;
+  uint8_t y;
+  uint8_t z;
+  uint8_t w;
+} __attribute__((packed));
+
 struct SpzFileAlpha {
   uint8_t x;
 } __attribute__((packed));
@@ -76,7 +83,7 @@ struct SpzFile {
   SpzFileAlpha *alphas;
   SpzFileColor *colors;
   SpzFileScale *scales;
-  SpzFileRotation *rotations;
+  uint8_t *rotations;
 
   union {
     SpzFileSphericalHarmonic9 *sphericalHarmonics;

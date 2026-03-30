@@ -28,7 +28,7 @@ VkSurfaceKHR GetWindowSurface(const VkInstance instance) {
 bool GraphicsApp::ConstructRendererPipeline() {
   std::vector<VkVertexInputBindingDescription> vertexInputBindingDescriptions =
       {{.binding = 0,
-        .stride = sizeof(GaussianPoint),
+        .stride = sizeof(GaussianSplatVertex),
         .inputRate = VK_VERTEX_INPUT_RATE_VERTEX}};
 
   std::vector<VkVertexInputAttributeDescription>
@@ -37,27 +37,32 @@ bool GraphicsApp::ConstructRendererPipeline() {
       {.location = 0, // position
        .binding = 0,
        .format = VK_FORMAT_R32G32B32A32_SFLOAT,
-       .offset = offsetof(GaussianPoint, position)});
+       .offset = offsetof(GaussianSplatVertex, position)});
   vertexInputAttributeDescriptions.push_back(
       {.location = 1, // color
        .binding = 0,
        .format = VK_FORMAT_R32G32B32A32_SFLOAT,
-       .offset = offsetof(GaussianPoint, color)});
+       .offset = offsetof(GaussianSplatVertex, color)});
   vertexInputAttributeDescriptions.push_back(
       {.location = 2, // scale
        .binding = 0,
        .format = VK_FORMAT_R32G32B32A32_SFLOAT,
-       .offset = offsetof(GaussianPoint, scale)});
+       .offset = offsetof(GaussianSplatVertex, scale)});
   vertexInputAttributeDescriptions.push_back(
       {.location = 3, // rotate
        .binding = 0,
        .format = VK_FORMAT_R32G32B32A32_SFLOAT,
-       .offset = offsetof(GaussianPoint, rotate)});
+       .offset = offsetof(GaussianSplatVertex, rotate)});
   vertexInputAttributeDescriptions.push_back(
       {.location = 4, // opacity
        .binding = 0,
        .format = VK_FORMAT_R32G32B32A32_SFLOAT,
-       .offset = offsetof(GaussianPoint, opacity)});
+       .offset = offsetof(GaussianSplatVertex, opacity)});
+  vertexInputAttributeDescriptions.push_back(
+      {.location = 5, // quadCoord
+       .binding = 0,
+       .format = VK_FORMAT_R32G32_SFLOAT,
+       .offset = offsetof(GaussianSplatVertex, quadCoord)});
 
   std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
   descriptorSetLayoutBindings.push_back(
@@ -79,7 +84,7 @@ bool GraphicsApp::ConstructRendererPipeline() {
       SHADER(rect_3dgs.frag.glsl.spv), sizeof(DemoFrameInfo),
       descriptorSetLayoutBindings, vertexInputBindingDescriptions,
       vertexInputAttributeDescriptions, this->windowWidth, this->windowHeight,
-      viewport, VK_PRIMITIVE_TOPOLOGY_POINT_LIST, VK_POLYGON_MODE_FILL, true,
+      viewport, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, VK_POLYGON_MODE_FILL, true,
       false);
   if (this->graphicsPipelineNode == nullptr) {
     Logger() << Logger::ERROR << "Failed to create graphics pipeline node!"
@@ -118,9 +123,10 @@ void GraphicsApp::UpdateSceneState(const float elapsedSeconds) {
       0.01f, 10.0f);
   this->cameraUniform.proj[1][1] *= -1.0f;
   this->cameraUniform.camPos = glm::vec4(eye, 1.0f);
-  // x = splat scale, y = viewport height, z = opacity floor, w = max point size
+  // x = gaussian extent in sigma, y = covariance epsilon, z = opacity floor,
+  // w = max NDC axis length clamp
   this->cameraUniform.renderParams =
-      glm::vec4(1.2f, static_cast<float>(this->windowHeight), 0.02f, 24.0f);
+      glm::vec4(3.0f, 1e-6f, 0.02f, 0.18f);
   this->UpdateSortedIndices();
 
   if (this->cameraBuffer != nullptr) {
@@ -138,9 +144,9 @@ void GraphicsApp::UpdateSortedIndices() {
     return;
   }
 
-  if (this->sortedIndices.size() != this->gaussianPoints.size()) {
-    this->sortedIndices.resize(this->gaussianPoints.size());
-    std::iota(this->sortedIndices.begin(), this->sortedIndices.end(), 0);
+  if (this->sortedPointOrder.size() != this->gaussianPoints.size()) {
+    this->sortedPointOrder.resize(this->gaussianPoints.size());
+    std::iota(this->sortedPointOrder.begin(), this->sortedPointOrder.end(), 0);
   }
   if (this->sortDepths.size() != this->gaussianPoints.size()) {
     this->sortDepths.resize(this->gaussianPoints.size());
@@ -152,10 +158,24 @@ void GraphicsApp::UpdateSortedIndices() {
     this->sortDepths[i] = viewPos.z;
   }
 
-  std::stable_sort(this->sortedIndices.begin(), this->sortedIndices.end(),
+  std::stable_sort(this->sortedPointOrder.begin(), this->sortedPointOrder.end(),
                    [this](const uint32_t lhs, const uint32_t rhs) {
                      return this->sortDepths[lhs] < this->sortDepths[rhs];
                    });
+
+  if (this->sortedIndices.size() != this->gaussianPoints.size() * 6) {
+    this->sortedIndices.resize(this->gaussianPoints.size() * 6);
+  }
+  static constexpr uint32_t kQuadIndexPattern[6] = {0, 1, 2, 2, 1, 3};
+  for (size_t sortedIdx = 0; sortedIdx < this->sortedPointOrder.size();
+       ++sortedIdx) {
+    const uint32_t pointIndex = this->sortedPointOrder[sortedIdx];
+    const uint32_t baseVertex = pointIndex * 4;
+    uint32_t *dst = this->sortedIndices.data() + sortedIdx * 6;
+    for (uint32_t idx = 0; idx < 6; ++idx) {
+      dst[idx] = baseVertex + kQuadIndexPattern[idx];
+    }
+  }
 
   const VkResult ret = this->indexBuffer->UploadData(
       this->sortedIndices.data(),
@@ -216,15 +236,37 @@ bool GraphicsApp::Init() {
     point.scale *= modelScale;
   }
   this->gaussianPoints = points;
+  std::vector<GaussianSplatVertex> splatVertices;
+  splatVertices.reserve(points.size() * 4);
+  static constexpr glm::vec2 kQuadCoords[4] = {
+      {-1.0f, -1.0f},
+      {1.0f, -1.0f},
+      {-1.0f, 1.0f},
+      {1.0f, 1.0f},
+  };
+  for (const auto &point : points) {
+    for (const auto quadCoord : kQuadCoords) {
+      GaussianSplatVertex vertex{};
+      vertex.position = point.position;
+      vertex.color = point.color;
+      vertex.scale = point.scale;
+      vertex.rotate = point.rotate;
+      vertex.opacity = point.opacity;
+      vertex.quadCoord = quadCoord;
+      splatVertices.push_back(vertex);
+    }
+  }
   this->vertexBuffer = std::make_shared<VkGPUBuffer>(renderer->GetGPUCtx());
   VkResult ret = vertexBuffer->AllocateAndBind(
-      GPU_BUFFER_TYPE_VERTEX, points.size() * sizeof(GaussianPoint));
+      GPU_BUFFER_TYPE_VERTEX,
+      splatVertices.size() * sizeof(GaussianSplatVertex));
   if (ret != VK_SUCCESS) {
     Logger() << Logger::ERROR << "Failed to allocate GPU buffer" << std::endl;
     return false;
   }
-  ret = vertexBuffer->UploadData(points.data(),
-                                 points.size() * sizeof(GaussianPoint));
+  ret = vertexBuffer->UploadData(
+      splatVertices.data(),
+      splatVertices.size() * sizeof(GaussianSplatVertex));
   if (ret != VK_SUCCESS) {
     Logger() << Logger::ERROR << "Failed to upload GPU buffer" << std::endl;
     return false;
@@ -235,7 +277,7 @@ bool GraphicsApp::Init() {
   vertexBufferNode.buf.buffer = vertexBuffer->GetBuffer();
   vertexBufferNode.buf.bufferSize = vertexBuffer->GetBufferSize();
 
-  std::vector<uint32_t> indices(points.size(), 0);
+  std::vector<uint32_t> indices(points.size() * 6, 0);
   this->indexBuffer = std::make_shared<VkGPUBuffer>(renderer->GetGPUCtx());
   ret = indexBuffer->AllocateAndBind(GPU_BUFFER_TYPE_INDEX,
                                      indices.size() * sizeof(uint32_t));
@@ -243,8 +285,15 @@ bool GraphicsApp::Init() {
     Logger() << Logger::ERROR << "Failed to allocate GPU buffer" << std::endl;
     return false;
   }
-  for (uint32_t i = 0; i < indices.size(); i++) {
-    indices[i] = i;
+  this->sortedPointOrder.resize(points.size());
+  std::iota(this->sortedPointOrder.begin(), this->sortedPointOrder.end(), 0);
+  static constexpr uint32_t kQuadIndexPattern[6] = {0, 1, 2, 2, 1, 3};
+  for (uint32_t pointIdx = 0; pointIdx < points.size(); ++pointIdx) {
+    const uint32_t baseVertex = pointIdx * 4;
+    uint32_t *dst = indices.data() + pointIdx * 6;
+    for (uint32_t idx = 0; idx < 6; ++idx) {
+      dst[idx] = baseVertex + kQuadIndexPattern[idx];
+    }
   }
   this->sortedIndices = indices;
   this->sortDepths.assign(points.size(), 0.0f);

@@ -37,6 +37,7 @@ class GraphicsApp final : public IEventHandler {
   DemoFrameInfo frameInfo{};
   DemoCameraUniform cameraUniform{};
   std::vector<GaussianPoint> gaussianPoints{};
+  std::vector<uint32_t> sortedPointOrder{};
   std::vector<uint32_t> sortedIndices{};
   std::vector<float> sortDepths{};
 
