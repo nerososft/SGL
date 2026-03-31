@@ -8,8 +8,11 @@
 #include "sgl/sgl_image.h"
 #include "tile_filters/ITileBasedFilter.h"
 
+#include <array>
 #include <map>
 #include <memory>
+#include <future>
+#include <mutex>
 #include <queue>
 
 #define TILE_HEIGHT (256)
@@ -28,9 +31,17 @@ class HugeImageProcessor {
   std::vector<std::shared_ptr<VkGPUBuffer>> inputStorageBuffers;
 
   std::shared_ptr<VkGPUBuffer> tilePlaceholderBuffer;
-  std::shared_ptr<VkGPUBuffer> outputBuffer;
+  std::array<std::shared_ptr<VkGPUBuffer>, 2> outputBuffers{};
+  std::future<VkResult> prefetchFuture;
+  int prefetchedTileIdx = -1;
+  mutable std::mutex bufferCacheMutex;
 
   [[nodiscard]] std::shared_ptr<VkGPUBuffer> GetBufferFromFreeList();
+  void ReturnBufferToFreeList(const std::shared_ptr<VkGPUBuffer> &buffer);
+  [[nodiscard]] int GetMaxTileIdx() const;
+  [[nodiscard]] int GetOutputSlot(int tileIdx) const;
+  void WaitForPrefetch();
+  void StartPrefetchForNextTile(int currentTileIdx);
 
   VkResult CreateTileBufferCache(int tileIdx);
 
@@ -61,7 +72,7 @@ public:
   void *Process(int tileIdx, const std::shared_ptr<ITileBasedFilter> &filter,
                 const std::shared_ptr<ImageInfoCpu> &output);
 
-  [[nodiscard]] std::shared_ptr<VkGPUBuffer> GetOutputBuffer() const;
+  [[nodiscard]] std::shared_ptr<VkGPUBuffer> GetOutputBuffer(int tileIdx) const;
 };
 
 #endif // SGL_HUGEIMAGEENGINE_H

@@ -9,6 +9,7 @@
 #include "runtime/utils/TimeUtils.h"
 #include "tile_filters/ITileBasedFilter.h"
 
+#include <future>
 #ifdef OS_OPEN_HARMONY
 #include <runtime/gpu/utils/vk_enum_string_helper.h>
 #else
@@ -18,7 +19,7 @@
 HugeImageProcessor::HugeImageProcessor(
     const std::shared_ptr<HugeImageInfo> &input) {
   this->infoInfo = input;
-  this->outputBuffer = nullptr;
+  this->outputBuffers.fill(nullptr);
   this->tilePlaceholderBuffer = nullptr;
   this->inputStorageBuffers.clear();
 }
@@ -35,9 +36,12 @@ VkResult HugeImageProcessor::Init() const {
   return ret;
 }
 void HugeImageProcessor::Destroy() {
-  if (this->outputBuffer != nullptr) {
-    this->outputBuffer->Destroy();
-    this->outputBuffer = nullptr;
+  this->WaitForPrefetch();
+  for (auto &outputBuffer : this->outputBuffers) {
+    if (outputBuffer != nullptr) {
+      outputBuffer->Destroy();
+      outputBuffer = nullptr;
+    }
   }
   if (this->tilePlaceholderBuffer != nullptr) {
     this->tilePlaceholderBuffer->Destroy();
@@ -56,18 +60,20 @@ void HugeImageProcessor::Destroy() {
 VkResult HugeImageProcessor::PrepareOutputBuffer(
     const std::shared_ptr<ImageInfoCpu> &output) {
   VkResult ret = VK_SUCCESS;
-  if (this->outputBuffer != nullptr) {
-    return ret;
-  }
   const VkDeviceSize outputBufferSize =
-      output->width * output->height * output->channels;
-  this->outputBuffer =
-      std::make_shared<VkGPUBuffer>(Context::GetInstance()->GetContext());
-  ret = this->outputBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED,
-                                            outputBufferSize);
-  if (ret != VK_SUCCESS) {
-    Logger() << "Failed to allocate output buffer!" << std::endl;
-    return ret;
+      output->width * TILE_HEIGHT * output->channels;
+  for (auto &outputBuffer : this->outputBuffers) {
+    if (outputBuffer != nullptr) {
+      continue;
+    }
+    outputBuffer =
+        std::make_shared<VkGPUBuffer>(Context::GetInstance()->GetContext());
+    ret = outputBuffer->AllocateAndBind(GPU_BUFFER_TYPE_STORAGE_SHARED,
+                                        outputBufferSize);
+    if (ret != VK_SUCCESS) {
+      Logger() << "Failed to allocate output buffer!" << std::endl;
+      return ret;
+    }
   }
 
   if (this->tilePlaceholderBuffer != nullptr) {
@@ -86,7 +92,16 @@ VkResult HugeImageProcessor::PrepareOutputBuffer(
 
 std::shared_ptr<VkGPUBuffer> HugeImageProcessor::GetBufferFromFreeList() {
   std::shared_ptr<VkGPUBuffer> buf = nullptr;
-  if (freeBufferList.empty()) {
+  {
+    std::lock_guard<std::mutex> lock(this->bufferCacheMutex);
+    if (!freeBufferList.empty()) {
+      buf = this->freeBufferList.back();
+      this->freeBufferList.pop_back();
+      Logger() << "Reuse free tile buffer!" << std::endl;
+      return buf;
+    }
+  }
+  if (buf == nullptr) {
     const VkDeviceSize tileBufferSize =
         this->infoInfo->width * TILE_HEIGHT * this->infoInfo->channels;
     buf = std::make_shared<VkGPUBuffer>(Context::GetInstance()->GetContext());
@@ -103,15 +118,66 @@ std::shared_ptr<VkGPUBuffer> HugeImageProcessor::GetBufferFromFreeList() {
       return nullptr;
     }
     Logger() << "Successfully alloc tile buffer!" << std::endl;
-  } else {
-    buf = this->freeBufferList.back();
-    this->freeBufferList.pop_back();
-    Logger() << "Reuse free tile buffer!" << std::endl;
   }
   return buf;
 }
 
+void HugeImageProcessor::ReturnBufferToFreeList(
+    const std::shared_ptr<VkGPUBuffer> &buffer) {
+  std::lock_guard<std::mutex> lock(this->bufferCacheMutex);
+  this->freeBufferList.push_back(buffer);
+}
+
+int HugeImageProcessor::GetMaxTileIdx() const {
+  return static_cast<int>(this->infoInfo->height / TILE_HEIGHT);
+}
+
+int HugeImageProcessor::GetOutputSlot(const int tileIdx) const {
+  return tileIdx % static_cast<int>(this->outputBuffers.size());
+}
+
+void HugeImageProcessor::WaitForPrefetch() {
+  if (!this->prefetchFuture.valid()) {
+    this->prefetchedTileIdx = -1;
+    return;
+  }
+
+  const VkResult ret = this->prefetchFuture.get();
+  if (ret != VK_SUCCESS) {
+    Logger() << "Failed to prefetch tile " << this->prefetchedTileIdx
+             << ", err=" << string_VkResult(ret) << std::endl;
+  }
+  this->prefetchedTileIdx = -1;
+}
+
+void HugeImageProcessor::StartPrefetchForNextTile(const int currentTileIdx) {
+  const int nextTileIdx = currentTileIdx + 5;
+  if (nextTileIdx > this->GetMaxTileIdx()) {
+    return;
+  }
+
+  {
+    std::lock_guard<std::mutex> lock(this->bufferCacheMutex);
+    if (this->buffer_cache.contains(nextTileIdx)) {
+      return;
+    }
+  }
+
+  this->prefetchedTileIdx = nextTileIdx;
+  this->prefetchFuture = std::async(std::launch::async, [this, nextTileIdx] {
+    Logger() << "Prefetch tile buffer for tile " << nextTileIdx << std::endl;
+    return this->CreateTileBufferCache(nextTileIdx);
+  });
+}
+
 VkResult HugeImageProcessor::CreateTileBufferCache(const int tileIdx) {
+  {
+    std::lock_guard<std::mutex> lock(this->bufferCacheMutex);
+    if (this->buffer_cache.contains(tileIdx)) {
+      return VK_SUCCESS;
+    }
+  }
+
   const auto buffer = this->GetBufferFromFreeList();
   if (buffer == nullptr) {
     return VK_ERROR_OUT_OF_DEVICE_MEMORY;
@@ -128,7 +194,14 @@ VkResult HugeImageProcessor::CreateTileBufferCache(const int tileIdx) {
     this->infoInfo->afterRowDataUse(rowData);
   }
 
-  this->buffer_cache.emplace(tileIdx, buffer);
+  {
+    std::lock_guard<std::mutex> lock(this->bufferCacheMutex);
+    if (this->buffer_cache.contains(tileIdx)) {
+      this->freeBufferList.push_back(buffer);
+      return VK_SUCCESS;
+    }
+    this->buffer_cache.emplace(tileIdx, buffer);
+  }
 
   return VK_SUCCESS;
 }
@@ -137,17 +210,21 @@ VkResult HugeImageProcessor::CheckAndCreateTilesBuffer(
     const std::vector<int> &tilesIdx) {
   VkResult ret = VK_SUCCESS;
 
-  const uint32_t maxTileIdx = this->infoInfo->height / TILE_HEIGHT;
+  const int maxTileIdx = this->GetMaxTileIdx();
   for (const int tileIdx : tilesIdx) {
     if ((tileIdx < 0) || (tileIdx > maxTileIdx)) {
       continue;
     }
-    if (!this->buffer_cache.contains(tileIdx)) {
-      ret = CreateTileBufferCache(tileIdx);
-      if (ret != VK_SUCCESS) {
-        Logger() << "Failed to create tile buffer cache!" << std::endl;
-        return ret;
+    {
+      std::lock_guard<std::mutex> lock(this->bufferCacheMutex);
+      if (this->buffer_cache.contains(tileIdx)) {
+        continue;
       }
+    }
+    ret = CreateTileBufferCache(tileIdx);
+    if (ret != VK_SUCCESS) {
+      Logger() << "Failed to create tile buffer cache!" << std::endl;
+      return ret;
     }
   }
   return ret;
@@ -156,13 +233,16 @@ VkResult HugeImageProcessor::CheckAndCreateTilesBuffer(
 VkResult HugeImageProcessor::CreateTileBuffersCache(const int tileIdx) {
   VkResult ret = VK_SUCCESS;
 
-  for (auto iter = this->buffer_cache.begin();
-       iter != this->buffer_cache.end();) {
-    if ((iter->first < (tileIdx - 4)) || (iter->first > (tileIdx + 4))) {
-      this->freeBufferList.push_back(iter->second);
-      iter = this->buffer_cache.erase(iter);
-    } else {
-      ++iter;
+  {
+    std::lock_guard<std::mutex> lock(this->bufferCacheMutex);
+    for (auto iter = this->buffer_cache.begin();
+         iter != this->buffer_cache.end();) {
+      if ((iter->first < (tileIdx - 4)) || (iter->first > (tileIdx + 4))) {
+        this->freeBufferList.push_back(iter->second);
+        iter = this->buffer_cache.erase(iter);
+      } else {
+        ++iter;
+      }
     }
   }
 
@@ -181,7 +261,8 @@ VkResult HugeImageProcessor::CreateTileBuffersCache(const int tileIdx) {
 VkResult HugeImageProcessor::CheckAndPrepareInputBuffers(
     const std::vector<int> &tilesIdx) {
   this->inputStorageBuffers.clear();
-  const uint32_t maxTileIdx = this->infoInfo->height / TILE_HEIGHT;
+  const int maxTileIdx = this->GetMaxTileIdx();
+  std::lock_guard<std::mutex> lock(this->bufferCacheMutex);
   for (const int tileIdx : tilesIdx) {
     if ((tileIdx < 0) || (tileIdx > maxTileIdx)) {
       this->inputStorageBuffers.push_back(this->tilePlaceholderBuffer);
@@ -218,6 +299,11 @@ VkResult HugeImageProcessor::PrepareInputBufferForTile(const int tileIdx) {
 VkResult HugeImageProcessor::Process(
     const int tileIdx, const std::shared_ptr<ITileBasedFilter> &filter) const {
   VkResult ret = VK_SUCCESS;
+  const auto outputBuffer = this->GetOutputBuffer(tileIdx);
+  if (outputBuffer == nullptr) {
+    Logger() << "Output buffer is not ready!" << std::endl;
+    return VK_ERROR_INITIALIZATION_FAILED;
+  }
   std::vector<FilterImageInfo> filterInputImages;
   for (const auto &buffer : this->inputStorageBuffers) {
     FilterImageInfo inputImageInfo{};
@@ -264,6 +350,7 @@ void *
 HugeImageProcessor::Process(const int tileIdx,
                             const std::shared_ptr<ITileBasedFilter> &filter,
                             const std::shared_ptr<ImageInfoCpu> &output) {
+  this->WaitForPrefetch();
   if (this->infoInfo->channels != output->channels) {
     Logger() << "Input and output channel must be same size!" << std::endl;
     return nullptr;
@@ -285,12 +372,21 @@ HugeImageProcessor::Process(const int tileIdx,
     Logger() << "Failed to prepare output buffer!" << std::endl;
     return nullptr;
   }
+  const auto outputBuffer = this->GetOutputBuffer(tileIdx);
+  if (outputBuffer == nullptr) {
+    Logger() << "Failed to select output buffer for tile " << tileIdx
+             << std::endl;
+    return nullptr;
+  }
 
   ret = this->PrepareInputBufferForTile(tileIdx);
   if (ret != VK_SUCCESS) {
     Logger() << "Failed to prepare input buffer!" << std::endl;
     return nullptr;
   }
+
+  // Overlap CPU row reads for the next window's new tile with current GPU work.
+  this->StartPrefetchForNextTile(tileIdx);
 
   ret = this->Process(tileIdx, filter);
   if (ret != VK_SUCCESS) {
@@ -302,7 +398,7 @@ HugeImageProcessor::Process(const int tileIdx,
 
   if (output->data != nullptr) {
     const uint64_t imageDownloadStart = TimeUtils::GetCurrentMonoMs();
-    this->outputBuffer->DownloadData(
+    outputBuffer->DownloadData(
         output->data, output->width * output->height * output->channels);
     const uint64_t imageDownloadEnd = TimeUtils::GetCurrentMonoMs();
     Logger() << "Image Download Time: " << imageDownloadEnd - imageDownloadStart
@@ -314,6 +410,7 @@ HugeImageProcessor::Process(const int tileIdx,
   return outputBuffer->GetMappedAddr();
 }
 
-std::shared_ptr<VkGPUBuffer> HugeImageProcessor::GetOutputBuffer() const {
-  return this->outputBuffer;
+std::shared_ptr<VkGPUBuffer>
+HugeImageProcessor::GetOutputBuffer(const int tileIdx) const {
+  return this->outputBuffers[this->GetOutputSlot(tileIdx)];
 }

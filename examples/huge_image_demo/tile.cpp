@@ -9,7 +9,9 @@
 #include "core/image/tile_filters/impl/TileBasedVerticalBlurFilter.h"
 #include "core/utils/ImageUtils.h"
 #include "runtime/log/Log.h"
+#include <array>
 #include <core/image/tile_filters/impl/TileBasedHorizontalBlurFilter.h>
+#include <future>
 #include <memory>
 #include <ostream>
 #include <vulkan/vulkan_core.h>
@@ -67,20 +69,51 @@ void effect_engine_main() {
 
   const uint32_t targetWidth = imageWidth;
   constexpr uint32_t targetHeight = TILE_HEIGHT;
+  constexpr size_t outputBufferCount = 2;
 
-  const auto info = std::make_shared<ImageInfoCpu>();
-  info->width = targetWidth;
-  info->height = targetHeight;
-  info->channels = channel;
+  std::array<std::shared_ptr<ImageInfoCpu>, outputBufferCount> outputs;
+  for (auto &output : outputs) {
+    output = std::make_shared<ImageInfoCpu>();
+    output->width = targetWidth;
+    output->height = targetHeight;
+    output->channels = channel;
+    output->data = nullptr;
+  }
+  std::array<std::future<void>, outputBufferCount> writeFutures;
 
   const size_t tileCount = imageHeight / TILE_HEIGHT;
   for (int i = 0; i < tileCount; i++) {
     const int tileIdx = i;
+    const size_t outputSlot = tileIdx % outputBufferCount;
+    if (writeFutures[outputSlot].valid()) {
+      writeFutures[outputSlot].get();
+    }
+
+    const auto &info = outputs[outputSlot];
     const void *addr = processor->Process(tileIdx, filter, info);
+    if (addr == nullptr) {
+      Logger() << "Failed to process tile " << tileIdx << std::endl;
+      break;
+    }
+
     std::string path = "../../../examples/huge_image_demo/images/girl";
     path.append(std::to_string(tileIdx));
     path.append(".png");
-    ImageUtils::WritePngFile(path, info->width, info->height, channel, addr);
+    const uint32_t outputWidth = info->width;
+    const uint32_t outputHeight = info->height;
+    const uint32_t outputChannel = channel;
+    writeFutures[outputSlot] = std::async(
+        std::launch::async,
+        [path, outputWidth, outputHeight, outputChannel, addr]() {
+          ImageUtils::WritePngFile(path, outputWidth, outputHeight,
+                                   outputChannel, addr);
+        });
+  }
+
+  for (auto &writeFuture : writeFutures) {
+    if (writeFuture.valid()) {
+      writeFuture.get();
+    }
   }
   filter->Destroy();
   processor->Destroy();
